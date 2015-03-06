@@ -7,8 +7,8 @@ System.import("graph.c").then(function(graphjs) {
         for (let edges of edge_array) {
             const graph = new graphjs[name];
             const dgraph = new graphjs[name](true);
-            applyModel(graph, edges, name);
-            applyModel(dgraph, edges, name);
+            applyModel(graph, edges, name, edges.density);
+            applyModel(dgraph, edges, name, edges.density);
         }
     }
 })["catch"](function(e) {
@@ -16,9 +16,7 @@ System.import("graph.c").then(function(graphjs) {
 });
 
 function applyModel(graph, edges, name, densitiy) {
-    console.log("\ntype: " + name);
-    console.log("directed: " + graph.directed);
-    console.log("density: " + densitiy);
+    console.log("\n" + name + " | " + graph.directed + " | " + densitiy);
     console.time("init");
     for (let node of nodes) graph.addNode(node);
     for (let edge of edges) graph.addEdge(edge[0], edge[1]);
@@ -28,14 +26,14 @@ function applyModel(graph, edges, name, densitiy) {
     console.timeEnd("Cycle check");
 }
 console.time("preparation");
-const length = 20;
+const length = 50;
 const nodes = [];
 const edge_array = [];
-const densities = [0.01, 0.2, 0.5, 0.7, 0.9, 0.99, 1];
+const densities = [0, 0.01, 0.5, 1];
 for (let i = 0; i < length; ++i) nodes.push(i);
 for (let density of densities) {
     const edges = [];
-    for (var i = 0; i < Math.pow(length, 3) * density; ++i) edges.push([Math.floor(Math.random() * length), Math.floor(Math.random() * length)]);
+    for (var i = 0; i < Math.pow(length, 2) * density; ++i) edges.push([Math.floor(Math.random() * length), Math.floor(Math.random() * length)]);
     edges.density = density;
     edge_array.push(edges);
 }

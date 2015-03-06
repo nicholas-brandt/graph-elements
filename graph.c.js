@@ -2,6 +2,8 @@
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
+var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
+
 var _get = function get(object, property, receiver) { var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc && desc.writable) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
 var _inherits = function (subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; };
@@ -33,6 +35,33 @@ var _ref = exports._ref = (function (global) {
                 },
                 set: function (directed) {
                     this[$directed] = !!directed;
+                    if (this.directed) {
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
+
+                        try {
+                            for (var _iterator = this.edges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var _ref;
+
+                                var edge = _step.value;
+                                (_ref = this).addEdge.apply(_ref, _toConsumableArray(edge));
+                            }
+                        } catch (err) {
+                            _didIteratorError = true;
+                            _iteratorError = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                    _iterator["return"]();
+                                }
+                            } finally {
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
+                                }
+                            }
+                        }
+                    }
                 },
                 configurable: true
             },
@@ -44,8 +73,80 @@ var _ref = exports._ref = (function (global) {
             },
             edges: {
                 get: function () {
-                    throw "Not implemented yet";
-                    return new Map();
+                    var edges = [];
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = this[$nodes][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var node = _step.value;
+                            var _iteratorNormalCompletion2 = true;
+                            var _didIteratorError2 = false;
+                            var _iteratorError2 = undefined;
+
+                            try {
+                                for (var _iterator2 = node[1].dependents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                    var dependent = _step2.value;
+                                    edges.push([node[0], dependent[0], dependent[1]]);
+                                }
+                            } catch (err) {
+                                _didIteratorError2 = true;
+                                _iteratorError2 = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+                                        _iterator2["return"]();
+                                    }
+                                } finally {
+                                    if (_didIteratorError2) {
+                                        throw _iteratorError2;
+                                    }
+                                }
+                            }
+
+                            if (this.directed) {
+                                var _iteratorNormalCompletion3 = true;
+                                var _didIteratorError3 = false;
+                                var _iteratorError3 = undefined;
+
+                                try {
+                                    for (var _iterator3 = node[1].dependencies[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+                                        var dependency = _step3.value;
+                                        edges.push([dependency[0], node[0], dependency[1]]);
+                                    }
+                                } catch (err) {
+                                    _didIteratorError3 = true;
+                                    _iteratorError3 = err;
+                                } finally {
+                                    try {
+                                        if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+                                            _iterator3["return"]();
+                                        }
+                                    } finally {
+                                        if (_didIteratorError3) {
+                                            throw _iteratorError3;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                _iterator["return"]();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+
+                    return edges;
                 },
                 configurable: true
             },
@@ -236,11 +337,17 @@ var _ref = exports._ref = (function (global) {
                 value: function addEdge(source, target, weight) {
                     var c = this.hasCycle();
                     var added = _get(Object.getPrototypeOf(AcyclicGraph.prototype), "addEdge", this).call(this, source, target, weight);
-                    if (added && this.hasCycle()) if (this.removeEdge(source, target)) {
-                        if (this.hasCycle()) console.log("bug: " + c);
+                    if (added && _get(Object.getPrototypeOf(AcyclicGraph.prototype), "hasCycle", this).call(this)) if (this.removeEdge(source, target)) {
                         return false;
                     } else throw Error("Cyclic node could not be removed");
                     return added;
+                },
+                writable: true,
+                configurable: true
+            },
+            hasCycle: {
+                value: function hasCycle() {
+                    return false;
                 },
                 writable: true,
                 configurable: true

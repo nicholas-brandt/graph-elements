@@ -13,13 +13,20 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
         }
         set directed(directed) {
             this[$directed] = !! directed;
+            if (this.directed)
+                for (let edge of this.edges) this.addEdge(...edge);
         }
         get nodes() {
             return new Map(this[$nodes]);
         }
         get edges() {
-            throw "Not implemented yet";
-            return new Map;
+            const edges = [];
+            for (let node of this[$nodes]) {
+                for (let dependent of node[1].dependents) edges.push([node[0], dependent[0], dependent[1]]);
+                if (this.directed)
+                    for (let dependency of node[1].dependencies) edges.push([dependency[0], node[0], dependency[1]]);
+            }
+            return edges;
         }
         addNode(object) {
             var relations = {
@@ -96,10 +103,13 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
         addEdge(source, target, weight) {
             const c = this.hasCycle();
             var added = super.addEdge(source, target, weight);
-            if (added && this.hasCycle())
+            if (added && super.hasCycle())
                 if (this.removeEdge(source, target)) return false;
                 else throw Error("Cyclic node could not be removed");
             return added;
+        }
+        hasCycle() {
+            return false;
         }
     }
     class Tree extends AcyclicGraph {

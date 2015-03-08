@@ -89,6 +89,8 @@ var _ref = exports._ref = (function (global) {
                                 for (var _iterator2 = node[1].dependents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                                     var dependent = _step2.value;
                                     edges.push([node[0], dependent[0], dependent[1]]);
+                                    //if (this.directed)
+                                    //    for (let dependency of node[1].dependencies) edges.push([dependency[0], node[0], dependency[1]]);
                                 }
                             } catch (err) {
                                 _didIteratorError2 = true;
@@ -101,32 +103,6 @@ var _ref = exports._ref = (function (global) {
                                 } finally {
                                     if (_didIteratorError2) {
                                         throw _iteratorError2;
-                                    }
-                                }
-                            }
-
-                            if (this.directed) {
-                                var _iteratorNormalCompletion3 = true;
-                                var _didIteratorError3 = false;
-                                var _iteratorError3 = undefined;
-
-                                try {
-                                    for (var _iterator3 = node[1].dependencies[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-                                        var dependency = _step3.value;
-                                        edges.push([dependency[0], node[0], dependency[1]]);
-                                    }
-                                } catch (err) {
-                                    _didIteratorError3 = true;
-                                    _iteratorError3 = err;
-                                } finally {
-                                    try {
-                                        if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-                                            _iterator3["return"]();
-                                        }
-                                    } finally {
-                                        if (_didIteratorError3) {
-                                            throw _iteratorError3;
-                                        }
                                     }
                                 }
                             }

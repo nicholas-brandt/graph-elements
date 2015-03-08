@@ -23,8 +23,8 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
             const edges = [];
             for (let node of this[$nodes]) {
                 for (let dependent of node[1].dependents) edges.push([node[0], dependent[0], dependent[1]]);
-                if (this.directed)
-                    for (let dependency of node[1].dependencies) edges.push([dependency[0], node[0], dependency[1]]);
+                //if (this.directed)
+                //    for (let dependency of node[1].dependencies) edges.push([dependency[0], node[0], dependency[1]]);
             }
             return edges;
         }

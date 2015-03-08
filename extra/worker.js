@@ -1,3 +1,0 @@
-addEventListener("message", event => {
-    
-});

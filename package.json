@@ -2,7 +2,7 @@
   "name": "graph",
   "version": "1.0.0",
   "description": "",
-  "main": "graph.js",
+  "main": "src/graph.js",
   "dependencies": {
     "steal": "^0.7.0"
   },

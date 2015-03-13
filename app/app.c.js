@@ -11,12 +11,12 @@ Promise.all(["bin/graph.c", "app/2d3.c"].map(function (name) {
     var _2d3 = _ref2[1];
 
     var svg = document.querySelector("svg");
-    var graph = new graphjs.Graph(true);
-    var length = 300;
+    window.graph = new graphjs.Tree(true);
+    var length = 100;
     for (var i = 0; i < length; ++i) {
         graph.addNode(i);
-    }for (var i = 0; i < length; ++i) {
-        graph.addEdge(i % length, (i + 1) % length);
+    }for (var i = 0; i < length * 2; ++i) {
+        graph.addEdge(i % length, Math.floor(Math.random() * length));
     }var d3svg = new _2d3.D3SVG(svg, graph);
 })["catch"](function (e) {
     console.error(e);

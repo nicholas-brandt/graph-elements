@@ -6,7 +6,7 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
     class Graph {
         constructor(directed = false) {
             this[$nodes] = new Map;
-            this.directed = directed;
+            this.directed = !!directed;
         }
         get directed() {
             return this[$directed];
@@ -108,8 +108,8 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
                 else throw Error("Cyclic node could not be removed");
             return added;
         }
-        hasCycle() {
-            return false;
+        hasCycle(real = false) {
+            return !!real && super.hasCycle();
         }
     }
     class Tree extends AcyclicGraph {

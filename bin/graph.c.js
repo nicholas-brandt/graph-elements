@@ -25,7 +25,7 @@ var _ref = exports._ref = (function (global) {
             _classCallCheck(this, Graph);
 
             this[$nodes] = new Map();
-            this.directed = directed;
+            this.directed = !!directed;
         }
 
         _prototypeProperties(Graph, null, {
@@ -323,7 +323,9 @@ var _ref = exports._ref = (function (global) {
             },
             hasCycle: {
                 value: function hasCycle() {
-                    return false;
+                    var real = arguments[0] === undefined ? false : arguments[0];
+
+                    return !!real && _get(Object.getPrototypeOf(AcyclicGraph.prototype), "hasCycle", this).call(this);
                 },
                 writable: true,
                 configurable: true

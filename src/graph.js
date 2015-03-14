@@ -1,4 +1,4 @@
-export const[Graph, AcyclicGraph, Tree] = (function(global) {
+export const [Graph, AcyclicGraph, Tree] = (() => {
     const $nodes = Symbol();
     const $dependencies = Symbol();
     const $dependents = Symbol();
@@ -12,7 +12,7 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
             return this[$directed];
         }
         set directed(directed) {
-            this[$directed] = !! directed;
+            this[$directed] = !!directed;
             if (this.directed)
                 for (let edge of this.edges) this.addEdge(...edge);
         }
@@ -21,15 +21,12 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
         }
         get edges() {
             const edges = [];
-            for (let node of this[$nodes]) {
+            for (let node of this[$nodes])
                 for (let dependent of node[1].dependents) edges.push([node[0], dependent[0], dependent[1]]);
-                //if (this.directed)
-                //    for (let dependency of node[1].dependencies) edges.push([dependency[0], node[0], dependency[1]]);
-            }
             return edges;
         }
         addNode(object) {
-            var relations = {
+            const relations = {
                 get dependencies() {
                     return new Map(this[$dependencies]);
                 },
@@ -43,37 +40,43 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
             return true;
         }
         removeNode(object) {
-            this[$nodes].delete(object);
-            for (let node of this[$nodes]) {
+            const _nodes = this[$nodes];
+            _nodes.delete(object);
+            for (let node of _nodes) {
                 node[$dependents].delete(object);
                 node[$dependencies].delete(object);
             }
         }
         addEdge(source, target, weight = 1) {
-            if (this[$nodes].has(source) && this[$nodes].has(target)) {
-                this[$nodes].get(source)[$dependents].set(target, weight);
-                this[$nodes].get(target)[$dependencies].set(source, weight);
+            const _nodes = this[$nodes];
+            if ([source, target].every(_nodes.has.bind(_nodes))) {
+                _nodes.get(source)[$dependents].set(target, weight);
+                _nodes.get(target)[$dependencies].set(source, weight);
                 if (!this.directed) {
-                    this[$nodes].get(target)[$dependents].set(source, weight);
-                    this[$nodes].get(source)[$dependencies].set(target, weight);
+                    _nodes.get(target)[$dependents].set(source, weight);
+                    _nodes.get(source)[$dependencies].set(target, weight);
                 }
                 return true;
             }
             return false;
         }
         removeEdge(source, target) {
-            if (this[$nodes].has(source) && this[$nodes].has(target)) {
-                this[$nodes].get(source)[$dependents].delete(target);
-                this[$nodes].get(target)[$dependencies].delete(source);
+            const _nodes = this[$nodes];
+            if ([source, target].every(_nodes.has.bind(_nodes))) {
+                _nodes.get(source)[$dependents].delete(target);
+                _nodes.get(target)[$dependencies].delete(source);
                 if (!this.directed) {
-                    this[$nodes].get(target)[$dependents].delete(source);
-                    this[$nodes].get(source)[$dependencies].delete(target);
+                    _nodes.get(target)[$dependents].delete(source);
+                    _nodes.get(source)[$dependencies].delete(target);
                 }
                 return true;
             }
             return false;
         }
         hasCycle() {
+            return !!this.getCycle();
+        }
+        getCycle() {
             const directed = this.directed;
             const finished = new Set;
             const visited = new Set;
@@ -87,9 +90,10 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
                 if (!finished.has(node)) {
                     if (visited.has(node)) return length;
                     visited.add(node);
+                    const _nodes = this[$nodes];
                     for (let dependent of node[$dependents]) {
-                        const dependent_node = this[$nodes].get(dependent[0]);
-                        if ((directed || dependent_node !== dependency)) {
+                        const dependent_node = _nodes.get(dependent[0]);
+                        if (directed || dependent_node !== dependency) {
                             const depth = DFS.call(this, dependent_node, node, length + 1);
                             if (depth) return depth;
                         }
@@ -101,8 +105,7 @@ export const[Graph, AcyclicGraph, Tree] = (function(global) {
     }
     class AcyclicGraph extends Graph {
         addEdge(source, target, weight) {
-            const c = this.hasCycle();
-            var added = super.addEdge(source, target, weight);
+            const added = super.addEdge(source, target, weight);
             if (added && super.hasCycle())
                 if (this.removeEdge(source, target)) return false;
                 else throw Error("Cyclic node could not be removed");

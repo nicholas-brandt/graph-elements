@@ -21,8 +21,8 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
         }
         get edges() {
             const edges = [];
-            for (let node of this[$nodes])
-                for (let dependent of node[1].dependents) edges.push([node[0], dependent[0], dependent[1]]);
+            for (let [node, relations] of this[$nodes])
+                for (let [dependent, weight] of relations.dependents) edges.push([node, dependent, weight]);
             return edges;
         }
         addNode(object) {
@@ -42,9 +42,9 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
         removeNode(object) {
             const _nodes = this[$nodes];
             _nodes.delete(object);
-            for (let node of _nodes) {
-                node[$dependents].delete(object);
-                node[$dependencies].delete(object);
+            for (let [, relations] of _nodes) {
+                relations[$dependents].delete(object);
+                relations[$dependencies].delete(object);
             }
         }
         addEdge(source, target, weight = 1) {

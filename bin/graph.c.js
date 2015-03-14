@@ -86,15 +86,21 @@ System.register([], function (_export) {
 
                                 try {
                                     for (var _iterator = this[$nodes][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                        var node = _step.value;
+                                        var _step$value = _slicedToArray(_step.value, 2);
+
+                                        var node = _step$value[0];
+                                        var relations = _step$value[1];
                                         var _iteratorNormalCompletion2 = true;
                                         var _didIteratorError2 = false;
                                         var _iteratorError2 = undefined;
 
                                         try {
-                                            for (var _iterator2 = node[1].dependents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                                                var dependent = _step2.value;
-                                                edges.push([node[0], dependent[0], dependent[1]]);
+                                            for (var _iterator2 = relations.dependents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                                var _step2$value = _slicedToArray(_step2.value, 2);
+
+                                                var dependent = _step2$value[0];
+                                                var weight = _step2$value[1];
+                                                edges.push([node, dependent, weight]);
                                             }
                                         } catch (err) {
                                             _didIteratorError2 = true;
@@ -166,10 +172,12 @@ System.register([], function (_export) {
 
                                 try {
                                     for (var _iterator = _nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                        var node = _step.value;
+                                        var _step$value = _slicedToArray(_step.value, 2);
 
-                                        node[$dependents]["delete"](object);
-                                        node[$dependencies]["delete"](object);
+                                        var relations = _step$value[1];
+
+                                        relations[$dependents]["delete"](object);
+                                        relations[$dependencies]["delete"](object);
                                     }
                                 } catch (err) {
                                     _didIteratorError = true;

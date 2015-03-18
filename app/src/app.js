@@ -1,4 +1,4 @@
-Promise.all(["bin/graph.c", "app/2d3.c"].map(name => System.import(name))).then(([graphjs, _2d3]) => {
+Promise.all(["../bin/graph.c", "../app/2d3.c"].map(name => System.import(name))).then(([graphjs, _2d3]) => {
     const svg = document.querySelector("svg");
     window.graph = new graphjs.Tree(true);
     const length = 100;

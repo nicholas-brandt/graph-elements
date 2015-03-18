@@ -4,6 +4,10 @@ export const D3SVG = (function() {
     const $drawn = Symbol();
     const $dom_svg = Symbol();
     const $graph = Symbol();
+    /**
+     * @class User interface
+     * Displays the data of the given graph.
+     * */
     return class D3SVG {
         constructor(dom_svg, graph, {linkDistance = 10, linkStrength = 3}) {
             if (!graph) throw Error("No graph specified");
@@ -45,7 +49,7 @@ export const D3SVG = (function() {
                 });
                 links.push([source, intermediate, target]);
             }
-            this[$drawn].nodes .clear();
+            this[$drawn].nodes.clear();
             const {width, height} = getComputedStyle(this[$dom_svg]);
             this[$force].size([parseInt(width), parseInt(height)]);
             force.nodes(this[$forced].nodes).links(this[$forced].edges).start();

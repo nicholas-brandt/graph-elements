@@ -7,4 +7,5 @@ raw=${name%%js}
 newname=${path%/*}/bin/${raw}c.js
 echo "compile: $file => $newname"
 node_modules/.bin/babel $file -o $newname -m system -e
+node_modules/.bin/babel $file -o ${path%/*}/bin/${raw}c.min.js -m system -e -c true
 done

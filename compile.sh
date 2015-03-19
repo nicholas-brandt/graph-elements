@@ -5,7 +5,14 @@ name=${file##.*/}
 path=${file%/*}
 raw=${name%%js}
 newname=${path%/*}/bin/${raw}c.js
-echo "compile: $file => $newname"
-node_modules/.bin/babel $file -o $newname -m system -e
-node_modules/.bin/babel $file -o ${path%/*}/bin/${raw}c.min.js -m system -e -c true
+min=${path%/*}/bin/${raw}c.min.js
+if [[ $raw =~ \.m\.$ ]]; then
+echo "compile module: $file => $newname"
+node_modules/.bin/babel $file -o $newname -m system -e -c false
+node_modules/.bin/babel $file -o $min -m system -e -c true
+else
+echo "compile script: $file => $newname"
+node_modules/.bin/babel $file -o $newname -e -c false
+node_modules/.bin/babel $file -o $min -e -c true
+fi
 done

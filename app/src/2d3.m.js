@@ -1,7 +1,9 @@
 export const D3SVG = (function() {
     const $force = Symbol();
-    const $forced = Symbol();
-    const $drawn = Symbol();
+    const $nodes = Symbol();
+    const $intermediates = Symbol();
+    const $edges = Symbol();
+    const $links = Symbol();
     const $dom_svg = Symbol();
     const $graph = Symbol();
     /**
@@ -9,37 +11,46 @@ export const D3SVG = (function() {
      * Displays the data of the given graph.
      * */
     return class D3SVG {
-        constructor(dom_svg, graph, {linkDistance = 10, linkStrength = 3}) {
+        constructor(dom_svg, graph, options = {}) {
             if (!graph) throw Error("No graph specified");
-            this[$forced] = {
-                nodes: [],
-                edges: []
-            };
-            this[$drawn] = {
-                nodes: [],
-                edges: []
-            };
+            this[$graph] = graph;
+            const {linkDistance = 10, linkStrength = 3} = options;
+            this[$nodes] = [];
+            this[$edges] = [];
+            this[$intermediates] = [];
+            this[$links] = [];
             this[$dom_svg] = dom_svg;
             this[$force] = d3.layout.force().linkDistance(linkDistance).linkStrength(linkStrength);
             const svg = d3.select(dom_svg);
-            const nodes = svg.selectAll("circle").data(this[$drawn].nodes).enter().append("circle").attr("r", 5).call(this[$force].drag);
-            const edges = svg.selectAll("path").data(this[$drawn].edges).enter().append("path");
+            svg.selectAll("circle").data(this[$nodes]).enter().append("circle").attr("r", 5).call(this[$force].drag);
+            svg.selectAll("path").data(this[$edges]).enter().append("path");
             this[$force].on("tick", () => {
                 edges.attr("d", ([source, intermediate, target]) => ("M" + source.x + "," + source.y + "S" + intermediate.x + "," + intermediate.y + " " + target.x + "," + target.y));
                 nodes.attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
             });
+            this.update();
         }
         update() {
-            const node_map = new Map;
-            for (let node of graph.nodes.keys()) node_map.set(node, {
+            const nodes = this[$nodes];
+            nodes.length = 0;
+            const edges = this[$edges];
+            edges.length = 0;
+            const intermediates = this[$intermediates];
+            intermediates.length = 0;
+            const links = this[$links];
+            links.length = 0;
+            for (let node of this[$graph].nodes.keys()) nodes.push({
                 value: node
             });
-            const nodes = [for ([, node] of node_map) node];
-            for (let [source_node, target_node] of graph.edges) {
-                const source = node_map.get(source_node);
-                const target = node_map.get(target_node);
+            for (let [source_node, target_node] of this[$graph].edges) {
+                const source = {
+                    value: source_node
+                };
+                const target = {
+                    value: target_node
+                };
                 const intermediate = {};
-                nodes.push(intermediate);
+                intermediates.push(intermediate);
                 edges.push({
                     source: source,
                     target: intermediate
@@ -49,10 +60,9 @@ export const D3SVG = (function() {
                 });
                 links.push([source, intermediate, target]);
             }
-            this[$drawn].nodes.clear();
             const {width, height} = getComputedStyle(this[$dom_svg]);
             this[$force].size([parseInt(width), parseInt(height)]);
-            force.nodes(this[$forced].nodes).links(this[$forced].edges).start();
+            this[$force].nodes(nodes.concat(intermediates)).links(links).start();
         }
         get graph() {
             return this[$graph];

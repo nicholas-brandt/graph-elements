@@ -1,4 +1,4 @@
-System.import("bin/graph.c").then(graphjs => {
+System.import("bin/graph.m.c").then(graphjs => {
     window.graphjs = graphjs;
     console.log("graphjs loaded");
     console.log("length: " + length);

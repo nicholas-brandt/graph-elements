@@ -14,8 +14,10 @@ System.register([], function (_export) {
 
             D3SVG = _export("D3SVG", (function () {
                 var $force = Symbol();
-                var $forced = Symbol();
-                var $drawn = Symbol();
+                var $nodes = Symbol();
+                var $intermediates = Symbol();
+                var $edges = Symbol();
+                var $links = Symbol();
                 var $dom_svg = Symbol();
                 var $graph = Symbol();
                 /**
@@ -23,55 +25,62 @@ System.register([], function (_export) {
                  * Displays the data of the given graph.
                  * */
                 return (function () {
-                    function D3SVG(dom_svg, graph, _ref) {
-                        var _ref$linkDistance = _ref.linkDistance;
-                        var linkDistance = _ref$linkDistance === undefined ? 10 : _ref$linkDistance;
-                        var _ref$linkStrength = _ref.linkStrength;
-                        var linkStrength = _ref$linkStrength === undefined ? 3 : _ref$linkStrength;
+                    function D3SVG(dom_svg, graph) {
+                        var options = arguments[2] === undefined ? {} : arguments[2];
 
                         _classCallCheck(this, D3SVG);
 
                         if (!graph) throw Error("No graph specified");
-                        this[$forced] = {
-                            nodes: [],
-                            edges: []
-                        };
-                        this[$drawn] = {
-                            nodes: [],
-                            edges: []
-                        };
+                        this[$graph] = graph;
+                        var _options$linkDistance = options.linkDistance;
+                        var linkDistance = _options$linkDistance === undefined ? 10 : _options$linkDistance;
+                        var _options$linkStrength = options.linkStrength;
+                        var linkStrength = _options$linkStrength === undefined ? 3 : _options$linkStrength;
+
+                        this[$nodes] = [];
+                        this[$edges] = [];
+                        this[$intermediates] = [];
+                        this[$links] = [];
                         this[$dom_svg] = dom_svg;
                         this[$force] = d3.layout.force().linkDistance(linkDistance).linkStrength(linkStrength);
                         var svg = d3.select(dom_svg);
-                        var nodes = svg.selectAll("circle").data(this[$drawn].nodes).enter().append("circle").attr("r", 5).call(this[$force].drag);
-                        var edges = svg.selectAll("path").data(this[$drawn].edges).enter().append("path");
+                        var nodes = svg.selectAll("circle").data(this[$nodes]).enter().append("circle").attr("r", 5).call(this[$force].drag);
+                        var edges = svg.selectAll("path").data(this[$edges]).enter().append("path");
                         this[$force].on("tick", function () {
-                            edges.attr("d", function (_ref2) {
-                                var _ref22 = _slicedToArray(_ref2, 3);
+                            edges.attr("d", function (_ref) {
+                                var _ref2 = _slicedToArray(_ref, 3);
 
-                                var source = _ref22[0];
-                                var intermediate = _ref22[1];
-                                var target = _ref22[2];
+                                var source = _ref2[0];
+                                var intermediate = _ref2[1];
+                                var target = _ref2[2];
                                 return "M" + source.x + "," + source.y + "S" + intermediate.x + "," + intermediate.y + " " + target.x + "," + target.y;
                             });
                             nodes.attr("transform", function (node) {
                                 return "translate(" + node.x + "," + node.y + ")";
                             });
                         });
+                        this.update();
                     }
 
                     _prototypeProperties(D3SVG, null, {
                         update: {
                             value: function update() {
-                                var node_map = new Map();
+                                var nodes = this[$nodes];
+                                nodes.length = 0;
+                                var edges = this[$edges];
+                                edges.length = 0;
+                                var intermediates = this[$intermediates];
+                                intermediates.length = 0;
+                                var links = this[$links];
+                                links.length = 0;
                                 var _iteratorNormalCompletion = true;
                                 var _didIteratorError = false;
                                 var _iteratorError = undefined;
 
                                 try {
-                                    for (var _iterator = graph.nodes.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                    for (var _iterator = this[$graph].nodes.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                                         var node = _step.value;
-                                        node_map.set(node, {
+                                        nodes.push({
                                             value: node
                                         });
                                     }
@@ -90,52 +99,25 @@ System.register([], function (_export) {
                                     }
                                 }
 
-                                var nodes = (function () {
-                                    var _nodes = [];
-                                    var _iteratorNormalCompletion2 = true;
-                                    var _didIteratorError2 = false;
-                                    var _iteratorError2 = undefined;
-
-                                    try {
-                                        for (var _iterator2 = node_map[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                                            var _step2$value = _slicedToArray(_step2.value, 2);
-
-                                            var node = _step2$value[1];
-
-                                            _nodes.push(node);
-                                        }
-                                    } catch (err) {
-                                        _didIteratorError2 = true;
-                                        _iteratorError2 = err;
-                                    } finally {
-                                        try {
-                                            if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-                                                _iterator2["return"]();
-                                            }
-                                        } finally {
-                                            if (_didIteratorError2) {
-                                                throw _iteratorError2;
-                                            }
-                                        }
-                                    }
-
-                                    return _nodes;
-                                })();
                                 var _iteratorNormalCompletion2 = true;
                                 var _didIteratorError2 = false;
                                 var _iteratorError2 = undefined;
 
                                 try {
-                                    for (var _iterator2 = graph.edges[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                                    for (var _iterator2 = this[$graph].edges[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                                         var _step2$value = _slicedToArray(_step2.value, 2);
 
                                         var source_node = _step2$value[0];
                                         var target_node = _step2$value[1];
 
-                                        var source = node_map.get(source_node);
-                                        var target = node_map.get(target_node);
+                                        var source = {
+                                            value: source_node
+                                        };
+                                        var target = {
+                                            value: target_node
+                                        };
                                         var intermediate = {};
-                                        nodes.push(intermediate);
+                                        intermediates.push(intermediate);
                                         edges.push({
                                             source: source,
                                             target: intermediate
@@ -160,15 +142,13 @@ System.register([], function (_export) {
                                     }
                                 }
 
-                                this[$drawn].nodes.clear();
-
                                 var _getComputedStyle = getComputedStyle(this[$dom_svg]);
 
                                 var width = _getComputedStyle.width;
                                 var height = _getComputedStyle.height;
 
                                 this[$force].size([parseInt(width), parseInt(height)]);
-                                force.nodes(this[$forced].nodes).links(this[$forced].edges).start();
+                                this[$force].nodes(nodes.concat(intermediates)).links(links).start();
                             },
                             writable: true,
                             configurable: true

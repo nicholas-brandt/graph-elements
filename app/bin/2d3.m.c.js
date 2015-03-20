@@ -14,49 +14,45 @@ System.register([], function (_export) {
 
             D3SVG = _export("D3SVG", (function () {
                 var $force = Symbol();
-                var $nodes = Symbol();
-                var $intermediates = Symbol();
-                var $edges = Symbol();
-                var $links = Symbol();
+                var $svg = Symbol();
                 var $dom_svg = Symbol();
+                var $circle_data = Symbol();
+                var $path_data = Symbol();
                 var $graph = Symbol();
                 /**
                  * @class User interface
                  * Displays the data of the given graph.
                  * */
                 return (function () {
-                    function D3SVG(dom_svg, graph) {
+                    function D3SVG(svg, graph) {
+                        var _this = this;
+
                         var options = arguments[2] === undefined ? {} : arguments[2];
 
                         _classCallCheck(this, D3SVG);
 
+                        if (!svg) throw Error("No svg element specified");
                         if (!graph) throw Error("No graph specified");
                         this[$graph] = graph;
+                        this[$dom_svg] = svg;
                         var _options$linkDistance = options.linkDistance;
                         var linkDistance = _options$linkDistance === undefined ? 10 : _options$linkDistance;
                         var _options$linkStrength = options.linkStrength;
                         var linkStrength = _options$linkStrength === undefined ? 3 : _options$linkStrength;
 
-                        this[$nodes] = [];
-                        this[$edges] = [];
-                        this[$intermediates] = [];
-                        this[$links] = [];
-                        this[$dom_svg] = dom_svg;
                         this[$force] = d3.layout.force().linkDistance(linkDistance).linkStrength(linkStrength);
-                        var svg = d3.select(dom_svg);
-                        var nodes = svg.selectAll("circle").data(this[$nodes]).enter().append("circle").attr("r", 5).call(this[$force].drag);
-                        var edges = svg.selectAll("path").data(this[$edges]).enter().append("path");
+                        this[$svg] = window.svg = d3.select(svg);
                         this[$force].on("tick", function () {
-                            edges.attr("d", function (_ref) {
+                            _this[$circle_data].attr("transform", function (node) {
+                                return "translate(" + node.x + "," + node.y + ")";
+                            });
+                            _this[$path_data].attr("d", function (_ref) {
                                 var _ref2 = _slicedToArray(_ref, 3);
 
                                 var source = _ref2[0];
                                 var intermediate = _ref2[1];
                                 var target = _ref2[2];
                                 return "M" + source.x + "," + source.y + "S" + intermediate.x + "," + intermediate.y + " " + target.x + "," + target.y;
-                            });
-                            nodes.attr("transform", function (node) {
-                                return "translate(" + node.x + "," + node.y + ")";
                             });
                         });
                         this.update();
@@ -65,14 +61,11 @@ System.register([], function (_export) {
                     _prototypeProperties(D3SVG, null, {
                         update: {
                             value: function update() {
-                                var nodes = this[$nodes];
-                                nodes.length = 0;
-                                var edges = this[$edges];
-                                edges.length = 0;
-                                var intermediates = this[$intermediates];
-                                intermediates.length = 0;
-                                var links = this[$links];
-                                links.length = 0;
+                                var nodes = [];
+                                var edges = [];
+                                var intermediates = [];
+                                var links = [];
+                                var node_map = new Map();
                                 var _iteratorNormalCompletion = true;
                                 var _didIteratorError = false;
                                 var _iteratorError = undefined;
@@ -80,9 +73,12 @@ System.register([], function (_export) {
                                 try {
                                     for (var _iterator = this[$graph].nodes.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                                         var node = _step.value;
-                                        nodes.push({
+
+                                        var wrap = {
                                             value: node
-                                        });
+                                        };
+                                        node_map.set(node, wrap);
+                                        nodes.push(wrap);
                                     }
                                 } catch (err) {
                                     _didIteratorError = true;
@@ -107,25 +103,21 @@ System.register([], function (_export) {
                                     for (var _iterator2 = this[$graph].edges[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                                         var _step2$value = _slicedToArray(_step2.value, 2);
 
-                                        var source_node = _step2$value[0];
-                                        var target_node = _step2$value[1];
+                                        var source = _step2$value[0];
+                                        var target = _step2$value[1];
 
-                                        var source = {
-                                            value: source_node
-                                        };
-                                        var target = {
-                                            value: target_node
-                                        };
+                                        var source_wrap = node_map.get(source);
+                                        var target_wrap = node_map.get(target);
                                         var intermediate = {};
                                         intermediates.push(intermediate);
-                                        edges.push({
-                                            source: source,
+                                        links.push({
+                                            source: source_wrap,
                                             target: intermediate
                                         }, {
                                             source: intermediate,
-                                            target: target
+                                            target: target_wrap
                                         });
-                                        links.push([source, intermediate, target]);
+                                        edges.push([source_wrap, intermediate, target_wrap]);
                                     }
                                 } catch (err) {
                                     _didIteratorError2 = true;
@@ -149,6 +141,12 @@ System.register([], function (_export) {
 
                                 this[$force].size([parseInt(width), parseInt(height)]);
                                 this[$force].nodes(nodes.concat(intermediates)).links(links).start();
+                                this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
+                                this[$path_data] = this[$svg].selectAll("path").data(edges);
+                                this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
+                                this[$path_data].enter().append("path");
+                                this[$circle_data].exit().remove();
+                                this[$path_data].exit().remove();
                             },
                             writable: true,
                             configurable: true

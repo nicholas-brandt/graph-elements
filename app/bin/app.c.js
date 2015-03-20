@@ -13,7 +13,7 @@ Promise.all(["bin/graph.m.c", "app/bin/2d3.m.c"].map(function (name) {
     console.log("init");
     var svg = document.querySelector("svg");
     window.graph = new graphjs.Tree(true);
-    var length = 100;
+    var length = 1000;
     for (var i = 0; i < length; ++i) {
         graph.addNode(i);
     }for (var i = 0; i < length * 2; ++i) {

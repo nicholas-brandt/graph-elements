@@ -1,15 +1,11 @@
 {
-  "name": "graph",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/graph.m.js",
-  "dependencies": {
-    "steal": "^0.7.0"
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "MIT"
+    "name": "graph",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/graph.m.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "MIT"
 }

@@ -1,3 +1,4 @@
 node_modules
 .codio
 .settings
+npm-debug.log

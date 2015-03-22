@@ -1,4 +1,4 @@
-System.import("bin/graph.m.c").then(graphjs => {
+System.import("build/graph.m.c").then(graphjs => {
     window.graphjs = graphjs;
     console.log("graphjs loaded");
     console.log("length: " + length);
@@ -39,7 +39,7 @@ for (let density of densities) {
     edges.density = density;
     edge_array.push(edges);
 }
-const static_edges = [for (node of nodes)[Math.floor(Math.abs(Math.sin(node)) * (length - 1)), Math.floor(Math.abs(Math.cos(node)) * (length - 1))]];
+const static_edges = [for (node of nodes) [Math.floor(Math.abs(Math.sin(node)) * (length - 1)), Math.floor(Math.abs(Math.cos(node)) * (length - 1))]];
 static_edges.density = 1;
 edge_array.push(static_edges);
 console.timeEnd("preparation");

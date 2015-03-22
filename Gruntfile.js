@@ -86,7 +86,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        lessc: {
+        less: {
             compile: {
                 files: [{
                     expand: true,
@@ -103,5 +103,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-less");
     //grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-babel");
-    grunt.registerTask("default", ["babel", "uglify", "lessc"]);
+    grunt.registerTask("default", ["babel", "uglify", "less"]);
 };

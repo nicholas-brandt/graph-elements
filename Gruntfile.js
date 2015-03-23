@@ -24,10 +24,7 @@ module.exports = function(grunt) {
                     dest: "build/",
                     ext: ".c.js",
                     extDot: "last",
-                    src: ["**/*.js"],
-                    filter: function(path) {
-                        return !path.endsWith(".m.js");
-                    }
+                    src: ["**/*.js", "!**/*.m.js"]
                 }]
             },
             modules: {
@@ -88,6 +85,9 @@ module.exports = function(grunt) {
         },
         less: {
             compile: {
+                options: {
+                    ieCompat: false
+                },
                 files: [{
                     expand: true,
                     cwd: "src/",
@@ -97,11 +97,50 @@ module.exports = function(grunt) {
                     src: ["**/*.less"]
                 }]
             }
+        },
+        cssmin: {
+            minify: {
+                files: [{
+                    expand: true,
+                    cwd: "build/",
+                    dest: "build/",
+                    ext: ".min.css",
+                    extDot: "last",
+                    src: ["**/*.css", "!**/*.min.css"]
+                }]
+            }
+        },
+        watch: {
+            compileScripts: {
+                files: ["src/**/*.js", "!src/**/*.m.js"],
+                tasks: ["babel:scripts"]
+            },
+            compileModules: {
+                files: ["src/**/*.m.js"],
+                tasks: ["babel:modules"]
+            },
+            minifyScripts: {
+                files: ["build/**/*.c.js"],
+                tasks: ["uglify:minify"]
+            },
+            beautifyScripts: {
+                files: ["build/**/*.c.js"],
+                tasks: ["uglify:beautify"]
+            },
+            compileLESS: {
+                files: ["src/**/*.less"],
+                tasks: ["less:compile"]
+            },
+            minifyCSS: {
+                files: ["build/**/*.css", "!build/**/*.min.css"],
+                tasks: ["cssmin:minify"]
+            }
         }
     });
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-less");
-    //grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.loadNpmTasks("grunt-contrib-cssmin");
+    grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-babel");
-    grunt.registerTask("default", ["babel", "uglify", "less"]);
+    grunt.registerTask("default", ["babel", "uglify", "less", "cssmin", "watch"]);
 };

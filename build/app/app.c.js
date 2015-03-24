@@ -1,24 +1,33 @@
 "use strict";
 
-var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
+var _slicedToArray = function(a, b) {
+    if (Array.isArray(a)) return a;
+    if (Symbol.iterator in Object(a)) {
+        for (var c, d = [], e = a[Symbol.iterator](); !(c = e.next()).done && (d.push(c.value), 
+        !b || d.length !== b); ) ;
+        return d;
+    }
+    throw new TypeError("Invalid attempt to destructure non-iterable instance");
+};
 
-Promise.all(["build/graph.m.c", "build/app/2d3.m.c"].map(function (name) {
-    return System["import"](name);
-})).then(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2);
-
-    var graphjs = _ref2[0];
-    var _2d3 = _ref2[1];
-
+Promise.all([ "build/graph.m.c", "build/app/2d3.m.c" ].map(function(a) {
+    return System["import"](a);
+})).then(function(a) {
+    var b = _slicedToArray(a, 2), c = b[0], d = b[1];
     console.log("init");
-    var svg = document.querySelector("svg");
-    window.graph = new graphjs.Tree(true);
-    var length = 100;
-    for (var i = 0; i < length; ++i) {
-        graph.addNode(i);
-    }for (var i = 0; i < length * 2; ++i) {
-        graph.addEdge(i % length, Math.floor(Math.random() * length));
-    }window.d3svg = new _2d3.D3SVG(svg, graph);
-})["catch"](function (e) {
-    console.error(e);
+    var e = document.querySelector("svg");
+    window.graph = new c.Tree(!0);
+    for (var f = 200, g = 0; f > g; ++g) graph.addNode(g);
+    for (var g = 0; 2 * f > g; ++g) graph.addEdge(g % f, Math.floor(Math.random() * f));
+    window.d3svg = new d.D3SVG(e, graph);
+    var h = d3svg.force;
+    setTimeout(function() {
+        h.friction(.2);
+    }, 200), setTimeout(function() {
+        h.friction(.95);
+    }, 700), setTimeout(function() {
+        h.charge(-140), h.gravity(.05), h.resume();
+    }, 2e3), h.gravity(.18), h.friction(0), h.start();
+})["catch"](function(a) {
+    console.error(a);
 });

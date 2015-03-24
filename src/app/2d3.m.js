@@ -10,13 +10,12 @@ export const D3SVG = (function() {
      * Displays the data of the given graph.
      * */
     return class D3SVG {
-        constructor(svg, graph, options = {}) {
+        constructor(svg, graph) {
             if (!svg) throw Error("No svg element specified");
             if (!graph) throw Error("No graph specified");
             this[$graph] = graph;
             this[$dom_svg] = svg;
-            const {linkDistance = 10, linkStrength = 3} = options;
-            this[$force] = d3.layout.force().linkDistance(linkDistance).linkStrength(linkStrength);
+            this[$force] = d3.layout.force();
             this[$svg] = window.svg = d3.select(svg);
             this[$force].on("tick", () => {
                 this[$circle_data].attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
@@ -53,7 +52,7 @@ export const D3SVG = (function() {
             }
             const {width, height} = getComputedStyle(this[$dom_svg]);
             this[$force].size([parseInt(width), parseInt(height)]);
-            this[$force].nodes(nodes.concat(intermediates)).links(links).start();
+            this[$force].nodes(nodes/*.concat(intermediates)*/links(links);
             this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
             this[$path_data] = this[$svg].selectAll("path").data(edges);
             this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
@@ -63,6 +62,9 @@ export const D3SVG = (function() {
         }
         get graph() {
             return this[$graph];
+        }
+        get force() {
+            return this[$force];
         }
     };
 })();

@@ -15,7 +15,7 @@ module.exports = function(grunt) {
         babel: {
             options: {
                 experimental: true,
-                compact: false,
+                compact: false
             },
             scripts: {
                 files: [{
@@ -60,6 +60,7 @@ module.exports = function(grunt) {
                     join_vars: true,
                     cascade: true,
                     negate_iife: true,
+                    mangle: false
                 },
                 files: [{
                     expand: true,
@@ -110,7 +111,26 @@ module.exports = function(grunt) {
                 }]
             }
         },
+        htmlmin: {
+            minify: {
+                options: {
+                    removeComments: true,
+                    useShortDoctype: true
+                },
+                files: [{
+                    expand: true,
+                    cwd: "src/",
+                    dest: "build/",
+                    ext: ".min.html",
+                    extDot: "last",
+                    src: ["**/*.html"]
+                }]
+            }
+        },
         watch: {
+            options: {
+                atBegin: true
+            },
             compileScripts: {
                 files: ["src/**/*.js", "!src/**/*.m.js"],
                 tasks: ["babel:scripts"]
@@ -134,13 +154,18 @@ module.exports = function(grunt) {
             minifyCSS: {
                 files: ["build/**/*.css", "!build/**/*.min.css"],
                 tasks: ["cssmin:minify"]
+            },
+            minifyHTML: {
+                files: ["src/**/*.html"],
+                tasks: ["htmlmin:minify"]
             }
         }
     });
     grunt.loadNpmTasks("grunt-contrib-uglify");
     grunt.loadNpmTasks("grunt-contrib-less");
     grunt.loadNpmTasks("grunt-contrib-cssmin");
-    grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.loadNpmTasks("grunt-babel");
-    grunt.registerTask("default", ["babel", "uglify", "less", "cssmin", "watch"]);
+    grunt.loadNpmTasks("grunt-contrib-htmlmin");
+    grunt.loadNpmTasks("grunt-contrib-watch");
+    grunt.registerTask("default", ["watch"]);
 };

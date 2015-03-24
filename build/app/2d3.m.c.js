@@ -29,12 +29,10 @@ System.register([], function(a) {
                 var a = Symbol(), e = Symbol(), f = Symbol(), g = Symbol(), h = Symbol(), i = Symbol();
                 return function() {
                     function j(c, k) {
-                        var l = this, m = void 0 === arguments[2] ? {} : arguments[2];
+                        var l = this;
                         if (d(this, j), !c) throw Error("No svg element specified");
                         if (!k) throw Error("No graph specified");
-                        this[i] = k, this[f] = c;
-                        var n = m.linkDistance, o = void 0 === n ? 10 : n, p = m.linkStrength, q = void 0 === p ? 3 : p;
-                        this[a] = d3.layout.force().linkDistance(o).linkStrength(q), this[e] = window.svg = d3.select(c), 
+                        this[i] = k, this[f] = c, this[a] = d3.layout.force(), this[e] = window.svg = d3.select(c), 
                         this[a].on("tick", function() {
                             l[g].attr("transform", function(a) {
                                 return "translate(" + a.x + "," + a.y + ")";
@@ -86,7 +84,7 @@ System.register([], function(a) {
                                     }
                                 }
                                 var F = getComputedStyle(this[f]), G = F.width, H = F.height;
-                                this[a].size([ parseInt(G), parseInt(H) ]), this[a].nodes(c.concat(j)).links(k).start(), 
+                                this[a].size([ parseInt(G), parseInt(H) ]), this[a].nodes(c.concat(j)).links(k), 
                                 this[g] = this[e].selectAll("circle").data(c), this[h] = this[e].selectAll("path").data(d), 
                                 this[g].enter().append("circle").attr("r", 5).call(this[a].drag), this[h].enter().append("path"), 
                                 this[g].exit().remove(), this[h].exit().remove();
@@ -95,6 +93,11 @@ System.register([], function(a) {
                         graph: {
                             get: function() {
                                 return this[i];
+                            }
+                        },
+                        force: {
+                            get: function() {
+                                return this[a];
                             }
                         }
                     }), j;

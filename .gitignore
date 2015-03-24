@@ -1,4 +1,5 @@
 node_modules
+bower_components
 .codio
 .settings
 npm-debug.log

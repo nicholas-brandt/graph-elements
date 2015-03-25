@@ -1,10 +1,11 @@
 Promise.all(["build/graph.m.c", "build/app/2d3.m.c"].map(name => System.import(name))).then(([graphjs, _2d3]) => {
     console.log("init");
     const svg = document.querySelector("svg");
-    window.graph = new graphjs.Tree(true);
+    //window.graph = new graphjs.Tree(true);
+    window.graph = new graphjs.AcyclicGraph(true);
     const length = 200;
     for (let i = 0; i < length; ++i) graph.addNode(i);
-    for (let i = 0; i < length * 10; ++i) graph.addEdge(i % length, Math.floor(Math.random() * length));
+    for (let i = 0; i < length * 0.8; ++i) graph.addEdge(i % length, Math.floor(Math.random() * length));
     window.d3svg = new _2d3.D3SVG(svg, graph);
     const force = d3svg.force;
     setTimeout(() => {
@@ -16,9 +17,9 @@ Promise.all(["build/graph.m.c", "build/app/2d3.m.c"].map(name => System.import(n
         force.charge(-20000);
         force.alpha(0.5);
     }, 2000);
-    setTimeout(() => {
+    /*setTimeout(() => {
         force.alpha(1);
-    }, 5000);
+    }, 6000);*/
     force.gravity(0.6);
     force.friction(0);
     //force.charge(-40);

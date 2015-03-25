@@ -45,47 +45,48 @@ System.register([], function(a) {
                     return c(j, {
                         update: {
                             value: function() {
-                                var c = [], d = [], j = [], k = [], l = new Map(), m = !0, n = !1, o = void 0;
+                                var c = getComputedStyle(this[f]), d = c.width, j = c.height, k = [], l = [], m = [], n = [], o = new Map(), p = !0, q = !1, r = void 0;
                                 try {
-                                    for (var p, q = this[i].nodes.keys()[Symbol.iterator](); !(m = (p = q.next()).done); m = !0) {
-                                        var r = p.value, s = {
-                                            value: r
+                                    for (var s, t = this[i].nodes.keys()[Symbol.iterator](); !(p = (s = t.next()).done); p = !0) {
+                                        var u = s.value, v = {
+                                            value: u,
+                                            x: Math.random() * d,
+                                            y: j / 2
                                         };
-                                        l.set(r, s), c.push(s);
+                                        o.set(u, v), k.push(v);
                                     }
-                                } catch (t) {
-                                    n = !0, o = t;
+                                } catch (w) {
+                                    q = !0, r = w;
                                 } finally {
                                     try {
-                                        !m && q["return"] && q["return"]();
+                                        !p && t["return"] && t["return"]();
                                     } finally {
-                                        if (n) throw o;
+                                        if (q) throw r;
                                     }
                                 }
-                                var u = !0, v = !1, w = void 0;
+                                var x = !0, y = !1, z = void 0;
                                 try {
-                                    for (var x, y = this[i].edges[Symbol.iterator](); !(u = (x = y.next()).done); u = !0) {
-                                        var z = b(x.value, 2), A = z[0], B = z[1], C = l.get(A), D = l.get(B), E = {};
-                                        j.push(E), k.push({
-                                            source: C,
-                                            target: E
+                                    for (var A, B = this[i].edges[Symbol.iterator](); !(x = (A = B.next()).done); x = !0) {
+                                        var C = b(A.value, 2), D = C[0], E = C[1], F = o.get(D), G = o.get(E), H = {};
+                                        m.push(H), n.push({
+                                            source: F,
+                                            target: H
                                         }, {
-                                            source: E,
-                                            target: D
-                                        }), d.push([ C, E, D ]);
+                                            source: H,
+                                            target: G
+                                        }), l.push([ F, H, G ]);
                                     }
-                                } catch (t) {
-                                    v = !0, w = t;
+                                } catch (w) {
+                                    y = !0, z = w;
                                 } finally {
                                     try {
-                                        !u && y["return"] && y["return"]();
+                                        !x && B["return"] && B["return"]();
                                     } finally {
-                                        if (v) throw w;
+                                        if (y) throw z;
                                     }
                                 }
-                                var F = getComputedStyle(this[f]), G = F.width, H = F.height;
-                                this[a].size([ parseInt(G), parseInt(H) ]), this[a].nodes(c.concat(j)).links(k), 
-                                this[g] = this[e].selectAll("circle").data(c), this[h] = this[e].selectAll("path").data(d), 
+                                this[a].size([ parseInt(d), parseInt(j) ]), this[a].nodes(k.concat(m)).links(n), 
+                                this[g] = this[e].selectAll("circle").data(k), this[h] = this[e].selectAll("path").data(l), 
                                 this[g].enter().append("circle").attr("r", 5).call(this[a].drag), this[h].enter().append("path"), 
                                 this[g].exit().remove(), this[h].exit().remove();
                             }

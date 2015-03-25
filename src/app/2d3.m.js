@@ -24,6 +24,7 @@ export const D3SVG = (function() {
             this.update();
         }
         update() {
+            const {width, height} = getComputedStyle(this[$dom_svg]);
             const nodes = [];
             const edges = [];
             const intermediates = [];
@@ -31,7 +32,9 @@ export const D3SVG = (function() {
             const node_map = new Map;
             for (let node of this[$graph].nodes.keys()) {
                 const wrap = {
-                    value: node
+                    value: node,
+                    x: Math.random() * width,
+                    y: height / 2
                 };
                 node_map.set(node, wrap);
                 nodes.push(wrap);
@@ -50,7 +53,6 @@ export const D3SVG = (function() {
                 });
                 edges.push([source_wrap, intermediate, target_wrap]);
             }
-            const {width, height} = getComputedStyle(this[$dom_svg]);
             this[$force].size([parseInt(width), parseInt(height)]);
             this[$force].nodes(nodes.concat(intermediates)).links(links);
             this[$circle_data] = this[$svg].selectAll("circle").data(nodes);

@@ -40,34 +40,33 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
             return true;
         }
         removeNode(object) {
-            const _nodes = this[$nodes];
-            _nodes.delete(object);
-            for (let [, relations] of _nodes) {
+            this[$nodes].delete(object);
+            for (let [, relations] of this[$nodes]) {
                 relations[$dependents].delete(object);
                 relations[$dependencies].delete(object);
             }
         }
         addEdge(source, target, weight = 1) {
-            const _nodes = this[$nodes];
-            if ([source, target].every(_nodes.has.bind(_nodes))) {
-                _nodes.get(source)[$dependents].set(target, weight);
-                _nodes.get(target)[$dependencies].set(source, weight);
+            const nodes = this[$nodes];
+            if ([source, target].every(nodes.has.bind(nodes))) {
+                nodes.get(source)[$dependents].set(target, weight);
+                nodes.get(target)[$dependencies].set(source, weight);
                 if (!this.directed) {
-                    _nodes.get(target)[$dependents].set(source, weight);
-                    _nodes.get(source)[$dependencies].set(target, weight);
+                    nodes.get(target)[$dependents].set(source, weight);
+                    nodes.get(source)[$dependencies].set(target, weight);
                 }
                 return true;
             }
             return false;
         }
         removeEdge(source, target) {
-            const _nodes = this[$nodes];
-            if ([source, target].every(_nodes.has.bind(_nodes))) {
-                _nodes.get(source)[$dependents].delete(target);
-                _nodes.get(target)[$dependencies].delete(source);
+            const nodes = this[$nodes];
+            if ([source, target].every(nodes.has.bind(nodes))) {
+                nodes.get(source)[$dependents].delete(target);
+                nodes.get(target)[$dependencies].delete(source);
                 if (!this.directed) {
-                    _nodes.get(target)[$dependents].delete(source);
-                    _nodes.get(source)[$dependencies].delete(target);
+                    nodes.get(target)[$dependents].delete(source);
+                    nodes.get(source)[$dependencies].delete(target);
                 }
                 return true;
             }
@@ -80,8 +79,8 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
             const directed = this.directed;
             const finished = new Set;
             const visited = new Set;
-            for (let node of this[$nodes]) {
-                const depth = DFS.call(this, node[1], undefined, 0);
+            for (let [, relations] of this[$nodes]) {
+                const depth = DFS.call(this, relations, undefined, 0);
                 if (depth) return depth;
             }
             return false;
@@ -90,9 +89,9 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
                 if (!finished.has(node)) {
                     if (visited.has(node)) return length;
                     visited.add(node);
-                    const _nodes = this[$nodes];
-                    for (let dependent of node[$dependents]) {
-                        const dependent_node = _nodes.get(dependent[0]);
+                    const nodes = this[$nodes];
+                    for (let [, dependent] of node[$dependents]) {
+                        const dependent_node = nodes.get(dependent);
                         if (directed || dependent_node !== dependency) {
                             const depth = DFS.call(this, dependent_node, node, length + 1);
                             if (depth) return depth;

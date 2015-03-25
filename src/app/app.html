@@ -4,6 +4,7 @@
 <head>
     <title></title>
     <link rel="stylesheet" href="app.css">
+    <link rel="import" href="vulcanized.html">
     <script src="../../node_modules/steal/steal.js"></script>
     <script>
         System.transpiler = "babel";
@@ -12,8 +13,27 @@
     <script src="app.c.js"></script>
 </head>
 
-<body>
-    <svg></svg>
+<body fullbleed unresolved>
+    <core-drawer-panel>
+        <core-header-panel drawer flex mode="seamed">
+            <core-toolbar>
+                <a flex>Menu</a>
+            </core-toolbar>
+            <core-menu>
+                <paper-item>
+                </paper-item>
+            </core-menu>
+        </core-header-panel>
+        <core-header-panel main flex layout vertical mode="seamed">
+            <core-toolbar layout horizontal>
+                <paper-icon-button class="bottom" icon="menu" core-drawer-toggle flex></paper-icon-button>
+                <div class="bottom indent" flex>Gravis</div>
+            </core-toolbar>
+            <div id="container" fit>
+                <svg></svg>
+            </div>
+        </core-header-panel>
+    </core-drawer-panel>
 </body>
 
 </html>

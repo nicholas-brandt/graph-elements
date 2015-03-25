@@ -142,21 +142,20 @@ System.register([], function(a) {
                         },
                         removeNode: {
                             value: function(c) {
-                                var d = this[a];
-                                d["delete"](c);
-                                var e = !0, f = !1, g = void 0;
+                                this[a]["delete"](c);
+                                var d = !0, e = !1, f = void 0;
                                 try {
-                                    for (var j, k = d[Symbol.iterator](); !(e = (j = k.next()).done); e = !0) {
-                                        var l = b(j.value, 2), m = l[1];
-                                        m[i]["delete"](c), m[h]["delete"](c);
+                                    for (var g, j = this[a][Symbol.iterator](); !(d = (g = j.next()).done); d = !0) {
+                                        var k = b(g.value, 2), l = k[1];
+                                        l[i]["delete"](c), l[h]["delete"](c);
                                     }
-                                } catch (n) {
-                                    f = !0, g = n;
+                                } catch (m) {
+                                    e = !0, f = m;
                                 } finally {
                                     try {
-                                        !e && k["return"] && k["return"]();
+                                        !d && j["return"] && j["return"]();
                                     } finally {
-                                        if (f) throw g;
+                                        if (e) throw f;
                                     }
                                 }
                             }
@@ -182,44 +181,44 @@ System.register([], function(a) {
                         },
                         getCycle: {
                             value: function() {
-                                function b(f, g, h) {
-                                    if (!d.has(f)) {
-                                        if (e.has(f)) return h;
-                                        e.add(f);
-                                        var j = this[a], k = !0, l = !1, m = void 0;
+                                function c(g, h, j) {
+                                    if (!e.has(g)) {
+                                        if (f.has(g)) return j;
+                                        f.add(g);
+                                        var k = this[a], l = !0, m = !1, n = void 0;
                                         try {
-                                            for (var n, o = f[i][Symbol.iterator](); !(k = (n = o.next()).done); k = !0) {
-                                                var p = n.value, q = j.get(p[0]);
-                                                if (c || q !== g) {
-                                                    var r = b.call(this, q, f, h + 1);
-                                                    if (r) return r;
+                                            for (var o, p = g[i][Symbol.iterator](); !(l = (o = p.next()).done); l = !0) {
+                                                var q = b(o.value, 2), r = q[1], s = k.get(r);
+                                                if (d || s !== h) {
+                                                    var t = c.call(this, s, g, j + 1);
+                                                    if (t) return t;
                                                 }
                                             }
-                                        } catch (s) {
-                                            l = !0, m = s;
+                                        } catch (u) {
+                                            m = !0, n = u;
                                         } finally {
                                             try {
-                                                !k && o["return"] && o["return"]();
+                                                !l && p["return"] && p["return"]();
                                             } finally {
-                                                if (l) throw m;
+                                                if (m) throw n;
                                             }
                                         }
-                                        d.add(f);
+                                        e.add(g);
                                     }
                                 }
-                                var c = this.directed, d = new Set(), e = new Set(), f = !0, g = !1, h = void 0;
+                                var d = this.directed, e = new Set(), f = new Set(), g = !0, h = !1, j = void 0;
                                 try {
-                                    for (var j, k = this[a][Symbol.iterator](); !(f = (j = k.next()).done); f = !0) {
-                                        var l = j.value, m = b.call(this, l[1], void 0, 0);
-                                        if (m) return m;
+                                    for (var k, l = this[a][Symbol.iterator](); !(g = (k = l.next()).done); g = !0) {
+                                        var m = b(k.value, 2), n = m[1], o = c.call(this, n, void 0, 0);
+                                        if (o) return o;
                                     }
-                                } catch (n) {
-                                    g = !0, h = n;
+                                } catch (p) {
+                                    h = !0, j = p;
                                 } finally {
                                     try {
-                                        !f && k["return"] && k["return"]();
+                                        !g && l["return"] && l["return"]();
                                     } finally {
-                                        if (g) throw h;
+                                        if (h) throw j;
                                     }
                                 }
                                 return !1;

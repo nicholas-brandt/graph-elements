@@ -52,7 +52,7 @@ export const D3SVG = (function() {
             }
             const {width, height} = getComputedStyle(this[$dom_svg]);
             this[$force].size([parseInt(width), parseInt(height)]);
-            this[$force].nodes(nodes/*.concat(intermediates)*/links(links);
+            this[$force].nodes(nodes.concat(intermediates)).links(links);
             this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
             this[$path_data] = this[$svg].selectAll("path").data(edges);
             this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);

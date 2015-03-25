@@ -18,16 +18,17 @@ Promise.all([ "build/graph.m.c", "build/app/2d3.m.c" ].map(function(a) {
     var e = document.querySelector("svg");
     window.graph = new c.Tree(!0);
     for (var f = 200, g = 0; f > g; ++g) graph.addNode(g);
-    for (var g = 0; 2 * f > g; ++g) graph.addEdge(g % f, Math.floor(Math.random() * f));
+    for (var g = 0; 10 * f > g; ++g) graph.addEdge(g % f, Math.floor(Math.random() * f));
     window.d3svg = new d.D3SVG(e, graph);
     var h = d3svg.force;
     setTimeout(function() {
-        h.friction(.2);
+        h.friction(.7);
     }, 200), setTimeout(function() {
-        h.friction(.95);
-    }, 700), setTimeout(function() {
-        h.charge(-140), h.gravity(.05), h.resume();
-    }, 2e3), h.gravity(.18), h.friction(0), h.start();
+        h.friction(.9), h.gravity(.08), h.charge(-2e4), h.alpha(.5);
+    }, 2e3), setTimeout(function() {
+        h.alpha(1);
+    }, 5e3), h.gravity(.6), h.friction(0), h.linkDistance(5), h.theta(.6), h.alpha(.5), 
+    h.start();
 })["catch"](function(a) {
     console.error(a);
 });

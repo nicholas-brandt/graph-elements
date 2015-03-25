@@ -168,4 +168,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-htmlmin");
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("default", ["watch"]);
+    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "htmlmin"]);
 };

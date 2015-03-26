@@ -90,7 +90,7 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
                     if (visited.has(node)) return length;
                     visited.add(node);
                     const nodes = this[$nodes];
-                    for (let [, dependent] of node[$dependents]) {
+                    for (let [dependent] of node[$dependents]) {
                         const dependent_node = nodes.get(dependent);
                         if (directed || dependent_node !== dependency) {
                             const depth = DFS.call(this, dependent_node, node, length + 1);

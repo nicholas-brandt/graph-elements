@@ -188,7 +188,7 @@ System.register([], function(a) {
                                         var k = this[a], l = !0, m = !1, n = void 0;
                                         try {
                                             for (var o, p = g[i][Symbol.iterator](); !(l = (o = p.next()).done); l = !0) {
-                                                var q = b(o.value, 2), r = q[1], s = k.get(r);
+                                                var q = b(o.value, 1), r = q[0], s = k.get(r);
                                                 if (d || s !== h) {
                                                     var t = c.call(this, s, g, j + 1);
                                                     if (t) return t;

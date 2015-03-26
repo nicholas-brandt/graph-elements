@@ -17,7 +17,7 @@ Promise.all([ "build/graph.m.c", "build/app/2d3.m.c" ].map(function(a) {
     console.log("init");
     var e = document.querySelector("svg");
     window.graph = new c.AcyclicGraph(!0);
-    for (var f = 50, g = 0; f > g; ++g) graph.addNode(g);
+    for (var f = 200, g = 0; f > g; ++g) graph.addNode(g);
     for (var g = 0; .8 * f > g; ++g) graph.addEdge(g % f, Math.floor(Math.random() * f));
     window.d3svg = new d.D3SVG(e, graph);
     var h = d3svg.force;

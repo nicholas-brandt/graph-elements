@@ -62,8 +62,10 @@ export const D3SVG = (function() {
             this[$path_data].exit().remove();
         }
         resize() {
-            const {width, height} = getComputedStyle(this[$dom_svg]);
-            this[$force].size([parseInt(width), parseInt(height)]);
+            requestAnimationFrame(() => {
+                const {width, height} = getComputedStyle(this[$dom_svg]);
+                this[$force].size([parseInt(width), parseInt(height)]);
+            });
         }
         get graph() {
             return this[$graph];

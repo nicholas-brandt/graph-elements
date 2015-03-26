@@ -91,8 +91,11 @@ System.register([], function(a) {
                         },
                         resize: {
                             value: function() {
-                                var b = getComputedStyle(this[f]), c = b.width, d = b.height;
-                                this[a].size([ parseInt(c), parseInt(d) ]);
+                                var b = this;
+                                requestAnimationFrame(function() {
+                                    var c = getComputedStyle(b[f]), d = c.width, e = c.height;
+                                    b[a].size([ parseInt(d), parseInt(e) ]);
+                                });
                             }
                         },
                         graph: {

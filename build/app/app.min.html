@@ -2,15 +2,18 @@
 <html>
 
 <head>
-    <title></title>
+    <title>GraphJS</title>
     <link rel="stylesheet" href="app.css">
-    <link rel="import" href="vulcanized.html">
+    <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <link rel="import" href="polymer.min.html">
     <script src="../../node_modules/steal/steal.js"></script>
     <script>
         System.transpiler = "babel";
     </script>
     <script src="../../node_modules/d3/d3.min.js"></script>
     <script src="app.c.js"></script>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-web-app-capable" content="yes">
 </head>
 
 <body fullbleed unresolved>
@@ -29,9 +32,7 @@
                 <paper-icon-button class="bottom" icon="menu" core-drawer-toggle flex></paper-icon-button>
                 <div class="bottom indent" flex>Gravis</div>
             </core-toolbar>
-            <div id="container" fit>
-                <svg></svg>
-            </div>
+            <svg id="container" fit></svg>
         </core-header-panel>
     </core-drawer-panel>
 </body>

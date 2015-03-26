@@ -123,20 +123,22 @@ module.exports = function(grunt) {
                     dest: "build/",
                     ext: ".min.html",
                     extDot: "last",
-                    src: ["**/*.html", "!**/polymer.html"]
+                    src: ["**/*.html"]
+                }, {
+                    "build/app/vulcanize.html": "build/app/polymer.min.html"
                 }]
             }
         },
         vulcanize: {
-            vulcanize: {
+            /*vulcanize: {
                 options: {
                     //inline: true,
                     strip: true
                 },
                 files: {
-                    "build/app/vulcanized.html": "src/app/polymer.html"
+                    "src/app/vulcanized.html": "src/app/polymer.html"
                 }
-            }
+            }*/
         },
         watch: {
             options: {
@@ -170,10 +172,10 @@ module.exports = function(grunt) {
                 files: ["src/**/*.html"],
                 tasks: ["htmlmin:minify"]
             },
-            vulcanizePolymer: {
+            /*vulcanizePolymer: {
                 files: ["src/app/polymer.html"],
                 tasks: ["vulcanize:vulcanizePolymer"]
-            }
+            }*/
         }
     });
     grunt.loadNpmTasks("grunt-contrib-uglify");
@@ -184,5 +186,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-contrib-htmlmin");
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin"]);
+    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", /*"vulcanize",*/ "htmlmin"]);
 };

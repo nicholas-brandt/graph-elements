@@ -45,50 +45,54 @@ System.register([], function(a) {
                     return c(j, {
                         update: {
                             value: function() {
-                                var c = getComputedStyle(this[f]), d = c.width, j = c.height, k = [], l = [], m = [], n = [], o = new Map(), p = !0, q = !1, r = void 0;
+                                this.resize();
+                                var c = [], d = [], f = [], j = [], k = new Map(), l = !0, m = !1, n = void 0;
                                 try {
-                                    for (var s, t = this[i].nodes.keys()[Symbol.iterator](); !(p = (s = t.next()).done); p = !0) {
-                                        var u = s.value, v = {
-                                            value: u,
-                                            x: Math.random() * d,
-                                            y: j / 2
+                                    for (var o, p = this[i].nodes.keys()[Symbol.iterator](); !(l = (o = p.next()).done); l = !0) {
+                                        var q = o.value, r = {
+                                            value: q
                                         };
-                                        o.set(u, v), k.push(v);
+                                        k.set(q, r), c.push(r);
                                     }
-                                } catch (w) {
-                                    q = !0, r = w;
+                                } catch (s) {
+                                    m = !0, n = s;
                                 } finally {
                                     try {
-                                        !p && t["return"] && t["return"]();
+                                        !l && p["return"] && p["return"]();
                                     } finally {
-                                        if (q) throw r;
+                                        if (m) throw n;
                                     }
                                 }
-                                var x = !0, y = !1, z = void 0;
+                                var t = !0, u = !1, v = void 0;
                                 try {
-                                    for (var A, B = this[i].edges[Symbol.iterator](); !(x = (A = B.next()).done); x = !0) {
-                                        var C = b(A.value, 2), D = C[0], E = C[1], F = o.get(D), G = o.get(E), H = {};
-                                        m.push(H), n.push({
-                                            source: F,
-                                            target: H
+                                    for (var w, x = this[i].edges[Symbol.iterator](); !(t = (w = x.next()).done); t = !0) {
+                                        var y = b(w.value, 2), z = y[0], A = y[1], B = k.get(z), C = k.get(A), D = {};
+                                        f.push(D), j.push({
+                                            source: B,
+                                            target: D
                                         }, {
-                                            source: H,
-                                            target: G
-                                        }), l.push([ F, H, G ]);
+                                            source: D,
+                                            target: C
+                                        }), d.push([ B, D, C ]);
                                     }
-                                } catch (w) {
-                                    y = !0, z = w;
+                                } catch (s) {
+                                    u = !0, v = s;
                                 } finally {
                                     try {
-                                        !x && B["return"] && B["return"]();
+                                        !t && x["return"] && x["return"]();
                                     } finally {
-                                        if (y) throw z;
+                                        if (u) throw v;
                                     }
                                 }
-                                this[a].size([ parseInt(d), parseInt(j) ]), this[a].nodes(k.concat(m)).links(n), 
-                                this[g] = this[e].selectAll("circle").data(k), this[h] = this[e].selectAll("path").data(l), 
-                                this[g].enter().append("circle").attr("r", 5).call(this[a].drag), this[h].enter().append("path"), 
-                                this[g].exit().remove(), this[h].exit().remove();
+                                this[a].nodes(c.concat(f)).links(j), this[g] = this[e].selectAll("circle").data(c), 
+                                this[h] = this[e].selectAll("path").data(d), this[g].enter().append("circle").attr("r", 5).call(this[a].drag), 
+                                this[h].enter().append("path"), this[g].exit().remove(), this[h].exit().remove();
+                            }
+                        },
+                        resize: {
+                            value: function() {
+                                var b = getComputedStyle(this[f]), c = b.width, d = b.height;
+                                this[a].size([ parseInt(c), parseInt(d) ]);
                             }
                         },
                         graph: {

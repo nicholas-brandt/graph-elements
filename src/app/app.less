@@ -1,10 +1,11 @@
-html,
-body,
 svg {
-    margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
+    transition: opacity 1s;
+    opacity: 0;
+    &.resolved {
+        opacity: 1;
+    }
     circle {
         fill: orange;
         stroke: #fff;
@@ -14,4 +15,123 @@ svg {
         fill: none;
         stroke: #bbb;
     }
+}
+
+/*
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@gmx.de]
+ * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
+ * */
+@import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400|Droid+Sans|Poiret+One|Philosopher|Ubuntu|Open+Sans|Josefin+Sans:300,400|Lobster|Open+Sans+Condensed:300|Raleway:400,100,200,300');
+
+core-drawer-panel {
+    >core-header-panel {
+        background: @color-background;
+        &[drawer] {
+            border-right: 1px solid @color-menu-border;
+            >core-menu {
+                color: @color-menu;
+                margin: 0;
+                /deep/ .topic {
+                    font: 400 22px @font-fancy;
+                }
+                paper-button,
+                paper-item,
+                /deep/ .label-text,
+                /deep/ #label {
+                    color: @color-menu;
+                    font-family: @font-menu;
+                    font-weight: 300;
+                }
+                /deep/ .label-text,
+                /deep/ #label {
+                    font-size: 16px;
+                }
+                /deep/ paper-input /deep/ input {
+                    font-size: 18px;
+                }
+                #io>paper-dropdown-menu {
+                    width: 100%;
+                }
+                paper-icon-button {
+                    color: @color-menu;
+                    .prefixed(transition, color .3s);
+                    &[disabled] {
+                        color: @color-menu-disabled;
+                    }
+                }
+                paper-input {
+                    color: @color-grey-menu;
+                }
+                paper-button {
+                    font-size: 18px;
+                }
+                paper-item {
+                    font-size: 18px;
+                }
+            }
+        }
+        &[main] {
+            >core-toolbar>paper-icon-button[core-drawer-toggle] {
+                flex: 0 0 auto;
+            }
+        }
+        >core-toolbar {
+            background: @color-toolbar-background;
+            color: @color-toolbar;
+            font: 300 26px @font-fancy;
+        }
+    }
+}
+
+.customize(@toolbar, @toolbar-background, @menu, @background) {
+    @color-toolbar: @toolbar;
+    @color-toolbar-background: @toolbar-background;
+    @color-menu: @menu;
+    @color-background: @background;
+
+    // grey and universal
+    @color-menu-border: @color-menu;
+    @color-menu-disabled: #9E9E9E;
+    @color-grey-menu: #757575;
+
+    @font-menu: "Source Sans Pro";
+    @font-fancy: "Lobster";
+}
+
+/*
+ * http://www.google.com/design/spec/style/color.html#color-color-palette
+ * @toolbar: light 200
+ * @toolbar-background: 500
+ * @menu: 600
+ * @background: 50
+ * */
+// green
+.customize(#C5E1A5,#4CAF50,#43A047,#E8F5E9);
+
+// blue
+//.customize(#81D4FA,#2196F3,#1E88E5,#E3F2FD);
+
+// orange
+//.customize(#FFF59D,#FFC107,#FFB300,#FFF8E1);
+
+// deep purple
+//.customize(#CE93D8,#673AB7,#5E35B1,#EDE7F6);
+
+/*
+ * https://gist.github.com/Jamtis/96c77561eab939062d44
+ * */
+.prefixed(@property, @value) {
+    @{property}: %(~"-webkit-%d", @value);
+    @{property}: %(~"-moz-%d", @value);
+    @{property}: %(~"-o-%d", @value);
+    @{property}: %(~"-ms-%d", @value);
+    -webkit-@{property}: %(~"-webkit-%d", @value);
+    -moz-@{property}: %(~"-moz-%d", @value);
+    -o-@{property}: %(~"-o-%d", @value);
+    -ms-@{property}: %(~"-ms-%d", @value);
+    -webkit-@{property}: @value;
+    -moz-@{property}: @value;
+    -o-@{property}: @value;
+    -ms-@{property}: @value;
+    @{property}: @value;
 }

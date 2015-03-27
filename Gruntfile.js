@@ -29,7 +29,7 @@ module.exports = function(grunt) {
             },
             modules: {
                 options: {
-                    modules: "system"
+                    modules: "amd"
                 },
                 files: [{
                     expand: true,

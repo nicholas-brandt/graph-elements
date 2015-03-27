@@ -1,4 +1,7 @@
-Promise.all(["build/graph.m.c", "build/app/2d3.m.c", "build/app/requestAnimationFunction.m.c"].map(name => System.import(name))).then(([graphjs, _2d3, requestAnimationFunction]) => {
+import { Graph, AcyclicGraph, Tree } from "build/graph.m.c";
+import { D3SVG } from "build/app/2d3.m.c";
+import { requestAnimationFunction } from "build/app/requestAnimationFunction.m.c";
+{
     console.log("init");
     const svg = document.querySelector("svg");
     window.graph = new graphjs.Graph(true);
@@ -33,6 +36,4 @@ Promise.all(["build/graph.m.c", "build/app/2d3.m.c", "build/app/requestAnimation
     addEventListener("resize", (event) => {
         d3svg.resize();
     });
-}).catch(e => {
-    console.error(e);
-});
+}

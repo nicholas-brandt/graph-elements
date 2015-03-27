@@ -1,112 +1,175 @@
-"use strict";
-
-function applyModel(a, b, c, d) {
-    console.log("\n" + c + " | " + a.directed + " | " + d), console.time("init");
-    var e = !0, f = !1, g = void 0;
-    try {
-        for (var h, i = nodes[Symbol.iterator](); !(e = (h = i.next()).done); e = !0) {
-            var j = h.value;
-            a.addNode(j);
-        }
-    } catch (k) {
-        f = !0, g = k;
-    } finally {
+define([ "exports" ], function(exports) {
+    "use strict";
+    System["import"]("build/graph.m.c").then(function(graphjs) {
+        window.graphjs = graphjs;
+        console.log("graphjs loaded");
+        console.log("length: " + length);
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
         try {
-            !e && i["return"] && i["return"]();
-        } finally {
-            if (f) throw g;
-        }
-    }
-    var l = !0, m = !1, n = void 0;
-    try {
-        for (var o, p = b[Symbol.iterator](); !(l = (o = p.next()).done); l = !0) {
-            var q = o.value;
-            a.addEdge(q[0], q[1]);
-        }
-    } catch (k) {
-        m = !0, n = k;
-    } finally {
-        try {
-            !l && p["return"] && p["return"]();
-        } finally {
-            if (m) throw n;
-        }
-    }
-    console.timeEnd("init"), console.time("Cycle check"), console.log("Cycle: " + a.hasCycle()), 
-    console.timeEnd("Cycle check"), console.time("Edges check"), console.log("Edges: " + a.edges.length), 
-    console.timeEnd("Edges check");
-}
-
-System["import"]("build/graph.m.c").then(function(a) {
-    window.graphjs = a, console.log("graphjs loaded"), console.log("length: " + length);
-    var b = !0, c = !1, d = void 0;
-    try {
-        for (var e, f = [ "Graph", "AcyclicGraph", "Tree" ][Symbol.iterator](); !(b = (e = f.next()).done); b = !0) {
-            var g = e.value, h = !0, i = !1, j = void 0;
-            try {
-                for (var k, l = edge_array[Symbol.iterator](); !(h = (k = l.next()).done); h = !0) {
-                    var m = k.value, n = new a[g](), o = new a[g](!0);
-                    applyModel(n, m, g, m.density), applyModel(o, m, g, m.density);
-                }
-            } catch (p) {
-                i = !0, j = p;
-            } finally {
+            for (var _iterator = [ "Graph", "AcyclicGraph", "Tree" ][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var _name = _step.value;
+                var _iteratorNormalCompletion2 = true;
+                var _didIteratorError2 = false;
+                var _iteratorError2 = undefined;
                 try {
-                    !h && l["return"] && l["return"]();
+                    for (var _iterator2 = edge_array[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        var edges = _step2.value;
+                        var graph = new graphjs[_name]();
+                        var dgraph = new graphjs[_name](true);
+                        applyModel(graph, edges, _name, edges.density);
+                        applyModel(dgraph, edges, _name, edges.density);
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
                 } finally {
-                    if (i) throw j;
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+                            _iterator2["return"]();
+                        }
+                    } finally {
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator["return"]) {
+                    _iterator["return"]();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
                 }
             }
         }
-    } catch (p) {
-        c = !0, d = p;
+    })["catch"](function(e) {
+        console.error(e);
+    });
+    function applyModel(graph, edges, name, densitiy) {
+        console.log("\n" + name + " | " + graph.directed + " | " + densitiy);
+        console.time("init");
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+        try {
+            for (var _iterator = nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var node = _step.value;
+                graph.addNode(node);
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator["return"]) {
+                    _iterator["return"]();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+        try {
+            for (var _iterator2 = edges[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var edge = _step2.value;
+                graph.addEdge(edge[0], edge[1]);
+            }
+        } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+                    _iterator2["return"]();
+                }
+            } finally {
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
+                }
+            }
+        }
+        console.timeEnd("init");
+        console.time("Cycle check");
+        console.log("Cycle: " + graph.hasCycle());
+        console.timeEnd("Cycle check");
+        console.time("Edges check");
+        console.log("Edges: " + graph.edges.length);
+        console.timeEnd("Edges check");
+    }
+    console.time("preparation");
+    var length = 20;
+    var nodes = [];
+    var edge_array = [];
+    var densities = [ 0, .01, .5, 1, 10 ];
+    for (var i = 0; i < length; ++i) {
+        nodes.push(i);
+    }
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+    try {
+        for (var _iterator = densities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var density = _step.value;
+            var edges = [];
+            for (var i = 0; i < Math.pow(length, 2) * density; ++i) {
+                edges.push([ Math.floor(Math.random() * length), Math.floor(Math.random() * length) ]);
+            }
+            edges.density = density;
+            edge_array.push(edges);
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
     } finally {
         try {
-            !b && f["return"] && f["return"]();
+            if (!_iteratorNormalCompletion && _iterator["return"]) {
+                _iterator["return"]();
+            }
         } finally {
-            if (c) throw d;
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
         }
     }
-})["catch"](function(a) {
-    console.error(a);
-}), console.time("preparation");
-
-for (var length = 20, nodes = [], edge_array = [], densities = [ 0, .01, .5, 1, 10 ], i = 0; length > i; ++i) nodes.push(i);
-
-var _iteratorNormalCompletion = !0, _didIteratorError = !1, _iteratorError = void 0;
-
-try {
-    for (var _iterator = densities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = !0) {
-        for (var density = _step.value, edges = [], i = 0; i < Math.pow(length, 2) * density; ++i) edges.push([ Math.floor(Math.random() * length), Math.floor(Math.random() * length) ]);
-        edges.density = density, edge_array.push(edges);
-    }
-} catch (err) {
-    _didIteratorError = !0, _iteratorError = err;
-} finally {
-    try {
-        !_iteratorNormalCompletion && _iterator["return"] && _iterator["return"]();
-    } finally {
-        if (_didIteratorError) throw _iteratorError;
-    }
-}
-
-var static_edges = function() {
-    var a = [], b = !0, c = !1, d = void 0;
-    try {
-        for (var e, f = nodes[Symbol.iterator](); !(b = (e = f.next()).done); b = !0) {
-            var g = e.value;
-            a.push([ Math.floor(Math.abs(Math.sin(g)) * (length - 1)), Math.floor(Math.abs(Math.cos(g)) * (length - 1)) ]);
-        }
-    } catch (h) {
-        c = !0, d = h;
-    } finally {
+    var static_edges = function() {
+        var _static_edges = [];
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
         try {
-            !b && f["return"] && f["return"]();
+            for (var _iterator2 = nodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                var node = _step2.value;
+                _static_edges.push([ Math.floor(Math.abs(Math.sin(node)) * (length - 1)), Math.floor(Math.abs(Math.cos(node)) * (length - 1)) ]);
+            }
+        } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
         } finally {
-            if (c) throw d;
+            try {
+                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+                    _iterator2["return"]();
+                }
+            } finally {
+                if (_didIteratorError2) {
+                    throw _iteratorError2;
+                }
+            }
         }
-    }
-    return a;
-}();
-
-static_edges.density = 1, edge_array.push(static_edges), console.timeEnd("preparation");
+        return _static_edges;
+    }();
+    static_edges.density = 1;
+    edge_array.push(static_edges);
+    console.timeEnd("preparation");
+});

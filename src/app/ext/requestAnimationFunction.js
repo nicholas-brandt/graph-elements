@@ -2,7 +2,7 @@
  * Author: Nicholas-Philip Brandt [nicholas.brandt@gmx.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
-export function requestAnimationFunction(callback, weak = false) {
+export function requestAnimationFunction(callback, weak = true) {
     //{updated} defines whether the frame has been animated since the last call
     let updated = true;
     //{args} is passed to the callback on frame animation
@@ -26,6 +26,6 @@ export function requestAnimationFunction(callback, weak = false) {
             updated = false;
         }
         //override arguments if {weak} != false;
-        else if (!!weak) args = arguments;
+        else if ( !! weak) args = arguments;
     };
 };

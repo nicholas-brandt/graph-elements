@@ -15,7 +15,8 @@ module.exports = function(grunt) {
         babel: {
             options: {
                 experimental: true,
-                compact: false
+                compact: false,
+                modules: "amd"
             },
             scripts: {
                 files: [{
@@ -24,20 +25,7 @@ module.exports = function(grunt) {
                     dest: "build/",
                     ext: ".c.js",
                     extDot: "last",
-                    src: ["**/*.js", "!**/*.m.js"]
-                }]
-            },
-            modules: {
-                options: {
-                    modules: "amd"
-                },
-                files: [{
-                    expand: true,
-                    cwd: "src/",
-                    dest: "build/",
-                    ext: ".c.js",
-                    extDot: "last",
-                    src: ["**/*.m.js"]
+                    src: ["**/*.js"]
                 }]
             }
         },
@@ -45,21 +33,23 @@ module.exports = function(grunt) {
             minify: {
                 options: {
                     beautify: false,
-                    sequences: true,
-                    properties: true,
-                    dead_code: true,
-                    drop_debugger: true,
-                    conditionals: true,
-                    comparisons: true,
-                    evaluate: true,
-                    booleans: true,
-                    loops: true,
-                    unused: true,
-                    hoist_funs: true,
-                    if_return: true,
-                    join_vars: true,
-                    cascade: true,
-                    negate_iife: true,
+                    compress: {
+                        sequences: true,
+                        properties: true,
+                        dead_code: true,
+                        drop_debugger: true,
+                        conditionals: true,
+                        comparisons: true,
+                        evaluate: true,
+                        booleans: true,
+                        loops: true,
+                        unused: true,
+                        hoist_funs: true,
+                        if_return: true,
+                        join_vars: true,
+                        cascade: true,
+                        negate_iife: true,
+                    },
                     mangle: false
                 },
                 files: [{
@@ -73,8 +63,14 @@ module.exports = function(grunt) {
             },
             beautify: {
                 options: {
-                    beautify: true,
-                    width: 200
+                    beautify: {
+                        beautify: true,
+                        width: 200,
+                        space_colon: false
+                    },
+                    compress: false,
+                    screw_ie8: true,
+                    mangle: false
                 },
                 files: [{
                     expand: true,
@@ -124,8 +120,6 @@ module.exports = function(grunt) {
                     ext: ".min.html",
                     extDot: "last",
                     src: ["**/*.html"]
-                }, {
-                    "build/app/vulcanize.html": "build/app/polymer.min.html"
                 }]
             }
         },
@@ -144,13 +138,9 @@ module.exports = function(grunt) {
             options: {
                 atBegin: true
             },
-            compileScripts: {
-                files: ["src/**/*.js", "!src/**/*.m.js"],
+            transpileScripts: {
+                files: ["src/**/*.js"],
                 tasks: ["babel:scripts"]
-            },
-            compileModules: {
-                files: ["src/**/*.m.js"],
-                tasks: ["babel:modules"]
             },
             minifyScripts: {
                 files: ["build/**/*.c.js"],

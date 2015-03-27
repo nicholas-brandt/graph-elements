@@ -4,11 +4,15 @@
 <head>
     <title>GraphJS</title>
     <link rel="stylesheet" href="app.css">
+    <script src="../../src/app/ext/Array.from.js"></script>
     <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
-    <link rel="import" href="polymer.min.html">
+    <link rel="import" href="ext/polymer.min.html">
     <script src="../../node_modules/requirejs/require.js"></script>
-    
-    <script src="app.c.js"></script>
+    <script>
+        require(["app.c.js"], function() {
+            console.log("init");
+        });
+    </script>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-web-app-capable" content="yes">
 </head>

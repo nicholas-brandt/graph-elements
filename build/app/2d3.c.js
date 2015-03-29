@@ -83,12 +83,6 @@ define([ "exports", "../../node_modules/d3/d3", "ext/requestAnimationFunction.c"
                 });
             });
             this.update();
-            window.begin = performance.now();
-            window.sum = 0;
-            setInterval(function() {
-                console.log((performance.now() - begin) / window.sum);
-                force.resume();
-            }, 3e3);
         }
         _createClass(D3SVG, {
             update:{

@@ -147,7 +147,11 @@ define([ "exports" ], function(exports) {
                                         var _step2$value = _slicedToArray(_step2.value, 2);
                                         var dependent = _step2$value[0];
                                         var weight = _step2$value[1];
-                                        edges.push([ node, dependent, weight ]);
+                                        edges.push({
+                                            source:node,
+                                            target:dependent,
+                                            weight:weight
+                                        });
                                     }
                                 } catch (err) {
                                     _didIteratorError2 = true;

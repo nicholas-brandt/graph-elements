@@ -22,7 +22,11 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
         get edges() {
             const edges = [];
             for (let [node, relations] of this[$nodes])
-                for (let [dependent, weight] of relations.dependents) edges.push([node, dependent, weight]);
+                for (let [dependent, weight] of relations.dependents) edges.push({
+                    source: node,
+                    target: dependent,
+                    weight: weight
+                });
             return edges;
         }
         addNode(object) {

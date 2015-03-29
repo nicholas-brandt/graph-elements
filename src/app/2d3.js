@@ -32,7 +32,7 @@ export class D3SVG {
         this[$svg] = window.svg = d3.select(svg);
         this[$force].on("tick", () => {
             this[$circle_data].attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
-            this[$path_data].attr("d", ([source, intermediate, target]) => ("M" + source.x + "," + source.y + "S" + intermediate.x + "," + intermediate.y + " " + target.x + "," + target.y));
+            this[$path_data].attr("d", ([source, target]) => ("M" + source.x + "," + source.y + "L " + target.x + "," + target.y));
         });
         this.update();
     }
@@ -40,7 +40,6 @@ export class D3SVG {
         this.resize();
         const nodes = [];
         const edges = [];
-        const intermediates = [];
         const links = [];
         const node_map = new Map;
         for (let node of this[$graph].nodes.keys()) {
@@ -48,22 +47,17 @@ export class D3SVG {
             node_map.set(node, wrap);
             nodes.push(wrap);
         }
-        for (let [source, target] of this[$graph].edges) {
+        for (let {source, target} of this[$graph].edges) {
             const source_wrap = node_map.get(source);
             const target_wrap = node_map.get(target);
-            const intermediate = {};
-            intermediates.push(intermediate);
             links.push({
                 source: source_wrap,
-                target: intermediate
-            }, {
-                source: intermediate,
                 target: target_wrap
             });
-            edges.push([source_wrap, intermediate, target_wrap]);
+            edges.push([source_wrap, target_wrap]);
         }
         // forced nodes must be a closed set!
-        this[$force].nodes(nodes.concat(intermediates)).links(links);
+        this[$force].nodes(nodes).links(links);
         this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
         this[$path_data] = this[$svg].selectAll("path").data(edges);
         this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);

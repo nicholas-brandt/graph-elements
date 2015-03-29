@@ -7,12 +7,12 @@ define([ "exports", "../graph.c", "2d3.c" ], function(exports, _graphC, _d3C) {
     {
         (function() {
             var svg = document.querySelector("svg");
-            window.graph = new Graph(true);
+            window.graph = new Tree(true);
             var length = 200;
             for (var i = 0; i < length; ++i) {
                 graph.addNode(i);
             }
-            for (var i = 0; i < length * .8; ++i) {
+            for (var i = 0; i < length * 2.8; ++i) {
                 graph.addEdge(i % length, Math.floor(Math.random() * length));
             }
             window.d3svg = new D3SVG(svg, graph);
@@ -31,7 +31,7 @@ define([ "exports", "../graph.c", "2d3.c" ], function(exports, _graphC, _d3C) {
             }, 2e3);
             force.gravity(.8);
             force.friction(0);
-            force.linkDistance(5);
+            force.linkDistance(10);
             force.theta(.6);
             force.alpha(.5);
             force.start();

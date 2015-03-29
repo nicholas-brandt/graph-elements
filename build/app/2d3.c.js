@@ -1,4 +1,4 @@
-define([ "exports", "../../node_modules/d3/d3.min", "ext/requestAnimationFunction.c" ], function(exports, _node_modulesD3D3Min, _extRequestAnimationFunctionC) {
+define([ "exports", "../../node_modules/d3/d3", "ext/requestAnimationFunction.c" ], function(exports, _node_modulesD3D3, _extRequestAnimationFunctionC) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -40,7 +40,7 @@ define([ "exports", "../../node_modules/d3/d3.min", "ext/requestAnimationFunctio
     Object.defineProperty(exports, "__esModule", {
         value:true
     });
-    var d3 = _interopRequire(_node_modulesD3D3Min);
+    var d3 = _interopRequire(_node_modulesD3D3);
     var requestAnimationFunction = _extRequestAnimationFunctionC.requestAnimationFunction;
     var $force = Symbol();
     var $svg = Symbol();
@@ -49,6 +49,10 @@ define([ "exports", "../../node_modules/d3/d3.min", "ext/requestAnimationFunctio
     var $path_data = Symbol();
     var $graph = Symbol();
     var $resize = Symbol();
+    var Wrap = function Wrap(node) {
+        _classCallCheck(this, Wrap);
+        this.value = node;
+    };
     var D3SVG = exports.D3SVG = function() {
         function D3SVG(svg, graph) {
             var _this = this;
@@ -96,9 +100,7 @@ define([ "exports", "../../node_modules/d3/d3.min", "ext/requestAnimationFunctio
                     try {
                         for (var _iterator = this[$graph].nodes.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                             var node = _step.value;
-                            var wrap = {
-                                value:node
-                            };
+                            var wrap = new Wrap(node);
                             node_map.set(node, wrap);
                             nodes.push(wrap);
                         }

@@ -1,4 +1,4 @@
-import d3 from "../../node_modules/d3/d3.min";
+import d3 from "../../node_modules/d3/d3";
 import { requestAnimationFunction } from "ext/requestAnimationFunction.c";
 const $force = Symbol();
 const $svg = Symbol();
@@ -7,6 +7,11 @@ const $circle_data = Symbol();
 const $path_data = Symbol();
 const $graph = Symbol();
 const $resize = Symbol();
+class Wrap {
+    constructor(node) {
+        this.value = node;
+    }
+}
 /**
  * @class User interface
  * Displays the data of the given graph.
@@ -39,11 +44,7 @@ export class D3SVG {
         const links = [];
         const node_map = new Map;
         for (let node of this[$graph].nodes.keys()) {
-            const wrap = {
-                value: node
-                //x: Math.random() * width,
-                //y: height / 2
-            };
+            const wrap = new Wrap(node);
             node_map.set(node, wrap);
             nodes.push(wrap);
         }
@@ -61,6 +62,7 @@ export class D3SVG {
             });
             edges.push([source_wrap, intermediate, target_wrap]);
         }
+        // forced nodes must be a closed set!
         this[$force].nodes(nodes.concat(intermediates)).links(links);
         this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
         this[$path_data] = this[$svg].selectAll("path").data(edges);

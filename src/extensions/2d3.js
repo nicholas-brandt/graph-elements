@@ -7,11 +7,11 @@ const $circle_data = Symbol();
 const $path_data = Symbol();
 const $graph = Symbol();
 const $resize = Symbol();
-class Wrap {
-    constructor(node) {
-        this.value = node;
-    }
-}
+const $drawing = Symbol();
+const arrow = {
+    width: 5,
+    length: 2.2
+};
 /**
  * @class User interface
  * Displays the data of the given graph.
@@ -26,44 +26,49 @@ export class D3SVG {
             force.size([parseInt(width), parseInt(height)]);
             force.alpha(0.1);
         });
+        this[$drawing] = true;
         this[$graph] = graph;
         this[$dom_svg] = svg;
         this[$force] = force;
         this[$svg] = window.svg = d3.select(svg);
         this[$force].on("tick", () => {
-            this[$circle_data].attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
-            this[$path_data].attr("d", ({source, target}) => ("M" + source.x + "," + source.y + "L " + target.x + "," + target.y));
+            if (this.drawing) {
+                this[$circle_data].attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
+                this[$path_data].attr("d", ({source, target}) => {
+                    const dx = source.x - target.x;
+                    const dy = source.y - target.y;
+                    const hyp = Math.hypot(dx, dy);
+                    const nx = dx / hyp * arrow.width;
+                    const ny = dy / hyp * arrow.width;
+                    // line
+                    //return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
+                    // triangle
+                    return "M" + target.x + "," + target.y + "l " + dx + "," + dy + "l " + -ny + "," + nx + "L " + (source.x - nx * arrow.length) + "," + (source.y - ny * arrow.length) + "L " + (source.x + ny) + "," + (source.y - nx) + "L " + source.x + "," + source.y;
+                });
+            }
         });
+        this.resize();
         this.update();
     }
     update() {
-        this.resize();
-        const nodes = [];
-        const edges = [];
-        {
-            const node_map = new Map;
-            for (let node of this[$graph].nodes.keys()) {
-                const wrap = new Wrap(node);
-                node_map.set(node, wrap);
-                nodes.push(wrap);
-            }
-            for (let {source, target} of this[$graph].edges) {
-                const source_wrap = node_map.get(source);
-                const target_wrap = node_map.get(target);
-                edges.push({
-                    source: source_wrap,
-                    target: target_wrap
-                });
-            }
-        }
+        const node_map = new Map([for ([i] of this[$graph].nodes) [i, {
+            value: i,
+            x: Math.random(),
+            y: Math.random()
+        }]]);
+        const nodes = [for ([, node] of node_map) node];
+        const edges = [for ({source, target} of this[$graph].edges) {
+            source: node_map.get(source),
+            target: node_map.get(target)
+        }];
         // forced nodes must be a closed set!
         this[$force].nodes(nodes).links(edges);
-        this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
         this[$path_data] = this[$svg].selectAll("path").data(edges);
-        this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
+        this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
         this[$path_data].enter().append("path");
-        this[$circle_data].exit().remove();
+        this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
         this[$path_data].exit().remove();
+        this[$circle_data].exit().remove();
     }
     resize() {
         this[$resize]();
@@ -73,5 +78,11 @@ export class D3SVG {
     }
     get force() {
         return this[$force];
+    }
+    get drawing() {
+        return this[$drawing];
+    }
+    set drawing(drawing = true) {
+        return this[$drawing] = !!drawing;
     }
 };

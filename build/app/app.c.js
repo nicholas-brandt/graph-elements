@@ -7,38 +7,27 @@ define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _gr
     {
         (function() {
             var svg = document.querySelector("svg");
-            window.graph = new AcyclicGraph();
-            var length = 200;
-            for (var i = 0; i < length; ++i) {
+            window.graph = new AcyclicGraph(true);
+            var size = 200;
+            for (var i = 0; i < size; ++i) {
                 graph.addNode(i);
             }
-            for (var i = 0; i < length * 2.8; ++i) {
-                graph.addEdge(i % length, Math.floor(Math.random() * length));
+            for (var i = 0; i < size * 1.05; ++i) {
+                graph.addEdge(i % size, Math.floor(Math.random() * size));
             }
             window.d3svg = new D3SVG(svg, graph);
+            d3svg.drawing = false;
             var force = d3svg.force;
-            setTimeout(function() {
-                force.friction(.7);
-            }, 200);
-            setTimeout(function() {
-                svg.classList.add("resolved");
-            }, 700);
-            setTimeout(function() {
-                force.friction(.9);
-                force.gravity(.02);
-                force.charge(-200);
-                force.alpha(.25);
-            }, 2e3);
-            setTimeout(function() {
-                force.gravity(.04);
-            }, 6500);
-            force.gravity(.8);
-            force.friction(0);
-            force.linkDistance(15);
-            force.linkStrength(3);
-            force.theta(.9);
-            force.alpha(.5);
+            force.charge(-200);
+            force.linkDistance(18);
+            force.linkStrength(2.5);
+            force.gravity(.15);
             force.start();
+            setTimeout(function() {
+                d3svg.drawing = true;
+                svg.classList.add("resolved");
+                force.resume();
+            }, 2e3);
             addEventListener("resize", function(event) {
                 d3svg.resize();
             });

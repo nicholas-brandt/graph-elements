@@ -9,26 +9,26 @@ svg.resolved {
   opacity: 1;
 }
 svg circle {
-  fill: orange;
+  fill: #673ab7;
   stroke: #fff;
   stroke-width: 1.5px;
 }
 svg path {
-  fill: none;
-  stroke: #bbb;
+  fill: #757575;
+  stroke: #757575;
 }
 /*
  * Author: Nicholas-Philip Brandt [nicholas.brandt@gmx.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 core-drawer-panel > core-header-panel {
-  background: #e8f5e9;
+  background: #ede7f6;
 }
 core-drawer-panel > core-header-panel[drawer] {
-  border-right: 1px solid #43a047;
+  border-right: 1px solid #5e35b1;
 }
 core-drawer-panel > core-header-panel[drawer] > core-menu {
-  color: #43a047;
+  color: #5e35b1;
   margin: 0;
 }
 core-drawer-panel > core-header-panel[drawer] > core-menu /deep/ .topic {
@@ -38,7 +38,7 @@ core-drawer-panel > core-header-panel[drawer] > core-menu paper-button,
 core-drawer-panel > core-header-panel[drawer] > core-menu paper-item,
 core-drawer-panel > core-header-panel[drawer] > core-menu /deep/ .label-text,
 core-drawer-panel > core-header-panel[drawer] > core-menu /deep/ #label {
-  color: #43a047;
+  color: #5e35b1;
   font-family: "Source Sans Pro";
   font-weight: 300;
 }
@@ -53,7 +53,7 @@ core-drawer-panel > core-header-panel[drawer] > core-menu #io > paper-dropdown-m
   width: 100%;
 }
 core-drawer-panel > core-header-panel[drawer] > core-menu paper-icon-button {
-  color: #43a047;
+  color: #5e35b1;
   transition: -webkit-color 0.3s;
   transition: -moz-color 0.3s;
   transition: -o-color 0.3s;
@@ -84,8 +84,8 @@ core-drawer-panel > core-header-panel[main] > core-toolbar > paper-icon-button[c
   flex: 0 0 auto;
 }
 core-drawer-panel > core-header-panel > core-toolbar {
-  background: #4caf50;
-  color: #c5e1a5;
+  background: #673ab7;
+  color: #ce93d8;
   font: 300 26px "Lobster";
 }
 /*

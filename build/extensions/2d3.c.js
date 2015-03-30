@@ -3,6 +3,20 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
     };
+    var _slicedToArray = function(arr, i) {
+        if (Array.isArray(arr)) {
+            return arr;
+        } else if (Symbol.iterator in Object(arr)) {
+            var _arr = [];
+            for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done; ) {
+                _arr.push(_step.value);
+                if (i && _arr.length === i) break;
+            }
+            return _arr;
+        } else {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance");
+        }
+    };
     var _createClass = function() {
         function defineProperties(target, props) {
             for (var key in props) {
@@ -35,9 +49,10 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     var $path_data = Symbol();
     var $graph = Symbol();
     var $resize = Symbol();
-    var Wrap = function Wrap(node) {
-        _classCallCheck(this, Wrap);
-        this.value = node;
+    var $drawing = Symbol();
+    var arrow = {
+        width:5,
+        length:2.2
     };
     var D3SVG = exports.D3SVG = function() {
         function D3SVG(svg, graph) {
@@ -53,39 +68,49 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                 force.size([ parseInt(width), parseInt(height) ]);
                 force.alpha(.1);
             });
+            this[$drawing] = true;
             this[$graph] = graph;
             this[$dom_svg] = svg;
             this[$force] = force;
             this[$svg] = window.svg = d3.select(svg);
             this[$force].on("tick", function() {
-                _this[$circle_data].attr("transform", function(node) {
-                    return "translate(" + node.x + "," + node.y + ")";
-                });
-                _this[$path_data].attr("d", function(_ref) {
-                    var source = _ref.source;
-                    var target = _ref.target;
-                    return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
-                });
+                if (_this.drawing) {
+                    _this[$circle_data].attr("transform", function(node) {
+                        return "translate(" + node.x + "," + node.y + ")";
+                    });
+                    _this[$path_data].attr("d", function(_ref) {
+                        var source = _ref.source;
+                        var target = _ref.target;
+                        var dx = source.x - target.x;
+                        var dy = source.y - target.y;
+                        var hyp = Math.hypot(dx, dy);
+                        var nx = dx / hyp * arrow.width;
+                        var ny = dy / hyp * arrow.width;
+                        return "M" + target.x + "," + target.y + "l " + dx + "," + dy + "l " + -ny + "," + nx + "L " + (source.x - nx * arrow.length) + "," + (source.y - ny * arrow.length) + "L " + (source.x + ny) + "," + (source.y - nx) + "L " + source.x + "," + source.y;
+                    });
+                }
             });
+            this.resize();
             this.update();
         }
         _createClass(D3SVG, {
             update:{
                 value:function update() {
-                    this.resize();
-                    var nodes = [];
-                    var edges = [];
-                    {
-                        var node_map = new Map();
+                    var _this = this;
+                    var node_map = new Map(function() {
+                        var _ref = [];
                         var _iteratorNormalCompletion = true;
                         var _didIteratorError = false;
                         var _iteratorError = undefined;
                         try {
-                            for (var _iterator = this[$graph].nodes.keys()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                var node = _step.value;
-                                var wrap = new Wrap(node);
-                                node_map.set(node, wrap);
-                                nodes.push(wrap);
+                            for (var _iterator = _this[$graph].nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var _step$value = _slicedToArray(_step.value, 1);
+                                var i = _step$value[0];
+                                _ref.push([ i, {
+                                    value:i,
+                                    x:Math.random(),
+                                    y:Math.random()
+                                } ]);
                             }
                         } catch (err) {
                             _didIteratorError = true;
@@ -101,43 +126,73 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                                 }
                             }
                         }
-                        var _iteratorNormalCompletion2 = true;
-                        var _didIteratorError2 = false;
-                        var _iteratorError2 = undefined;
+                        return _ref;
+                    }());
+                    var nodes = function() {
+                        var _nodes = [];
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
                         try {
-                            for (var _iterator2 = this[$graph].edges[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                                var _step2$value = _step2.value;
-                                var source = _step2$value.source;
-                                var target = _step2$value.target;
-                                var source_wrap = node_map.get(source);
-                                var target_wrap = node_map.get(target);
-                                edges.push({
-                                    source:source_wrap,
-                                    target:target_wrap
-                                });
+                            for (var _iterator = node_map[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var _step$value = _slicedToArray(_step.value, 2);
+                                var node = _step$value[1];
+                                _nodes.push(node);
                             }
                         } catch (err) {
-                            _didIteratorError2 = true;
-                            _iteratorError2 = err;
+                            _didIteratorError = true;
+                            _iteratorError = err;
                         } finally {
                             try {
-                                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-                                    _iterator2["return"]();
+                                if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                    _iterator["return"]();
                                 }
                             } finally {
-                                if (_didIteratorError2) {
-                                    throw _iteratorError2;
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
                                 }
                             }
                         }
-                    }
+                        return _nodes;
+                    }();
+                    var edges = function() {
+                        var _edges = [];
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
+                        try {
+                            for (var _iterator = _this[$graph].edges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var _step$value = _step.value;
+                                var source = _step$value.source;
+                                var target = _step$value.target;
+                                _edges.push({
+                                    source:node_map.get(source),
+                                    target:node_map.get(target)
+                                });
+                            }
+                        } catch (err) {
+                            _didIteratorError = true;
+                            _iteratorError = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                    _iterator["return"]();
+                                }
+                            } finally {
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
+                                }
+                            }
+                        }
+                        return _edges;
+                    }();
                     this[$force].nodes(nodes).links(edges);
-                    this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
                     this[$path_data] = this[$svg].selectAll("path").data(edges);
-                    this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
+                    this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
                     this[$path_data].enter().append("path");
-                    this[$circle_data].exit().remove();
+                    this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
                     this[$path_data].exit().remove();
+                    this[$circle_data].exit().remove();
                 }
             },
             resize:{
@@ -153,6 +208,15 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
             force:{
                 get:function() {
                     return this[$force];
+                }
+            },
+            drawing:{
+                get:function() {
+                    return this[$drawing];
+                },
+                set:function() {
+                    var drawing = arguments[0] === undefined ? true :arguments[0];
+                    return this[$drawing] = !!drawing;
                 }
             }
         });

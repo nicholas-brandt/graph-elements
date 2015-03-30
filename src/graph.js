@@ -1,9 +1,8 @@
-export const [Graph, AcyclicGraph, Tree] = (() => {
     const $nodes = Symbol();
     const $dependencies = Symbol();
     const $dependents = Symbol();
     const $directed = Symbol();
-    class Graph {
+    export class Graph {
         constructor(directed = false) {
             this[$nodes] = new Map;
             this.directed = !!directed;
@@ -106,7 +105,7 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
             }
         }
     }
-    class AcyclicGraph extends Graph {
+    export class AcyclicGraph extends Graph {
         addEdge(source, target, weight) {
             const added = super.addEdge(source, target, weight);
             if (added && super.hasCycle())
@@ -118,11 +117,9 @@ export const [Graph, AcyclicGraph, Tree] = (() => {
             return !!real && super.hasCycle();
         }
     }
-    class Tree extends AcyclicGraph {
+    export class Tree extends AcyclicGraph {
         addEdge(source, target, weight) {
             if (this[$nodes].get(target)[$dependencies].size > 0) return false;
             return super.addEdge(source, target, weight);
         }
     }
-    return [Graph, AcyclicGraph, Tree];
-})();

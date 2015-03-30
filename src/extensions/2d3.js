@@ -1,5 +1,5 @@
 import d3 from "../../node_modules/d3/d3";
-import { requestAnimationFunction } from "ext/requestAnimationFunction.c";
+import { requestAnimationFunction } from "../external/requestAnimationFunction.c";
 const $force = Symbol();
 const $svg = Symbol();
 const $dom_svg = Symbol();
@@ -32,7 +32,7 @@ export class D3SVG {
         this[$svg] = window.svg = d3.select(svg);
         this[$force].on("tick", () => {
             this[$circle_data].attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
-            this[$path_data].attr("d", ([source, target]) => ("M" + source.x + "," + source.y + "L " + target.x + "," + target.y));
+            this[$path_data].attr("d", ({source, target}) => ("M" + source.x + "," + source.y + "L " + target.x + "," + target.y));
         });
         this.update();
     }
@@ -40,24 +40,24 @@ export class D3SVG {
         this.resize();
         const nodes = [];
         const edges = [];
-        const links = [];
-        const node_map = new Map;
-        for (let node of this[$graph].nodes.keys()) {
-            const wrap = new Wrap(node);
-            node_map.set(node, wrap);
-            nodes.push(wrap);
-        }
-        for (let {source, target} of this[$graph].edges) {
-            const source_wrap = node_map.get(source);
-            const target_wrap = node_map.get(target);
-            links.push({
-                source: source_wrap,
-                target: target_wrap
-            });
-            edges.push([source_wrap, target_wrap]);
+        {
+            const node_map = new Map;
+            for (let node of this[$graph].nodes.keys()) {
+                const wrap = new Wrap(node);
+                node_map.set(node, wrap);
+                nodes.push(wrap);
+            }
+            for (let {source, target} of this[$graph].edges) {
+                const source_wrap = node_map.get(source);
+                const target_wrap = node_map.get(target);
+                edges.push({
+                    source: source_wrap,
+                    target: target_wrap
+                });
+            }
         }
         // forced nodes must be a closed set!
-        this[$force].nodes(nodes).links(links);
+        this[$force].nodes(nodes).links(edges);
         this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
         this[$path_data] = this[$svg].selectAll("path").data(edges);
         this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);

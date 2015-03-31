@@ -341,6 +341,51 @@ define([ "exports" ], function(exports) {
                         }
                     }
                 }
+            },
+            getDegree:{
+                value:function getDegree(node) {
+                    var _this = this;
+                    var relations = this[$nodes].get(node);
+                    if (!relations) {
+                        return function() {
+                            var _ref = [];
+                            var _iteratorNormalCompletion = true;
+                            var _didIteratorError = false;
+                            var _iteratorError = undefined;
+                            try {
+                                for (var _iterator = _this[$nodes][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                    var _step$value = _slicedToArray(_step.value, 2);
+                                    var _node = _step$value[0];
+                                    var _relations = _step$value[1];
+                                    _ref.push({
+                                        node:_node,
+                                        "in":_relations.dependencies.size,
+                                        out:_relations.dependents.size
+                                    });
+                                }
+                            } catch (err) {
+                                _didIteratorError = true;
+                                _iteratorError = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                        _iterator["return"]();
+                                    }
+                                } finally {
+                                    if (_didIteratorError) {
+                                        throw _iteratorError;
+                                    }
+                                }
+                            }
+                            return _ref;
+                        }();
+                    }
+                    return {
+                        node:node,
+                        "in":relations.dependencies.size,
+                        out:relations.dependents.size
+                    };
+                }
             }
         });
         return Graph;

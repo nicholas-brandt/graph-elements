@@ -52,7 +52,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     var $drawing = Symbol();
     var arrow = {
         width:5,
-        length:2.2
+        length:10
     };
     var D3SVG = exports.D3SVG = function() {
         function D3SVG(svg, graph) {
@@ -84,9 +84,13 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                         var dx = source.x - target.x;
                         var dy = source.y - target.y;
                         var hyp = Math.hypot(dx, dy);
-                        var nx = dx / hyp * arrow.width;
-                        var ny = dy / hyp * arrow.width;
-                        return "M" + target.x + "," + target.y + "l " + dx + "," + dy + "l " + -ny + "," + nx + "L " + (source.x - nx * arrow.length) + "," + (source.y - ny * arrow.length) + "L " + (source.x + ny) + "," + (source.y - nx) + "L " + source.x + "," + source.y;
+                        var nx = dx / hyp;
+                        var ny = dy / hyp;
+                        var wx = nx * arrow.width;
+                        var wy = ny * arrow.width;
+                        var px = source.x - nx * arrow.length;
+                        var py = source.y - ny * arrow.length;
+                        return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
                     });
                 }
             });

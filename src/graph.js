@@ -104,6 +104,19 @@
                 }
             }
         }
+        getDegree(node) {
+            const relations = this[$nodes].get(node);
+            if (!relations) return [for ([node, relations] of this[$nodes]) {
+                node: node,
+                in: relations.dependencies.size,
+                out: relations.dependents.size
+            }];
+            return {
+                node: node,
+                in: relations.dependencies.size,
+                out: relations.dependents.size
+            };
+        }
     }
     export class AcyclicGraph extends Graph {
         addEdge(source, target, weight) {

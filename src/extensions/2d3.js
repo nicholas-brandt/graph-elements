@@ -10,7 +10,7 @@ const $resize = Symbol();
 const $drawing = Symbol();
 const arrow = {
     width: 5,
-    length: 2.2
+    length: 10
 };
 /**
  * @class User interface
@@ -38,12 +38,16 @@ export class D3SVG {
                     const dx = source.x - target.x;
                     const dy = source.y - target.y;
                     const hyp = Math.hypot(dx, dy);
-                    const nx = dx / hyp * arrow.width;
-                    const ny = dy / hyp * arrow.width;
+                    const nx = dx / hyp;
+                    const ny = dy / hyp;
+                    const wx = nx * arrow.width;
+                    const wy = ny * arrow.width;
+                    const px = source.x - nx * arrow.length;
+                    const py = source.y - ny * arrow.length;
                     // line
                     //return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
                     // triangle
-                    return "M" + target.x + "," + target.y + "l " + dx + "," + dy + "l " + -ny + "," + nx + "L " + (source.x - nx * arrow.length) + "," + (source.y - ny * arrow.length) + "L " + (source.x + ny) + "," + (source.y - nx) + "L " + source.x + "," + source.y;
+                    return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
                 });
             }
         });

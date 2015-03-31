@@ -7,12 +7,12 @@ define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _gr
     {
         (function() {
             var svg = document.querySelector("svg");
-            window.graph = new AcyclicGraph(true);
+            window.graph = new AcyclicGraph();
             var size = 200;
             for (var i = 0; i < size; ++i) {
                 graph.addNode(i);
             }
-            for (var i = 0; i < size * 1.05; ++i) {
+            for (var i = 0; i < size * 2.05; ++i) {
                 graph.addEdge(i % size, Math.floor(Math.random() * size));
             }
             window.d3svg = new D3SVG(svg, graph);

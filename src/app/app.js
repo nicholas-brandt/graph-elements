@@ -3,11 +3,11 @@ import { D3SVG } from "../extensions/2d3.c";
 {
     const svg = document.querySelector("svg");
     //window.graph = new Graph(true);
-    window.graph = new AcyclicGraph(true);
-    //window.graph = new Tree();
+    window.graph = new AcyclicGraph();
+    //window.graph = new Tree(true);
     const size = 200;
     for (let i = 0; i < size; ++i) graph.addNode(i);
-    for (let i = 0; i < size * 1.05; ++i) graph.addEdge(i % size, Math.floor(Math.random() * size));
+    for (let i = 0; i < size * 2.05; ++i) graph.addEdge(i % size, Math.floor(Math.random() * size));
     window.d3svg = new D3SVG(svg, graph);
     d3svg.drawing = false;
     // setting up the layout

@@ -241,7 +241,7 @@ define([ "exports" ], function(exports) {
                 value:function addEdge(source, target) {
                     var weight = arguments[2] === undefined ? 1 :arguments[2];
                     var nodes = this[$nodes];
-                    if ([ source, target ].every(nodes.has.bind(nodes))) {
+                    if (nodes.has(source) && nodes.has(target)) {
                         nodes.get(source)[$dependents].set(target, weight);
                         nodes.get(target)[$dependencies].set(source, weight);
                         if (!this.directed) {
@@ -256,7 +256,7 @@ define([ "exports" ], function(exports) {
             removeEdge:{
                 value:function removeEdge(source, target) {
                     var nodes = this[$nodes];
-                    if ([ source, target ].every(nodes.has.bind(nodes))) {
+                    if (nodes.has(source) && nodes.has(target)) {
                         nodes.get(source)[$dependents]["delete"](target);
                         nodes.get(target)[$dependencies]["delete"](source);
                         if (!this.directed) {

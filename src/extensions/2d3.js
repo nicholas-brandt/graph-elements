@@ -8,19 +8,49 @@ const $path_data = Symbol();
 const $graph = Symbol();
 const $resize = Symbol();
 const $drawing = Symbol();
-const arrow = {
-    width: 5,
-    length: 10
-};
+const $options = Symbol();
 /**
  * @class User interface
  * Displays the data of the given graph.
  * */
 export class D3SVG {
-    constructor(svg, graph) {
+    constructor(svg, graph, {
+        circle: {
+            radius = 6
+        } = {},
+        arrow: {
+            width = 6,
+            ratio = 2
+        } = {},
+        force: {
+            charge = -200,
+            linkDistance = 36,
+            linkStrength = 2.5,
+            gravity = 0.15
+        } = {}
+    } = {}) {
         if (!svg) throw Error("No svg element specified");
         if (!graph) throw Error("No graph specified");
+        this[$options] = {
+            circle: {
+                radius: radius
+            },
+            arrow: {
+                width: width,
+                ratio: ratio
+            },
+            force: {
+                charge: charge,
+                linkDistance: linkDistance,
+                linkStrength: linkStrength,
+                gravity: gravity
+            }
+        };
         const force = d3.layout.force();
+        force.charge(charge);
+        force.linkDistance(linkDistance);
+        force.linkStrength(linkStrength);
+        force.gravity(gravity);
         this[$resize] = requestAnimationFunction(() => {
             const {width, height} = getComputedStyle(svg);
             force.size([parseInt(width), parseInt(height)]);
@@ -38,12 +68,10 @@ export class D3SVG {
                     const dx = source.x - target.x;
                     const dy = source.y - target.y;
                     const hyp = Math.hypot(dx, dy);
-                    const nx = dx / hyp;
-                    const ny = dy / hyp;
-                    const wx = nx * arrow.width;
-                    const wy = ny * arrow.width;
-                    const px = source.x - nx * arrow.length;
-                    const py = source.y - ny * arrow.length;
+                    const wx = dx / hyp * width;
+                    const wy = dy / hyp * width;
+                    const px = source.x - wx * ratio;
+                    const py = source.y - wy * ratio;
                     // line
                     //return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
                     // triangle
@@ -70,7 +98,7 @@ export class D3SVG {
         this[$path_data] = this[$svg].selectAll("path").data(edges);
         this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
         this[$path_data].enter().append("path");
-        this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
+        this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).call(this[$force].drag);
         this[$path_data].exit().remove();
         this[$circle_data].exit().remove();
     }

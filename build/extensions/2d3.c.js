@@ -50,17 +50,54 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     var $graph = Symbol();
     var $resize = Symbol();
     var $drawing = Symbol();
-    var arrow = {
-        width:5,
-        length:10
-    };
+    var $options = Symbol();
     var D3SVG = exports.D3SVG = function() {
         function D3SVG(svg, graph) {
             var _this = this;
+            var _ref = arguments[2] === undefined ? {} :arguments[2];
+            var _ref$circle = _ref.circle;
+            _ref$circle = _ref$circle === undefined ? {} :_ref$circle;
+            var _ref$circle$radius = _ref$circle.radius;
+            var radius = _ref$circle$radius === undefined ? 6 :_ref$circle$radius;
+            var _ref$arrow = _ref.arrow;
+            _ref$arrow = _ref$arrow === undefined ? {} :_ref$arrow;
+            var _ref$arrow$width = _ref$arrow.width;
+            var width = _ref$arrow$width === undefined ? 6 :_ref$arrow$width;
+            var _ref$arrow$ratio = _ref$arrow.ratio;
+            var ratio = _ref$arrow$ratio === undefined ? 2 :_ref$arrow$ratio;
+            var _ref$force = _ref.force;
+            _ref$force = _ref$force === undefined ? {} :_ref$force;
+            var _ref$force$charge = _ref$force.charge;
+            var charge = _ref$force$charge === undefined ? -200 :_ref$force$charge;
+            var _ref$force$linkDistance = _ref$force.linkDistance;
+            var linkDistance = _ref$force$linkDistance === undefined ? 36 :_ref$force$linkDistance;
+            var _ref$force$linkStrength = _ref$force.linkStrength;
+            var linkStrength = _ref$force$linkStrength === undefined ? 2.5 :_ref$force$linkStrength;
+            var _ref$force$gravity = _ref$force.gravity;
+            var gravity = _ref$force$gravity === undefined ? .15 :_ref$force$gravity;
             _classCallCheck(this, D3SVG);
             if (!svg) throw Error("No svg element specified");
             if (!graph) throw Error("No graph specified");
+            this[$options] = {
+                circle:{
+                    radius:radius
+                },
+                arrow:{
+                    width:width,
+                    ratio:ratio
+                },
+                force:{
+                    charge:charge,
+                    linkDistance:linkDistance,
+                    linkStrength:linkStrength,
+                    gravity:gravity
+                }
+            };
             var force = d3.layout.force();
+            force.charge(charge);
+            force.linkDistance(linkDistance);
+            force.linkStrength(linkStrength);
+            force.gravity(gravity);
             this[$resize] = requestAnimationFunction(function() {
                 var _getComputedStyle = getComputedStyle(svg);
                 var width = _getComputedStyle.width;
@@ -78,18 +115,16 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                     _this[$circle_data].attr("transform", function(node) {
                         return "translate(" + node.x + "," + node.y + ")";
                     });
-                    _this[$path_data].attr("d", function(_ref) {
-                        var source = _ref.source;
-                        var target = _ref.target;
+                    _this[$path_data].attr("d", function(_ref2) {
+                        var source = _ref2.source;
+                        var target = _ref2.target;
                         var dx = source.x - target.x;
                         var dy = source.y - target.y;
                         var hyp = Math.hypot(dx, dy);
-                        var nx = dx / hyp;
-                        var ny = dy / hyp;
-                        var wx = nx * arrow.width;
-                        var wy = ny * arrow.width;
-                        var px = source.x - nx * arrow.length;
-                        var py = source.y - ny * arrow.length;
+                        var wx = dx / hyp * width;
+                        var wy = dy / hyp * width;
+                        var px = source.x - wx * ratio;
+                        var py = source.y - wy * ratio;
                         return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
                     });
                 }
@@ -194,7 +229,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                     this[$path_data] = this[$svg].selectAll("path").data(edges);
                     this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
                     this[$path_data].enter().append("path");
-                    this[$circle_data].enter().append("circle").attr("r", 5).call(this[$force].drag);
+                    this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).call(this[$force].drag);
                     this[$path_data].exit().remove();
                     this[$circle_data].exit().remove();
                 }

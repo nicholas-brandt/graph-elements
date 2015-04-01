@@ -10,8 +10,8 @@ svg.resolved {
 }
 svg circle {
   fill: #673ab7;
-  stroke: #fff;
-  stroke-width: 1.5px;
+  stroke: #ede7f6;
+  stroke-width: 1px;
 }
 svg path {
   fill: #757575;

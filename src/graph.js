@@ -51,7 +51,7 @@
         }
         addEdge(source, target, weight = 1) {
             const nodes = this[$nodes];
-            if ([source, target].every(nodes.has.bind(nodes))) {
+            if (nodes.has(source) && nodes.has(target)) {
                 nodes.get(source)[$dependents].set(target, weight);
                 nodes.get(target)[$dependencies].set(source, weight);
                 if (!this.directed) {
@@ -64,7 +64,7 @@
         }
         removeEdge(source, target) {
             const nodes = this[$nodes];
-            if ([source, target].every(nodes.has.bind(nodes))) {
+            if (nodes.has(source) && nodes.has(target)) {
                 nodes.get(source)[$dependents].delete(target);
                 nodes.get(target)[$dependencies].delete(source);
                 if (!this.directed) {

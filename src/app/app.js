@@ -3,23 +3,20 @@ import { D3SVG } from "../extensions/2d3.c";
 {
     const svg = document.querySelector("svg");
     //window.graph = new Graph(true);
-    window.graph = new AcyclicGraph();
-    //window.graph = new Tree(true);
-    const size = 200;
+    //window.graph = new AcyclicGraph();
+    window.graph = new Tree(true);
+    const size = 100;
     for (let i = 0; i < size; ++i) graph.addNode(i);
     for (let i = 0; i < size * 2.05; ++i) graph.addEdge(i % size, Math.floor(Math.random() * size));
     window.d3svg = new D3SVG(svg, graph);
     d3svg.drawing = false;
     // setting up the layout
     const force = d3svg.force;
-    force.charge(-200);
-    force.linkDistance(18);
-    force.linkStrength(2.5);
-    force.gravity(0.15);
     force.start();
     setTimeout(() => {
         d3svg.drawing = true;
         svg.classList.add("resolved");
+        force.linkStrength = 1;
         force.resume();
     }, 2000);
     addEventListener("resize", event => {

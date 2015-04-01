@@ -7,8 +7,8 @@ define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _gr
     {
         (function() {
             var svg = document.querySelector("svg");
-            window.graph = new AcyclicGraph();
-            var size = 200;
+            window.graph = new Tree(true);
+            var size = 100;
             for (var i = 0; i < size; ++i) {
                 graph.addNode(i);
             }
@@ -18,14 +18,11 @@ define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _gr
             window.d3svg = new D3SVG(svg, graph);
             d3svg.drawing = false;
             var force = d3svg.force;
-            force.charge(-200);
-            force.linkDistance(18);
-            force.linkStrength(2.5);
-            force.gravity(.15);
             force.start();
             setTimeout(function() {
                 d3svg.drawing = true;
                 svg.classList.add("resolved");
+                force.linkStrength = 1;
                 force.resume();
             }, 2e3);
             addEventListener("resize", function(event) {

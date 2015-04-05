@@ -17,6 +17,17 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
             throw new TypeError("Invalid attempt to destructure non-iterable instance");
         }
     };
+    var _extends = Object.assign || function(target) {
+        for (var i = 1; i < arguments.length; i++) {
+            var source = arguments[i];
+            for (var key in source) {
+                if (Object.prototype.hasOwnProperty.call(source, key)) {
+                    target[key] = source[key];
+                }
+            }
+        }
+        return target;
+    };
     var _createClass = function() {
         function defineProperties(target, props) {
             for (var key in props) {
@@ -52,79 +63,66 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     var $drawing = Symbol();
     var $options = Symbol();
     var D3SVG = exports.D3SVG = function() {
-        function D3SVG(svg, graph) {
+        function D3SVG(svg, graph, options) {
             var _this = this;
-            var _ref = arguments[2] === undefined ? {} :arguments[2];
-            var _ref$circle = _ref.circle;
-            _ref$circle = _ref$circle === undefined ? {} :_ref$circle;
-            var _ref$circle$radius = _ref$circle.radius;
-            var radius = _ref$circle$radius === undefined ? 6 :_ref$circle$radius;
-            var _ref$arrow = _ref.arrow;
-            _ref$arrow = _ref$arrow === undefined ? {} :_ref$arrow;
-            var _ref$arrow$width = _ref$arrow.width;
-            var width = _ref$arrow$width === undefined ? 6 :_ref$arrow$width;
-            var _ref$arrow$ratio = _ref$arrow.ratio;
-            var ratio = _ref$arrow$ratio === undefined ? 2 :_ref$arrow$ratio;
-            var _ref$force = _ref.force;
-            _ref$force = _ref$force === undefined ? {} :_ref$force;
-            var _ref$force$charge = _ref$force.charge;
-            var charge = _ref$force$charge === undefined ? -200 :_ref$force$charge;
-            var _ref$force$linkDistance = _ref$force.linkDistance;
-            var linkDistance = _ref$force$linkDistance === undefined ? 36 :_ref$force$linkDistance;
-            var _ref$force$linkStrength = _ref$force.linkStrength;
-            var linkStrength = _ref$force$linkStrength === undefined ? 2.5 :_ref$force$linkStrength;
-            var _ref$force$gravity = _ref$force.gravity;
-            var gravity = _ref$force$gravity === undefined ? .15 :_ref$force$gravity;
             _classCallCheck(this, D3SVG);
             if (!svg) throw Error("No svg element specified");
             if (!graph) throw Error("No graph specified");
-            this[$options] = {
+            options = this[$options] = _extends({
                 circle:{
-                    radius:radius
+                    radius:6
                 },
                 arrow:{
-                    width:width,
-                    ratio:ratio
+                    width:6,
+                    ratio:2
                 },
                 force:{
-                    charge:charge,
-                    linkDistance:linkDistance,
-                    linkStrength:linkStrength,
-                    gravity:gravity
+                    charge:-200,
+                    linkDistance:36,
+                    linkStrength:2.5,
+                    gravity:.15
+                },
+                size:{
+                    ratio:1
                 }
-            };
+            }, options);
+            window.dom_svg = svg;
             var force = d3.layout.force();
-            force.charge(charge);
-            force.linkDistance(linkDistance);
-            force.linkStrength(linkStrength);
-            force.gravity(gravity);
+            force.charge(options.force.charge);
+            force.linkDistance(options.force.linkDistance);
+            force.linkStrength(options.force.linkStrength);
+            force.gravity(options.force.gravity);
             this[$resize] = requestAnimationFunction(function() {
                 var _getComputedStyle = getComputedStyle(svg);
                 var width = _getComputedStyle.width;
                 var height = _getComputedStyle.height;
-                force.size([ parseInt(width), parseInt(height) ]);
+                width = parseFloat(width) / options.size.ratio;
+                height = parseFloat(height) / options.size.ratio;
+                force.size([ width, height ]);
+                svg.viewBox.baseVal.width = width;
+                svg.viewBox.baseVal.height = height;
                 force.alpha(.1);
             });
             this[$drawing] = true;
             this[$graph] = graph;
             this[$dom_svg] = svg;
             this[$force] = force;
-            this[$svg] = window.svg = d3.select(svg);
+            this[$svg] = d3.select(svg);
             this[$force].on("tick", function() {
                 if (_this.drawing) {
                     _this[$circle_data].attr("transform", function(node) {
                         return "translate(" + node.x + "," + node.y + ")";
                     });
-                    _this[$path_data].attr("d", function(_ref2) {
-                        var source = _ref2.source;
-                        var target = _ref2.target;
+                    _this[$path_data].attr("d", function(_ref) {
+                        var source = _ref.source;
+                        var target = _ref.target;
                         var dx = source.x - target.x;
                         var dy = source.y - target.y;
                         var hyp = Math.hypot(dx, dy);
-                        var wx = dx / hyp * width;
-                        var wy = dy / hyp * width;
-                        var px = source.x - wx * ratio;
-                        var py = source.y - wy * ratio;
+                        var wx = dx / hyp * options.arrow.width;
+                        var wy = dy / hyp * options.arrow.width;
+                        var px = source.x - wx * options.arrow.ratio;
+                        var py = source.y - wy * options.arrow.ratio;
                         return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
                     });
                 }
@@ -256,6 +254,16 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                 set:function() {
                     var drawing = arguments[0] === undefined ? true :arguments[0];
                     return this[$drawing] = !!drawing;
+                }
+            },
+            ratio:{
+                get:function() {
+                    return this[$options].size.ratio;
+                },
+                set:function() {
+                    var ratio = arguments[0] === undefined ? 1 :arguments[0];
+                    ratio = parseFloat(ratio);
+                    if (ratio > 0 && ratio < Infinity) this[$options].size.ratio = ratio;
                 }
             }
         });

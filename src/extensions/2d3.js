@@ -14,53 +14,48 @@ const $options = Symbol();
  * Displays the data of the given graph.
  * */
 export class D3SVG {
-    constructor(svg, graph, {
-        circle: {
-            radius = 6
-        } = {},
-        arrow: {
-            width = 6,
-            ratio = 2
-        } = {},
-        force: {
-            charge = -200,
-            linkDistance = 36,
-            linkStrength = 2.5,
-            gravity = 0.15
-        } = {}
-    } = {}) {
+    constructor(svg, graph, options) {
         if (!svg) throw Error("No svg element specified");
         if (!graph) throw Error("No graph specified");
-        this[$options] = {
+        options = this[$options] = {
             circle: {
-                radius: radius
+                radius: 6
             },
             arrow: {
-                width: width,
-                ratio: ratio
+                width: 6,
+                ratio: 2
             },
             force: {
-                charge: charge,
-                linkDistance: linkDistance,
-                linkStrength: linkStrength,
-                gravity: gravity
-            }
+                charge: -200,
+                linkDistance: 36,
+                linkStrength: 2.5,
+                gravity: 0.15
+            },
+            size: {
+                ratio: 1
+            },
+            ...options
         };
+        window.dom_svg = svg;
         const force = d3.layout.force();
-        force.charge(charge);
-        force.linkDistance(linkDistance);
-        force.linkStrength(linkStrength);
-        force.gravity(gravity);
+        force.charge(options.force.charge);
+        force.linkDistance(options.force.linkDistance);
+        force.linkStrength(options.force.linkStrength);
+        force.gravity(options.force.gravity);
         this[$resize] = requestAnimationFunction(() => {
-            const {width, height} = getComputedStyle(svg);
-            force.size([parseInt(width), parseInt(height)]);
+            let {width, height} = getComputedStyle(svg);
+            width = parseFloat(width) / options.size.ratio;
+            height = parseFloat(height) / options.size.ratio;
+            force.size([width, height]);
+            svg.viewBox.baseVal.width = width;
+            svg.viewBox.baseVal.height = height;
             force.alpha(0.1);
         });
         this[$drawing] = true;
         this[$graph] = graph;
         this[$dom_svg] = svg;
         this[$force] = force;
-        this[$svg] = window.svg = d3.select(svg);
+        this[$svg] = d3.select(svg);
         this[$force].on("tick", () => {
             if (this.drawing) {
                 this[$circle_data].attr("transform", node => ("translate(" + node.x + "," + node.y + ")"));
@@ -68,10 +63,10 @@ export class D3SVG {
                     const dx = source.x - target.x;
                     const dy = source.y - target.y;
                     const hyp = Math.hypot(dx, dy);
-                    const wx = dx / hyp * width;
-                    const wy = dy / hyp * width;
-                    const px = source.x - wx * ratio;
-                    const py = source.y - wy * ratio;
+                    const wx = dx / hyp * options.arrow.width;
+                    const wy = dy / hyp * options.arrow.width;
+                    const px = source.x - wx * options.arrow.ratio;
+                    const py = source.y - wy * options.arrow.ratio;
                     // line
                     //return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
                     // triangle
@@ -116,5 +111,12 @@ export class D3SVG {
     }
     set drawing(drawing = true) {
         return this[$drawing] = !!drawing;
+    }
+    get ratio() {
+        return this[$options].size.ratio;
+    }
+    set ratio(ratio = 1) {
+        ratio = parseFloat(ratio);
+        if (ratio > 0 && ratio < Infinity) this[$options].size.ratio = ratio;
     }
 };

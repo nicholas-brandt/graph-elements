@@ -2,20 +2,94 @@
 svg {
   width: 100%;
   height: 100%;
-  transition: opacity 1s;
-  opacity: 0;
 }
-svg.resolved {
+svg.resolved > path,
+svg.resolved > circle {
   opacity: 1;
 }
-svg circle {
+svg > circle {
   fill: #673ab7;
   stroke: #ede7f6;
   stroke-width: 1px;
+  transition: opacity 0.5s;
 }
-svg path {
+svg > path {
   fill: #757575;
   stroke: #757575;
+  stroke-width: 1px;
+  transition: opacity 0.5s;
+}
+svg > #load > path {
+  stroke: #673ab7;
+  stroke-width: 5px;
+  opacity: 0;
+  fill: none;
+  transition: -webkit-opacity 0.5s 1s;
+  transition: -moz-opacity 0.5s 1s;
+  transition: -o-opacity 0.5s 1s;
+  transition: -ms-opacity 0.5s 1s;
+  -webkit-transition: -webkit-opacity 0.5s 1s;
+  -moz-transition: -moz-opacity 0.5s 1s;
+  -o-transition: -o-opacity 0.5s 1s;
+  -ms-transition: -ms-opacity 0.5s 1s;
+  -webkit-transition: opacity 0.5s 1s;
+  -moz-transition: opacity 0.5s 1s;
+  -o-transition: opacity 0.5s 1s;
+  -ms-transition: opacity 0.5s 1s;
+  transition: opacity 0.5s 1s;
+  transform-origin: -webkit-50% 50%;
+  transform-origin: -moz-50% 50%;
+  transform-origin: -o-50% 50%;
+  transform-origin: -ms-50% 50%;
+  -webkit-transform-origin: -webkit-50% 50%;
+  -moz-transform-origin: -moz-50% 50%;
+  -o-transform-origin: -o-50% 50%;
+  -ms-transform-origin: -ms-50% 50%;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -o-transform-origin: 50% 50%;
+  -ms-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  animation: -webkit-load 0.8s linear infinite;
+  animation: -moz-load 0.8s linear infinite;
+  animation: -o-load 0.8s linear infinite;
+  animation: -ms-load 0.8s linear infinite;
+  -webkit-animation: -webkit-load 0.8s linear infinite;
+  -moz-animation: -moz-load 0.8s linear infinite;
+  -o-animation: -o-load 0.8s linear infinite;
+  -ms-animation: -ms-load 0.8s linear infinite;
+  -webkit-animation: load 0.8s linear infinite;
+  -moz-animation: load 0.8s linear infinite;
+  -o-animation: load 0.8s linear infinite;
+  -ms-animation: load 0.8s linear infinite;
+  animation: load 0.8s linear infinite;
+}
+body:not([unresolved]) svg > #load > path {
+  opacity: 1;
+}
+@keyframes load {
+  from {
+    transform: none;
+  }
+  to {
+    transform: rotate(30deg);
+  }
+}
+@-moz-keyframes load {
+  from {
+    transform: none;
+  }
+  to {
+    transform: rotate(30deg);
+  }
+}
+@-webkit-keyframes load {
+  from {
+    transform: none;
+  }
+  to {
+    transform: rotate(30deg);
+  }
 }
 /*
  * Author: Nicholas-Philip Brandt [nicholas.brandt@gmx.de]

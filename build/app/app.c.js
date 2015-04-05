@@ -7,8 +7,9 @@ define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _gr
     {
         (function() {
             var svg = document.querySelector("svg");
+            svg.removeChild(svg.querySelector("#load"));
             window.graph = new Tree(true);
-            var size = 100;
+            var size = 10;
             for (var i = 0; i < size; ++i) {
                 graph.addNode(i);
             }
@@ -26,8 +27,9 @@ define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _gr
                 force.resume();
             }, 2e3);
             addEventListener("resize", function(event) {
-                d3svg.resize();
+                d3svg.resize(true);
             });
+            d3svg.size = "auto";
         })();
     }
 });

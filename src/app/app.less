@@ -1,20 +1,44 @@
 svg {
     width: 100%;
     height: 100%;
-    transition: opacity 1s;
-    opacity: 0;
     &.resolved {
-        opacity: 1;
+        >path,
+        >circle {
+            opacity: 1;
+        }
     }
-    circle {
+    >circle {
         fill: @color-toolbar-background;
         stroke: @color-background;
         stroke-width: 1px;
+        transition: opacity 0.5s;
     }
-    path {
+    >path {
         fill: @color-grey-menu;
         stroke: @color-grey-menu;
+        stroke-width: 1px;
+        transition: opacity 0.5s;
     }
+    >#load>path {
+        stroke: @color-toolbar-background;
+        stroke-width: 5px;
+        opacity: 0;
+        fill: none;
+        .prefixed(transition, opacity 0.5s 1s);
+        .prefixed(transform-origin, 50% 50%);
+        .prefixed(animation, load 0.8s linear infinite);
+        body:not([unresolved]) & {
+            opacity: 1;
+        }
+    }
+    .keyframes(load, {
+        from {
+            transform: none;
+        }
+        to {
+            transform: rotate(30deg);
+        }
+    });
 }
 
 /*
@@ -134,4 +158,16 @@ core-drawer-panel {
     -o-@{property}: @value;
     -ms-@{property}: @value;
     @{property}: @value;
+}
+
+.keyframes(@name, @ruleset) {
+    @keyframes ~"@{name}" {
+        @ruleset();
+    }
+    @-moz-keyframes ~"@{name}" {
+        @ruleset();
+    }
+    @-webkit-keyframes ~"@{name}" {
+        @ruleset();
+    }
 }

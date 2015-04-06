@@ -1,13 +1,12 @@
 import d3 from "../../node_modules/d3/d3";
 import { requestAnimationFunction } from "../external/requestAnimationFunction.c";
+import { mixin } from "../external/mixin.c";
 const $force = Symbol();
 const $svg = Symbol();
-const $dom_svg = Symbol();
 const $circle_data = Symbol();
 const $path_data = Symbol();
 const $graph = Symbol();
 const $resize = Symbol();
-const $drawing = Symbol();
 const $options = Symbol();
 /**
  * @class User interface
@@ -17,7 +16,7 @@ export class D3SVG {
     constructor(svg, graph, options) {
         if (!svg) throw Error("No svg element specified");
         if (!graph) throw Error("No graph specified");
-        options = this[$options] = {
+        this[$options] = options = mixin({
             circle: {
                 radius: 6
             },
@@ -32,28 +31,26 @@ export class D3SVG {
                 gravity: 0.15
             },
             size: {
-                ratio: 1
+                ratio: 1,
+                resizing: true
             },
-            ...options
-        };
-        window.dom_svg = svg;
+            drawing: true
+        }, options, false);
         const force = d3.layout.force();
         force.charge(options.force.charge);
         force.linkDistance(options.force.linkDistance);
         force.linkStrength(options.force.linkStrength);
         force.gravity(options.force.gravity);
         this[$resize] = requestAnimationFunction(() => {
-            let {width, height} = getComputedStyle(svg);
-            width = parseFloat(width) / options.size.ratio;
-            height = parseFloat(height) / options.size.ratio;
-            force.size([width, height]);
-            svg.viewBox.baseVal.width = width;
-            svg.viewBox.baseVal.height = height;
-            force.alpha(0.1);
+            const {width, height} = getComputedStyle(svg);
+            if (this[$options].size.resizing) {
+                svg.viewBox.baseVal.width = parseFloat(width) / options.size.ratio;
+                svg.viewBox.baseVal.height = parseFloat(height) / options.size.ratio;
+                force.alpha(0.1);
+            }
+            force.size([svg.viewBox.baseVal.width, svg.viewBox.baseVal.height]);
         });
-        this[$drawing] = true;
         this[$graph] = graph;
-        this[$dom_svg] = svg;
         this[$force] = force;
         this[$svg] = d3.select(svg);
         this[$force].on("tick", () => {
@@ -90,10 +87,10 @@ export class D3SVG {
         }];
         // forced nodes must be a closed set!
         this[$force].nodes(nodes).links(edges);
-        this[$path_data] = this[$svg].selectAll("path").data(edges);
-        this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
-        this[$path_data].enter().append("path");
-        this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).call(this[$force].drag);
+        this[$path_data] = this[$svg].selectAll("path.edge").data(edges);
+        this[$circle_data] = this[$svg].selectAll("circle.node").data(nodes);
+        this[$path_data].enter().append("path").attr("class", "edge");
+        this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node").call(this[$force].drag);
         this[$path_data].exit().remove();
         this[$circle_data].exit().remove();
     }
@@ -107,10 +104,10 @@ export class D3SVG {
         return this[$force];
     }
     get drawing() {
-        return this[$drawing];
+        return this[$options].drawing;
     }
-    set drawing(drawing = true) {
-        return this[$drawing] = !!drawing;
+    set drawing(drawing) {
+        this[$options].drawing = !!drawing;
     }
     get ratio() {
         return this[$options].size.ratio;
@@ -118,5 +115,11 @@ export class D3SVG {
     set ratio(ratio = 1) {
         ratio = parseFloat(ratio);
         if (ratio > 0 && ratio < Infinity) this[$options].size.ratio = ratio;
+    }
+    get resizing() {
+        return this[$options].size.resizing;
+    }
+    set resizing(resizing) {
+        this[$options].size.resizing = !!resizing;
     }
 };

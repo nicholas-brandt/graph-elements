@@ -6,29 +6,35 @@ svg {
         >circle {
             opacity: 1;
         }
+        >#load {
+            opacity: 0;
+            transform: scale(1.4);
+        }
     }
     >circle {
+        opacity: 0;
         fill: @color-toolbar-background;
         stroke: @color-background;
         stroke-width: 1px;
-        transition: opacity 0.5s;
+        .prefixed(transition, opacity 0.5s 2s);
     }
     >path {
+        opacity: 0;
         fill: @color-grey-menu;
         stroke: @color-grey-menu;
         stroke-width: 1px;
-        transition: opacity 0.5s;
+        .prefixed(transition, opacity 0.5s 2s);
     }
-    >#load>path {
-        stroke: @color-toolbar-background;
-        stroke-width: 5px;
-        opacity: 0;
-        fill: none;
-        .prefixed(transition, opacity 0.5s 1s);
+    >#load {
+         opacity: 1;
         .prefixed(transform-origin, 50% 50%);
-        .prefixed(animation, load 0.8s linear infinite);
-        body:not([unresolved]) & {
-            opacity: 1;
+        .prefixed(transition, ~"opacity 0.5s, transform 0.5s");
+        >path {
+            stroke: @color-toolbar-background;
+            stroke-width: 5px;
+            fill: none;
+            .prefixed(transform-origin, 50% 50%);
+            .prefixed(animation, load 1s linear infinite);
         }
     }
     .keyframes(load, {
@@ -42,7 +48,7 @@ svg {
 }
 
 /*
- * Author: Nicholas-Philip Brandt [nicholas.brandt@gmx.de]
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 @import url('//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400|Droid+Sans|Poiret+One|Philosopher|Ubuntu|Open+Sans|Josefin+Sans:300,400|Lobster|Open+Sans+Condensed:300|Raleway:400,100,200,300');

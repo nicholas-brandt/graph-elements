@@ -1,16 +1,4 @@
 module.exports = function(grunt) {
-    /* String.prototype.endsWith polyfill */
-    if (!String.prototype.endsWith) {
-        String.prototype.endsWith = function(searchString, position) {
-            var subjectString = this.toString();
-            if (position === undefined || position > subjectString.length) {
-                position = subjectString.length;
-            }
-            position -= searchString.length;
-            var lastIndex = subjectString.indexOf(searchString, position);
-            return lastIndex !== -1 && lastIndex === position;
-        };
-    }
     grunt.initConfig({
         babel: {
             options: {
@@ -111,7 +99,8 @@ module.exports = function(grunt) {
             minify: {
                 options: {
                     removeComments: true,
-                    useShortDoctype: true
+                    useShortDoctype: true,
+                    customAttrAssign: [/\?=/g]
                 },
                 files: [{
                     expand: true,
@@ -124,15 +113,25 @@ module.exports = function(grunt) {
             }
         },
         vulcanize: {
-            /*vulcanize: {
+            vulcanize: {
                 options: {
-                    //inline: true,
+                    inline: true,
                     strip: true
                 },
                 files: {
-                    "src/app/vulcanized.html": "src/app/polymer.html"
+                    "src/external/vulcanized.html": "src/external/polymer.html"
                 }
-            }*/
+            }
+        },
+        copy: {
+            manifest: {
+                files: [{
+                    expand: true,
+                    cwd: "src/",
+                    dest: "build/",
+                    src: ["**/*.appcache"]
+                }]
+            }
         },
         watch: {
             options: {
@@ -162,10 +161,14 @@ module.exports = function(grunt) {
                 files: ["src/**/*.html"],
                 tasks: ["htmlmin:minify"]
             },
-            /*vulcanizePolymer: {
+            vulcanizePolymer: {
                 files: ["src/app/polymer.html"],
                 tasks: ["vulcanize:vulcanizePolymer"]
-            }*/
+            },
+            copy: {
+                files: ["src/**/*.appcache"],
+                tasks: ["copy"]
+            }
         }
     });
     grunt.loadNpmTasks("grunt-contrib-uglify");
@@ -174,7 +177,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-babel");
     grunt.loadNpmTasks("grunt-vulcanize");
     grunt.loadNpmTasks("grunt-contrib-htmlmin");
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", /*"vulcanize",*/ "htmlmin"]);
+    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin", "copy"]);
 };

@@ -1,4 +1,4 @@
-define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFunction.c" ], function(exports, _node_modulesD3D3, _externalRequestAnimationFunctionC) {
+define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFunction.c", "../external/mixin.c" ], function(exports, _node_modulesD3D3, _externalRequestAnimationFunctionC, _externalMixinC) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -16,17 +16,6 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
         } else {
             throw new TypeError("Invalid attempt to destructure non-iterable instance");
         }
-    };
-    var _extends = Object.assign || function(target) {
-        for (var i = 1; i < arguments.length; i++) {
-            var source = arguments[i];
-            for (var key in source) {
-                if (Object.prototype.hasOwnProperty.call(source, key)) {
-                    target[key] = source[key];
-                }
-            }
-        }
-        return target;
     };
     var _createClass = function() {
         function defineProperties(target, props) {
@@ -53,14 +42,13 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     });
     var d3 = _interopRequire(_node_modulesD3D3);
     var requestAnimationFunction = _externalRequestAnimationFunctionC.requestAnimationFunction;
+    var mixin = _externalMixinC.mixin;
     var $force = Symbol();
     var $svg = Symbol();
-    var $dom_svg = Symbol();
     var $circle_data = Symbol();
     var $path_data = Symbol();
     var $graph = Symbol();
     var $resize = Symbol();
-    var $drawing = Symbol();
     var $options = Symbol();
     var D3SVG = exports.D3SVG = function() {
         function D3SVG(svg, graph, options) {
@@ -68,7 +56,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
             _classCallCheck(this, D3SVG);
             if (!svg) throw Error("No svg element specified");
             if (!graph) throw Error("No graph specified");
-            options = this[$options] = _extends({
+            this[$options] = options = mixin({
                 circle:{
                     radius:6
                 },
@@ -83,10 +71,11 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                     gravity:.15
                 },
                 size:{
-                    ratio:1
-                }
-            }, options);
-            window.dom_svg = svg;
+                    ratio:1,
+                    resizing:true
+                },
+                drawing:true
+            }, options, false);
             var force = d3.layout.force();
             force.charge(options.force.charge);
             force.linkDistance(options.force.linkDistance);
@@ -96,16 +85,14 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                 var _getComputedStyle = getComputedStyle(svg);
                 var width = _getComputedStyle.width;
                 var height = _getComputedStyle.height;
-                width = parseFloat(width) / options.size.ratio;
-                height = parseFloat(height) / options.size.ratio;
-                force.size([ width, height ]);
-                svg.viewBox.baseVal.width = width;
-                svg.viewBox.baseVal.height = height;
-                force.alpha(.1);
+                if (_this[$options].size.resizing) {
+                    svg.viewBox.baseVal.width = parseFloat(width) / options.size.ratio;
+                    svg.viewBox.baseVal.height = parseFloat(height) / options.size.ratio;
+                    force.alpha(.1);
+                }
+                force.size([ svg.viewBox.baseVal.width, svg.viewBox.baseVal.height ]);
             });
-            this[$drawing] = true;
             this[$graph] = graph;
-            this[$dom_svg] = svg;
             this[$force] = force;
             this[$svg] = d3.select(svg);
             this[$force].on("tick", function() {
@@ -224,10 +211,10 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                         return _edges;
                     }();
                     this[$force].nodes(nodes).links(edges);
-                    this[$path_data] = this[$svg].selectAll("path").data(edges);
-                    this[$circle_data] = this[$svg].selectAll("circle").data(nodes);
-                    this[$path_data].enter().append("path");
-                    this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).call(this[$force].drag);
+                    this[$path_data] = this[$svg].selectAll("path.edge").data(edges);
+                    this[$circle_data] = this[$svg].selectAll("circle.node").data(nodes);
+                    this[$path_data].enter().append("path").attr("class", "edge");
+                    this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node").call(this[$force].drag);
                     this[$path_data].exit().remove();
                     this[$circle_data].exit().remove();
                 }
@@ -249,11 +236,10 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
             },
             drawing:{
                 get:function() {
-                    return this[$drawing];
+                    return this[$options].drawing;
                 },
-                set:function() {
-                    var drawing = arguments[0] === undefined ? true :arguments[0];
-                    return this[$drawing] = !!drawing;
+                set:function(drawing) {
+                    this[$options].drawing = !!drawing;
                 }
             },
             ratio:{
@@ -264,6 +250,14 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                     var ratio = arguments[0] === undefined ? 1 :arguments[0];
                     ratio = parseFloat(ratio);
                     if (ratio > 0 && ratio < Infinity) this[$options].size.ratio = ratio;
+                }
+            },
+            resizing:{
+                get:function() {
+                    return this[$options].size.resizing;
+                },
+                set:function(resizing) {
+                    this[$options].size.resizing = !!resizing;
                 }
             }
         });

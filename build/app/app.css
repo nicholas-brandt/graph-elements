@@ -7,36 +7,50 @@ svg.resolved > path,
 svg.resolved > circle {
   opacity: 1;
 }
+svg.resolved > #load {
+  opacity: 0;
+  transform: scale(1.4);
+}
 svg > circle {
+  opacity: 0;
   fill: #673ab7;
   stroke: #ede7f6;
   stroke-width: 1px;
-  transition: opacity 0.5s;
+  transition: -webkit-opacity 0.5s 2s;
+  transition: -moz-opacity 0.5s 2s;
+  transition: -o-opacity 0.5s 2s;
+  transition: -ms-opacity 0.5s 2s;
+  -webkit-transition: -webkit-opacity 0.5s 2s;
+  -moz-transition: -moz-opacity 0.5s 2s;
+  -o-transition: -o-opacity 0.5s 2s;
+  -ms-transition: -ms-opacity 0.5s 2s;
+  -webkit-transition: opacity 0.5s 2s;
+  -moz-transition: opacity 0.5s 2s;
+  -o-transition: opacity 0.5s 2s;
+  -ms-transition: opacity 0.5s 2s;
+  transition: opacity 0.5s 2s;
 }
 svg > path {
+  opacity: 0;
   fill: #757575;
   stroke: #757575;
   stroke-width: 1px;
-  transition: opacity 0.5s;
+  transition: -webkit-opacity 0.5s 2s;
+  transition: -moz-opacity 0.5s 2s;
+  transition: -o-opacity 0.5s 2s;
+  transition: -ms-opacity 0.5s 2s;
+  -webkit-transition: -webkit-opacity 0.5s 2s;
+  -moz-transition: -moz-opacity 0.5s 2s;
+  -o-transition: -o-opacity 0.5s 2s;
+  -ms-transition: -ms-opacity 0.5s 2s;
+  -webkit-transition: opacity 0.5s 2s;
+  -moz-transition: opacity 0.5s 2s;
+  -o-transition: opacity 0.5s 2s;
+  -ms-transition: opacity 0.5s 2s;
+  transition: opacity 0.5s 2s;
 }
-svg > #load > path {
-  stroke: #673ab7;
-  stroke-width: 5px;
-  opacity: 0;
-  fill: none;
-  transition: -webkit-opacity 0.5s 1s;
-  transition: -moz-opacity 0.5s 1s;
-  transition: -o-opacity 0.5s 1s;
-  transition: -ms-opacity 0.5s 1s;
-  -webkit-transition: -webkit-opacity 0.5s 1s;
-  -moz-transition: -moz-opacity 0.5s 1s;
-  -o-transition: -o-opacity 0.5s 1s;
-  -ms-transition: -ms-opacity 0.5s 1s;
-  -webkit-transition: opacity 0.5s 1s;
-  -moz-transition: opacity 0.5s 1s;
-  -o-transition: opacity 0.5s 1s;
-  -ms-transition: opacity 0.5s 1s;
-  transition: opacity 0.5s 1s;
+svg > #load {
+  opacity: 1;
   transform-origin: -webkit-50% 50%;
   transform-origin: -moz-50% 50%;
   transform-origin: -o-50% 50%;
@@ -50,22 +64,50 @@ svg > #load > path {
   -o-transform-origin: 50% 50%;
   -ms-transform-origin: 50% 50%;
   transform-origin: 50% 50%;
-  animation: -webkit-load 0.8s linear infinite;
-  animation: -moz-load 0.8s linear infinite;
-  animation: -o-load 0.8s linear infinite;
-  animation: -ms-load 0.8s linear infinite;
-  -webkit-animation: -webkit-load 0.8s linear infinite;
-  -moz-animation: -moz-load 0.8s linear infinite;
-  -o-animation: -o-load 0.8s linear infinite;
-  -ms-animation: -ms-load 0.8s linear infinite;
-  -webkit-animation: load 0.8s linear infinite;
-  -moz-animation: load 0.8s linear infinite;
-  -o-animation: load 0.8s linear infinite;
-  -ms-animation: load 0.8s linear infinite;
-  animation: load 0.8s linear infinite;
+  transition: -webkit-opacity 0.5s, transform 0.5s;
+  transition: -moz-opacity 0.5s, transform 0.5s;
+  transition: -o-opacity 0.5s, transform 0.5s;
+  transition: -ms-opacity 0.5s, transform 0.5s;
+  -webkit-transition: -webkit-opacity 0.5s, transform 0.5s;
+  -moz-transition: -moz-opacity 0.5s, transform 0.5s;
+  -o-transition: -o-opacity 0.5s, transform 0.5s;
+  -ms-transition: -ms-opacity 0.5s, transform 0.5s;
+  -webkit-transition: opacity 0.5s, transform 0.5s;
+  -moz-transition: opacity 0.5s, transform 0.5s;
+  -o-transition: opacity 0.5s, transform 0.5s;
+  -ms-transition: opacity 0.5s, transform 0.5s;
+  transition: opacity 0.5s, transform 0.5s;
 }
-body:not([unresolved]) svg > #load > path {
-  opacity: 1;
+svg > #load > path {
+  stroke: #673ab7;
+  stroke-width: 5px;
+  fill: none;
+  transform-origin: -webkit-50% 50%;
+  transform-origin: -moz-50% 50%;
+  transform-origin: -o-50% 50%;
+  transform-origin: -ms-50% 50%;
+  -webkit-transform-origin: -webkit-50% 50%;
+  -moz-transform-origin: -moz-50% 50%;
+  -o-transform-origin: -o-50% 50%;
+  -ms-transform-origin: -ms-50% 50%;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -o-transform-origin: 50% 50%;
+  -ms-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  animation: -webkit-load 1s linear infinite;
+  animation: -moz-load 1s linear infinite;
+  animation: -o-load 1s linear infinite;
+  animation: -ms-load 1s linear infinite;
+  -webkit-animation: -webkit-load 1s linear infinite;
+  -moz-animation: -moz-load 1s linear infinite;
+  -o-animation: -o-load 1s linear infinite;
+  -ms-animation: -ms-load 1s linear infinite;
+  -webkit-animation: load 1s linear infinite;
+  -moz-animation: load 1s linear infinite;
+  -o-animation: load 1s linear infinite;
+  -ms-animation: load 1s linear infinite;
+  animation: load 1s linear infinite;
 }
 @keyframes load {
   from {
@@ -92,7 +134,7 @@ body:not([unresolved]) svg > #load > path {
   }
 }
 /*
- * Author: Nicholas-Philip Brandt [nicholas.brandt@gmx.de]
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 core-drawer-panel > core-header-panel {

@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# v1.0.0
+# v1.0.0 d
 
 https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400|Droid+Sans|Poiret+One|Philosopher|Ubuntu|Open+Sans|Josefin+Sans:300,400|Lobster|Open+Sans+Condensed:300|Raleway:400,100,200,300
 https://fonts.gstatic.com/s/lobster/v12/cycBf3mfbGkh66G5NhszPQ.woff2
@@ -10,7 +10,7 @@ https://fonts.gstatic.com/s/lobster/v12/cycBf3mfbGkh66G5NhszPQ.woff2
 
 ../../src/external/Array.from.js
 
-../external/requestAnimationFunction.c.js
+../external/requestAnimationFunction.js
 ../external/vulcanized.min.html
 
 NETWORK:
@@ -21,6 +21,6 @@ FALLBACK:
 
 #app.css app.css
 
-#app.c.js app.c.js
-#../externsions/2d3.c.js ../extensions/2d3.c.js
-#../graph.c.js ../graph.c.js
+#app.js app.js
+#../externsions/2d3.js ../extensions/2d3.js
+#../graph.js ../graph.js

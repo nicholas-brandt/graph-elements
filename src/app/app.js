@@ -1,5 +1,5 @@
-import { Graph, AcyclicGraph, Tree } from "../graph.c";
-import { D3SVG } from "../extensions/2d3.c";
+import { Graph, AcyclicGraph, Tree } from "../graph";
+import { D3SVG } from "../extensions/2d3";
 {
     const svg = document.querySelector("svg");
     const load = svg.querySelector("#load");

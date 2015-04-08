@@ -11,8 +11,6 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "src/",
                     dest: "build/",
-                    ext: ".c.js",
-                    extDot: "last",
                     src: ["**/*.js"]
                 }]
             }
@@ -46,7 +44,7 @@ module.exports = function(grunt) {
                     dest: "build/",
                     ext: ".min.js",
                     extDot: "last",
-                    src: ["**/*.c.js"]
+                    src: ["**/*.js", "!**/*.min.js"]
                 }]
             },
             beautify: {
@@ -64,7 +62,7 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "build/",
                     dest: "build/",
-                    src: ["**/*.c.js"]
+                    src: ["**/*.js", "!**/*.min.js"]
                 }]
             }
         },
@@ -142,11 +140,11 @@ module.exports = function(grunt) {
                 tasks: ["babel:scripts"]
             },
             minifyScripts: {
-                files: ["build/**/*.c.js"],
+                files: ["build/**/*.js", "!build/**/*.min.js"],
                 tasks: ["uglify:minify"]
             },
             beautifyScripts: {
-                files: ["build/**/*.c.js"],
+                files: ["build/**/*.js", "!build/**/*.min.js"],
                 tasks: ["uglify:beautify"]
             },
             compileLESS: {

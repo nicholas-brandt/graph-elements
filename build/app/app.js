@@ -1,9 +1,9 @@
-define([ "exports", "../graph.c", "../extensions/2d3.c" ], function(exports, _graphC, _extensions2d3C) {
+define([ "exports", "../graph", "../extensions/2d3" ], function(exports, _graph, _extensions2d3) {
     "use strict";
-    var Graph = _graphC.Graph;
-    var AcyclicGraph = _graphC.AcyclicGraph;
-    var Tree = _graphC.Tree;
-    var D3SVG = _extensions2d3C.D3SVG;
+    var Graph = _graph.Graph;
+    var AcyclicGraph = _graph.AcyclicGraph;
+    var Tree = _graph.Tree;
+    var D3SVG = _extensions2d3.D3SVG;
     {
         var _iteratorNormalCompletion;
         var _didIteratorError;

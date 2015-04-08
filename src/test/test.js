@@ -1,8 +1,8 @@
-System.import("build/graph.m.c").then(graphjs => {
+import graphjs from "../graph";
     window.graphjs = graphjs;
     console.log("graphjs loaded");
     console.log("length: " + length);
-    for (let name of["Graph", "AcyclicGraph", "Tree"]) {
+    for (let name of ["Graph", "AcyclicGraph", "Tree"]) {
         for (let edges of edge_array) {
             const graph = new graphjs[name];
             const dgraph = new graphjs[name](true);
@@ -10,9 +10,6 @@ System.import("build/graph.m.c").then(graphjs => {
             applyModel(dgraph, edges, name, edges.density);
         }
     }
-}).catch(e => {
-    console.error(e);
-});
 
 function applyModel(graph, edges, name, densitiy) {
     console.log("\n" + name + " | " + graph.directed + " | " + densitiy);

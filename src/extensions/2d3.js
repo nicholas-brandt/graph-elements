@@ -46,9 +46,9 @@ export class D3SVG {
             if (this[$options].size.resizing) {
                 svg.viewBox.baseVal.width = parseFloat(width) / options.size.ratio;
                 svg.viewBox.baseVal.height = parseFloat(height) / options.size.ratio;
-                force.alpha(0.1);
             }
             force.size([svg.viewBox.baseVal.width, svg.viewBox.baseVal.height]);
+            force.alpha(0.1);
         });
         this[$graph] = graph;
         this[$force] = force;
@@ -60,8 +60,10 @@ export class D3SVG {
                     const dx = source.x - target.x;
                     const dy = source.y - target.y;
                     const hyp = Math.hypot(dx, dy);
-                    const wx = dx / hyp * options.arrow.width;
-                    const wy = dy / hyp * options.arrow.width;
+                    let wx = dx / hyp * options.arrow.width;
+                    let wy = dy / hyp * options.arrow.width;
+                    if (isNaN(wx)) wx = 0;
+                    if (isNaN(wy)) wy = 0;
                     const px = source.x - wx * options.arrow.ratio;
                     const py = source.y - wy * options.arrow.ratio;
                     // line
@@ -76,9 +78,9 @@ export class D3SVG {
     }
     update() {
         const node_map = new Map([for ([i] of this[$graph].nodes) [i, {
-            value: i,
-            x: Math.random(),
-            y: Math.random()
+            value: i
+            //x: Math.random(),
+            //y: Math.random()
         }]]);
         const nodes = [for ([, node] of node_map) node];
         const edges = [for ({source, target} of this[$graph].edges) {
@@ -86,13 +88,14 @@ export class D3SVG {
             target: node_map.get(target)
         }];
         // forced nodes must be a closed set!
-        this[$force].nodes(nodes).links(edges);
+        this[$force].nodes(nodes).links(edges).start();
         this[$path_data] = this[$svg].selectAll("path.edge").data(edges);
         this[$circle_data] = this[$svg].selectAll("circle.node").data(nodes);
         this[$path_data].enter().append("path").attr("class", "edge");
         this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node").call(this[$force].drag);
         this[$path_data].exit().remove();
         this[$circle_data].exit().remove();
+        this[$svg].selectAll("circle.node,path.edge").sort((a,b) => "index" in a);
     }
     resize() {
         this[$resize]();
@@ -122,4 +125,4 @@ export class D3SVG {
     set resizing(resizing) {
         this[$options].size.resizing = !!resizing;
     }
-};
+}

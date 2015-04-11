@@ -88,9 +88,9 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                 if (_this[$options].size.resizing) {
                     svg.viewBox.baseVal.width = parseFloat(width) / options.size.ratio;
                     svg.viewBox.baseVal.height = parseFloat(height) / options.size.ratio;
-                    force.alpha(.1);
                 }
                 force.size([ svg.viewBox.baseVal.width, svg.viewBox.baseVal.height ]);
+                force.alpha(.1);
             });
             this[$graph] = graph;
             this[$force] = force;
@@ -108,6 +108,8 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                         var hyp = Math.hypot(dx, dy);
                         var wx = dx / hyp * options.arrow.width;
                         var wy = dy / hyp * options.arrow.width;
+                        if (isNaN(wx)) wx = 0;
+                        if (isNaN(wy)) wy = 0;
                         var px = source.x - wx * options.arrow.ratio;
                         var py = source.y - wy * options.arrow.ratio;
                         return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
@@ -131,9 +133,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                                 var _step$value = _slicedToArray(_step.value, 1);
                                 var i = _step$value[0];
                                 _ref.push([ i, {
-                                    value:i,
-                                    x:Math.random(),
-                                    y:Math.random()
+                                    value:i
                                 } ]);
                             }
                         } catch (err) {
@@ -210,13 +210,16 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                         }
                         return _edges;
                     }();
-                    this[$force].nodes(nodes).links(edges);
+                    this[$force].nodes(nodes).links(edges).start();
                     this[$path_data] = this[$svg].selectAll("path.edge").data(edges);
                     this[$circle_data] = this[$svg].selectAll("circle.node").data(nodes);
                     this[$path_data].enter().append("path").attr("class", "edge");
                     this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node").call(this[$force].drag);
                     this[$path_data].exit().remove();
                     this[$circle_data].exit().remove();
+                    this[$svg].selectAll("circle.node,path.edge").sort(function(a, b) {
+                        return "index" in a;
+                    });
                 }
             },
             resize:{

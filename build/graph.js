@@ -208,6 +208,11 @@ define([ "exports" ], function(exports) {
                     return true;
                 }
             },
+            hasNode:{
+                value:function hasNode(object) {
+                    return this[$nodes].has(object);
+                }
+            },
             removeNode:{
                 value:function removeNode(object) {
                     this[$nodes]["delete"](object);
@@ -266,6 +271,11 @@ define([ "exports" ], function(exports) {
                         return true;
                     }
                     return false;
+                }
+            },
+            clear:{
+                value:function clear() {
+                    return this[$nodes].clear();
                 }
             },
             hasCycle:{

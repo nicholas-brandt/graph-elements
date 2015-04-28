@@ -4,7 +4,8 @@ module.exports = function(grunt) {
             options: {
                 experimental: true,
                 compact: false,
-                modules: "amd"
+                modules: "amd",
+                comments: true
             },
             scripts: {
                 files: [{
@@ -34,9 +35,9 @@ module.exports = function(grunt) {
                         if_return: true,
                         join_vars: true,
                         cascade: true,
-                        negate_iife: true,
+                        negate_iife: true
                     },
-                    mangle: false
+                    mangle: true
                 },
                 files: [{
                     expand: true,
@@ -131,13 +132,30 @@ module.exports = function(grunt) {
                 }]
             }
         },
+        jsdoc: {
+            options: {
+                destination: "doc"
+            },
+            doc: {
+                src: "src/"
+            }
+        },
+        jasmine: {
+            options: {
+                specs: "build/tests/spec/**/*.js",
+                template: require("grunt-template-jasmine-requirejs")
+            },
+            test: {
+                src: "build/*.js"
+            }
+        },
         watch: {
             options: {
                 atBegin: true
             },
             transpileScripts: {
                 files: ["src/**/*.js"],
-                tasks: ["babel:scripts"]
+                tasks: ["babel"]
             },
             minifyScripts: {
                 files: ["build/**/*.js", "!build/**/*.min.js"],
@@ -166,6 +184,10 @@ module.exports = function(grunt) {
             copy: {
                 files: ["src/**/*.appcache"],
                 tasks: ["copy"]
+            },
+            test: {
+                files: ["build/**/*.js"],
+                tasks: ["jasmine"]
             }
         }
     });
@@ -176,6 +198,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-vulcanize");
     grunt.loadNpmTasks("grunt-contrib-htmlmin");
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks("grunt-jsdoc");
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("default", ["watch"]);
     grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin", "copy"]);

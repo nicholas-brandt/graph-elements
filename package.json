@@ -2,9 +2,9 @@
   "name": "graph",
   "version": "1.0.0",
   "description": "",
-  "main": "src/graph.m.js",
+  "main": "src/graph.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt jasmine"
   },
   "author": {
     "name": "Nicholas-Philip Brandt",
@@ -22,9 +22,12 @@
     "grunt-contrib-copy": "^0.8.0",
     "grunt-contrib-cssmin": "^0.12.2",
     "grunt-contrib-htmlmin": "^0.4.0",
+    "grunt-contrib-jasmine": "^0.8.2",
     "grunt-contrib-less": "^1.0.0",
     "grunt-contrib-uglify": "^0.8.0",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-jsdoc": "^0.5.8",
+    "grunt-template-jasmine-requirejs": "^0.2.3",
     "grunt-vulcanize": "^0.6.4"
   }
 }

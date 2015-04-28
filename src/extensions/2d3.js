@@ -1,3 +1,7 @@
+/*
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
+ * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
+ * */
 import d3 from "../../node_modules/d3/d3";
 import { requestAnimationFunction } from "../external/requestAnimationFunction";
 import { mixin } from "../external/mixin";
@@ -95,7 +99,7 @@ export class D3SVG {
         this[$circle_data].enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node").call(this[$force].drag);
         this[$path_data].exit().remove();
         this[$circle_data].exit().remove();
-        this[$svg].selectAll("circle.node,path.edge").sort((a,b) => "index" in a);
+        this[$svg].selectAll("circle.node,path.edge").sort((a,b) => ("index" in a) - 0.5);
     }
     resize() {
         this[$resize]();

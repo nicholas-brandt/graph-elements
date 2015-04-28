@@ -1,9 +1,13 @@
+/*
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
+ * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
+ * */
 import { Graph, AcyclicGraph, Tree } from "../graph";
 import { D3SVG } from "../extensions/2d3";
 const svg = document.querySelector("svg");
 const load = svg.querySelector("#load");
-window.graph = new Graph(true);
-//window.graph = new AcyclicGraph(true);
+//window.graph = new Graph(true);
+window.graph = new AcyclicGraph(false);
 //window.graph = new Tree(true);
 const size = 200;
 for (let i = 0; i < size; ++i) graph.addNode(i);

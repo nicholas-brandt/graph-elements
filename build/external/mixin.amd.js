@@ -1,18 +1,11 @@
-define(["exports"], function (exports) {
-    /*
-     * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
-     * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
-     * */
+define([ "exports" ], function(exports) {
     "use strict";
-
     exports.mixin = mixin;
     Object.defineProperty(exports, "__esModule", {
-        value: true
+        value:true
     });
-
     function mixin(base, provider) {
-        var weak = arguments[2] === undefined ? true : arguments[2];
-
+        var weak = arguments[2] === undefined ? true :arguments[2];
         if (typeof base == "object") for (var property in provider) {
             var override = !(weak && property in base);
             if (typeof provider[property] == "object") {
@@ -24,6 +17,4 @@ define(["exports"], function (exports) {
         }
         return base;
     }
-
-    ;
 });

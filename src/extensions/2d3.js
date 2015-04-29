@@ -3,8 +3,8 @@
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 import d3 from "../../node_modules/d3/d3";
-import { requestAnimationFunction } from "../external/requestAnimationFunction";
-import { mixin } from "../external/mixin";
+import { requestAnimationFunction } from "../external/requestAnimationFunction.amd";
+import { mixin } from "../external/mixin.amd";
 const $force = Symbol();
 const $svg = Symbol();
 const $circle_data = Symbol();

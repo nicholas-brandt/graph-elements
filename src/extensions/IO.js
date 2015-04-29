@@ -1,4 +1,4 @@
-import { Graph } from "../graph";
+import { Graph } from "../graph.amd";
 export class Importer {
     static importObject(object) {
         if (typeof object != "object") throw Error("Argument is not an object!");

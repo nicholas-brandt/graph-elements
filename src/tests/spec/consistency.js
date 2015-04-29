@@ -1,6 +1,10 @@
-import * as polyfill from "bower_components/webcomponentsjs/webcomponents.js";
+global.Symbol = require("symbol");
+require("es6-shim");
+import { Graph, AcyclicGraph, Tree } from "../../graph.common";
 describe("graph", function() {
-    it("expects to be true", function() {
-        expect(true).toBe(true);
+    it("Direction", function() {
+        console.log(new Graph().directed);
+        expect(new Graph().directed).toBe(false);
+        expect(new Graph(true).directed).toBe(true);
     });
 });

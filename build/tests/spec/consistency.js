@@ -1,9 +1,21 @@
-define(["exports", "bower_components/webcomponentsjs/webcomponents.js"], function(exports, _bower_componentsWebcomponentsjsWebcomponentsJs) {
-    "use strict";
-    var polyfill = _bower_componentsWebcomponentsjsWebcomponentsJs;
-    describe("graph", function() {
-        it("expects to be true", function() {
-            expect(true).toBe(true);
-        });
+"use strict";
+
+global.Symbol = require("symbol");
+
+require("es6-shim");
+
+var _graphCommon = require("../../graph.common");
+
+var Graph = _graphCommon.Graph;
+
+var AcyclicGraph = _graphCommon.AcyclicGraph;
+
+var Tree = _graphCommon.Tree;
+
+describe("graph", function() {
+    it("Direction", function() {
+        console.log(new Graph().directed);
+        expect(new Graph().directed).toBe(false);
+        expect(new Graph(true).directed).toBe(true);
     });
 });

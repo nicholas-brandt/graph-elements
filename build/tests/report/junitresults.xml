@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+ <testsuite name="graph" timestamp="2015-04-29T00:27:57" hostname="localhost" time="0.006" errors="0" tests="1" skipped="0" disabled="0" failures="1">
+  <testcase classname="graph" name="Direction" time="0.006">
+   <failure type="exception" message="TypeError: Property &amp;apos;undefined&amp;apos; of object #&amp;lt;Map&amp;gt; is not a function"><![CDATA[TypeError: Property 'undefined' of object #<Map> is not a function
+    at /home/codio/workspace/build/graph.common.js:150:76
+    at Graph.exports.Graph._createClass.edges.get (/home/codio/workspace/build/graph.common.js:198:18)
+    at Graph.exports.Graph._createClass.directed.set (/home/codio/workspace/build/graph.common.js:115:50)
+    at new Graph (/home/codio/workspace/build/graph.common.js:101:23)
+    at Object.<anonymous> (/home/codio/workspace/build/tests/spec/consistency.min.js:1:395)
+    at attemptSync (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1789:24)
+    at QueueRunner.run (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1777:9)
+    at QueueRunner.execute (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1762:10)
+    at Spec.Env.queueRunnerFactory (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:627:35)
+    at Spec.execute (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:353:10)]]>
+   </failure>
+  </testcase>
+ </testsuite>
+</testsuites>

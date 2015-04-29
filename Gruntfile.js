@@ -4,15 +4,35 @@ module.exports = function(grunt) {
             options: {
                 experimental: true,
                 compact: false,
-                modules: "amd",
                 comments: true
             },
-            scripts: {
+            amdScripts: {
+                options: {
+                    modules: "amd"
+                },
                 files: [{
                     expand: true,
                     cwd: "src/",
                     dest: "build/",
-                    src: ["**/*.js"]
+                    ext: ".amd.js",
+                    src: ["**/*.js", "!tests/spec/**/*.js"]
+                }]
+            },
+            commonScripts: {
+                files: [{
+                    expand: true,
+                    cwd: "src/",
+                    dest: "build/",
+                    ext: ".common.js",
+                    src: ["**/*.js", "!tests/spec/**/*.js"]
+                }]
+            },
+            tests: {
+                files: [{
+                    expand: true,
+                    cwd: "src/",
+                    dest: "build/",
+                    src: ["tests/spec/**/*.js"]
                 }]
             }
         },
@@ -140,13 +160,17 @@ module.exports = function(grunt) {
                 src: "src/"
             }
         },
-        jasmine: {
+        jasmine_nodejs: {
             options: {
-                specs: "build/tests/spec/**/*.js",
-                template: require("grunt-template-jasmine-requirejs")
+                specNameSuffix: ".min.js",
+                reporters: {
+                    junit: {
+                        savePath: "build/tests/report/"
+                    }
+                }
             },
             test: {
-                src: "build/*.js"
+                specs: ["build/tests/spec/**"]
             }
         },
         watch: {
@@ -187,7 +211,7 @@ module.exports = function(grunt) {
             },
             test: {
                 files: ["build/**/*.js"],
-                tasks: ["jasmine"]
+                tasks: ["jasmine_nodejs"]
             }
         }
     });
@@ -198,9 +222,9 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-vulcanize");
     grunt.loadNpmTasks("grunt-contrib-htmlmin");
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-jasmine-nodejs');
     grunt.loadNpmTasks("grunt-jsdoc");
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin", "copy"]);
+    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin", "jasmine_nodejs", "copy"]);
 };

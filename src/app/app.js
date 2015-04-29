@@ -2,8 +2,8 @@
  * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
-import { Graph, AcyclicGraph, Tree } from "../graph";
-import { D3SVG } from "../extensions/2d3";
+import { Graph, AcyclicGraph, Tree } from "../graph.amd";
+import { D3SVG } from "../extensions/2d3.amd";
 const svg = document.querySelector("svg");
 const load = svg.querySelector("#load");
 //window.graph = new Graph(true);

@@ -162,7 +162,7 @@ export class Graph {
     }
     /**
      * @function getCycle
-     * @return {number|boolean} - The length of a cycle or {false} if there is no cycle.
+     * @return {number} - The length of a cycle or {0} if there is no cycle.
      * */
     getCycle() {
         const directed = this.directed;
@@ -172,7 +172,7 @@ export class Graph {
             const depth = DFS.call(this, relations, undefined, 0);
             if (depth) return depth;
         }
-        return false;
+        return 0;
 
         function DFS(node, dependency, length) {
             if (!finished.has(node)) {
@@ -225,10 +225,18 @@ export class AcyclicGraph extends Graph {
      * */
     addEdge(source, target, weight) {
         const added = super.addEdge(source, target, weight);
-        if (added && super.getCycle() < this.cycleLimit)
+        if (added && this.hasCycle(true))
             if (this.removeEdge(source, target)) return false;
             else throw Error("Cyclic node could not be removed");
         return added;
+    }
+    /**
+     * @function getCycle
+     * @param {boolean} real - Whether a real test shall be performed (for debugging | normally returns 0 as acyclic graph).
+     * @return {number} - The length of a cycle or {0} if there is no cycle.
+     * */
+    getCycle(real = false) {
+        return !!real ? super.getCycle() : 0;
     }
     /**
      * @function hasCycle
@@ -236,7 +244,7 @@ export class AcyclicGraph extends Graph {
      * @return {boolean} Whether the graph has a cycle.
      * */
     hasCycle(real = false) {
-        return !!real && super.hasCycle();
+        return !!this.getCycle(real);
     }
 }
 /**

@@ -19,4 +19,3 @@ function mixin(base, provider) {
     }
     return base;
 }
-

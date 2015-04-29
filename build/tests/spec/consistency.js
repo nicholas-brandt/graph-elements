@@ -1,6 +1,6 @@
 "use strict";
 
-global.Symbol = require("symbol");
+require("es6-symbol/implement");
 
 require("es6-shim");
 
@@ -12,10 +12,20 @@ var AcyclicGraph = _graphCommon.AcyclicGraph;
 
 var Tree = _graphCommon.Tree;
 
-describe("graph", function() {
+xdescribe("Graph", function() {
     it("Direction", function() {
-        console.log(new Graph().directed);
-        expect(new Graph().directed).toBe(false);
-        expect(new Graph(true).directed).toBe(true);
+        var graph = new Graph();
+        var dgraph = new Graph(true);
+        expect(graph.directed).toBe(false);
+        expect(dgraph.directed).toBe(true);
+    });
+});
+
+xdescribe("AcyclicGraph", function() {
+    it("Direction", function() {
+        var graph = new AcyclicGraph();
+        var dgraph = new AcyclicGraph(true);
+        expect(graph.directed).toBe(false);
+        expect(dgraph.directed).toBe(true);
     });
 });

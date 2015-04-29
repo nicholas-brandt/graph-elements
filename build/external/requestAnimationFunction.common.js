@@ -30,4 +30,3 @@ function requestAnimationFunction(callback) {
         } else if (!!weak) args = arguments;
     };
 }
-

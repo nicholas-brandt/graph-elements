@@ -1,10 +1,19 @@
-global.Symbol = require("symbol");
+require("es6-symbol/implement");
 require("es6-shim");
 import { Graph, AcyclicGraph, Tree } from "../../graph.common";
-describe("graph", function() {
+xdescribe("Graph", function() {
     it("Direction", function() {
-        console.log(new Graph().directed);
-        expect(new Graph().directed).toBe(false);
-        expect(new Graph(true).directed).toBe(true);
+        const graph = new Graph;
+        const dgraph = new Graph(true);
+        expect(graph.directed).toBe(false);
+        expect(dgraph.directed).toBe(true);
+    });
+});
+xdescribe("AcyclicGraph", function() {
+    it("Direction", function() {
+        const graph = new AcyclicGraph;
+        const dgraph = new AcyclicGraph(true);
+        expect(graph.directed).toBe(false);
+        expect(dgraph.directed).toBe(true);
     });
 });

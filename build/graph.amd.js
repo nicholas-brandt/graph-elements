@@ -350,7 +350,7 @@ define([ "exports" ], function(exports) {
                             }
                         }
                     }
-                    return false;
+                    return 0;
                     function DFS(node, dependency, length) {
                         if (!finished.has(node)) {
                             if (visited.has(node)) {
@@ -450,16 +450,22 @@ define([ "exports" ], function(exports) {
             addEdge:{
                 value:function addEdge(source, target, weight) {
                     var added = _get(Object.getPrototypeOf(AcyclicGraph.prototype), "addEdge", this).call(this, source, target, weight);
-                    if (added && _get(Object.getPrototypeOf(AcyclicGraph.prototype), "getCycle", this).call(this) < this.cycleLimit) if (this.removeEdge(source, target)) {
+                    if (added && this.hasCycle(true)) if (this.removeEdge(source, target)) {
                         return false;
                     } else throw Error("Cyclic node could not be removed");
                     return added;
                 }
             },
+            getCycle:{
+                value:function getCycle() {
+                    var real = arguments[0] === undefined ? false :arguments[0];
+                    return !!real ? _get(Object.getPrototypeOf(AcyclicGraph.prototype), "getCycle", this).call(this) :0;
+                }
+            },
             hasCycle:{
                 value:function hasCycle() {
                     var real = arguments[0] === undefined ? false :arguments[0];
-                    return !!real && _get(Object.getPrototypeOf(AcyclicGraph.prototype), "hasCycle", this).call(this);
+                    return !!this.getCycle(real);
                 }
             }
         });

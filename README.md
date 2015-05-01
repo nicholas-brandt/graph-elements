@@ -14,5 +14,5 @@ Notes
 Scripts are compiled to AMD by default.
 Tests are compiled to common/require.
 
-[LICENSE](./blob/master/LICENSE)
+[LICENSE](./LICENSE)
 =======

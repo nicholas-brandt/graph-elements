@@ -1,18 +1,20 @@
 "use strict";
 
-require("es6-symbol/implement");
+require("babel/polyfill");
 
-require("es6-shim");
+require("amdefine/intercept");
 
-var _graphCommon = require("../../graph.common");
+var _graph = require("../../graph");
 
-var Graph = _graphCommon.Graph;
+var Graph = _graph.Graph;
 
-var AcyclicGraph = _graphCommon.AcyclicGraph;
+var AcyclicGraph = _graph.AcyclicGraph;
 
-var Tree = _graphCommon.Tree;
+var Tree = _graph.Tree;
 
-xdescribe("Graph", function() {
+console.log(typeof Graph);
+
+describe("Graph", function() {
     it("Direction", function() {
         var graph = new Graph();
         var dgraph = new Graph(true);
@@ -21,10 +23,19 @@ xdescribe("Graph", function() {
     });
 });
 
-xdescribe("AcyclicGraph", function() {
+describe("AcyclicGraph", function() {
     it("Direction", function() {
         var graph = new AcyclicGraph();
         var dgraph = new AcyclicGraph(true);
+        expect(graph.directed).toBe(false);
+        expect(dgraph.directed).toBe(true);
+    });
+});
+
+describe("Tree", function() {
+    it("Direction", function() {
+        var graph = new Tree();
+        var dgraph = new Tree(true);
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);
     });

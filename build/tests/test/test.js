@@ -1,4 +1,4 @@
-define([ "exports", "../graph" ], function(exports, _graph) {
+define([ "exports", "../../graph" ], function(exports, _graph) {
     "use strict";
     var Graph = _graph.Graph;
     var AcyclicGraph = _graph.AcyclicGraph;

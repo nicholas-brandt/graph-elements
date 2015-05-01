@@ -157,8 +157,8 @@ export class Graph {
      * @function hasCycle
      * @return {boolean} - Whether the graph has a cycle.
      * */
-    hasCycle() {
-        return !!this.getCycle();
+    hasCycle(...args) {
+        return !!this.getCycle(...args);
     }
     /**
      * @function getCycle
@@ -244,7 +244,7 @@ export class AcyclicGraph extends Graph {
      * @return {boolean} Whether the graph has a cycle.
      * */
     hasCycle(real = false) {
-        return !!this.getCycle(real);
+        return !!super.hasCycle(real);
     }
 }
 /**

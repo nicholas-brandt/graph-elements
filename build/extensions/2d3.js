@@ -1,4 +1,4 @@
-define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFunction.amd", "../external/mixin.amd" ], function(exports, _node_modulesD3D3, _externalRequestAnimationFunctionAmd, _externalMixinAmd) {
+define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFunction", "../external/mixin" ], function(exports, _node_modulesD3D3, _externalRequestAnimationFunction, _externalMixin) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -41,8 +41,8 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
         value:true
     });
     var d3 = _interopRequire(_node_modulesD3D3);
-    var requestAnimationFunction = _externalRequestAnimationFunctionAmd.requestAnimationFunction;
-    var mixin = _externalMixinAmd.mixin;
+    var requestAnimationFunction = _externalRequestAnimationFunction.requestAnimationFunction;
+    var mixin = _externalMixin.mixin;
     var $force = Symbol();
     var $svg = Symbol();
     var $circle_data = Symbol();

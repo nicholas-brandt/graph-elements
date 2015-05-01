@@ -1,5 +1,8 @@
-define([ "exports", "../graph.amd" ], function(exports, _graphAmd) {
+define([ "exports", "../graph", "../../external/circular-json.amd" ], function(exports, _graph, _externalCircularJsonAmd) {
     "use strict";
+    var _interopRequire = function(obj) {
+        return obj && obj.__esModule ? obj["default"] :obj;
+    };
     var _slicedToArray = function(arr, i) {
         if (Array.isArray(arr)) {
             return arr;
@@ -37,12 +40,13 @@ define([ "exports", "../graph.amd" ], function(exports, _graphAmd) {
     Object.defineProperty(exports, "__esModule", {
         value:true
     });
-    var Graph = _graphAmd.Graph;
-    var Importer = exports.Importer = function() {
-        function Importer() {
-            _classCallCheck(this, Importer);
+    var Graph = _graph.Graph;
+    var CircularJSON = _interopRequire(_externalCircularJsonAmd);
+    var IO = exports.IO = function() {
+        function IO() {
+            _classCallCheck(this, IO);
         }
-        _createClass(Importer, null, {
+        _createClass(IO, null, {
             importObject:{
                 value:function importObject(object) {
                     if (typeof object != "object") throw Error("Argument is not an object!");
@@ -50,17 +54,69 @@ define([ "exports", "../graph.amd" ], function(exports, _graphAmd) {
                     serialize(object, graph);
                     return graph;
                 }
-            }
-        });
-        return Importer;
-    }();
-    var Migrator = exports.Migrator = function() {
-        function Migrator() {
-            _classCallCheck(this, Migrator);
-        }
-        _createClass(Migrator, null, {
+            },
+            exportGraph:{
+                value:function exportGraph(graph) {
+                    var object = {
+                        nodes:function() {
+                            var _nodes = [];
+                            var _iteratorNormalCompletion = true;
+                            var _didIteratorError = false;
+                            var _iteratorError = undefined;
+                            try {
+                                for (var _iterator = graph.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                    var pair = _step.value;
+                                    _nodes.push(pair);
+                                }
+                            } catch (err) {
+                                _didIteratorError = true;
+                                _iteratorError = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                        _iterator["return"]();
+                                    }
+                                } finally {
+                                    if (_didIteratorError) {
+                                        throw _iteratorError;
+                                    }
+                                }
+                            }
+                            return _nodes;
+                        }(),
+                        edges:function() {
+                            var _edges = [];
+                            var _iteratorNormalCompletion = true;
+                            var _didIteratorError = false;
+                            var _iteratorError = undefined;
+                            try {
+                                for (var _iterator = graph.edges[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                    var edge = _step.value;
+                                    _edges.push(edge);
+                                }
+                            } catch (err) {
+                                _didIteratorError = true;
+                                _iteratorError = err;
+                            } finally {
+                                try {
+                                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                        _iterator["return"]();
+                                    }
+                                } finally {
+                                    if (_didIteratorError) {
+                                        throw _iteratorError;
+                                    }
+                                }
+                            }
+                            return _edges;
+                        }()
+                    };
+                    return object;
+                }
+            },
             migrateGraph:{
-                value:function migrateGraph(source, target) {
+                value:function migrateGraph(source) {
+                    var target = arguments[1] === undefined ? new Graph() :arguments[1];
                     var _iteratorNormalCompletion = true;
                     var _didIteratorError = false;
                     var _iteratorError = undefined;
@@ -106,10 +162,21 @@ define([ "exports", "../graph.amd" ], function(exports, _graphAmd) {
                             }
                         }
                     }
+                    return target;
+                }
+            },
+            serialize:{
+                value:function serialize(graph) {
+                    return CircularJSON.stringify(IO.exportGraph(graph));
+                }
+            },
+            deserialize:{
+                value:function deserialize(string) {
+                    return IO.migrateGraph(CircularJSON.parse(string));
                 }
             }
         });
-        return Migrator;
+        return IO;
     }();
     function serialize(object, graph) {
         graph.addNode(object);

@@ -1,12 +1,12 @@
-define([ "exports", "../graph.amd", "../extensions/2d3.amd" ], function(exports, _graphAmd, _extensions2d3Amd) {
+define([ "exports", "../graph", "../extensions/2d3" ], function(exports, _graph, _extensions2d3) {
     "use strict";
-    var Graph = _graphAmd.Graph;
-    var AcyclicGraph = _graphAmd.AcyclicGraph;
-    var Tree = _graphAmd.Tree;
-    var D3SVG = _extensions2d3Amd.D3SVG;
+    var Graph = _graph.Graph;
+    var AcyclicGraph = _graph.AcyclicGraph;
+    var Tree = _graph.Tree;
+    var D3SVG = _extensions2d3.D3SVG;
     var svg = document.querySelector("svg");
     var load = svg.querySelector("#load");
-    window.graph = new AcyclicGraph(false);
+    window.graph = new AcyclicGraph(true);
     var size = 200;
     for (var i = 0; i < size; ++i) {
         graph.addNode(i);

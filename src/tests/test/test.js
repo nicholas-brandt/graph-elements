@@ -1,4 +1,4 @@
-import { Graph, AcyclicGraph, Tree } from "../graph";
+import { Graph, AcyclicGraph, Tree } from "../../graph";
 window.Graph = Graph;
 window.AcyclicGraph = AcyclicGraph;
 window.Tree = Tree;

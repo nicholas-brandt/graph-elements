@@ -318,7 +318,10 @@ define([ "exports" ], function(exports) {
             },
             hasCycle:{
                 value:function hasCycle() {
-                    return !!this.getCycle();
+                    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                        args[_key] = arguments[_key];
+                    }
+                    return !!this.getCycle.apply(this, args);
                 }
             },
             getCycle:{
@@ -465,7 +468,7 @@ define([ "exports" ], function(exports) {
             hasCycle:{
                 value:function hasCycle() {
                     var real = arguments[0] === undefined ? false :arguments[0];
-                    return !!this.getCycle(real);
+                    return !!_get(Object.getPrototypeOf(AcyclicGraph.prototype), "hasCycle", this).call(this, real);
                 }
             }
         });

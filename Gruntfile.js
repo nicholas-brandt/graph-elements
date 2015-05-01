@@ -6,7 +6,7 @@ module.exports = function(grunt) {
                 compact: false,
                 comments: true
             },
-            amdScripts: {
+            scripts: {
                 options: {
                     modules: "amd"
                 },
@@ -14,16 +14,6 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "src/",
                     dest: "build/",
-                    ext: ".amd.js",
-                    src: ["**/*.js", "!tests/spec/**/*.js"]
-                }]
-            },
-            commonScripts: {
-                files: [{
-                    expand: true,
-                    cwd: "src/",
-                    dest: "build/",
-                    ext: ".common.js",
                     src: ["**/*.js", "!tests/spec/**/*.js"]
                 }]
             },

@@ -6,7 +6,7 @@ A library that implements graphs based on ES6.
 Install
 =======
 
-Run ```npm install``` in the root directory.
+Run `npm install` and `bower install` in the root directory.
 
 Notes
 =====

@@ -109,36 +109,47 @@ module.exports = function(grunt) {
                 options: {
                     removeComments: true,
                     useShortDoctype: true,
-                    customAttrAssign: [/\?=/g]
+                    customAttrAssign: [/\?=/g],
+                    minifyJS: true,
+                    minifyCSS: true,
+                    collapseWhitespace: true
                 },
                 files: [{
                     expand: true,
-                    cwd: "src/",
+                    cwd: "build/",
                     dest: "build/",
                     ext: ".min.html",
                     extDot: "last",
-                    src: ["**/*.html"]
+                    src: ["**/*.html", "!**/*.min.html"]
                 }]
             }
         },
         vulcanize: {
-            vulcanize: {
+            polymer: {
                 options: {
                     inline: true,
                     strip: true
                 },
                 files: {
-                    "src/external/vulcanized.html": "src/external/polymer.html"
+                    "build/external/vulcanized.html": "build/external/polymer.html"
                 }
             }
         },
         copy: {
-            manifest: {
+            appcache: {
                 files: [{
                     expand: true,
                     cwd: "src/",
                     dest: "build/",
                     src: ["**/*.appcache"]
+                }]
+            },
+            html: {
+                files: [{
+                    expand: true,
+                    cwd: "src/",
+                    dest: "build/",
+                    src: ["**/*.html"]
                 }]
             }
         },
@@ -187,15 +198,19 @@ module.exports = function(grunt) {
                 files: ["build/**/*.css", "!build/**/*.min.css"],
                 tasks: ["cssmin:minify"]
             },
-            minifyHTML: {
+            copyHTML: {
                 files: ["src/**/*.html"],
+                tasks: ["copy"]
+            },
+            minifyHTML: {
+                files: ["build/**/*.html"],
                 tasks: ["htmlmin:minify"]
             },
             vulcanizePolymer: {
-                files: ["src/app/polymer.html"],
-                tasks: ["vulcanize:vulcanizePolymer"]
+                files: ["build/external/polymer.html"],
+                tasks: ["vulcanize:polymer"]
             },
-            copy: {
+            copyAppcache: {
                 files: ["src/**/*.appcache"],
                 tasks: ["copy"]
             },
@@ -216,5 +231,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-jsdoc");
     grunt.loadNpmTasks("grunt-contrib-watch");
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin", "jasmine_nodejs", "copy"]);
+    grunt.registerTask("run", ["copy", "babel", "uglify", "less", "cssmin", "vulcanize", "htmlmin", "jasmine_nodejs"]);
 };

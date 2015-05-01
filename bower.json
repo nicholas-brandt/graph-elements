@@ -1,0 +1,25 @@
+{
+  "name": "graphjs",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Jamtis/graphjs",
+  "authors": [
+    "Nicholas-Philip Brandt <nicholas.brandt@mail.de>"
+  ],
+  "main": "src/graph.js",
+  "moduleType": [
+    "amd",
+    "es6"
+  ],
+  "license": "CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "core-elements": "Polymer/core-elements#~0.5.5",
+    "paper-elements": "Polymer/paper-elements#~0.5.5"
+  }
+}

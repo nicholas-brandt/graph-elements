@@ -1,44 +1,34 @@
-define([ "exports", "../graph", "../extensions/IO", "../extensions/2d3" ], function(exports, _graph, _extensionsIO, _extensions2d3) {
+define([ "exports", "../graph", "../extensions/IO" ], function(exports, _graph, _extensionsIO) {
     "use strict";
+    var _interopRequire = function(obj) {
+        return obj && obj.__esModule ? obj["default"] :obj;
+    };
     var Graph = _graph.Graph;
     var AcyclicGraph = _graph.AcyclicGraph;
     var Tree = _graph.Tree;
-    var IO = _extensionsIO.IO;
-    var D3SVG = _extensions2d3.D3SVG;
-    var svg = document.querySelector("svg");
-    var graph = loadGraph();
-    var d3svg = new D3SVG(svg, graph, {
-        drawing:false,
-        size:{
-            resizing:false
-        }
-    });
-    var force = d3svg.force;
-    setTimeout(function() {
-        svg.classList.add("resolved");
-    }, 500);
-    setTimeout(function() {
-        svg.removeChild(svg.querySelector("#load"));
-        d3svg.drawing = true;
-        d3svg.resizing = true;
-        d3svg.resize();
-        force.linkStrength = 1;
-        force.resume();
-    }, 1300);
-    addEventListener("resize", function(event) {
-        d3svg.resize();
+    var IO = _interopRequire(_extensionsIO);
+    addEventListener("polymer-ready", function() {
+        var graph = loadGraph();
+        var tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
+        tezcatlipoca.graph = graph;
+        PolymerGestures.addEventListener(document.querySelector("paper-button#save-graph"), "tap", function saveGraph() {
+            localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
+            document.querySelector("paper-toast#graph-saved").show();
+        });
+        window.graph = graph;
+        window.Graph = Graph;
+        window.AcyclicGraph = AcyclicGraph;
+        window.Tree = Tree;
+        window.IO = IO;
     });
     function loadGraph() {
         try {
-            return IO.deserialize(localStorage.getItem("graph"));
+            var graph = IO.deserialize(localStorage.getItem("graph"));
+            document.querySelector("paper-toast#graph-loaded").show();
+            return graph;
         } catch (e) {
-            return new Graph();
+            console.error(e);
         }
+        return new Graph();
     }
-    window.graph = graph;
-    window.d3svg = d3svg;
-    window.Graph = Graph;
-    window.AcyclicGraph = AcyclicGraph;
-    window.Tree = Tree;
-    window.IO = IO;
 });

@@ -1,12 +1,6 @@
 require("babel/polyfill");
-/*const node_require = require;
-const require = require("requirejs");
-require.config({
-    nodeRequire: node_require
-});*/
 require("amdefine/intercept");
 import { Graph, AcyclicGraph, Tree } from "../../graph";
-console.log(typeof Graph);
 describe("Graph", function() {
     it("Direction", function() {
         const graph = new Graph;

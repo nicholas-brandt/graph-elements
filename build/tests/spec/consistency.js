@@ -12,8 +12,6 @@ var AcyclicGraph = _graph.AcyclicGraph;
 
 var Tree = _graph.Tree;
 
-console.log(typeof Graph);
-
 describe("Graph", function() {
     it("Direction", function() {
         var graph = new Graph();

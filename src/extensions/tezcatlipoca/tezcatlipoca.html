@@ -1,0 +1,11 @@
+<polymer-element name="graphjs-tezcatlipoca">
+    <template>
+        <link rel="stylesheet" href="../tezcatlipoca/tezcatlipoca.css" shim-shadowdom>
+        <svg id="svg" fit touch-action="none"></svg>
+    </template>
+    <script>
+        require(["../extensions/tezcatlipoca/tezcatlipoca.js"], function(config) {
+            Polymer(config);
+        });
+    </script>
+</polymer-element>

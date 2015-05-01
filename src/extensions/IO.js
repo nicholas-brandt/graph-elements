@@ -1,6 +1,6 @@
 import { Graph } from "../graph";
 import CircularJSON from "../../external/circular-json.amd";
-export class IO {
+export default class IO {
     /**
      * @function importObject
      * @param {Object} object - Object from which a graph is created

@@ -42,7 +42,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
     });
     var d3 = _interopRequire(_node_modulesD3D3);
     var requestAnimationFunction = _externalRequestAnimationFunction.requestAnimationFunction;
-    var mixin = _externalMixin.mixin;
+    var mixin = _interopRequire(_externalMixin);
     var $force = Symbol();
     var $svg = Symbol();
     var $circle_data = Symbol();

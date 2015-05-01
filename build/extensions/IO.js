@@ -1,4 +1,4 @@
-define([ "exports", "../graph", "../../external/circular-json.amd" ], function(exports, _graph, _externalCircularJsonAmd) {
+define([ "exports", "module", "../graph", "../../external/circular-json.amd" ], function(exports, module, _graph, _externalCircularJsonAmd) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -37,12 +37,9 @@ define([ "exports", "../graph", "../../external/circular-json.amd" ], function(e
             throw new TypeError("Cannot call a class as a function");
         }
     };
-    Object.defineProperty(exports, "__esModule", {
-        value:true
-    });
     var Graph = _graph.Graph;
     var CircularJSON = _interopRequire(_externalCircularJsonAmd);
-    var IO = exports.IO = function() {
+    var IO = function() {
         function IO() {
             _classCallCheck(this, IO);
         }
@@ -178,6 +175,7 @@ define([ "exports", "../graph", "../../external/circular-json.amd" ], function(e
         });
         return IO;
     }();
+    module.exports = IO;
     function serialize(object, graph) {
         graph.addNode(object);
         if (typeof object == "object") for (var property in object) {

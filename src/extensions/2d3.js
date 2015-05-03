@@ -25,7 +25,7 @@ export class D3SVG {
                 radius: 6
             },
             arrow: {
-                width: 6,
+                width: 5,
                 ratio: 2
             },
             force: {

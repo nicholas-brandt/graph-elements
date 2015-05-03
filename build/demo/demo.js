@@ -5,6 +5,12 @@ define([ "exports", "../graph", "../extensions/2d3" ], function(exports, _graph,
     var Tree = _graph.Tree;
     var D3SVG = _extensions2d3.D3SVG;
     var svg = document.querySelector("svg");
+    svg.addEventListener("wheel", function(_ref) {
+        var wheelDelta = _ref.wheelDelta;
+        console.log(wheelDelta);
+        d3svg.ratio += Math.pow(wheelDelta / 200, 1);
+        d3svg.resize();
+    });
     var load = svg.querySelector("#load");
     window.graph = new AcyclicGraph(true);
     var size = 200;

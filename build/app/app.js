@@ -15,6 +15,7 @@ define([ "exports", "../graph", "../extensions/IO" ], function(exports, _graph, 
             localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
             document.querySelector("paper-toast#graph-saved").show();
         });
+        window.tezcatlipoca = tezcatlipoca;
         window.graph = graph;
         window.Graph = Graph;
         window.AcyclicGraph = AcyclicGraph;

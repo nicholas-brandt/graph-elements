@@ -13,6 +13,7 @@ addEventListener("polymer-ready", function() {
         document.querySelector("paper-toast#graph-saved").show();
     });
     //debugging
+    window.tezcatlipoca = tezcatlipoca;
     window.graph = graph;
     window.Graph = Graph;
     window.AcyclicGraph = AcyclicGraph;

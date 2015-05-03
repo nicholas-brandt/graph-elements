@@ -61,7 +61,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                     radius:6
                 },
                 arrow:{
-                    width:6,
+                    width:5,
                     ratio:2
                 },
                 force:{

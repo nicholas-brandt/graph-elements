@@ -5,6 +5,11 @@
 import { Graph, AcyclicGraph, Tree } from "../graph";
 import { D3SVG } from "../extensions/2d3";
 const svg = document.querySelector("svg");
+svg.addEventListener("wheel", function({wheelDelta}) {
+    console.log(wheelDelta);
+    d3svg.ratio += Math.pow(wheelDelta / 200, 1);
+    d3svg.resize();
+});
 const load = svg.querySelector("#load");
 //window.graph = new Graph(true);
 window.graph = new AcyclicGraph(true);

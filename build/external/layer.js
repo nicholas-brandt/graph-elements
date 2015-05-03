@@ -1,12 +1,16 @@
-define([ "exports", "module" ], function(exports, module) {
+define([ "exports", "module", "../external/mixin" ], function(exports, module, _externalMixin) {
     "use strict";
+    var _interopRequire = function(obj) {
+        return obj && obj.__esModule ? obj["default"] :obj;
+    };
     module.exports = layer;
+    var mixin = _interopRequire(_externalMixin);
     function layer(storage, modifier) {
         return recursive_layer(storage, modifier);
     }
     function recursive_layer(storage, modifier) {
         var path = arguments[2] === undefined ? [] :arguments[2];
-        if (typeof storage != "object") throw "Argument is not an object";
+        if (typeof storage != "object") throw Error("Argument is not an object");
         var layer_object = {};
         for (var property in storage) {
             (function(property) {
@@ -16,20 +20,21 @@ define([ "exports", "module" ], function(exports, module) {
                         return recursive_layer(storage[property], modifier, property_path);
                     },
                     set:function set(value) {
-                        if (typeof value == "object") mixin(getPropertyByPath(layer_object, property_path), value, false, true); else throw "Not yet supported";
+                        mixin(getPropertyByPath(layer_object, property_path), value, false, true);
                     }
                 }); else {
                     (function() {
-                        var modifier_function = getPropertyByPath(modifier, property_path);
+                        var store = function(value) {
+                            storage[property] = value;
+                        };
+                        var modify = getPropertyByPath(modifier, property_path);
                         Object.defineProperty(layer_object, property, {
                             get:function get() {
                                 return storage[property];
                             },
-                            set:function set(value) {
-                                modifier_function(value, function set(value) {
-                                    storage[property] = value;
-                                });
-                            }
+                            set:typeof modify == "function" ? function(value) {
+                                modify(value, store);
+                            } :store
                         });
                     })();
                 }

@@ -1,4 +1,4 @@
-define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../../external/mixin", "../../external/layer" ], function(exports, module, _graph, _node_modulesD3D3, _externalMixin, _externalLayer) {
+define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../../external/mixin", "../../external/layer", "../../external/transition" ], function(exports, module, _graph, _node_modulesD3D3, _externalMixin, _externalLayer, _externalTransition) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -21,11 +21,14 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     var d3 = _interopRequire(_node_modulesD3D3);
     var mixin = _interopRequire(_externalMixin);
     var layer = _interopRequire(_externalLayer);
+    var transition = _interopRequire(_externalTransition);
     var $force = Symbol();
     var $options = Symbol();
     var $options_layer = Symbol();
     var $data = Symbol();
     var $d3svg = Symbol();
+    var force_size = 1e3;
+    var min_ratio = .35;
     module.exports = Object.defineProperties({
         is:"graphjs-tezcatlipoca",
         ready:function ready() {
@@ -35,7 +38,6 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         created:function created() {
             var element = this;
             configureOptions(element);
-            this.real_options = this[$options];
             element.resize = function() {
                 requestAnimationFrame(function() {
                     var svg = element.svg;
@@ -45,10 +47,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     var ratio = element[$options].size.ratio;
                     width = parseFloat(width) / ratio;
                     height = parseFloat(height) / ratio;
-                    svg.viewBox.baseVal.width = width;
-                    svg.viewBox.baseVal.height = height;
+                    mixin(svg.viewBox.baseVal, {
+                        x:-width / 2,
+                        y:-height / 2,
+                        width:width,
+                        height:height
+                    }, false, true);
                     var force = element[$force];
-                    force.size([ width, height ]);
                     force.alpha(.1);
                 });
             };
@@ -205,32 +210,113 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         var force = d3.layout.force();
         element[$force] = force;
         force.on("tick", draw.bind(element));
+        force.size([ force_size, force_size ]);
         element.resize();
         addEventListener("polymer-ready", element.resize);
+        var ratio_transition = transition(undefined, element.options.size.ratio, function(ratio) {
+            console.log(ratio);
+            element.options.size.ratio = ratio;
+            element.resize();
+        }, 100, true);
+        var x_transition = transition(undefined, element.options.size.offset.x, function(x) {
+            console.log("x:", x);
+            element.options.size.offset.x = x;
+            element.resize();
+        }, 100, true);
+        var y_transition = transition(undefined, element.options.size.offset.y, function(y) {
+            console.log("y:", y);
+            element.options.size.offset.y = y;
+            element.resize();
+        }, 100, true);
+        element.svg.addEventListener("wheel", function(_ref) {
+            var layerX = _ref.layerX;
+            var layerY = _ref.layerY;
+            var wheelDelta = _ref.wheelDelta;
+            var _getComputedStyle = getComputedStyle(element.svg);
+            var width = _getComputedStyle.width;
+            var height = _getComputedStyle.height;
+            var ratio = element.options.size.ratio;
+            var _element$options$size$offset = element.options.size.offset;
+            var x = _element$options$size$offset.x;
+            var y = _element$options$size$offset.y;
+            console.log("x_trans:", x_transition.targetValue = (layerX - parseFloat(width)) / ratio);
+            console.log("y_trans:", y_transition.targetValue = (layerY - parseFloat(height)) / ratio);
+            ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + wheelDelta / 25);
+        });
+        element.svg.addEventListener("click", function(_ref) {
+            var layerX = _ref.layerX;
+            var layerY = _ref.layerY;
+            return console.log(layerX, layerY);
+        });
+        {
+            (function() {
+                var timeout = undefined;
+                var last_scale = undefined;
+                PolymerGestures.addEventListener(element.svg, "pinch", function(_ref) {
+                    var scale = _ref.scale;
+                    var preventTap = _ref.preventTap;
+                    preventTap();
+                    if (last_scale !== undefined) {
+                        ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + (scale - last_scale) * 2);
+                        clearTimeout(timeout);
+                        timeout = setTimeout(function() {
+                            last_scale = undefined;
+                        }, 1e3);
+                    }
+                    last_scale = scale;
+                });
+            })();
+        }
+        PolymerGestures.addEventListener(element.svg, "track", function(_ref) {
+            var ddx = _ref.ddx;
+            var ddy = _ref.ddy;
+            var srcElement = _ref.srcElement;
+            var preventTap = _ref.preventTap;
+            console.log("track");
+            preventTap();
+            if (srcElement === element.svg) {
+                var ratio = element.options.size.ratio;
+                element.options.size.offset.x += ddx / ratio;
+                element.options.size.offset.y += ddy / ratio;
+            }
+        });
     }
     function draw() {
-        var _$options$arrow = this[$options].arrow;
-        var width = _$options$arrow.width;
-        var ratio = _$options$arrow.ratio;
+        var _svg$viewBox$baseVal = this.svg.viewBox.baseVal;
+        var x = _svg$viewBox$baseVal.x;
+        var y = _svg$viewBox$baseVal.y;
+        var width = _svg$viewBox$baseVal.width;
+        var height = _svg$viewBox$baseVal.height;
+        var offset = this.options.size.offset;
+        var ratio = this.options.size.ratio;
+        x = x * ratio + offset.x;
+        y = y * ratio + offset.y;
+        width *= ratio / force_size;
+        height *= ratio / force_size;
+        var arrow = this.options.arrow;
         var _$data = this[$data];
         var circles = _$data.circles;
         var paths = _$data.paths;
         if (circles) circles.attr("transform", function(node) {
-            return "translate(" + node.x + "," + node.y + ")";
+            return "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")";
         });
         if (paths) paths.attr("d", function(_ref) {
             var source = _ref.source;
             var target = _ref.target;
-            var dx = source.x - target.x;
-            var dy = source.y - target.y;
+            var sx = source.x * width + x;
+            var sy = source.y * height + y;
+            var tx = target.x * width + x;
+            var ty = target.y * height + y;
+            var dx = sx - tx;
+            var dy = sy - ty;
             var hyp = Math.hypot(dx, dy);
-            var wx = dx / hyp * width;
-            var wy = dy / hyp * width;
+            var wx = dx / hyp * arrow.width;
+            var wy = dy / hyp * arrow.width;
             if (isNaN(wx)) wx = 0;
             if (isNaN(wy)) wy = 0;
-            var px = source.x - wx * ratio;
-            var py = source.y - wy * ratio;
-            return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
+            var px = sx - wx * arrow.ratio;
+            var py = sy - wy * arrow.ratio;
+            return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
         });
     }
     function configureOptions(element) {
@@ -239,7 +325,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 radius:6
             },
             arrow:{
-                width:6,
+                width:5.5,
                 ratio:2
             },
             force:{
@@ -249,7 +335,11 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 gravity:.15
             },
             size:{
-                ratio:1
+                ratio:1,
+                offset:{
+                    x:0,
+                    y:0
+                }
             }
         };
         element[$options] = options;
@@ -267,7 +357,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     radius = parseFloat(radius);
                     if (radius < Infinity && -Infinity < radius) {
                         set(radius);
-                        element[$force].tick();
+                        element[$force].stop().start();
                     }
                 })
             },
@@ -282,9 +372,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     return _widthWrapper;
                 }(function(width, set) {
                     width = parseFloat(width);
-                    if (charge < Infinity && -Infinity < width) {
+                    if (width < Infinity && -Infinity < width) {
                         set(width);
-                        element[$force].tick();
+                        element[$force].stop().start();
                     }
                 }),
                 ratio:function(_ratio) {
@@ -299,7 +389,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     ratio = Math.abs(parseFloat(ratio));
                     if (ratio < Infinity) {
                         set(ratio);
-                        element[$force].tick();
+                        element[$force].stop().start();
                     }
                 })
             },
@@ -328,7 +418,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     };
                     return _linkDistanceWrapper;
                 }(function(linkDistance, set) {
-                    linkDistance = Math.abs(parseFloat(linkDistance));
+                    linkDistance = Math.max(0, parseFloat(linkDistance));
                     if (linkDistance < Infinity) {
                         set(linkDistance);
                         element[$force].linkDistance(linkDistance).stop().start();
@@ -343,7 +433,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     };
                     return _linkStrengthWrapper;
                 }(function(linkStrength, set) {
-                    linkStrength = Math.abs(parseFloat(linkStrength));
+                    linkStrength = Math.max(0, parseFloat(linkStrength));
                     if (linkStrength < Infinity) {
                         set(linkStrength);
                         element[$force].linkStrength(linkStrength).stop().start();
@@ -358,7 +448,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     };
                     return _gravityWrapper;
                 }(function(gravity, set) {
-                    gravity = Math.abs(parseFloat(gravity));
+                    gravity = Math.max(0, parseFloat(gravity));
                     if (gravity < Infinity) {
                         set(gravity);
                         element[$force].gravity(gravity).stop().start();
@@ -375,12 +465,44 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     };
                     return _ratioWrapper;
                 }(function(ratio, set) {
-                    ratio = Math.abs(parseFloat(ratio));
+                    ratio = Math.max(min_ratio, parseFloat(ratio));
                     if (ratio < Infinity) {
                         set(ratio);
                         element.resize();
                     }
-                })
+                }),
+                offset:{
+                    x:function(_x) {
+                        var _xWrapper = function x(_x2, _x3) {
+                            return _x.apply(this, arguments);
+                        };
+                        _xWrapper.toString = function() {
+                            return _x.toString();
+                        };
+                        return _xWrapper;
+                    }(function(x, set) {
+                        x = parseFloat(x);
+                        if (x < Infinity && -Infinity < x) {
+                            set(x);
+                            element.resize();
+                        }
+                    }),
+                    y:function(_y) {
+                        var _yWrapper = function y(_x, _x2) {
+                            return _y.apply(this, arguments);
+                        };
+                        _yWrapper.toString = function() {
+                            return _y.toString();
+                        };
+                        return _yWrapper;
+                    }(function(y, set) {
+                        y = parseFloat(y);
+                        if (y < Infinity && -Infinity < y) {
+                            set(y);
+                            element.resize();
+                        }
+                    })
+                }
             }
         });
     }

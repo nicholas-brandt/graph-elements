@@ -6,11 +6,14 @@ import { Graph } from "../../graph";
 import d3 from "../../../node_modules/d3/d3";
 import mixin from "../../external/mixin";
 import layer from "../../external/layer";
+import transition from "../../external/transition";
 const $force = Symbol();
 const $options = Symbol();
 const $options_layer = Symbol();
 const $data = Symbol();
 const $d3svg = Symbol();
+const force_size = 1000;
+const min_ratio = 0.35;
 export default {
     is: "graphjs-tezcatlipoca",
     get svg() {
@@ -32,7 +35,6 @@ export default {
     created() {
         const element = this;
         configureOptions(element);
-        this.real_options = this[$options];
         element.resize = () => {
             requestAnimationFrame(() => {
                 const svg = element.svg;
@@ -40,10 +42,13 @@ export default {
                 const ratio = element[$options].size.ratio;
                 width = parseFloat(width) / ratio;
                 height = parseFloat(height) / ratio;
-                svg.viewBox.baseVal.width = width;
-                svg.viewBox.baseVal.height = height;
+                mixin(svg.viewBox.baseVal, {
+                    x: -width / 2,
+                    y: -height / 2,
+                    width,
+                    height
+                }, false, true);
                 const force = element[$force];
-                force.size([width, height]);
                 force.alpha(0.1);
             });
         };
@@ -93,28 +98,96 @@ function initializeD3(element) {
     element[$d3svg] = d3.select(element.svg);
     const force = d3.layout.force();
     element[$force] = force;
+    // drawing
     force.on("tick", draw.bind(element));
+    // resizing
+    force.size([force_size, force_size]);
     element.resize();
     addEventListener("polymer-ready", element.resize);
+    const ratio_transition = transition(undefined, element.options.size.ratio, ratio => {
+        console.log(ratio);
+        element.options.size.ratio = ratio;
+        element.resize();
+    }, 100, true);
+    const x_transition = transition(undefined, element.options.size.offset.x, x => {
+        console.log("x:", x);
+        element.options.size.offset.x = x;
+        element.resize();
+    }, 100, true);
+    const y_transition = transition(undefined, element.options.size.offset.y, y => {
+        console.log("y:", y);
+        element.options.size.offset.y = y;
+        element.resize();
+    }, 100, true);
+    // scrolling
+    element.svg.addEventListener("wheel", function({layerX, layerY, wheelDelta}) {
+        const { width, height } = getComputedStyle(element.svg);
+        const ratio = element.options.size.ratio;
+        const { x, y } = element.options.size.offset;
+        //console.log("x_target:", x_transition.targetValue = (layerX - parseFloat(width) / 2 + x) / ratio);
+        //console.log("y_target:", y_transition.targetValue = (layerY - parseFloat(height) / 2 + y) / ratio);
+        console.log("x_trans:", x_transition.targetValue = (layerX - parseFloat(width)) / ratio);
+        console.log("y_trans:", y_transition.targetValue = (layerY - parseFloat(height)) / ratio);
+        ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + wheelDelta / 25);
+    });
+    element.svg.addEventListener("click", ({layerX, layerY}) => console.log(layerX, layerY));
+    // pinching
+    // @note: pinchstart/pinchend are not yet implemented
+    {
+        let timeout;
+        let last_scale;
+        PolymerGestures.addEventListener(element.svg, "pinch", function({scale, preventTap}) {
+            preventTap();
+            if (last_scale !== undefined) {
+                ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + (scale - last_scale) * 2);
+                clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                    last_scale = undefined;
+                }, 1000);
+            }
+            last_scale = scale;
+        });
+    }
+    // moving
+    PolymerGestures.addEventListener(element.svg, "track", function({ddx, ddy, srcElement, preventTap}) {
+        console.log("track");
+        preventTap();
+        if (srcElement === element.svg) {
+            const ratio = element.options.size.ratio;
+            element.options.size.offset.x += ddx / ratio;
+            element.options.size.offset.y += ddy / ratio;
+        }
+    });
 }
 function draw() {
-    const { width, ratio } = this[$options].arrow;
+    let { x, y, width, height } = this.svg.viewBox.baseVal;
+    const offset = this.options.size.offset;
+    const ratio = this.options.size.ratio;
+    x = x * ratio + offset.x;
+    y = y * ratio + offset.y;
+    width *= ratio / force_size;
+    height *= ratio / force_size;
+    const arrow = this.options.arrow;
     const { circles, paths } = this[$data];
-    if (circles) circles.attr("transform", node => "translate(" + node.x + "," + node.y + ")");
+    if (circles) circles.attr("transform", node => "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")");
     if (paths) paths.attr("d", ({source, target}) => {
-        const dx = source.x - target.x;
-        const dy = source.y - target.y;
+        const sx = source.x * width + x;
+        const sy = source.y * height + y;
+        const tx = target.x * width + x;
+        const ty = target.y * height + y;
+        const dx = sx - tx;
+        const dy = sy - ty;
         const hyp = Math.hypot(dx, dy);
-        let wx = dx / hyp * width;
-        let wy = dy / hyp * width;
+        let wx = dx / hyp * arrow.width;
+        let wy = dy / hyp * arrow.width;
         if (isNaN(wx)) wx = 0;
         if (isNaN(wy)) wy = 0;
-        const px = source.x - wx * ratio;
-        const py = source.y - wy * ratio;
+        const px = sx - wx * arrow.ratio;
+        const py = sy - wy * arrow.ratio;
         // line
         //return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
         // triangle
-        return "M" + target.x + "," + target.y + "L " + px + "," + py + "L " + (source.x + wy) + "," + (source.y - wx) + "L " + (source.x - wy) + "," + (source.y + wx) + "L " + px + "," + py;
+        return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
     });
 }
 function configureOptions(element) {
@@ -123,7 +196,7 @@ function configureOptions(element) {
             radius: 6
         },
         arrow: {
-            width: 6,
+            width: 5.5,
             ratio: 2
         },
         force: {
@@ -133,60 +206,64 @@ function configureOptions(element) {
             gravity: 0.15
         },
         size: {
-            ratio: 1
+            ratio: 1,
+            offset: {
+                x: 0,
+                y: 0
+            }
         }
     };
     element[$options] = options;
     element[$options_layer] = layer(options, {
         circle: {
-            radius: function(radius, set) {
+            radius(radius, set) {
                 radius = parseFloat(radius);
                 if (radius < Infinity && -Infinity < radius) {
                     set(radius);
-                    element[$force].tick();
+                    element[$force].stop().start();
                 }
             }
         },
         arrow: {
-            width: function(width, set) {
+            width(width, set) {
                 width = parseFloat(width);
-                if (charge < Infinity && -Infinity < width) {
+                if (width < Infinity && -Infinity < width) {
                     set(width);
-                    element[$force].tick();
+                    element[$force].stop().start();
                 }
             },
-            ratio: function(ratio, set) {
+            ratio(ratio, set) {
                 ratio = Math.abs(parseFloat(ratio));
                 if (ratio < Infinity) {
                     set(ratio);
-                    element[$force].tick();
+                    element[$force].stop().start();
                 }
             }
         },
         force: {
-            charge: function(charge, set) {
+            charge(charge, set) {
                 charge = parseFloat(charge);
                 if (charge < Infinity && -Infinity < charge) {
                     set(charge);
                     element[$force].charge(charge).stop().start();
                 }
             },
-            linkDistance: function(linkDistance, set) {
-                linkDistance = Math.abs(parseFloat(linkDistance));
+            linkDistance(linkDistance, set) {
+                linkDistance = Math.max(0, parseFloat(linkDistance));
                 if (linkDistance < Infinity) {
                     set(linkDistance);
                     element[$force].linkDistance(linkDistance).stop().start();
                 }
             },
-            linkStrength: function(linkStrength, set) {
-                linkStrength = Math.abs(parseFloat(linkStrength));
+            linkStrength(linkStrength, set) {
+                linkStrength = Math.max(0, parseFloat(linkStrength));
                 if (linkStrength < Infinity) {
                     set(linkStrength);
                     element[$force].linkStrength(linkStrength).stop().start();
                 }
             },
-            gravity: function(gravity, set) {
-                gravity = Math.abs(parseFloat(gravity));
+            gravity(gravity, set) {
+                gravity = Math.max(0, parseFloat(gravity));
                 if (gravity < Infinity) {
                     set(gravity);
                     element[$force].gravity(gravity).stop().start();
@@ -194,11 +271,27 @@ function configureOptions(element) {
             }
         },
         size: {
-            ratio: function(ratio, set) {
-                ratio = Math.abs(parseFloat(ratio));
+            ratio(ratio, set) {
+                ratio = Math.max(min_ratio, parseFloat(ratio));
                 if (ratio < Infinity) {
                     set(ratio);
                     element.resize();
+                }
+            },
+            offset: {
+                x(x, set) {
+                    x = parseFloat(x);
+                    if (x < Infinity && -Infinity < x) {
+                        set(x);
+                        element.resize();
+                    }
+                },
+                y(y, set) {
+                    y = parseFloat(y);
+                    if (y < Infinity && -Infinity < y) {
+                        set(y);
+                        element.resize();
+                    }
                 }
             }
         }

@@ -10,7 +10,7 @@ define([ "exports", "module" ], function(exports, module) {
                 if (override && typeof base[property] != "object") base[property] = {};
                 mixin(base[property], provider[property], weak, assign);
             } else if (override) try {
-                if (!!assign) base[property] = provider[property]; else Object.defineProperty(base, property, Object.getOwnPropertyDescriptor(provider, property));
+                if (assign) base[property] = provider[property]; else Object.defineProperty(base, property, Object.getOwnPropertyDescriptor(provider, property));
             } catch (e) {}
         }
         return base;

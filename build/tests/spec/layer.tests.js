@@ -38,20 +38,32 @@ describe("layer", function() {
     });
     it("Modifier", function() {
         var modifier = {
-            value:function(_value) {
-                var _valueWrapper = function value(_x, _x2) {
-                    return _value.apply(this, arguments);
-                };
-                _valueWrapper.toString = function() {
-                    return _value.toString();
-                };
-                return _valueWrapper;
-            }(function(value, set) {
-                set(value * 2);
-            }),
-            sub_object:{
-                sub_value:function sub_value(value, set) {
+            value:{
+                set:function(_set) {
+                    var _setWrapper = function set(_x, _x2) {
+                        return _set.apply(this, arguments);
+                    };
+                    _setWrapper.toString = function() {
+                        return _set.toString();
+                    };
+                    return _setWrapper;
+                }(function(value, set) {
                     set(value * 2);
+                })
+            },
+            sub_object:{
+                sub_value:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(value, set) {
+                        set(value * 2);
+                    })
                 }
             }
         };

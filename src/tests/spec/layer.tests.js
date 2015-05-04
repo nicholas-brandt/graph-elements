@@ -30,12 +30,16 @@ describe("layer", function() {
     });
     it("Modifier", () => {
         const modifier = {
-            value(value, set) {
-                set(value * 2);
+            value: {
+                set(value, set) {
+                    set(value * 2);
+                }
             },
             sub_object: {
-                sub_value(value, set) {
-                    set(value * 2);
+                sub_value: {
+                    set(value, set) {
+                        set(value * 2);
+                    }
                 }
             }
         }

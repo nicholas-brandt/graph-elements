@@ -72,7 +72,8 @@ export default function transition(storage, modifier) {
             if (!setter) setter = setTargetValue;
             Object.defineProperty(layer_object, property, {
                 get: getter,
-                set: setter
+                set: setter,
+                enumerable: true
             });
             
             function store(value) {
@@ -80,8 +81,7 @@ export default function transition(storage, modifier) {
             }
             function setTargetValue(target_value) {
                 let begin = performance.now();
-                let start_value = storage[property];
-                let value_diff = target_value - start_value;
+                let value_diff = target_value - getter();
                 update(begin, target_value, value_diff);
             }
         }

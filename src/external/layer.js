@@ -40,7 +40,8 @@ export default function layer(storage, modifier) {
             if (!setter) setter = store;
             Object.defineProperty(layer_object, property, {
                 get: getter,
-                set: setter
+                set: setter,
+                enumerable: true
             });
             
             function store(value) {

@@ -52,7 +52,8 @@ define([ "exports", "module", "../external/mixin" ], function(exports, module, _
                         if (!setter) setter = store;
                         Object.defineProperty(layer_object, property, {
                             get:getter,
-                            set:setter
+                            set:setter,
+                            enumerable:true
                         });
                     })();
                 }

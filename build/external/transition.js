@@ -36,8 +36,7 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                         };
                         var setTargetValue = function(target_value) {
                             var begin = performance.now();
-                            var start_value = storage[property];
-                            var value_diff = target_value - start_value;
+                            var value_diff = target_value - getter();
                             update(begin, target_value, value_diff);
                         };
                         var getter = undefined;
@@ -85,7 +84,8 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                         if (!setter) setter = setTargetValue;
                         Object.defineProperty(layer_object, property, {
                             get:getter,
-                            set:setter
+                            set:setter,
+                            enumerable:true
                         });
                     })();
                 }

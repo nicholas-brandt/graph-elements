@@ -219,21 +219,29 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         force.size([ force_size, force_size ]);
         element.resize();
         addEventListener("polymer-ready", element.resize);
-        var ratio_transition = transition(undefined, element.options.size.ratio, function(ratio) {
-            console.log(ratio);
-            element.options.size.ratio = ratio;
-            element.resize();
-        }, 100, true);
-        var x_transition = transition(undefined, element.options.size.offset.x, function(x) {
-            console.log("x:", x);
-            element.options.size.offset.x = x;
-            element.resize();
-        }, 100, true);
-        var y_transition = transition(undefined, element.options.size.offset.y, function(y) {
-            console.log("y:", y);
-            element.options.size.offset.y = y;
-            element.resize();
-        }, 100, true);
+        var size_transition = transition(element.options.size, {
+            ratio:{
+                translate:function translate(ratio) {
+                    console.log("ratio", ratio);
+                    element.resize();
+                },
+                duration:250
+            },
+            offset:{
+                x:{
+                    translate:function translate(x) {
+                        console.log("x", x);
+                        element.resize();
+                    }
+                },
+                y:{
+                    translate:function translate(y) {
+                        console.log("y", y);
+                        element.resize();
+                    }
+                }
+            }
+        });
         element.svg.addEventListener("wheel", function(_ref) {
             var layerX = _ref.layerX;
             var layerY = _ref.layerY;
@@ -241,13 +249,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             var _getComputedStyle = getComputedStyle(element.svg);
             var width = _getComputedStyle.width;
             var height = _getComputedStyle.height;
-            var ratio = element.options.size.ratio;
-            var _element$options$size$offset = element.options.size.offset;
-            var x = _element$options$size$offset.x;
-            var y = _element$options$size$offset.y;
-            console.log("x_trans:", x_transition.targetValue = (layerX - parseFloat(width)) / ratio);
-            console.log("y_trans:", y_transition.targetValue = (layerY - parseFloat(height)) / ratio);
-            ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + wheelDelta / 25);
+            size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
         });
         element.svg.addEventListener("click", function(_ref) {
             var layerX = _ref.layerX;
@@ -263,7 +265,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     var preventTap = _ref.preventTap;
                     preventTap();
                     if (last_scale !== undefined) {
-                        ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + (scale - last_scale) * 2);
+                        size_transition.ratio = Math.max(0, size_transition.ratio + (scale - last_scale) * 2);
                         clearTimeout(timeout);
                         timeout = setTimeout(function() {
                             last_scale = undefined;

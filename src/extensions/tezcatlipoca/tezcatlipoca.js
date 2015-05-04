@@ -110,31 +110,35 @@ function initializeD3(element) {
     force.size([force_size, force_size]);
     element.resize();
     addEventListener("polymer-ready", element.resize);
-    const ratio_transition = transition(undefined, element.options.size.ratio, ratio => {
-        console.log(ratio);
-        element.options.size.ratio = ratio;
-        element.resize();
-    }, 100, true);
-    const x_transition = transition(undefined, element.options.size.offset.x, x => {
-        console.log("x:", x);
-        element.options.size.offset.x = x;
-        element.resize();
-    }, 100, true);
-    const y_transition = transition(undefined, element.options.size.offset.y, y => {
-        console.log("y:", y);
-        element.options.size.offset.y = y;
-        element.resize();
-    }, 100, true);
+    const size_transition = transition(element.options.size, {
+        ratio: {
+            translate(ratio) {
+                console.log("ratio", ratio);
+                element.resize();
+            },
+            duration: 250
+        },
+        offset: {
+            x: {
+                translate(x) {
+                    console.log("x", x);
+                    element.resize();
+                }
+            },
+            y: {
+                translate(y) {
+                    console.log("y", y);
+                    element.resize();
+                }
+            }
+        },
+    });
     // scrolling
     element.svg.addEventListener("wheel", function({layerX, layerY, wheelDelta}) {
         const { width, height } = getComputedStyle(element.svg);
-        const ratio = element.options.size.ratio;
-        const { x, y } = element.options.size.offset;
-        //console.log("x_target:", x_transition.targetValue = (layerX - parseFloat(width) / 2 + x) / ratio);
-        //console.log("y_target:", y_transition.targetValue = (layerY - parseFloat(height) / 2 + y) / ratio);
-        console.log("x_trans:", x_transition.targetValue = (layerX - parseFloat(width)) / ratio);
-        console.log("y_trans:", y_transition.targetValue = (layerY - parseFloat(height)) / ratio);
-        ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + wheelDelta / 25);
+        //const ratio = element.options.size.ratio;
+        //const { x, y } = element.options.size.offset;
+        size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
     });
     element.svg.addEventListener("click", ({layerX, layerY}) => console.log(layerX, layerY));
     // pinching
@@ -145,7 +149,7 @@ function initializeD3(element) {
         PolymerGestures.addEventListener(element.svg, "pinch", function({scale, preventTap}) {
             preventTap();
             if (last_scale !== undefined) {
-                ratio_transition.targetValue = Math.max(0, ratio_transition.targetValue + (scale - last_scale) * 2);
+                size_transition.ratio = Math.max(0, size_transition.ratio + (scale - last_scale) * 2);
                 clearTimeout(timeout);
                 timeout = setTimeout(function() {
                     last_scale = undefined;

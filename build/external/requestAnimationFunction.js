@@ -1,4 +1,4 @@
-define([ "exports" ], function(exports) {
+define([ "exports", "module" ], function(exports, module) {
     "use strict";
     var _toConsumableArray = function(arr) {
         if (Array.isArray(arr)) {
@@ -8,23 +8,23 @@ define([ "exports" ], function(exports) {
             return Array.from(arr);
         }
     };
-    exports.requestAnimationFunction = requestAnimationFunction;
-    Object.defineProperty(exports, "__esModule", {
-        value:true
-    });
+    module.exports = requestAnimationFunction;
     function requestAnimationFunction(callback) {
         var weak = arguments[1] === undefined ? true :arguments[1];
         var updated = true;
-        var args = undefined;
+        var params = undefined;
         return function update() {
-            if (args === undefined) args = arguments;
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+            if (params === undefined || weak && args.length) params = args;
             if (updated) {
                 requestAnimationFrame(function() {
                     updated = true;
-                    callback.apply(undefined, _toConsumableArray(args));
+                    callback.apply(undefined, _toConsumableArray(params));
                 });
                 updated = false;
-            } else if (!!weak) args = arguments;
+            }
         };
     }
 });

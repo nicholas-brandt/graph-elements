@@ -52,7 +52,10 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         y:-height / 2,
                         width:width,
                         height:height
-                    }, false, true);
+                    }, {
+                        weak:false,
+                        assign:true
+                    });
                     var force = element[$force];
                     force.alpha(.1);
                 });
@@ -198,7 +201,10 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 return this[$options_layer];
             },
             set:function(options) {
-                mixin(this[$options_layer], options, false, true);
+                mixin(this[$options_layer], options, {
+                    weak:false,
+                    assign:true
+                });
             },
             configurable:true,
             enumerable:true

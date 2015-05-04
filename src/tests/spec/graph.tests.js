@@ -1,35 +1,36 @@
 require("babel/polyfill");
 require("amdefine/intercept");
 import { Graph, AcyclicGraph, Tree } from "../../graph";
-describe("Graph", function() {
+describe("Graph", () => {
     const graph = new Graph;
     const dgraph = new Graph(true);
-    it("Direction", () => {
+    it("Direction", done => {
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);
+        done();
     });
-    it("Consistency", () => {
+    it("Consistency", done => {
     });
 });
-describe("AcyclicGraph", function() {
+describe("AcyclicGraph", () => {
     const graph = new AcyclicGraph;
     const dgraph = new AcyclicGraph(true);
-    it("Direction", function() {
+    it("Direction", done => {
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);
     });
-    it("Consistency", () => {
+    it("Consistency", done => {
         
     });
 });
-describe("Tree", function() {
+describe("Tree", () => {
     const graph = new Tree;
     const dgraph = new Tree(true);
-    it("Direction", function() {
+    it("Direction", done => {
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);
     });
-    it("Consistency", () => {
+    it("Consistency", done => {
         
     });
 });

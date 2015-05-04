@@ -14,12 +14,12 @@ describe("layer", function() {
         storage = {
             value:0,
             sub_object:{
-                sub_value:0,
-                sub_value2:0
+                sub_value:1,
+                sub_value2:2
             }
         };
     });
-    var value = {
+    var config = {
         value:1,
         sub_object:{
             sub_value:1,
@@ -29,14 +29,18 @@ describe("layer", function() {
             other_value:1
         }
     };
-    it("Basic", function() {
+    it("Basic", function(done) {
         var layer_object = layer(storage);
-        mixin(layer_object, value, false, true);
-        expect(layer_object.value).toBe(storage.value);
-        expect(layer_object.sub_object.sub_value).toBe(storage.sub_object.sub_value);
-        expect(layer_object.sub_object.sub_value2).toBe(storage.sub_object.sub_value2);
+        mixin(layer_object, config, {
+            weak:false,
+            assign:true
+        });
+        expect(layer_object.value).toBe(config.value);
+        expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
+        expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+        done();
     });
-    it("Modifier", function() {
+    it("Modifier", function(done) {
         var modifier = {
             value:{
                 set:function(_set) {
@@ -48,7 +52,7 @@ describe("layer", function() {
                     };
                     return _setWrapper;
                 }(function(value, set) {
-                    set(value * 2);
+                    set(value + 1);
                 })
             },
             sub_object:{
@@ -62,15 +66,19 @@ describe("layer", function() {
                         };
                         return _setWrapper;
                     }(function(value, set) {
-                        set(value * 2);
+                        set(value + 2);
                     })
                 }
             }
         };
         var layer_object = layer(storage, modifier);
-        mixin(layer_object, value, false, true);
-        expect(layer_object.value).toBe(value.value * 2);
-        expect(layer_object.sub_object.sub_value).toBe(value.sub_object.sub_value * 2);
-        expect(layer_object.sub_object.sub_value2).toBe(value.sub_object.sub_value2);
+        mixin(layer_object, config, {
+            weak:false,
+            assign:true
+        });
+        expect(layer_object.value).toBe(config.value + 1);
+        expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value + 2);
+        expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+        done();
     });
 });

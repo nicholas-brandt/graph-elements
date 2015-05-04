@@ -16,7 +16,10 @@ export default function layer(storage, modifier) {
                     return object;
                 },
                 set: function(value) {
-                    mixin(object, value, false, true);
+                    mixin(object, value, {
+                        weak: false,
+                        assign: true
+                    });
                 }
             });
         } else {

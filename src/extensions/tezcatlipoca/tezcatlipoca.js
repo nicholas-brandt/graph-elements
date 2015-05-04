@@ -26,7 +26,10 @@ export default {
         return this[$options_layer];
     },
     set options(options) {
-        mixin(this[$options_layer], options, false, true);
+        mixin(this[$options_layer], options, {
+            weak: false,
+            assign: true
+        });
     },
     ready() {
         initializeD3(this);
@@ -47,7 +50,10 @@ export default {
                     y: -height / 2,
                     width,
                     height
-                }, false, true);
+                }, {
+                    weak: false,
+                    assign: true
+                });
                 const force = element[$force];
                 force.alpha(0.1);
             });

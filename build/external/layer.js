@@ -20,7 +20,10 @@ define([ "exports", "module", "../external/mixin" ], function(exports, module, _
                                 return object;
                             },
                             set:function set(value) {
-                                mixin(object, value, false, true);
+                                mixin(object, value, {
+                                    weak:false,
+                                    assign:true
+                                });
                             }
                         });
                     })();

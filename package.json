@@ -30,7 +30,9 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jasmine-nodejs": "^1.3.2",
     "grunt-jsdoc": "^0.5.8",
-    "grunt-vulcanize": "^0.6.4"
+    "grunt-vulcanize": "^0.6.4",
+    "performance-now": "^0.2.0",
+    "raf": "^2.0.4"
   },
   "bugs": {
     "url": "https://github.com/jamtis/graphjs/issues"

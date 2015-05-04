@@ -41,7 +41,7 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
         value:true
     });
     var d3 = _interopRequire(_node_modulesD3D3);
-    var requestAnimationFunction = _externalRequestAnimationFunction.requestAnimationFunction;
+    var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     var mixin = _interopRequire(_externalMixin);
     var $force = Symbol();
     var $svg = Symbol();
@@ -75,7 +75,10 @@ define([ "exports", "../../node_modules/d3/d3", "../external/requestAnimationFun
                     resizing:true
                 },
                 drawing:true
-            }, options, false);
+            }, options, {
+                weak:false,
+                assign:true
+            });
             var force = d3.layout.force();
             force.charge(options.force.charge);
             force.linkDistance(options.force.linkDistance);

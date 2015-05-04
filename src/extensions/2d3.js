@@ -3,7 +3,7 @@
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 import d3 from "../../node_modules/d3/d3";
-import { requestAnimationFunction } from "../external/requestAnimationFunction";
+import requestAnimationFunction from "../external/requestAnimationFunction";
 import mixin from "../external/mixin";
 const $force = Symbol();
 const $svg = Symbol();
@@ -39,7 +39,10 @@ export class D3SVG {
                 resizing: true
             },
             drawing: true
-        }, options, false);
+        }, options, {
+            weak: false,
+            assign: true
+        });
         const force = d3.layout.force();
         force.charge(options.force.charge);
         force.linkDistance(options.force.linkDistance);

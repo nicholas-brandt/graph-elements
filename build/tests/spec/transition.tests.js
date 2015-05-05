@@ -10,11 +10,11 @@ global.performance = {
     now:require("performance-now")
 };
 
-var transition = _interopRequire(require("../../external/transition"));
+var layer = _interopRequire(require("../../external/layer"));
 
 var mixin = _interopRequire(require("../../external/mixin"));
 
-describe("transition", function() {
+describe("layer", function() {
     var storage = undefined;
     beforeEach(function() {
         storage = {
@@ -36,15 +36,15 @@ describe("transition", function() {
         }
     };
     it("Basic", function(done) {
-        var transition_object = transition(storage);
-        mixin(transition_object, config, {
+        var layer_object = layer(storage);
+        mixin(layer_object, config, {
             weak:false,
             assign:true
         });
         setTimeout(function() {
-            expect(transition_object.value).toBe(config.value);
-            expect(transition_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
-            expect(transition_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+            expect(layer_object.value).toBe(config.value);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
+            expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
             done();
         }, 1100);
     });
@@ -81,15 +81,15 @@ describe("transition", function() {
                 }
             }
         };
-        var transition_object = transition(storage, modifier);
-        mixin(transition_object, config, {
+        var layer_object = layer(storage, modifier);
+        mixin(layer_object, config, {
             weak:false,
             assign:true
         });
         setTimeout(function() {
-            expect(transition_object.value).toBe(config.value * 2);
-            expect(transition_object.sub_object.sub_value).toBe(config.sub_object.sub_value * 2);
-            expect(transition_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+            expect(layer_object.value).toBe(config.value * 2);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value * 2);
+            expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
             done();
         }, 100);
     });
@@ -106,15 +106,15 @@ describe("transition", function() {
                 }
             }
         };
-        var transition_object = transition(storage, modifier);
-        mixin(transition_object, config, {
+        var layer_object = layer(storage, modifier);
+        mixin(layer_object, config, {
             weak:false,
             assign:true
         });
         setTimeout(function() {
-            expect(transition_object.value).toBe(config.value);
-            expect(transition_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
-            expect(transition_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+            expect(layer_object.value).toBe(config.value);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
+            expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
             done();
         }, 100);
     });

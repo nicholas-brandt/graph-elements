@@ -4,6 +4,12 @@ var _interopRequire = function(obj) {
     return obj && obj.__esModule ? obj["default"] :obj;
 };
 
+global.requestAnimationFrame = require("raf");
+
+global.performance = {
+    now:require("performance-now")
+};
+
 var layer = _interopRequire(require("../../external/layer"));
 
 var mixin = _interopRequire(require("../../external/mixin"));
@@ -14,8 +20,8 @@ describe("layer", function() {
         storage = {
             value:0,
             sub_object:{
-                sub_value:1,
-                sub_value2:2
+                sub_value:0,
+                sub_value2:0
             }
         };
     });
@@ -35,12 +41,14 @@ describe("layer", function() {
             weak:false,
             assign:true
         });
-        expect(layer_object.value).toBe(config.value);
-        expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
-        expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
-        done();
+        setTimeout(function() {
+            expect(layer_object.value).toBe(config.value);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
+            expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+            done();
+        }, 1100);
     });
-    it("Modifier", function(done) {
+    xit("Modifier", function(done) {
         var modifier = {
             value:{
                 set:function(_set) {
@@ -53,7 +61,8 @@ describe("layer", function() {
                     return _setWrapper;
                 }(function(value, set) {
                     set(value + 1);
-                })
+                }),
+                duration:10
             },
             sub_object:{
                 sub_value:{
@@ -67,7 +76,8 @@ describe("layer", function() {
                         return _setWrapper;
                     }(function(value, set) {
                         set(value + 2);
-                    })
+                    }),
+                    duration:10
                 }
             }
         };
@@ -76,9 +86,36 @@ describe("layer", function() {
             weak:false,
             assign:true
         });
-        expect(layer_object.value).toBe(config.value + 1);
-        expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value + 2);
-        expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
-        done();
+        setTimeout(function() {
+            expect(layer_object.value).toBe(config.value * 2);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value * 2);
+            expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+            done();
+        }, 100);
+    });
+    xit("Translation", function(done) {
+        var modifier = {
+            value:{
+                translate:function translate() {},
+                duration:10
+            },
+            sub_object:{
+                sub_value:{
+                    translate:function translate() {},
+                    duration:10
+                }
+            }
+        };
+        var layer_object = layer(storage, modifier);
+        mixin(layer_object, config, {
+            weak:false,
+            assign:true
+        });
+        setTimeout(function() {
+            expect(layer_object.value).toBe(config.value);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
+            expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
+            done();
+        }, 100);
     });
 });

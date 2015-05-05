@@ -3,11 +3,11 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
     };
-    module.exports = transition;
+    module.exports = layer;
     var mixin = _interopRequire(_externalMixin);
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     var default_duration = 1e3;
-    function transition(storage, modifier) {
+    function layer(storage, modifier) {
         if (typeof storage != "object") throw Error("Argument is not an object");
         if (!modifier || typeof modifier != "object") modifier = {};
         var layer_object = {};

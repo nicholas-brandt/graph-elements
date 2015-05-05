@@ -1,4 +1,4 @@
-define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../../external/mixin", "../../external/layer", "../../external/transition" ], function(exports, module, _graph, _node_modulesD3D3, _externalMixin, _externalLayer, _externalTransition) {
+define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../../external/mixin", "../../external/layer" ], function(exports, module, _graph, _node_modulesD3D3, _externalMixin, _externalLayer) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -21,7 +21,6 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     var d3 = _interopRequire(_node_modulesD3D3);
     var mixin = _interopRequire(_externalMixin);
     var layer = _interopRequire(_externalLayer);
-    var transition = _interopRequire(_externalTransition);
     var $force = Symbol();
     var $options = Symbol();
     var $options_layer = Symbol();
@@ -219,13 +218,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         force.size([ force_size, force_size ]);
         element.resize();
         addEventListener("polymer-ready", element.resize);
-        var size_transition = transition(element.options.size, {
+        var size_transition = layer(element.options.size, {
             ratio:{
                 translate:function translate(ratio) {
                     console.log("ratio", ratio);
                     element.resize();
                 },
-                duration:250
+                duration:280
             },
             offset:{
                 x:{
@@ -353,163 +352,183 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         element[$options] = options;
         element[$options_layer] = layer(options, {
             circle:{
-                radius:function(_radius) {
-                    var _radiusWrapper = function radius(_x, _x2) {
-                        return _radius.apply(this, arguments);
-                    };
-                    _radiusWrapper.toString = function() {
-                        return _radius.toString();
-                    };
-                    return _radiusWrapper;
-                }(function(radius, set) {
-                    radius = parseFloat(radius);
-                    if (radius < Infinity && -Infinity < radius) {
-                        set(radius);
-                        element[$force].stop().start();
-                    }
-                })
+                radius:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(radius, set) {
+                        radius = parseFloat(radius);
+                        if (radius < Infinity && -Infinity < radius) {
+                            set(radius);
+                            element[$force].stop().start();
+                        }
+                    })
+                }
             },
             arrow:{
-                width:function(_width) {
-                    var _widthWrapper = function width(_x, _x2) {
-                        return _width.apply(this, arguments);
-                    };
-                    _widthWrapper.toString = function() {
-                        return _width.toString();
-                    };
-                    return _widthWrapper;
-                }(function(width, set) {
-                    width = parseFloat(width);
-                    if (width < Infinity && -Infinity < width) {
-                        set(width);
-                        element[$force].stop().start();
-                    }
-                }),
-                ratio:function(_ratio) {
-                    var _ratioWrapper = function ratio(_x, _x2) {
-                        return _ratio.apply(this, arguments);
-                    };
-                    _ratioWrapper.toString = function() {
-                        return _ratio.toString();
-                    };
-                    return _ratioWrapper;
-                }(function(ratio, set) {
-                    ratio = Math.abs(parseFloat(ratio));
-                    if (ratio < Infinity) {
-                        set(ratio);
-                        element[$force].stop().start();
-                    }
-                })
+                width:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(width, set) {
+                        width = parseFloat(width);
+                        if (width < Infinity && -Infinity < width) {
+                            set(width);
+                            element[$force].stop().start();
+                        }
+                    })
+                },
+                ratio:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(ratio, set) {
+                        ratio = Math.abs(parseFloat(ratio));
+                        if (ratio < Infinity) {
+                            set(ratio);
+                            element[$force].stop().start();
+                        }
+                    })
+                }
             },
             force:{
-                charge:function(_charge) {
-                    var _chargeWrapper = function charge(_x, _x2) {
-                        return _charge.apply(this, arguments);
-                    };
-                    _chargeWrapper.toString = function() {
-                        return _charge.toString();
-                    };
-                    return _chargeWrapper;
-                }(function(charge, set) {
-                    charge = parseFloat(charge);
-                    if (charge < Infinity && -Infinity < charge) {
-                        set(charge);
-                        element[$force].charge(charge).stop().start();
-                    }
-                }),
-                linkDistance:function(_linkDistance) {
-                    var _linkDistanceWrapper = function linkDistance(_x, _x2) {
-                        return _linkDistance.apply(this, arguments);
-                    };
-                    _linkDistanceWrapper.toString = function() {
-                        return _linkDistance.toString();
-                    };
-                    return _linkDistanceWrapper;
-                }(function(linkDistance, set) {
-                    linkDistance = Math.max(0, parseFloat(linkDistance));
-                    if (linkDistance < Infinity) {
-                        set(linkDistance);
-                        element[$force].linkDistance(linkDistance).stop().start();
-                    }
-                }),
-                linkStrength:function(_linkStrength) {
-                    var _linkStrengthWrapper = function linkStrength(_x, _x2) {
-                        return _linkStrength.apply(this, arguments);
-                    };
-                    _linkStrengthWrapper.toString = function() {
-                        return _linkStrength.toString();
-                    };
-                    return _linkStrengthWrapper;
-                }(function(linkStrength, set) {
-                    linkStrength = Math.max(0, parseFloat(linkStrength));
-                    if (linkStrength < Infinity) {
-                        set(linkStrength);
-                        element[$force].linkStrength(linkStrength).stop().start();
-                    }
-                }),
-                gravity:function(_gravity) {
-                    var _gravityWrapper = function gravity(_x, _x2) {
-                        return _gravity.apply(this, arguments);
-                    };
-                    _gravityWrapper.toString = function() {
-                        return _gravity.toString();
-                    };
-                    return _gravityWrapper;
-                }(function(gravity, set) {
-                    gravity = Math.max(0, parseFloat(gravity));
-                    if (gravity < Infinity) {
-                        set(gravity);
-                        element[$force].gravity(gravity).stop().start();
-                    }
-                })
+                charge:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(charge, set) {
+                        charge = parseFloat(charge);
+                        if (charge < Infinity && -Infinity < charge) {
+                            set(charge);
+                            element[$force].charge(charge).stop().start();
+                        }
+                    })
+                },
+                linkDistance:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(linkDistance, set) {
+                        linkDistance = Math.max(0, parseFloat(linkDistance));
+                        if (linkDistance < Infinity) {
+                            set(linkDistance);
+                            element[$force].linkDistance(linkDistance).stop().start();
+                        }
+                    })
+                },
+                linkStrength:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(linkStrength, set) {
+                        linkStrength = Math.max(0, parseFloat(linkStrength));
+                        if (linkStrength < Infinity) {
+                            set(linkStrength);
+                            element[$force].linkStrength(linkStrength).stop().start();
+                        }
+                    })
+                },
+                gravity:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(gravity, set) {
+                        gravity = Math.max(0, parseFloat(gravity));
+                        if (gravity < Infinity) {
+                            set(gravity);
+                            element[$force].gravity(gravity).stop().start();
+                        }
+                    })
+                }
             },
             size:{
-                ratio:function(_ratio) {
-                    var _ratioWrapper = function ratio(_x, _x2) {
-                        return _ratio.apply(this, arguments);
-                    };
-                    _ratioWrapper.toString = function() {
-                        return _ratio.toString();
-                    };
-                    return _ratioWrapper;
-                }(function(ratio, set) {
-                    ratio = Math.max(min_ratio, parseFloat(ratio));
-                    if (ratio < Infinity) {
-                        set(ratio);
-                        element.resize();
-                    }
-                }),
-                offset:{
-                    x:function(_x) {
-                        var _xWrapper = function x(_x2, _x3) {
-                            return _x.apply(this, arguments);
+                ratio:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
                         };
-                        _xWrapper.toString = function() {
-                            return _x.toString();
+                        _setWrapper.toString = function() {
+                            return _set.toString();
                         };
-                        return _xWrapper;
-                    }(function(x, set) {
-                        x = parseFloat(x);
-                        if (x < Infinity && -Infinity < x) {
-                            set(x);
-                            element.resize();
-                        }
-                    }),
-                    y:function(_y) {
-                        var _yWrapper = function y(_x, _x2) {
-                            return _y.apply(this, arguments);
-                        };
-                        _yWrapper.toString = function() {
-                            return _y.toString();
-                        };
-                        return _yWrapper;
-                    }(function(y, set) {
-                        y = parseFloat(y);
-                        if (y < Infinity && -Infinity < y) {
-                            set(y);
+                        return _setWrapper;
+                    }(function(ratio, set) {
+                        ratio = Math.max(min_ratio, parseFloat(ratio));
+                        if (ratio < Infinity) {
+                            set(ratio);
                             element.resize();
                         }
                     })
+                },
+                offset:{
+                    x:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(x, set) {
+                            x = parseFloat(x);
+                            if (x < Infinity && -Infinity < x) {
+                                set(x);
+                                element.resize();
+                            }
+                        })
+                    },
+                    y:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(y, set) {
+                            y = parseFloat(y);
+                            if (y < Infinity && -Infinity < y) {
+                                set(y);
+                                element.resize();
+                            }
+                        })
+                    }
                 }
             }
         });

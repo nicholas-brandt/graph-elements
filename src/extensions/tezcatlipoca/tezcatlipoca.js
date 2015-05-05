@@ -6,7 +6,6 @@ import { Graph } from "../../graph";
 import d3 from "../../../node_modules/d3/d3";
 import mixin from "../../external/mixin";
 import layer from "../../external/layer";
-import transition from "../../external/transition";
 const $force = Symbol();
 const $options = Symbol();
 const $options_layer = Symbol();
@@ -110,13 +109,13 @@ function initializeD3(element) {
     force.size([force_size, force_size]);
     element.resize();
     addEventListener("polymer-ready", element.resize);
-    const size_transition = transition(element.options.size, {
+    const size_transition = layer(element.options.size, {
         ratio: {
             translate(ratio) {
                 console.log("ratio", ratio);
                 element.resize();
             },
-            duration: 250
+            duration: 280
         },
         offset: {
             x: {
@@ -226,81 +225,101 @@ function configureOptions(element) {
     element[$options] = options;
     element[$options_layer] = layer(options, {
         circle: {
-            radius(radius, set) {
-                radius = parseFloat(radius);
-                if (radius < Infinity && -Infinity < radius) {
-                    set(radius);
-                    element[$force].stop().start();
+            radius: {
+                set(radius, set) {
+                    radius = parseFloat(radius);
+                    if (radius < Infinity && -Infinity < radius) {
+                        set(radius);
+                        element[$force].stop().start();
+                    }
                 }
             }
         },
         arrow: {
-            width(width, set) {
-                width = parseFloat(width);
-                if (width < Infinity && -Infinity < width) {
-                    set(width);
-                    element[$force].stop().start();
+            width: {
+                set(width, set) {
+                    width = parseFloat(width);
+                    if (width < Infinity && -Infinity < width) {
+                        set(width);
+                        element[$force].stop().start();
+                    }
                 }
             },
-            ratio(ratio, set) {
-                ratio = Math.abs(parseFloat(ratio));
-                if (ratio < Infinity) {
-                    set(ratio);
-                    element[$force].stop().start();
+            ratio: {
+                set(ratio, set) {
+                    ratio = Math.abs(parseFloat(ratio));
+                    if (ratio < Infinity) {
+                        set(ratio);
+                        element[$force].stop().start();
+                    }
                 }
             }
         },
         force: {
-            charge(charge, set) {
-                charge = parseFloat(charge);
-                if (charge < Infinity && -Infinity < charge) {
-                    set(charge);
-                    element[$force].charge(charge).stop().start();
+            charge: {
+                set(charge, set) {
+                    charge = parseFloat(charge);
+                    if (charge < Infinity && -Infinity < charge) {
+                        set(charge);
+                        element[$force].charge(charge).stop().start();
+                    }
                 }
             },
-            linkDistance(linkDistance, set) {
-                linkDistance = Math.max(0, parseFloat(linkDistance));
-                if (linkDistance < Infinity) {
-                    set(linkDistance);
-                    element[$force].linkDistance(linkDistance).stop().start();
+            linkDistance: {
+                set(linkDistance, set) {
+                    linkDistance = Math.max(0, parseFloat(linkDistance));
+                    if (linkDistance < Infinity) {
+                        set(linkDistance);
+                        element[$force].linkDistance(linkDistance).stop().start();
+                    }
                 }
             },
-            linkStrength(linkStrength, set) {
-                linkStrength = Math.max(0, parseFloat(linkStrength));
-                if (linkStrength < Infinity) {
-                    set(linkStrength);
-                    element[$force].linkStrength(linkStrength).stop().start();
+            linkStrength: {
+                set(linkStrength, set) {
+                    linkStrength = Math.max(0, parseFloat(linkStrength));
+                    if (linkStrength < Infinity) {
+                        set(linkStrength);
+                        element[$force].linkStrength(linkStrength).stop().start();
+                    }
                 }
             },
-            gravity(gravity, set) {
-                gravity = Math.max(0, parseFloat(gravity));
-                if (gravity < Infinity) {
-                    set(gravity);
-                    element[$force].gravity(gravity).stop().start();
+            gravity: {
+                set(gravity, set) {
+                    gravity = Math.max(0, parseFloat(gravity));
+                    if (gravity < Infinity) {
+                        set(gravity);
+                        element[$force].gravity(gravity).stop().start();
+                    }
                 }
             }
         },
         size: {
-            ratio(ratio, set) {
-                ratio = Math.max(min_ratio, parseFloat(ratio));
-                if (ratio < Infinity) {
-                    set(ratio);
-                    element.resize();
+            ratio: {
+                set(ratio, set) {
+                    ratio = Math.max(min_ratio, parseFloat(ratio));
+                    if (ratio < Infinity) {
+                        set(ratio);
+                        element.resize();
+                    }
                 }
             },
             offset: {
-                x(x, set) {
-                    x = parseFloat(x);
-                    if (x < Infinity && -Infinity < x) {
-                        set(x);
-                        element.resize();
+                x: {
+                    set(x, set) {
+                        x = parseFloat(x);
+                        if (x < Infinity && -Infinity < x) {
+                            set(x);
+                            element.resize();
+                        }
                     }
                 },
-                y(y, set) {
-                    y = parseFloat(y);
-                    if (y < Infinity && -Infinity < y) {
-                        set(y);
-                        element.resize();
+                y: {
+                    set(y, set) {
+                        y = parseFloat(y);
+                        if (y < Infinity && -Infinity < y) {
+                            set(y);
+                            element.resize();
+                        }
                     }
                 }
             }

@@ -25,64 +25,46 @@ export default function transition(storage, modifier) {
                 }
             });
         } else {
-            let getter;
-            let setter;
-            let update;
-            let duration;
-            try {
-                const { get, set, translate } = modify;
-                const _duration = Math.max(0, modify.duration);
-                if (!isNaN(_duration) && _duration !== Infinity) duration = _duration;
-                if (typeof translate == "function")
-                    update = requestAnimationFunction((begin, target_value, value_diff) => {
-                        const relativ_time_diff = (performance.now() - begin) / duration - 1;
-                        if (relativ_time_diff >= 0) {
-                            store(target_value);
-                            translate(target_value);
-                        } else {
-                            const new_value = target_value + value_diff * relativ_time_diff;
-                            store(new_value);
-                            translate(new_value);
-                            update();
-                        }
-                    });
-                if (typeof set == "function")
-                    setter = function(value) {
-                        set(value, setTargetValue);
-                    };
-                if (typeof get == "function")
-                    getter = function() {
-                        return get(storage[property]);
-                    };
-            } catch (e) {}
-            if (!getter)
-                getter = function() {
-                    return storage[property];
-                };
+            let set_callback;
+            let { get, set, translate, duration } = mixin({}, modify);
             if (duration === undefined) duration = default_duration;
-            if (!update)
-                update = requestAnimationFunction((begin, target_value, value_diff) => {
+            else if (duration <= 0 || duration == Infinity) duration = undefined;
+            const hasTransition = duration && typeof translate == "function";
+            //setup
+            const getter = typeof get == "function" ? () => get(storage[property]) : () => storage[property];
+            let setter;
+            let hasSet = typeof set == "function";
+            if (hasTransition) {
+                const set_callback = target_value => {
+                    update(performance.now(), target_value, target_value - getter());
+                };
+                setter = hasSet ? value => {
+                    set(value, set_callback)
+                } : set_callback;
+                const update = requestAnimationFunction((begin, target_value, value_diff) => {
                     const relativ_time_diff = (performance.now() - begin) / duration - 1;
-                    if (relativ_time_diff >= 0) store(target_value);
-                    else {
-                        store(target_value + value_diff * relativ_time_diff);
+                    if (relativ_time_diff >= 0) {
+                        store(target_value);
+                        translate(target_value);
+                    } else {
+                        const new_value = target_value + value_diff * relativ_time_diff;
+                        store(new_value);
+                        translate(new_value);
                         update();
                     }
                 });
-            if (!setter) setter = setTargetValue;
+            } else
+                setter = hasSet ? value => {
+                    set(value, store);
+                } : store;
+            //define
             Object.defineProperty(layer_object, property, {
                 get: getter,
                 set: setter,
                 enumerable: true
             });
-            
             function store(value) {
                 storage[property] = value;
-            }
-            function setTargetValue(target_value) {
-                let begin = performance.now();
-                let value_diff = target_value - getter();
-                update(begin, target_value, value_diff);
             }
         }
     }

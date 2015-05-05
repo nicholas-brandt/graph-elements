@@ -12,6 +12,7 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
         if (!modifier || typeof modifier != "object") modifier = {};
         var layer_object = {};
         for (var property in storage) {
+            var _mixin;
             (function(property) {
                 var modify = modifier[property];
                 if (typeof storage[property] == "object") {
@@ -34,23 +35,30 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                         var store = function(value) {
                             storage[property] = value;
                         };
-                        var setTargetValue = function(target_value) {
-                            var begin = performance.now();
-                            var value_diff = target_value - getter();
-                            update(begin, target_value, value_diff);
+                        var set_callback = undefined;
+                        _mixin = mixin({}, modify);
+                        var get = _mixin.get;
+                        var set = _mixin.set;
+                        var translate = _mixin.translate;
+                        var duration = _mixin.duration;
+                        if (duration === undefined) duration = default_duration; else if (duration <= 0 || duration == Infinity) duration = undefined;
+                        var hasTransition = duration && typeof translate == "function";
+                        var getter = typeof get == "function" ? function() {
+                            return get(storage[property]);
+                        } :function() {
+                            return storage[property];
                         };
-                        var getter = undefined;
                         var setter = undefined;
-                        var update = undefined;
-                        var duration = undefined;
-                        try {
+                        var hasSet = typeof set == "function";
+                        if (hasTransition) {
                             (function() {
-                                var get = modify.get;
-                                var set = modify.set;
-                                var translate = modify.translate;
-                                var _duration = Math.max(0, modify.duration);
-                                if (!isNaN(_duration) && _duration !== Infinity) duration = _duration;
-                                if (typeof translate == "function") update = requestAnimationFunction(function(begin, target_value, value_diff) {
+                                var set_callback = function(target_value) {
+                                    update(performance.now(), target_value, target_value - getter());
+                                };
+                                setter = hasSet ? function(value) {
+                                    set(value, set_callback);
+                                } :set_callback;
+                                var update = requestAnimationFunction(function(begin, target_value, value_diff) {
                                     var relativ_time_diff = (performance.now() - begin) / duration - 1;
                                     if (relativ_time_diff >= 0) {
                                         store(target_value);
@@ -62,26 +70,10 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                                         update();
                                     }
                                 });
-                                if (typeof set == "function") setter = function(value) {
-                                    set(value, setTargetValue);
-                                };
-                                if (typeof get == "function") getter = function() {
-                                    return get(storage[property]);
-                                };
                             })();
-                        } catch (e) {}
-                        if (!getter) getter = function() {
-                            return storage[property];
-                        };
-                        if (duration === undefined) duration = default_duration;
-                        if (!update) update = requestAnimationFunction(function(begin, target_value, value_diff) {
-                            var relativ_time_diff = (performance.now() - begin) / duration - 1;
-                            if (relativ_time_diff >= 0) store(target_value); else {
-                                store(target_value + value_diff * relativ_time_diff);
-                                update();
-                            }
-                        });
-                        if (!setter) setter = setTargetValue;
+                        } else setter = hasSet ? function(value) {
+                            set(value, store);
+                        } :store;
                         Object.defineProperty(layer_object, property, {
                             get:getter,
                             set:setter,

@@ -18,10 +18,7 @@ export default function layer(storage, modifier) {
                     return object;
                 },
                 set: function(value) {
-                    mixin(object, value, {
-                        weak: false,
-                        assign: true
-                    });
+                    mixin(object, value, mixin.OVERRIDE);
                 }
             });
         } else {

@@ -6,6 +6,7 @@ import { Graph } from "../../graph";
 import d3 from "../../../node_modules/d3/d3";
 import mixin from "../../external/mixin";
 import layer from "../../external/layer";
+import requestAnimationFunction from "../../external/requestAnimationFunction";
 const $force = Symbol();
 const $options = Symbol();
 const $options_layer = Symbol();
@@ -25,10 +26,7 @@ export default {
         return this[$options_layer];
     },
     set options(options) {
-        mixin(this[$options_layer], options, {
-            weak: false,
-            assign: true
-        });
+        mixin(this[$options_layer], options, mixin.OVERRIDE);
     },
     ready() {
         initializeD3(this);
@@ -37,26 +35,21 @@ export default {
     created() {
         const element = this;
         configureOptions(element);
-        element.resize = () => {
-            requestAnimationFrame(() => {
-                const svg = element.svg;
-                let { width, height } = getComputedStyle(svg);
-                const ratio = element[$options].size.ratio;
-                width = parseFloat(width) / ratio;
-                height = parseFloat(height) / ratio;
-                mixin(svg.viewBox.baseVal, {
-                    x: -width / 2,
-                    y: -height / 2,
-                    width,
-                    height
-                }, {
-                    weak: false,
-                    assign: true
-                });
-                const force = element[$force];
-                force.alpha(0.1);
-            });
-        };
+        element.resize = requestAnimationFunction(() => {
+            const svg = element.svg;
+            let { width, height } = getComputedStyle(svg);
+            const ratio = element[$options].size.ratio;
+            width = parseFloat(width) / ratio;
+            height = parseFloat(height) / ratio;
+            mixin(svg.viewBox.baseVal, {
+                x: -width / 2,
+                y: -height / 2,
+                width,
+                height
+            }, mixin.OVERRIDE);
+            const force = element[$force];
+            force.alpha(0.1);
+        });
     },
     attached() {
         addEventListener("resize", this.resize);
@@ -90,7 +83,7 @@ export default {
                 paths
             };
             paths.enter().append("path").attr("class", "edge");
-            circles.enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node").call(force.drag);
+            circles.enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node");//.call(force.drag);
             paths.exit().remove();
             circles.exit().remove();
             d3svg.selectAll("circle.node,path.edge").sort((a,b) => ("value" in a) - 0.5);

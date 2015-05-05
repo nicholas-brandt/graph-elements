@@ -27,10 +27,7 @@ describe("layer", function() {
     };
     it("Basic", done => {
         const layer_object = layer(storage);
-        mixin(layer_object, config, {
-            weak: false,
-            assign: true
-        });
+        mixin(layer_object, config, mixin.OVERRIDE);
         setTimeout(() => {
             expect(layer_object.value).toBe(config.value);
             expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);
@@ -38,7 +35,7 @@ describe("layer", function() {
             done();
         }, 1100);
     });
-    xit("Modifier", done => {
+    it("Modifier", done => {
         const modifier = {
             value: {
                 set(value, set) {
@@ -56,18 +53,15 @@ describe("layer", function() {
             }
         };
         const layer_object = layer(storage, modifier);
-        mixin(layer_object, config, {
-            weak: false,
-            assign: true
-        });
+        mixin(layer_object, config, mixin.OVERRIDE);
         setTimeout(() => {
-            expect(layer_object.value).toBe(config.value * 2);
-            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value * 2);
+            expect(layer_object.value).toBe(config.value + 1);
+            expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value + 2);
             expect(layer_object.sub_object.sub_value2).toBe(config.sub_object.sub_value2);
             done();
         }, 100);
     });
-    xit("Translation", done => {
+    it("Translation", done => {
         const modifier = {
             value: {
                 translate() {},
@@ -81,10 +75,7 @@ describe("layer", function() {
             }
         };
         const layer_object = layer(storage, modifier);
-        mixin(layer_object, config, {
-            weak: false,
-            assign: true
-        });
+        mixin(layer_object, config, mixin.OVERRIDE);
         setTimeout(() => {
             expect(layer_object.value).toBe(config.value);
             expect(layer_object.sub_object.sub_value).toBe(config.sub_object.sub_value);

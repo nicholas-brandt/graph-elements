@@ -12,7 +12,7 @@ svg.addEventListener("wheel", function({wheelDelta}) {
 });
 const load = svg.querySelector("#load");
 //window.graph = new Graph(true);
-window.graph = new AcyclicGraph(true);
+window.graph = new AcyclicGraph(false);
 //window.graph = new Tree(true);
 const size = 200;
 for (let i = 0; i < size; ++i) graph.addNode(i);

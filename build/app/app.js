@@ -1,13 +1,19 @@
-define([ "exports", "../graph", "../extensions/IO" ], function(exports, _graph, _extensionsIO) {
+define(["exports", "../graph", "../extensions/IO"], function (exports, _graph, _extensionsIO) {
     "use strict";
-    var _interopRequire = function(obj) {
-        return obj && obj.__esModule ? obj["default"] :obj;
-    };
+
+    var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+    /*
+     * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
+     * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
+     * */
     var Graph = _graph.Graph;
     var AcyclicGraph = _graph.AcyclicGraph;
     var Tree = _graph.Tree;
+
     var IO = _interopRequire(_extensionsIO);
-    addEventListener("polymer-ready", function() {
+
+    addEventListener("polymer-ready", function () {
         var graph = loadGraph();
         var tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
         tezcatlipoca.graph = graph;
@@ -15,6 +21,7 @@ define([ "exports", "../graph", "../extensions/IO" ], function(exports, _graph, 
             localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
             document.querySelector("paper-toast#graph-saved").show();
         });
+        //debugging
         window.tezcatlipoca = tezcatlipoca;
         window.graph = graph;
         window.Graph = Graph;
@@ -22,6 +29,7 @@ define([ "exports", "../graph", "../extensions/IO" ], function(exports, _graph, 
         window.Tree = Tree;
         window.IO = IO;
     });
+
     function loadGraph() {
         try {
             var graph = IO.deserialize(localStorage.getItem("graph"));

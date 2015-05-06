@@ -52,6 +52,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     width:width,
                     height:height
                 }, mixin.OVERRIDE);
+                element.options.force.linkDistance += 0;
                 element.options.force.start();
                 draw.call(element);
             });
@@ -182,7 +183,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 })();
             } else this.graph = new Graph();
         },
-        toNodeDifference:function toNodeDifference(x, y) {
+        toNodeCoordinates:function toNodeCoordinates(x, y) {
             var _getComputedStyle = getComputedStyle(this.svg);
             var width = _getComputedStyle.width;
             var height = _getComputedStyle.height;
@@ -191,26 +192,6 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             return {
                 x:x / parseFloat(width) / ratio * force_size,
                 y:y / parseFloat(height) / ratio * force_size
-            };
-        },
-        toViewBoxCoordinates:function toViewBoxCoordinates(x, y) {
-            var _getComputedStyle = getComputedStyle(this.svg);
-            var width = _getComputedStyle.width;
-            var height = _getComputedStyle.height;
-            var baseVal = this.svg.viewBox.baseVal;
-            return {
-                x:x / parseFloat(width) * baseVal.width + baseVal.x,
-                y:y / parseFloat(height) * baseVal.height + baseVal.y
-            };
-        },
-        toViewBoxDifference:function toViewBoxDifference(x, y) {
-            var _getComputedStyle = getComputedStyle(this.svg);
-            var width = _getComputedStyle.width;
-            var height = _getComputedStyle.height;
-            var baseVal = this.svg.viewBox.baseVal;
-            return {
-                x:x / parseFloat(width) * baseVal.width,
-                y:y / parseFloat(height) * baseVal.height
             };
         }
     }, {
@@ -287,6 +268,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 element[$d3svg].selectAll("circle.node").each(function() {
                     this.classList.remove("selected");
                 });
+                element.dispatchEvent(new CustomEvent("deselect"));
             }
         });
         element.svg.addEventListener("click", function(_ref) {
@@ -339,8 +321,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     console.log("holdpulse");
                     event.bubbles = false;
                     if (srcElement === element.svg && holdTime > 800 && !added) {
+                        var getUniqueID = function() {
+                            return element.graph.nodes.size;
+                        };
                         added = true;
                         console.log("add node");
+                        element.graph.addNode(getUniqueID());
+                        element.updateGraph();
                     }
                 });
             })();
@@ -395,7 +382,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             },
             force:{
                 charge:-200,
-                linkDistance:60,
+                linkDistance:30,
                 linkStrength:1,
                 gravity:.15,
                 enabled:true,
@@ -507,8 +494,11 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     }(function(linkDistance, set) {
                         linkDistance = Math.max(0, parseFloat(linkDistance));
                         if (linkDistance < Infinity) {
+                            var _getComputedStyle = getComputedStyle(element.svg);
+                            var width = _getComputedStyle.width;
+                            var height = _getComputedStyle.height;
                             set(linkDistance);
-                            element.force.linkDistance(linkDistance).stop();
+                            element.force.linkDistance(linkDistance * 2e3 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
                             element.options.force.start();
                         }
                     })
@@ -633,6 +623,12 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     if (this !== circle) this.classList.remove("selected");
                 });
                 circle.classList.add("selected");
+                element.dispatchEvent(new CustomEvent("select", {
+                    detail:{
+                        circle:circle,
+                        datum:datum
+                    }
+                }));
             });
             PolymerGestures.addEventListener(this, "trackstart", function(event) {
                 event.preventTap();
@@ -641,9 +637,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             });
             PolymerGestures.addEventListener(this, "track", function(event) {
                 event.bubbles = false;
-                var _element$toNodeDifference = element.toNodeDifference(event.ddx, event.ddy);
-                var x = _element$toNodeDifference.x;
-                var y = _element$toNodeDifference.y;
+                var _element$toNodeCoordinates = element.toNodeCoordinates(event.ddx, event.ddy);
+                var x = _element$toNodeCoordinates.x;
+                var y = _element$toNodeCoordinates.y;
                 datum.x += x;
                 datum.y += y;
                 draw.call(element);

@@ -24,9 +24,22 @@ window.IO = IO;
     // init tezcatlipoca
     const tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
     tezcatlipoca.graph = graph;
-    PolymerGestures.addEventListener(document.querySelector("paper-button#save-graph"), "tap", function saveGraph() {
-        localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
+    PolymerGestures.addEventListener(document.querySelector("paper-button#save-graph"), "tap", () => {
+        saveGraph();
         document.querySelector("paper-toast#graph-saved").show();
+    });
+    // init ui
+    const node_id = document.querySelector("#node-id");
+    tezcatlipoca.addEventListener("select", ({
+        detail: {
+            node,
+            datum
+        }
+    }) => {
+        node_id.value = datum.value;
+    });
+    tezcatlipoca.addEventListener("deselect", () => {
+        node_id.value = "";
     });
     // load configuration
     const force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
@@ -50,7 +63,12 @@ window.IO = IO;
     // debugging
     window.tezcatlipoca = tezcatlipoca;
     window.graph = graph;
+    
     function safeConfig() {
         localStorage.setItem("config", JSON.stringify(config));
+    }
+    
+    function saveGraph() {
+        localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
     }
 }

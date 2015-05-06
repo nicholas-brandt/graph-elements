@@ -17,6 +17,9 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin" ], funct
             var safeConfig = function() {
                 localStorage.setItem("config", JSON.stringify(config));
             };
+            var saveGraph = function() {
+                localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
+            };
             var graph = undefined;
             try {
                 graph = IO.deserialize(localStorage.getItem("graph"));
@@ -27,9 +30,19 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin" ], funct
             }
             var tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
             tezcatlipoca.graph = graph;
-            PolymerGestures.addEventListener(document.querySelector("paper-button#save-graph"), "tap", function saveGraph() {
-                localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
+            PolymerGestures.addEventListener(document.querySelector("paper-button#save-graph"), "tap", function() {
+                saveGraph();
                 document.querySelector("paper-toast#graph-saved").show();
+            });
+            var node_id = document.querySelector("#node-id");
+            tezcatlipoca.addEventListener("select", function(_ref) {
+                var _ref$detail = _ref.detail;
+                var node = _ref$detail.node;
+                var datum = _ref$detail.datum;
+                node_id.value = datum.value;
+            });
+            tezcatlipoca.addEventListener("deselect", function() {
+                node_id.value = "";
             });
             var force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
             force_layout_checkbox.onchange = function(event) {

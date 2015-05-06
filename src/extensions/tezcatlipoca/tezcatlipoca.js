@@ -47,6 +47,7 @@ export default {
                 width,
                 height
             }, mixin.OVERRIDE);
+            element.options.force.linkDistance += 0;
             element.options.force.start();
             draw.call(element);
         });
@@ -92,29 +93,13 @@ export default {
             this.options.force.start();
         } else this.graph = new Graph;
     },
-    toNodeDifference(x, y) {
+    toNodeCoordinates(x, y) {
         const { width, height } = getComputedStyle(this.svg);
         const ratio = this.options.size.ratio;
         const baseVal = this.svg.viewBox.baseVal;
         return {
             x: x / parseFloat(width) / ratio * force_size,
             y: y / parseFloat(height) / ratio * force_size
-        };
-    },
-    toViewBoxCoordinates(x, y) {
-        const { width, height } = getComputedStyle(this.svg);
-        const baseVal = this.svg.viewBox.baseVal;
-        return {
-            x: x / parseFloat(width) * baseVal.width + baseVal.x,
-            y: y / parseFloat(height) * baseVal.height + baseVal.y
-        };
-    },
-    toViewBoxDifference(x, y) {
-        const { width, height } = getComputedStyle(this.svg);
-        const baseVal = this.svg.viewBox.baseVal;
-        return {
-            x: x / parseFloat(width) * baseVal.width,
-            y: y / parseFloat(height) * baseVal.height
         };
     }
 };
@@ -167,6 +152,7 @@ function initializeD3(element) {
             element[$d3svg].selectAll("circle.node").each(function() {
                 this.classList.remove("selected");
             });
+            element.dispatchEvent(new CustomEvent("deselect"));
         }
     });
     element.svg.addEventListener("click", ({layerX, layerY}) => console.log(layerX, layerY));
@@ -214,6 +200,12 @@ function initializeD3(element) {
                 added = true;
                 // add node at x,y
                 console.log("add node");
+                // dirty design
+                function getUniqueID() {
+                    return element.graph.nodes.size;
+                }
+                element.graph.addNode(getUniqueID());
+                element.updateGraph();
             }
         });
     }
@@ -260,7 +252,7 @@ function configureOptions(element) {
         },
         force: {
             charge: -200,
-            linkDistance: 60,
+            linkDistance: 30,
             linkStrength: 1,
             gravity: 0.15,
             enabled: true,
@@ -332,8 +324,9 @@ function configureOptions(element) {
                 set(linkDistance, set) {
                     linkDistance = Math.max(0, parseFloat(linkDistance));
                     if (linkDistance < Infinity) {
+                        const { width, height } = getComputedStyle(element.svg);
                         set(linkDistance);
-                        element.force.linkDistance(linkDistance).stop()
+                        element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height))).stop()
                         element.options.force.start();
                     }
                 }
@@ -410,6 +403,12 @@ function implementDrag(element, selection) {
                 if (this !== circle) this.classList.remove("selected");
             });
             circle.classList.add("selected");
+            element.dispatchEvent(new CustomEvent("select", {
+                detail: {
+                    circle,
+                    datum
+                }
+            }));
         });
         PolymerGestures.addEventListener(this, "trackstart", event => {
             event.preventTap();
@@ -418,7 +417,7 @@ function implementDrag(element, selection) {
         });
         PolymerGestures.addEventListener(this, "track", event => {
             event.bubbles = false;
-            const { x, y } = element.toNodeDifference(event.ddx, event.ddy);
+            const { x, y } = element.toNodeCoordinates(event.ddx, event.ddy);
             datum.x += x;
             datum.y += y;
             draw.call(element);

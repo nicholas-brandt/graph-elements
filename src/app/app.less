@@ -6,6 +6,10 @@ body /deep/ svg {
     >circle {
         fill: @color-toolbar-background;
         stroke: @color-background;
+        &.selected {
+            fill: @color-toolbar;
+            stroke: @color-toolbar-background;
+        }
     }
     >path {
         fill: @color-grey-menu;
@@ -38,6 +42,11 @@ core-drawer-panel {
                 }
                 paper-item {
                     font-size: 18px;
+                }
+                core-label {
+                    >span {
+                        padding: 0 10px;
+                    }
                 }
             }
         }

@@ -1,44 +1,36 @@
-define(["exports", "../graph", "../extensions/2d3"], function (exports, _graph, _extensions2d3) {
-    /*
-     * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
-     * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
-     * */
+define([ "exports", "../graph", "../extensions/2d3" ], function(exports, _graph, _extensions2d3) {
     "use strict";
-
     var Graph = _graph.Graph;
     var AcyclicGraph = _graph.AcyclicGraph;
     var Tree = _graph.Tree;
     var D3SVG = _extensions2d3.D3SVG;
-
     var svg = document.querySelector("svg");
-    svg.addEventListener("wheel", function (_ref) {
+    svg.addEventListener("wheel", function(_ref) {
         var wheelDelta = _ref.wheelDelta;
-
         console.log(wheelDelta);
         d3svg.ratio += Math.pow(wheelDelta / 200, 1);
         d3svg.resize();
     });
     var load = svg.querySelector("#load");
-    //window.graph = new Graph(true);
     window.graph = new AcyclicGraph(false);
-    //window.graph = new Tree(true);
     var size = 200;
     for (var i = 0; i < size; ++i) {
         graph.addNode(i);
-    }for (var i = 0; i < size * 1.05; ++i) {
+    }
+    for (var i = 0; i < size * 1.05; ++i) {
         graph.addEdge(i % size, Math.floor(Math.random() * size));
-    }window.d3svg = new D3SVG(svg, graph, {
-        drawing: false,
-        size: {
-            resizing: false
+    }
+    window.d3svg = new D3SVG(svg, graph, {
+        drawing:false,
+        size:{
+            resizing:false
         }
     });
-    // setting up the layout
     var force = d3svg.force;
-    setTimeout(function () {
+    setTimeout(function() {
         svg.classList.add("resolved");
     }, 500);
-    setTimeout(function () {
+    setTimeout(function() {
         svg.removeChild(load);
         d3svg.drawing = true;
         d3svg.resizing = true;
@@ -46,12 +38,10 @@ define(["exports", "../graph", "../extensions/2d3"], function (exports, _graph, 
         force.linkStrength = 1;
         force.resume();
     }, 1300);
-    addEventListener("resize", function (event) {
+    addEventListener("resize", function(event) {
         d3svg.resize();
     });
-
     function log(event) {
         console.log(event.type);
     }
-    //for (let v of ["pinch", "up", "down", "track", "trackstart", "trackend", "tap", "hold", "holdpulse", "release"]) PolymerGestures.addEventListener(svg, v, log);
 });

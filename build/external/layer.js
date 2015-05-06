@@ -1,73 +1,61 @@
-define(["exports", "module", "../external/mixin", "../external/requestAnimationFunction"], function (exports, module, _externalMixin, _externalRequestAnimationFunction) {
+define([ "exports", "module", "../external/mixin", "../external/requestAnimationFunction" ], function(exports, module, _externalMixin, _externalRequestAnimationFunction) {
     "use strict";
-
-    var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
-
+    var _interopRequire = function(obj) {
+        return obj && obj.__esModule ? obj["default"] :obj;
+    };
     module.exports = layer;
-    /*
-     * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
-     * License: CC BY-SA [https://creativecommons.org/licenses/by-sa/4.0/]
-     * */
-
     var mixin = _interopRequire(_externalMixin);
-
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
-
-    var default_duration = 1000;
-
+    var default_duration = 1e3;
     function layer(storage, modifier) {
         if (typeof storage != "object") throw Error("Argument is not an object");
         if (!modifier || typeof modifier != "object") modifier = {};
         var layer_object = {};
         for (var property in storage) {
             var _mixin;
-
-            (function (property) {
+            (function(property) {
                 var modify = modifier[property];
                 if (typeof storage[property] == "object") {
-                    (function () {
+                    (function() {
                         var object = layer(storage[property], modify);
                         Object.defineProperty(layer_object, property, {
-                            get: function get() {
+                            get:function get() {
                                 return object;
                             },
-                            set: function set(value) {
+                            set:function set(value) {
                                 mixin(object, value, mixin.OVERRIDE);
                             }
                         });
                     })();
                 } else {
-                    (function () {
-                        var store = function (value) {
+                    (function() {
+                        var store = function(value) {
                             storage[property] = value;
                         };
-
                         var set_callback = undefined;
                         _mixin = mixin({}, modify);
                         var get = _mixin.get;
                         var set = _mixin.set;
                         var translate = _mixin.translate;
                         var duration = _mixin.duration;
-
-                        if (duration === undefined) duration = default_duration;else if (duration <= 0 || duration == Infinity) duration = undefined;
+                        if (duration === undefined) duration = default_duration; else if (duration <= 0 || duration == Infinity) duration = undefined;
                         var hasTransition = duration && typeof translate == "function";
-                        //setup
-                        var getter = typeof get == "function" ? function () {
+                        var getter = typeof get == "function" ? function() {
                             return get(storage[property]);
-                        } : function () {
+                        } :function() {
                             return storage[property];
                         };
                         var setter = undefined;
                         var hasSet = typeof set == "function";
                         if (hasTransition) {
-                            (function () {
-                                var set_callback = function (target_value) {
+                            (function() {
+                                var set_callback = function(target_value) {
                                     update(performance.now(), target_value, target_value - getter());
                                 };
-                                setter = hasSet ? function (value) {
+                                setter = hasSet ? function(value) {
                                     set(value, set_callback);
-                                } : set_callback;
-                                var update = requestAnimationFunction(function (begin, target_value, value_diff) {
+                                } :set_callback;
+                                var update = requestAnimationFunction(function(begin, target_value, value_diff) {
                                     var relativ_time_diff = (performance.now() - begin) / duration - 1;
                                     if (relativ_time_diff >= 0) {
                                         store(target_value);
@@ -80,14 +68,13 @@ define(["exports", "module", "../external/mixin", "../external/requestAnimationF
                                     }
                                 });
                             })();
-                        } else setter = hasSet ? function (value) {
+                        } else setter = hasSet ? function(value) {
                             set(value, store);
-                        } : store;
-                        //define
+                        } :store;
                         Object.defineProperty(layer_object, property, {
-                            get: getter,
-                            set: setter,
-                            enumerable: true
+                            get:getter,
+                            set:setter,
+                            enumerable:true
                         });
                     })();
                 }

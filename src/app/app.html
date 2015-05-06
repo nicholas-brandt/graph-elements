@@ -4,12 +4,14 @@
 <head>
     <title>GraphJS</title>
     <link rel="stylesheet" href="app.css">
+    <script>
+        addEventListener("polymer-ready", function() {
+            require(["app.js"], function() {});
+        });
+    </script>
     <script src="../../node_modules/requirejs/require.js"></script>
     <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
     <link rel="import" href="../external/vulcanized.html">
-    <script>
-        require(["app.js"], function() {});
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-web-app-capable" content="yes">
@@ -24,6 +26,12 @@
             <core-menu>
                 <paper-item>
                     <paper-input floatingLabel label="ID" id="id"></paper-input>
+                </paper-item>
+                <paper-item>
+                    <core-label id="force-layout" horizontal layout>
+                        <paper-checkbox for aria-labelledby="force-layout" self-center>Force layout</paper-checkbox>
+                        <span self-center>Force Layout</span>
+                    </core-label>
                 </paper-item>
                 <paper-item>
                     <paper-button raised id="save-graph">Save graph</paper-button>

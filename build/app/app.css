@@ -7,6 +7,10 @@ body /deep/ svg > circle {
   fill: #2196f3;
   stroke: #e3f2fd;
 }
+body /deep/ svg > circle.selected {
+  fill: #81d4fa;
+  stroke: #2196f3;
+}
 body /deep/ svg > path {
   fill: #757575;
   stroke: #757575;
@@ -36,6 +40,9 @@ core-drawer-panel > core-header-panel[drawer] > core-menu paper-button {
 }
 core-drawer-panel > core-header-panel[drawer] > core-menu paper-item {
   font-size: 18px;
+}
+core-drawer-panel > core-header-panel[drawer] > core-menu core-label > span {
+  padding: 0 10px;
 }
 core-drawer-panel > core-header-panel[main] > core-toolbar > paper-icon-button[core-drawer-toggle] {
   flex: 0 0 auto;

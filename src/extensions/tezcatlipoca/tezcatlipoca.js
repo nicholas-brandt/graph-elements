@@ -47,8 +47,8 @@ export default {
                 width,
                 height
             }, mixin.OVERRIDE);
-            const force = element[$force];
-            force.alpha(0.1);
+            element.options.force.start();
+            draw.call(element);
         });
     },
     attached() {
@@ -64,8 +64,6 @@ export default {
         if (this.graph) {
             const node_map = new Map([for ([i] of this.graph.nodes) [i, {
                 value: i
-                //x: Math.random(),
-                //y: Math.random()
             }]]);
             const nodes = [for ([, node] of node_map) node];
             const edges = [for ({source, target} of this.graph.edges) {
@@ -73,7 +71,7 @@ export default {
                 target: node_map.get(target)
             }];
             // forced nodes must be a closed set!
-            const force = this[$force];
+            const force = this.force;
             force.nodes(nodes).links(edges);
             const d3svg = this[$d3svg];
             const circles = d3svg.selectAll("circle.node").data(nodes);
@@ -83,12 +81,41 @@ export default {
                 paths
             };
             paths.enter().append("path").attr("class", "edge");
-            circles.enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node");//.call(force.drag);
+            const entering_circles = circles.enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node");
+            implementDrag(this, entering_circles);
             paths.exit().remove();
             circles.exit().remove();
             d3svg.selectAll("circle.node,path.edge").sort((a,b) => ("value" in a) - 0.5);
             force.start();
+            for (let i = 0; i < 10; ++i) force.tick();
+            force.alpha(0);
+            this.options.force.start();
         } else this.graph = new Graph;
+    },
+    toNodeDifference(x, y) {
+        const { width, height } = getComputedStyle(this.svg);
+        const ratio = this.options.size.ratio;
+        const baseVal = this.svg.viewBox.baseVal;
+        return {
+            x: x / parseFloat(width) / ratio * force_size,
+            y: y / parseFloat(height) / ratio * force_size
+        };
+    },
+    toViewBoxCoordinates(x, y) {
+        const { width, height } = getComputedStyle(this.svg);
+        const baseVal = this.svg.viewBox.baseVal;
+        return {
+            x: x / parseFloat(width) * baseVal.width + baseVal.x,
+            y: y / parseFloat(height) * baseVal.height + baseVal.y
+        };
+    },
+    toViewBoxDifference(x, y) {
+        const { width, height } = getComputedStyle(this.svg);
+        const baseVal = this.svg.viewBox.baseVal;
+        return {
+            x: x / parseFloat(width) * baseVal.width,
+            y: y / parseFloat(height) * baseVal.height
+        };
     }
 };
 function initializeD3(element) {
@@ -126,11 +153,21 @@ function initializeD3(element) {
         },
     });
     // scrolling
-    element.svg.addEventListener("wheel", function({layerX, layerY, wheelDelta}) {
+    element.svg.addEventListener("wheel", ({layerX, layerY, wheelDelta}) => {
         const { width, height } = getComputedStyle(element.svg);
         //const ratio = element.options.size.ratio;
         //const { x, y } = element.options.size.offset;
         size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
+    });
+    // selecting
+    PolymerGestures.addEventListener(element.svg, "tap", event => {
+        console.log("tap");
+        event.bubbles = false;
+        if (event.srcElement === element.svg) {
+            element[$d3svg].selectAll("circle.node").each(function() {
+                this.classList.remove("selected");
+            });
+        }
     });
     element.svg.addEventListener("click", ({layerX, layerY}) => console.log(layerX, layerY));
     // pinching
@@ -138,7 +175,7 @@ function initializeD3(element) {
     {
         let timeout;
         let last_scale;
-        PolymerGestures.addEventListener(element.svg, "pinch", function({scale, preventTap}) {
+        PolymerGestures.addEventListener(element.svg, "pinch", ({scale, preventTap}) => {
             preventTap();
             if (last_scale !== undefined) {
                 size_transition.ratio = Math.max(0, size_transition.ratio + (scale - last_scale) * 2);
@@ -151,15 +188,35 @@ function initializeD3(element) {
         });
     }
     // moving
-    PolymerGestures.addEventListener(element.svg, "track", function({ddx, ddy, srcElement, preventTap}) {
+    PolymerGestures.addEventListener(element.svg, "track", event => {
         console.log("track");
-        preventTap();
-        if (srcElement === element.svg) {
+        event.bubbles = false;
+        if (event.srcElement === element.svg) {
             const ratio = element.options.size.ratio;
-            element.options.size.offset.x += ddx / ratio;
-            element.options.size.offset.y += ddy / ratio;
+            element.options.size.offset.x += event.ddx / ratio;
+            element.options.size.offset.y += event.ddy / ratio;
         }
     });
+    // adding
+    // @note: cannot cancel holdpulse
+    {
+        let added;
+        PolymerGestures.addEventListener(element.svg, "hold", event => {
+            console.log("hold");
+            event.bubbles = false;
+            event.preventTap();
+            if (event.srcElement === element.svg) added = false;
+        });
+        PolymerGestures.addEventListener(element.svg, "holdpulse", function({x, y, srcElement, holdTime}) {
+            console.log("holdpulse");
+            event.bubbles = false;
+            if (srcElement === element.svg && holdTime > 800 && !added) {
+                added = true;
+                // add node at x,y
+                console.log("add node");
+            }
+        });
+    }
 }
 function draw() {
     let { x, y, width, height } = this.svg.viewBox.baseVal;
@@ -203,12 +260,21 @@ function configureOptions(element) {
         },
         force: {
             charge: -200,
-            linkDistance: 36,
+            linkDistance: 60,
             linkStrength: 1,
-            gravity: 0.15
+            gravity: 0.15,
+            enabled: true,
+            start() {
+                console.log("start", element.options.force.enabled);
+                if (element.options.force.enabled) {
+                    const force = element.force;
+                    force.start();
+                    force.alpha(0.1);
+                }
+            }
         },
         size: {
-            ratio: 1,
+            ratio: 2,
             offset: {
                 x: 0,
                 y: 0
@@ -223,7 +289,8 @@ function configureOptions(element) {
                     radius = parseFloat(radius);
                     if (radius < Infinity && -Infinity < radius) {
                         set(radius);
-                        element[$force].stop().start();
+                        element.force.stop();
+                        element.options.force.start();
                     }
                 }
             }
@@ -234,7 +301,8 @@ function configureOptions(element) {
                     width = parseFloat(width);
                     if (width < Infinity && -Infinity < width) {
                         set(width);
-                        element[$force].stop().start();
+                        element.force.stop();
+                        element.options.force.start();
                     }
                 }
             },
@@ -243,7 +311,8 @@ function configureOptions(element) {
                     ratio = Math.abs(parseFloat(ratio));
                     if (ratio < Infinity) {
                         set(ratio);
-                        element[$force].stop().start();
+                        element.force.stop();
+                        element.options.force.start();
                     }
                 }
             }
@@ -254,7 +323,8 @@ function configureOptions(element) {
                     charge = parseFloat(charge);
                     if (charge < Infinity && -Infinity < charge) {
                         set(charge);
-                        element[$force].charge(charge).stop().start();
+                        element.force.charge(charge).stop();
+                        element.options.force.start();
                     }
                 }
             },
@@ -263,7 +333,8 @@ function configureOptions(element) {
                     linkDistance = Math.max(0, parseFloat(linkDistance));
                     if (linkDistance < Infinity) {
                         set(linkDistance);
-                        element[$force].linkDistance(linkDistance).stop().start();
+                        element.force.linkDistance(linkDistance).stop()
+                        element.options.force.start();
                     }
                 }
             },
@@ -272,7 +343,8 @@ function configureOptions(element) {
                     linkStrength = Math.max(0, parseFloat(linkStrength));
                     if (linkStrength < Infinity) {
                         set(linkStrength);
-                        element[$force].linkStrength(linkStrength).stop().start();
+                        element.force.linkStrength(linkStrength).stop();
+                        element.options.force.start();
                     }
                 }
             },
@@ -281,8 +353,16 @@ function configureOptions(element) {
                     gravity = Math.max(0, parseFloat(gravity));
                     if (gravity < Infinity) {
                         set(gravity);
-                        element[$force].gravity(gravity).stop().start();
+                        element.force.gravity(gravity).stop();
+                        element.options.force.start();
                     }
+                }
+            },
+            enabled : {
+                set(enabled, set) {
+                    set(!!enabled);
+                    if (enabled) element.force.start();
+                    else element.force.stop();
                 }
             }
         },
@@ -317,5 +397,35 @@ function configureOptions(element) {
                 }
             }
         }
+    });
+}
+function implementDrag(element, selection) {
+    console.log("entering circles", selection);
+    selection.each(function(datum) {
+        PolymerGestures.addEventListener(this, "tap", event => {
+            event.preventTap();
+            event.bubbles = false;
+            const circle = this;
+            element[$d3svg].selectAll("circle.node").each(function() {
+                if (this !== circle) this.classList.remove("selected");
+            });
+            circle.classList.add("selected");
+        });
+        PolymerGestures.addEventListener(this, "trackstart", event => {
+            event.preventTap();
+            event.bubbles = false;
+            element.force.stop();
+        });
+        PolymerGestures.addEventListener(this, "track", event => {
+            event.bubbles = false;
+            const { x, y } = element.toNodeDifference(event.ddx, event.ddy);
+            datum.x += x;
+            datum.y += y;
+            draw.call(element);
+        });
+        PolymerGestures.addEventListener(this, "trackend", event => {
+            event.bubbles = false;
+            element.options.force.start();
+        });
     });
 }

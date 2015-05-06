@@ -1,10 +1,8 @@
-define(["exports", "../../graph"], function (exports, _graph) {
+define([ "exports", "../../graph" ], function(exports, _graph) {
     "use strict";
-
     var Graph = _graph.Graph;
     var AcyclicGraph = _graph.AcyclicGraph;
     var Tree = _graph.Tree;
-
     window.Graph = Graph;
     window.AcyclicGraph = AcyclicGraph;
     window.Tree = Tree;
@@ -14,21 +12,21 @@ define(["exports", "../../graph"], function (exports, _graph) {
     var length = 20;
     var nodes = [];
     var edge_array = [];
-    var densities = [0, 0.01, 0.5, 1, 10];
+    var densities = [ 0, .01, .5, 1, 10 ];
     for (var i = 0; i < length; ++i) {
         nodes.push(i);
-    }var _iteratorNormalCompletion = true;
+    }
+    var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
-
     try {
         for (var _iterator = densities[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var density = _step.value;
-
             var edges = [];
             for (var i = 0; i < Math.pow(length, 2) * density; ++i) {
-                edges.push([Math.floor(Math.random() * length), Math.floor(Math.random() * length)]);
-            }edges.density = density;
+                edges.push([ Math.floor(Math.random() * length), Math.floor(Math.random() * length) ]);
+            }
+            edges.density = density;
             edge_array.push(edges);
         }
     } catch (err) {
@@ -45,18 +43,15 @@ define(["exports", "../../graph"], function (exports, _graph) {
             }
         }
     }
-
-    var static_edges = (function () {
+    var static_edges = function() {
         var _static_edges = [];
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
         var _iteratorError2 = undefined;
-
         try {
             for (var _iterator2 = nodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                 var node = _step2.value;
-
-                _static_edges.push([Math.floor(Math.abs(Math.sin(node)) * (length - 1)), Math.floor(Math.abs(Math.cos(node)) * (length - 1))]);
+                _static_edges.push([ Math.floor(Math.abs(Math.sin(node)) * (length - 1)), Math.floor(Math.abs(Math.cos(node)) * (length - 1)) ]);
             }
         } catch (err) {
             _didIteratorError2 = true;
@@ -72,27 +67,23 @@ define(["exports", "../../graph"], function (exports, _graph) {
                 }
             }
         }
-
         return _static_edges;
-    })();
+    }();
     static_edges.density = 1;
     edge_array.push(static_edges);
     console.timeEnd("preparation");
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
-
     try {
-        for (var _iterator2 = ["Graph", "AcyclicGraph", "Tree"][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        for (var _iterator2 = [ "Graph", "AcyclicGraph", "Tree" ][Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var _name = _step2.value;
             var _iteratorNormalCompletion3 = true;
             var _didIteratorError3 = false;
             var _iteratorError3 = undefined;
-
             try {
                 for (var _iterator3 = edge_array[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
                     var edges = _step3.value;
-
                     var graph = new window[_name]();
                     var dgraph = new window[_name](true);
                     applyModel(graph, edges, _name, edges.density);
@@ -127,14 +118,12 @@ define(["exports", "../../graph"], function (exports, _graph) {
             }
         }
     }
-
     function applyModel(graph, edges, name, densitiy) {
         console.log("\n" + name + " | " + graph.directed + " | " + densitiy);
         console.time("init");
         var _iteratorNormalCompletion4 = true;
         var _didIteratorError4 = false;
         var _iteratorError4 = undefined;
-
         try {
             for (var _iterator4 = nodes[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
                 var node = _step4.value;
@@ -154,11 +143,9 @@ define(["exports", "../../graph"], function (exports, _graph) {
                 }
             }
         }
-
         var _iteratorNormalCompletion5 = true;
         var _didIteratorError5 = false;
         var _iteratorError5 = undefined;
-
         try {
             for (var _iterator5 = edges[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
                 var edge = _step5.value;
@@ -178,7 +165,6 @@ define(["exports", "../../graph"], function (exports, _graph) {
                 }
             }
         }
-
         console.timeEnd("init");
         console.time("Cycle check");
         console.log("Cycle: " + graph.hasCycle());

@@ -257,7 +257,7 @@ function configureOptions(element) {
             gravity: 0.15,
             enabled: true,
             start() {
-                console.log("start", element.options.force.enabled);
+                //console.log("start", element.options.force.enabled);
                 if (element.options.force.enabled) {
                     const force = element.force;
                     force.start();

@@ -2,11 +2,11 @@
  * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA [https://creativecommons.org/licenses/by-sa/4.0/]
  * */
-import mixin from "../external/mixin"
+import mixin from "../external/mixin";
 import requestAnimationFunction from "../external/requestAnimationFunction";
 const default_duration = 1000;
 export default function layer(storage, modifier) {
-    if (typeof storage != "object") throw Error("Argument is not an object");
+    if (typeof storage != "object") throw Error("{storage} is not an object");
     if (!modifier || typeof modifier != "object") modifier = {};
     const layer_object = {};
     for (let property in storage) {
@@ -14,12 +14,13 @@ export default function layer(storage, modifier) {
         if (typeof storage[property] == "object") {
             const object = layer(storage[property], modify);
             Object.defineProperty(layer_object, property, {
-                get: function() {
+                get() {
                     return object;
                 },
-                set: function(value) {
+                set(value) {
                     mixin(object, value, mixin.OVERRIDE);
-                }
+                },
+                enumerable: true
             });
         } else {
             let set_callback;

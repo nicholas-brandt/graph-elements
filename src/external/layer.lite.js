@@ -3,8 +3,8 @@
  * License: CC BY-SA [https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 import mixin from "../external/mixin";
-export default function layer(storage, modifier) {
-    if (typeof storage != "object") throw Error("Argument is not an object");
+export default function liteLayer(storage, modifier) {
+    if (typeof storage != "object") throw Error("{storage} is not an object");
     if (!modifier || typeof modifier != "object") modifier = {};
     const layer_object = {};
     for (let property in storage) {
@@ -12,38 +12,27 @@ export default function layer(storage, modifier) {
         if (typeof storage[property] == "object") {
             const object = layer(storage[property], modify);
             Object.defineProperty(layer_object, property, {
-                get: function() {
+                get() {
                     return object;
                 },
-                set: function(value) {
+                set(value) {
                     mixin(object, value, {
                         weak: false,
                         assign: true
                     });
-                }
-            });
-        } else {
-            let getter;
-            let setter;
-            try {
-                const { get, set } = modify;
-                if (typeof set == "function") setter = function(value) {
-                    set(value, store);
-                };
-                if (typeof get == "function") getter = function() {
-                    return get(storage[property]);
-                };
-            } catch (e) {}
-            if (!getter) getter = function() {
-                return storage[property];
-            };
-            if (!setter) setter = store;
-            Object.defineProperty(layer_object, property, {
-                get: getter,
-                set: setter,
+                },
                 enumerable: true
             });
-            
+        } else {
+            let { get, set } = mixin({}, modify);
+            //define
+            Object.defineProperty(layer_object, property, {
+                get: typeof get == "function" ? () => get(storage[property]) : () => storage[property],
+                set: typeof set == "function" ? value => {
+                    set(value, store);
+                } : store,
+                enumerable: true
+            });
             function store(value) {
                 storage[property] = value;
             }

@@ -8,7 +8,7 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     var default_duration = 1e3;
     function layer(storage, modifier) {
-        if (typeof storage != "object") throw Error("Argument is not an object");
+        if (typeof storage != "object") throw Error("{storage} is not an object");
         if (!modifier || typeof modifier != "object") modifier = {};
         var layer_object = {};
         for (var property in storage) {
@@ -24,7 +24,8 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                             },
                             set:function set(value) {
                                 mixin(object, value, mixin.OVERRIDE);
-                            }
+                            },
+                            enumerable:true
                         });
                     })();
                 } else {

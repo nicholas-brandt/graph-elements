@@ -387,7 +387,6 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 gravity:.15,
                 enabled:true,
                 start:function start() {
-                    console.log("start", element.options.force.enabled);
                     if (element.options.force.enabled) {
                         var force = element.force;
                         force.start();

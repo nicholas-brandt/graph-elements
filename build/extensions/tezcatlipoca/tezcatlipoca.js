@@ -27,6 +27,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     var $options_layer = Symbol();
     var $data = Symbol();
     var $d3svg = Symbol();
+    var $graph = Symbol();
     var force_size = 1e3;
     var min_ratio = .35;
     module.exports = Object.defineProperties({
@@ -63,11 +64,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         detached:function detached() {
             removeEventListener("resize", this.resize);
         },
-        observe:{
-            graph:"updateGraph"
-        },
         updateGraph:function updateGraph() {
             var _this = this;
+            console.log("update graph");
             if (this.graph) {
                 (function() {
                     var node_map = new Map(function() {
@@ -193,6 +192,25 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 x:x / parseFloat(width) / ratio * force_size,
                 y:y / parseFloat(height) / ratio * force_size
             };
+        },
+        selectNode:function selectNode(index) {
+            console.log("select", index);
+            var circles = this[$d3svg].selectAll("circle.node");
+            var circle = circles.filter(function(datum) {
+                return index == datum.index;
+            }).node();
+            circles.each(function() {
+                if (this !== circle) this.classList.remove("selected");
+            });
+            if (circle) {
+                circle.classList.add("selected");
+                this.dispatchEvent(new CustomEvent("select", {
+                    detail:{
+                        circle:circle,
+                        datum:circle.__data__
+                    }
+                }));
+            } else this.dispatchEvent(new CustomEvent("unselect"));
         }
     }, {
         svg:{
@@ -215,6 +233,17 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             },
             set:function(options) {
                 mixin(this[$options_layer], options, mixin.OVERRIDE);
+            },
+            configurable:true,
+            enumerable:true
+        },
+        graph:{
+            get:function() {
+                return this[$graph];
+            },
+            set:function(graph) {
+                this[$graph] = graph;
+                this.updateGraph();
             },
             configurable:true,
             enumerable:true
@@ -612,40 +641,33 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     }
     function implementDrag(element, selection) {
         console.log("entering circles", selection);
-        selection.each(function(datum) {
-            var _this = this;
+        selection.each(function(datum, index) {
             PolymerGestures.addEventListener(this, "tap", function(event) {
                 event.preventTap();
                 event.bubbles = false;
-                var circle = _this;
-                element[$d3svg].selectAll("circle.node").each(function() {
-                    if (this !== circle) this.classList.remove("selected");
-                });
-                circle.classList.add("selected");
-                element.dispatchEvent(new CustomEvent("select", {
-                    detail:{
-                        circle:circle,
-                        datum:datum
-                    }
-                }));
+                element.selectNode(index);
             });
             PolymerGestures.addEventListener(this, "trackstart", function(event) {
                 event.preventTap();
                 event.bubbles = false;
-                element.force.stop();
+                datum.fixed = true;
             });
             PolymerGestures.addEventListener(this, "track", function(event) {
                 event.bubbles = false;
                 var _element$toNodeCoordinates = element.toNodeCoordinates(event.ddx, event.ddy);
                 var x = _element$toNodeCoordinates.x;
                 var y = _element$toNodeCoordinates.y;
-                datum.x += x;
-                datum.y += y;
+                datum.px = datum.x += x;
+                datum.py = datum.y += y;
                 draw.call(element);
             });
             PolymerGestures.addEventListener(this, "trackend", function(event) {
                 event.bubbles = false;
-                element.options.force.start();
+                datum.fixed = false;
+            });
+            PolymerGestures.addEventListener(this, "hold", function(event) {
+                event.bubbles = false;
+                event.preventTap();
             });
         });
     }

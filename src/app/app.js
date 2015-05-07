@@ -5,6 +5,7 @@
 import { Graph, AcyclicGraph, Tree } from "../graph";
 import IO from "../extensions/IO";
 import mixin from "../external/mixin";
+import storage from "../external/storage";
 //debugging
 window.Graph = Graph;
 window.AcyclicGraph = AcyclicGraph;
@@ -15,7 +16,7 @@ window.IO = IO;
     // load graph
     let graph;
     try {
-        graph = IO.deserialize(localStorage.getItem("graph"));
+        graph = IO.deserialize(localStorage.graph);
         document.querySelector("paper-toast#graph-loaded").show();
     } catch (e) {
         console.error(e);
@@ -37,9 +38,11 @@ window.IO = IO;
         }
     }) => {
         node_id.value = datum.value;
+        config.selected = datum.value;
     });
     tezcatlipoca.addEventListener("deselect", () => {
         node_id.value = "";
+        config.selected = null;
     });
     // load configuration
     const force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
@@ -47,28 +50,20 @@ window.IO = IO;
         console.log("force-layout change", force_layout_checkbox.checked);
         event.bubbles = false;
         config.force_layout = tezcatlipoca.options.force.enabled = force_layout_checkbox.checked;
-        safeConfig();
     };
-    const config = {
-        force_layout: true
-    };
-    try {
-        mixin(config, JSON.parse(localStorage.getItem("config")), mixin.OVERRIDE);
-    } catch (e) {
-        console.error(e);
-    }
+    const config = storage("config", {
+        force_layout: true,
+        selected: undefined
+    });
     // apply configuration
     force_layout_checkbox.checked = config.force_layout;
     force_layout_checkbox.onchange({});
+    tezcatlipoca.selectNode(config.selected);
     // debugging
     window.tezcatlipoca = tezcatlipoca;
     window.graph = graph;
     
-    function safeConfig() {
-        localStorage.setItem("config", JSON.stringify(config));
-    }
-    
     function saveGraph() {
-        localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
+        localStorage.graph = IO.serialize(tezcatlipoca.graph);
     }
 }

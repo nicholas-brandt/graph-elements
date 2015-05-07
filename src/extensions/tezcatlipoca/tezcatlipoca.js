@@ -12,6 +12,7 @@ const $options = Symbol();
 const $options_layer = Symbol();
 const $data = Symbol();
 const $d3svg = Symbol();
+const $graph = Symbol();
 const force_size = 1000;
 const min_ratio = 0.35;
 export default {
@@ -58,10 +59,15 @@ export default {
     detached() {
         removeEventListener("resize", this.resize);
     },
-    observe: {
-        graph: "updateGraph"
+    get graph() {
+        return this[$graph];
+    },
+    set graph(graph) {
+        this[$graph] = graph;
+        this.updateGraph();
     },
     updateGraph() {
+        console.log("update graph");
         if (this.graph) {
             const node_map = new Map([for ([i] of this.graph.nodes) [i, {
                 value: i
@@ -101,6 +107,23 @@ export default {
             x: x / parseFloat(width) / ratio * force_size,
             y: y / parseFloat(height) / ratio * force_size
         };
+    },
+    selectNode(index) {
+        console.log("select", index);
+        const circles = this[$d3svg].selectAll("circle.node");
+        const circle = circles.filter(datum => index == datum.index).node();
+        circles.each(function() {
+            if (this !== circle) this.classList.remove("selected");
+        });
+        if (circle) {
+            circle.classList.add("selected");
+            this.dispatchEvent(new CustomEvent("select", {
+                detail: {
+                    circle,
+                    datum: circle.__data__
+                }
+            }));
+        } else this.dispatchEvent(new CustomEvent("unselect"));
     }
 };
 function initializeD3(element) {
@@ -236,7 +259,7 @@ function draw() {
         const px = sx - wx * arrow.ratio;
         const py = sy - wy * arrow.ratio;
         // line
-        //return "M" + source.x + "," + source.y + "L " + target.x + "," + target.y;
+        //return "M" + tx + "," + ty + "L " + sx + "," + sy;
         // triangle
         return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
     });
@@ -394,37 +417,31 @@ function configureOptions(element) {
 }
 function implementDrag(element, selection) {
     console.log("entering circles", selection);
-    selection.each(function(datum) {
+    selection.each(function(datum, index) {
         PolymerGestures.addEventListener(this, "tap", event => {
             event.preventTap();
             event.bubbles = false;
-            const circle = this;
-            element[$d3svg].selectAll("circle.node").each(function() {
-                if (this !== circle) this.classList.remove("selected");
-            });
-            circle.classList.add("selected");
-            element.dispatchEvent(new CustomEvent("select", {
-                detail: {
-                    circle,
-                    datum
-                }
-            }));
+            element.selectNode(index);
         });
         PolymerGestures.addEventListener(this, "trackstart", event => {
             event.preventTap();
             event.bubbles = false;
-            element.force.stop();
+            datum.fixed = true;
         });
         PolymerGestures.addEventListener(this, "track", event => {
             event.bubbles = false;
             const { x, y } = element.toNodeCoordinates(event.ddx, event.ddy);
-            datum.x += x;
-            datum.y += y;
+            datum.px = datum.x += x;
+            datum.py = datum.y += y;
             draw.call(element);
         });
         PolymerGestures.addEventListener(this, "trackend", event => {
             event.bubbles = false;
-            element.options.force.start();
+            datum.fixed = false;
+        });
+        PolymerGestures.addEventListener(this, "hold", event => {
+            event.bubbles = false;
+            event.preventTap();
         });
     });
 }

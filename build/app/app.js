@@ -1,4 +1,4 @@
-define([ "exports", "../graph", "../extensions/IO", "../external/mixin" ], function(exports, _graph, _extensionsIO, _externalMixin) {
+define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../external/storage" ], function(exports, _graph, _extensionsIO, _externalMixin, _externalStorage) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -8,21 +8,19 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin" ], funct
     var Tree = _graph.Tree;
     var IO = _interopRequire(_extensionsIO);
     var mixin = _interopRequire(_externalMixin);
+    var storage = _interopRequire(_externalStorage);
     window.Graph = Graph;
     window.AcyclicGraph = AcyclicGraph;
     window.Tree = Tree;
     window.IO = IO;
     {
         (function() {
-            var safeConfig = function() {
-                localStorage.setItem("config", JSON.stringify(config));
-            };
             var saveGraph = function() {
-                localStorage.setItem("graph", IO.serialize(tezcatlipoca.graph));
+                localStorage.graph = IO.serialize(tezcatlipoca.graph);
             };
             var graph = undefined;
             try {
-                graph = IO.deserialize(localStorage.getItem("graph"));
+                graph = IO.deserialize(localStorage.graph);
                 document.querySelector("paper-toast#graph-loaded").show();
             } catch (e) {
                 console.error(e);
@@ -40,27 +38,25 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin" ], funct
                 var node = _ref$detail.node;
                 var datum = _ref$detail.datum;
                 node_id.value = datum.value;
+                config.selected = datum.value;
             });
             tezcatlipoca.addEventListener("deselect", function() {
                 node_id.value = "";
+                config.selected = null;
             });
             var force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
             force_layout_checkbox.onchange = function(event) {
                 console.log("force-layout change", force_layout_checkbox.checked);
                 event.bubbles = false;
                 config.force_layout = tezcatlipoca.options.force.enabled = force_layout_checkbox.checked;
-                safeConfig();
             };
-            var config = {
-                force_layout:true
-            };
-            try {
-                mixin(config, JSON.parse(localStorage.getItem("config")), mixin.OVERRIDE);
-            } catch (e) {
-                console.error(e);
-            }
+            var config = storage("config", {
+                force_layout:true,
+                selected:undefined
+            });
             force_layout_checkbox.checked = config.force_layout;
             force_layout_checkbox.onchange({});
+            tezcatlipoca.selectNode(config.selected);
             window.tezcatlipoca = tezcatlipoca;
             window.graph = graph;
         })();

@@ -5,7 +5,7 @@
 body graphjs-tezcatlipoca {
     &[mode=edit] /deep/ svg {
         >circle.selected {
-            stroke-dasharray: 11,1;
+            stroke-dasharray: 8,1;
             .prefixed(transition, ~"opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s");
         }
     }
@@ -13,7 +13,7 @@ body graphjs-tezcatlipoca {
         >circle {
             fill: @color-toolbar-background;
             stroke: @color-background;
-            stroke-dasharray: 11,0;
+            stroke-dasharray: 9,0;
             stroke-width: 1px;
             .prefixed(transition, ~"opacity 0.5s, fill 0.5s");
             &.selected {

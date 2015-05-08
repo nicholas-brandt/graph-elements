@@ -8,56 +8,43 @@ import mixin from "../../external/mixin";
 import layer from "../../external/layer";
 import requestAnimationFunction from "../../external/requestAnimationFunction";
 const $force = Symbol();
-const $options = Symbol();
-const $options_layer = Symbol();
+const $config = Symbol();
 const $data = Symbol();
 const $d3svg = Symbol();
 const $graph = Symbol();
+const $resize = Symbol();
+const $draw = Symbol();
 const force_size = 1000;
 const min_ratio = 0.35;
 export default {
     is: "graphjs-tezcatlipoca",
+    // lifecycle
+    created() {
+        implementConfig(this);
+    },
+    ready() {
+        implementUIBehavior(this);
+        implementD3(this);
+        mixin(this.config, this.config, mixin.OVERRIDE);
+    },
+    attached() {
+        addEventListener("resize", this[$resize]);
+    },
+    detached() {
+        removeEventListener("resize", this[$resize]);
+    },
+    // get/set
     get svg() {
         return this.$.svg;
     },
     get force() {
         return this[$force];
     },
-    get options() {
-        return this[$options_layer];
+    get config() {
+        return this[$config];
     },
-    set options(options) {
-        mixin(this[$options_layer], options, mixin.OVERRIDE);
-    },
-    ready() {
-        initializeD3(this);
-        this.options = this[$options];
-    },
-    created() {
-        const element = this;
-        configureOptions(element);
-        element.resize = requestAnimationFunction(() => {
-            const svg = element.svg;
-            let { width, height } = getComputedStyle(svg);
-            const ratio = element[$options].size.ratio;
-            width = parseFloat(width) / ratio;
-            height = parseFloat(height) / ratio;
-            mixin(svg.viewBox.baseVal, {
-                x: -width / 2,
-                y: -height / 2,
-                width,
-                height
-            }, mixin.OVERRIDE);
-            element.options.force.linkDistance += 0;
-            element.options.force.start();
-            draw.call(element);
-        });
-    },
-    attached() {
-        addEventListener("resize", this.resize);
-    },
-    detached() {
-        removeEventListener("resize", this.resize);
+    set config(config) {
+        mixin(this[$config], config, mixin.OVERRIDE);
     },
     get graph() {
         return this[$graph];
@@ -66,6 +53,14 @@ export default {
         this[$graph] = graph;
         this.updateGraph();
     },
+    // delegators
+    draw() {
+        this[$draw]();
+    },
+    resize() {
+        this[$resize]();
+    },
+    // helpers
     updateGraph() {
         console.log("update graph");
         if (this.graph) {
@@ -88,59 +83,294 @@ export default {
                 paths
             };
             paths.enter().append("path").attr("class", "edge");
-            const entering_circles = circles.enter().append("circle").attr("r", this[$options].circle.radius).attr("class", "node");
-            implementDrag(this, entering_circles);
+            const entering_circles = circles.enter().append("circle").attr("r", this.config.UI.circle.radius).attr("class", "node");
+            implementNodeUIBehavior(this, entering_circles);
             paths.exit().remove();
             circles.exit().remove();
             d3svg.selectAll("circle.node,path.edge").sort((a,b) => ("value" in a) - 0.5);
             force.start();
+            // @dirty
             for (let i = 0; i < 10; ++i) force.tick();
             force.alpha(0);
-            this.options.force.start();
+            this.config.d3.force.start();
         } else this.graph = new Graph;
     },
     toNodeCoordinates(x, y) {
         const { width, height } = getComputedStyle(this.svg);
-        const ratio = this.options.size.ratio;
+        const ratio = this.config.UI.size.ratio;
         const baseVal = this.svg.viewBox.baseVal;
         return {
             x: x / parseFloat(width) / ratio * force_size,
             y: y / parseFloat(height) / ratio * force_size
         };
-    },
-    selectNode(index) {
-        console.log("select", index);
-        const circles = this[$d3svg].selectAll("circle.node");
-        const circle = circles.filter(datum => index === datum.index).node();
-        circles.each(function() {
-            if (this !== circle) this.classList.remove("selected");
-        });
-        if (circle) {
-            circle.classList.add("selected");
-            this.dispatchEvent(new CustomEvent("select", {
-                detail: {
-                    circle,
-                    datum: circle.__data__
-                }
-            }));
-        } else {
-            this.options.state.mode = "default";
-            this.dispatchEvent(new CustomEvent("unselect"));
-        }
     }
 };
-function initializeD3(element) {
+// configuration
+function implementConfig(element) {
+    const config = {
+        UI: {
+            circle: {
+                radius: 6
+            },
+            arrow: {
+                width: 5.5,
+                ratio: 2
+            },
+            size: {
+                ratio: 2,
+                offset: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        d3: {
+            force: {
+                charge: -200,
+                linkDistance: 30,
+                linkStrength: 1,
+                gravity: 0.15,
+                enabled: true,
+                start() {
+                    //console.log("start", element.config.d3.force.enabled);
+                    if (element.config.d3.force.enabled) {
+                        const force = element.force;
+                        force.start();
+                        force.alpha(0.1);
+                    }
+                }
+            }
+        },
+        state: {
+            mode: "default",
+            selected: undefined
+        }
+    };
+    const modifier = {
+        UI: {
+            circle: {
+                radius: {
+                    set(radius, set) {
+                        radius = parseFloat(radius);
+                        if (radius < Infinity && -Infinity < radius) {
+                            set(radius);
+                            element.force.stop();
+                            element.config.d3.force.start();
+                        }
+                    }
+                }
+            },
+            arrow: {
+                width: {
+                    set(width, set) {
+                        width = parseFloat(width);
+                        if (width < Infinity && -Infinity < width) {
+                            set(width);
+                            element.force.stop();
+                            element.config.d3.force.start();
+                        }
+                    }
+                },
+                ratio: {
+                    set(ratio, set) {
+                        ratio = Math.abs(parseFloat(ratio));
+                        if (ratio < Infinity) {
+                            set(ratio);
+                            element.force.stop();
+                            element.config.d3.force.start();
+                        }
+                    }
+                }
+            },
+            size: {
+                ratio: {
+                    set(ratio, set) {
+                        ratio = Math.max(min_ratio, parseFloat(ratio));
+                        if (ratio < Infinity) {
+                            set(ratio);
+                            element.resize();
+                        }
+                    }
+                },
+                offset: {
+                    x: {
+                        set(x, set) {
+                            x = parseFloat(x);
+                            if (x < Infinity && -Infinity < x) {
+                                set(x);
+                                element.resize();
+                            }
+                        }
+                    },
+                    y: {
+                        set(y, set) {
+                            y = parseFloat(y);
+                            if (y < Infinity && -Infinity < y) {
+                                set(y);
+                                element.resize();
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        d3: {
+            force: {
+                charge: {
+                    set(charge, set) {
+                        charge = parseFloat(charge);
+                        if (charge < Infinity && -Infinity < charge) {
+                            set(charge);
+                            element.force.charge(charge).stop();
+                            element.config.d3.force.start();
+                        }
+                    }
+                },
+                linkDistance: {
+                    set(linkDistance, set) {
+                        linkDistance = Math.max(0, parseFloat(linkDistance));
+                        if (linkDistance < Infinity) {
+                            const {
+                                width, height
+                            } = getComputedStyle(element.svg);
+                            set(linkDistance);
+                            element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height))).stop()
+                            element.config.d3.force.start();
+                        }
+                    }
+                },
+                linkStrength: {
+                    set(linkStrength, set) {
+                        linkStrength = Math.max(0, parseFloat(linkStrength));
+                        if (linkStrength < Infinity) {
+                            set(linkStrength);
+                            element.force.linkStrength(linkStrength).stop();
+                            element.config.d3.force.start();
+                        }
+                    }
+                },
+                gravity: {
+                    set(gravity, set) {
+                        gravity = Math.max(0, parseFloat(gravity));
+                        if (gravity < Infinity) {
+                            set(gravity);
+                            element.force.gravity(gravity).stop();
+                            element.config.d3.force.start();
+                        }
+                    }
+                },
+                enabled: {
+                    set(enabled, set) {
+                        set( !! enabled);
+                        if (enabled) element.force.start();
+                        else element.force.stop();
+                    }
+                }
+            }
+        },
+        state: {
+            mode: {
+                set(mode, set) {
+                    mode = ["default", "edit"].indexOf(mode) != -1 ? mode : "default";
+                    element.setAttribute("mode", mode);
+                    element.dispatchEvent(new CustomEvent("modechange", {
+                        detail: mode
+                    }));
+                    set(mode);
+                }
+            },
+            selected: {
+                set(selected, set) {
+                    console.log("select", selected);
+                    const circles = element[$d3svg].selectAll("circle.node");
+                    const circle = circles.filter(datum => selected === datum.index).node();
+                    circles.each(function() {
+                        if (this !== circle) this.classList.remove("selected");
+                    });
+                    if (circle) {
+                        circle.classList.add("selected");
+                        set(selected);
+                        element.dispatchEvent(new CustomEvent("select", {
+                            detail: {
+                                circle,
+                                datum: circle.__data__
+                            }
+                        }));
+                    } else {
+                        element.config.state.mode = "default";
+                        set(undefined);
+                        element.dispatchEvent(new CustomEvent("deselect"));
+                    }
+                }
+            }
+        }
+    };
+    element[$config] = layer(config, modifier);
+}
+// d3
+function implementD3(element) {
     element[$data] = {};
     element[$d3svg] = d3.select(element.svg);
     const force = d3.layout.force();
     element[$force] = force;
     // drawing
-    force.on("tick", draw.bind(element));
+    force.on("tick", element[$draw]);
     // resizing
     force.size([force_size, force_size]);
     element.resize();
-    addEventListener("polymer-ready", element.resize);
-    const size_transition = layer(element.options.size, {
+    addEventListener("polymer-ready", element[$resize]);
+}
+// UI behavior
+function implementUIBehavior(element) {
+    // helpers
+    element[$resize] = requestAnimationFunction(() => {
+        const svg = element.svg;
+        let { width, height } = getComputedStyle(svg);
+        const ratio = element.config.UI.size.ratio;
+        width = parseFloat(width) / ratio;
+        height = parseFloat(height) / ratio;
+        mixin(svg.viewBox.baseVal, {
+            x: -width / 2,
+            y: -height / 2,
+            width,
+            height
+        }, mixin.OVERRIDE);
+        element.config.d3.force.linkDistance += 0;
+        element.config.d3.force.start();
+        element.draw();
+    });
+    element[$draw] = () => {
+        let { x, y, width, height } = element.svg.viewBox.baseVal;
+        const offset = element.config.UI.size.offset;
+        const ratio = element.config.UI.size.ratio;
+        x = x * ratio + offset.x;
+        y = y * ratio + offset.y;
+        width *= ratio / force_size;
+        height *= ratio / force_size;
+        const arrow = element.config.UI.arrow;
+        const { circles, paths } = element[$data];
+        if (circles) circles.attr("transform", node => "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")");
+        if (paths) paths.attr("d", ({source, target}) => {
+            const sx = source.x * width + x;
+            const sy = source.y * height + y;
+            const tx = target.x * width + x;
+            const ty = target.y * height + y;
+            const dx = sx - tx;
+            const dy = sy - ty;
+            const hyp = Math.hypot(dx, dy);
+            let wx = dx / hyp * arrow.width;
+            let wy = dy / hyp * arrow.width;
+            if (isNaN(wx)) wx = 0;
+            if (isNaN(wy)) wy = 0;
+            const px = sx - wx * arrow.ratio;
+            const py = sy - wy * arrow.ratio;
+            // line
+            //return "M" + tx + "," + ty + "L " + sx + "," + sy;
+            // triangle
+            return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
+        });
+    };
+    const size_transition = layer(element.config.UI.size, {
         ratio: {
             translate(ratio) {
                 console.log("ratio", ratio);
@@ -164,10 +394,8 @@ function initializeD3(element) {
         },
     });
     // scrolling
-    element.svg.addEventListener("wheel", ({layerX, layerY, wheelDelta}) => {
-        const { width, height } = getComputedStyle(element.svg);
-        //const ratio = element.options.size.ratio;
-        //const { x, y } = element.options.size.offset;
+    element.svg.addEventListener("wheel", ({ layerX, layerY, wheelDelta }) => {
+        // add offset
         size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
     });
     // selecting
@@ -178,16 +406,16 @@ function initializeD3(element) {
             element[$d3svg].selectAll("circle.node").each(function() {
                 this.classList.remove("selected");
             });
-            element.selectNode();
+            element.config.state.selected = undefined;
         }
     });
-    element.svg.addEventListener("click", ({layerX, layerY}) => console.log(layerX, layerY));
+    // element.svg.addEventListener("click", ({ layerX, layerY }) => console.log(layerX, layerY));
     // pinching
     // @note: pinchstart/pinchend are not yet implemented
     {
         let timeout;
         let last_scale;
-        PolymerGestures.addEventListener(element.svg, "pinch", ({scale, preventTap}) => {
+        PolymerGestures.addEventListener(element.svg, "pinch", ({ scale, preventTap }) => {
             preventTap();
             if (last_scale !== undefined) {
                 size_transition.ratio = Math.max(0, size_transition.ratio + (scale - last_scale) * 2);
@@ -204,9 +432,9 @@ function initializeD3(element) {
         console.log("track");
         event.bubbles = false;
         if (event.srcElement === element.svg) {
-            const ratio = element.options.size.ratio;
-            element.options.size.offset.x += event.ddx / ratio;
-            element.options.size.offset.y += event.ddy / ratio;
+            const ratio = element.config.UI.size.ratio;
+            element.config.UI.size.offset.x += event.ddx / ratio;
+            element.config.UI.size.offset.y += event.ddy / ratio;
         }
     });
     // adding
@@ -226,223 +454,23 @@ function initializeD3(element) {
                 added = true;
                 // add node at x,y
                 console.log("add node");
-                // dirty design
-                function getUniqueID() {
-                    return element.graph.nodes.size;
-                }
-                element.graph.addNode(getUniqueID());
+                element.graph.addNode({});
                 element.updateGraph();
             }
         });
     }
 }
-function draw() {
-    let { x, y, width, height } = this.svg.viewBox.baseVal;
-    const offset = this.options.size.offset;
-    const ratio = this.options.size.ratio;
-    x = x * ratio + offset.x;
-    y = y * ratio + offset.y;
-    width *= ratio / force_size;
-    height *= ratio / force_size;
-    const arrow = this.options.arrow;
-    const { circles, paths } = this[$data];
-    if (circles) circles.attr("transform", node => "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")");
-    if (paths) paths.attr("d", ({source, target}) => {
-        const sx = source.x * width + x;
-        const sy = source.y * height + y;
-        const tx = target.x * width + x;
-        const ty = target.y * height + y;
-        const dx = sx - tx;
-        const dy = sy - ty;
-        const hyp = Math.hypot(dx, dy);
-        let wx = dx / hyp * arrow.width;
-        let wy = dy / hyp * arrow.width;
-        if (isNaN(wx)) wx = 0;
-        if (isNaN(wy)) wy = 0;
-        const px = sx - wx * arrow.ratio;
-        const py = sy - wy * arrow.ratio;
-        // line
-        //return "M" + tx + "," + ty + "L " + sx + "," + sy;
-        // triangle
-        return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
-    });
-}
-function configureOptions(element) {
-    const options = {
-        circle: {
-            radius: 6
-        },
-        arrow: {
-            width: 5.5,
-            ratio: 2
-        },
-        force: {
-            charge: -200,
-            linkDistance: 30,
-            linkStrength: 1,
-            gravity: 0.15,
-            enabled: true,
-            start() {
-                //console.log("start", element.options.force.enabled);
-                if (element.options.force.enabled) {
-                    const force = element.force;
-                    force.start();
-                    force.alpha(0.1);
-                }
-            }
-        },
-        size: {
-            ratio: 2,
-            offset: {
-                x: 0,
-                y: 0
-            }
-        },
-        state: {
-            mode: "default"
-        }
-    };
-    element[$options] = options;
-    element[$options_layer] = layer(options, {
-        circle: {
-            radius: {
-                set(radius, set) {
-                    radius = parseFloat(radius);
-                    if (radius < Infinity && -Infinity < radius) {
-                        set(radius);
-                        element.force.stop();
-                        element.options.force.start();
-                    }
-                }
-            }
-        },
-        arrow: {
-            width: {
-                set(width, set) {
-                    width = parseFloat(width);
-                    if (width < Infinity && -Infinity < width) {
-                        set(width);
-                        element.force.stop();
-                        element.options.force.start();
-                    }
-                }
-            },
-            ratio: {
-                set(ratio, set) {
-                    ratio = Math.abs(parseFloat(ratio));
-                    if (ratio < Infinity) {
-                        set(ratio);
-                        element.force.stop();
-                        element.options.force.start();
-                    }
-                }
-            }
-        },
-        force: {
-            charge: {
-                set(charge, set) {
-                    charge = parseFloat(charge);
-                    if (charge < Infinity && -Infinity < charge) {
-                        set(charge);
-                        element.force.charge(charge).stop();
-                        element.options.force.start();
-                    }
-                }
-            },
-            linkDistance: {
-                set(linkDistance, set) {
-                    linkDistance = Math.max(0, parseFloat(linkDistance));
-                    if (linkDistance < Infinity) {
-                        const { width, height } = getComputedStyle(element.svg);
-                        set(linkDistance);
-                        element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height))).stop()
-                        element.options.force.start();
-                    }
-                }
-            },
-            linkStrength: {
-                set(linkStrength, set) {
-                    linkStrength = Math.max(0, parseFloat(linkStrength));
-                    if (linkStrength < Infinity) {
-                        set(linkStrength);
-                        element.force.linkStrength(linkStrength).stop();
-                        element.options.force.start();
-                    }
-                }
-            },
-            gravity: {
-                set(gravity, set) {
-                    gravity = Math.max(0, parseFloat(gravity));
-                    if (gravity < Infinity) {
-                        set(gravity);
-                        element.force.gravity(gravity).stop();
-                        element.options.force.start();
-                    }
-                }
-            },
-            enabled : {
-                set(enabled, set) {
-                    set(!!enabled);
-                    if (enabled) element.force.start();
-                    else element.force.stop();
-                }
-            }
-        },
-        size: {
-            ratio: {
-                set(ratio, set) {
-                    ratio = Math.max(min_ratio, parseFloat(ratio));
-                    if (ratio < Infinity) {
-                        set(ratio);
-                        element.resize();
-                    }
-                }
-            },
-            offset: {
-                x: {
-                    set(x, set) {
-                        x = parseFloat(x);
-                        if (x < Infinity && -Infinity < x) {
-                            set(x);
-                            element.resize();
-                        }
-                    }
-                },
-                y: {
-                    set(y, set) {
-                        y = parseFloat(y);
-                        if (y < Infinity && -Infinity < y) {
-                            set(y);
-                            element.resize();
-                        }
-                    }
-                }
-            }
-        },
-        state: {
-            mode: {
-                set(mode, set) {
-                    mode = ["default", "edit"].indexOf(mode) != -1 ? mode : "default";
-                    element.setAttribute("mode", mode);
-                    element.dispatchEvent(new CustomEvent("modechange", {
-                        detail: mode
-                    }));
-                    set(mode);
-                }
-            }
-        }
-    });
-}
-function implementDrag(element, selection) {
+// Node UI Behavior
+function implementNodeUIBehavior(element, selection) {
     console.log("entering circles", selection);
     selection.each(function(datum, index) {
         PolymerGestures.addEventListener(this, "tap", event => {
             console.log("tap on node");
             event.bubbles = false;
-            if (element.options.state.mode == "edit") {
+            if (element.config.state.mode == "edit") {
                 // add edge
                 // element.updateGraph();
-            } else element.selectNode(index);
+            } else element.config.state.selected = index;
         });
         PolymerGestures.addEventListener(this, "trackstart", event => {
             event.preventTap();
@@ -454,7 +482,7 @@ function implementDrag(element, selection) {
             const { x, y } = element.toNodeCoordinates(event.ddx, event.ddy);
             datum.px = datum.x += x;
             datum.py = datum.y += y;
-            draw.call(element);
+            element.draw();
         });
         PolymerGestures.addEventListener(this, "trackend", event => {
             event.bubbles = false;
@@ -464,8 +492,8 @@ function implementDrag(element, selection) {
             console.log("hold on node");
             event.bubbles = false;
             event.preventTap();
-            element.selectNode(index);
-            element.options.state.mode = "edit";
+            element.config.state.selected = index;
+            element.config.state.mode = "edit";
         });
     });
 }

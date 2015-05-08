@@ -23,46 +23,35 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     var layer = _interopRequire(_externalLayer);
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     var $force = Symbol();
-    var $options = Symbol();
-    var $options_layer = Symbol();
+    var $config = Symbol();
     var $data = Symbol();
     var $d3svg = Symbol();
     var $graph = Symbol();
+    var $resize = Symbol();
+    var $draw = Symbol();
     var force_size = 1e3;
     var min_ratio = .35;
     module.exports = Object.defineProperties({
         is:"graphjs-tezcatlipoca",
-        ready:function ready() {
-            initializeD3(this);
-            this.options = this[$options];
-        },
         created:function created() {
-            var element = this;
-            configureOptions(element);
-            element.resize = requestAnimationFunction(function() {
-                var svg = element.svg;
-                var _getComputedStyle = getComputedStyle(svg);
-                var width = _getComputedStyle.width;
-                var height = _getComputedStyle.height;
-                var ratio = element[$options].size.ratio;
-                width = parseFloat(width) / ratio;
-                height = parseFloat(height) / ratio;
-                mixin(svg.viewBox.baseVal, {
-                    x:-width / 2,
-                    y:-height / 2,
-                    width:width,
-                    height:height
-                }, mixin.OVERRIDE);
-                element.options.force.linkDistance += 0;
-                element.options.force.start();
-                draw.call(element);
-            });
+            implementConfig(this);
+        },
+        ready:function ready() {
+            implementUIBehavior(this);
+            implementD3(this);
+            mixin(this.config, this.config, mixin.OVERRIDE);
         },
         attached:function attached() {
-            addEventListener("resize", this.resize);
+            addEventListener("resize", this[$resize]);
         },
         detached:function detached() {
-            removeEventListener("resize", this.resize);
+            removeEventListener("resize", this[$resize]);
+        },
+        draw:function draw() {
+            this[$draw]();
+        },
+        resize:function resize() {
+            this[$resize]();
         },
         updateGraph:function updateGraph() {
             var _this = this;
@@ -166,8 +155,8 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         paths:paths
                     };
                     paths.enter().append("path").attr("class", "edge");
-                    var entering_circles = circles.enter().append("circle").attr("r", _this[$options].circle.radius).attr("class", "node");
-                    implementDrag(_this, entering_circles);
+                    var entering_circles = circles.enter().append("circle").attr("r", _this.config.UI.circle.radius).attr("class", "node");
+                    implementNodeUIBehavior(_this, entering_circles);
                     paths.exit().remove();
                     circles.exit().remove();
                     d3svg.selectAll("circle.node,path.edge").sort(function(a, b) {
@@ -178,7 +167,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         force.tick();
                     }
                     force.alpha(0);
-                    _this.options.force.start();
+                    _this.config.d3.force.start();
                 })();
             } else this.graph = new Graph();
         },
@@ -186,34 +175,12 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             var _getComputedStyle = getComputedStyle(this.svg);
             var width = _getComputedStyle.width;
             var height = _getComputedStyle.height;
-            var ratio = this.options.size.ratio;
+            var ratio = this.config.UI.size.ratio;
             var baseVal = this.svg.viewBox.baseVal;
             return {
                 x:x / parseFloat(width) / ratio * force_size,
                 y:y / parseFloat(height) / ratio * force_size
             };
-        },
-        selectNode:function selectNode(index) {
-            console.log("select", index);
-            var circles = this[$d3svg].selectAll("circle.node");
-            var circle = circles.filter(function(datum) {
-                return index === datum.index;
-            }).node();
-            circles.each(function() {
-                if (this !== circle) this.classList.remove("selected");
-            });
-            if (circle) {
-                circle.classList.add("selected");
-                this.dispatchEvent(new CustomEvent("select", {
-                    detail:{
-                        circle:circle,
-                        datum:circle.__data__
-                    }
-                }));
-            } else {
-                this.options.state.mode = "default";
-                this.dispatchEvent(new CustomEvent("unselect"));
-            }
         }
     }, {
         svg:{
@@ -230,12 +197,12 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             configurable:true,
             enumerable:true
         },
-        options:{
+        config:{
             get:function() {
-                return this[$options_layer];
+                return this[$config];
             },
-            set:function(options) {
-                mixin(this[$options_layer], options, mixin.OVERRIDE);
+            set:function(config) {
+                mixin(this[$config], config, mixin.OVERRIDE);
             },
             configurable:true,
             enumerable:true
@@ -252,16 +219,379 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             enumerable:true
         }
     });
-    function initializeD3(element) {
+    function implementConfig(element) {
+        var config = {
+            UI:{
+                circle:{
+                    radius:6
+                },
+                arrow:{
+                    width:5.5,
+                    ratio:2
+                },
+                size:{
+                    ratio:2,
+                    offset:{
+                        x:0,
+                        y:0
+                    }
+                }
+            },
+            d3:{
+                force:{
+                    charge:-200,
+                    linkDistance:30,
+                    linkStrength:1,
+                    gravity:.15,
+                    enabled:true,
+                    start:function start() {
+                        if (element.config.d3.force.enabled) {
+                            var force = element.force;
+                            force.start();
+                            force.alpha(.1);
+                        }
+                    }
+                }
+            },
+            state:{
+                mode:"default",
+                selected:undefined
+            }
+        };
+        var modifier = {
+            UI:{
+                circle:{
+                    radius:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(radius, set) {
+                            radius = parseFloat(radius);
+                            if (radius < Infinity && -Infinity < radius) {
+                                set(radius);
+                                element.force.stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    }
+                },
+                arrow:{
+                    width:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(width, set) {
+                            width = parseFloat(width);
+                            if (width < Infinity && -Infinity < width) {
+                                set(width);
+                                element.force.stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    },
+                    ratio:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(ratio, set) {
+                            ratio = Math.abs(parseFloat(ratio));
+                            if (ratio < Infinity) {
+                                set(ratio);
+                                element.force.stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    }
+                },
+                size:{
+                    ratio:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(ratio, set) {
+                            ratio = Math.max(min_ratio, parseFloat(ratio));
+                            if (ratio < Infinity) {
+                                set(ratio);
+                                element.resize();
+                            }
+                        })
+                    },
+                    offset:{
+                        x:{
+                            set:function(_set) {
+                                var _setWrapper = function set(_x, _x2) {
+                                    return _set.apply(this, arguments);
+                                };
+                                _setWrapper.toString = function() {
+                                    return _set.toString();
+                                };
+                                return _setWrapper;
+                            }(function(x, set) {
+                                x = parseFloat(x);
+                                if (x < Infinity && -Infinity < x) {
+                                    set(x);
+                                    element.resize();
+                                }
+                            })
+                        },
+                        y:{
+                            set:function(_set) {
+                                var _setWrapper = function set(_x, _x2) {
+                                    return _set.apply(this, arguments);
+                                };
+                                _setWrapper.toString = function() {
+                                    return _set.toString();
+                                };
+                                return _setWrapper;
+                            }(function(y, set) {
+                                y = parseFloat(y);
+                                if (y < Infinity && -Infinity < y) {
+                                    set(y);
+                                    element.resize();
+                                }
+                            })
+                        }
+                    }
+                }
+            },
+            d3:{
+                force:{
+                    charge:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(charge, set) {
+                            charge = parseFloat(charge);
+                            if (charge < Infinity && -Infinity < charge) {
+                                set(charge);
+                                element.force.charge(charge).stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    },
+                    linkDistance:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(linkDistance, set) {
+                            linkDistance = Math.max(0, parseFloat(linkDistance));
+                            if (linkDistance < Infinity) {
+                                var _getComputedStyle = getComputedStyle(element.svg);
+                                var width = _getComputedStyle.width;
+                                var height = _getComputedStyle.height;
+                                set(linkDistance);
+                                element.force.linkDistance(linkDistance * 2e3 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    },
+                    linkStrength:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(linkStrength, set) {
+                            linkStrength = Math.max(0, parseFloat(linkStrength));
+                            if (linkStrength < Infinity) {
+                                set(linkStrength);
+                                element.force.linkStrength(linkStrength).stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    },
+                    gravity:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(gravity, set) {
+                            gravity = Math.max(0, parseFloat(gravity));
+                            if (gravity < Infinity) {
+                                set(gravity);
+                                element.force.gravity(gravity).stop();
+                                element.config.d3.force.start();
+                            }
+                        })
+                    },
+                    enabled:{
+                        set:function(_set) {
+                            var _setWrapper = function set(_x, _x2) {
+                                return _set.apply(this, arguments);
+                            };
+                            _setWrapper.toString = function() {
+                                return _set.toString();
+                            };
+                            return _setWrapper;
+                        }(function(enabled, set) {
+                            set(!!enabled);
+                            if (enabled) element.force.start(); else element.force.stop();
+                        })
+                    }
+                }
+            },
+            state:{
+                mode:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(mode, set) {
+                        mode = [ "default", "edit" ].indexOf(mode) != -1 ? mode :"default";
+                        element.setAttribute("mode", mode);
+                        element.dispatchEvent(new CustomEvent("modechange", {
+                            detail:mode
+                        }));
+                        set(mode);
+                    })
+                },
+                selected:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(selected, set) {
+                        console.log("select", selected);
+                        var circles = element[$d3svg].selectAll("circle.node");
+                        var circle = circles.filter(function(datum) {
+                            return selected === datum.index;
+                        }).node();
+                        circles.each(function() {
+                            if (this !== circle) this.classList.remove("selected");
+                        });
+                        if (circle) {
+                            circle.classList.add("selected");
+                            set(selected);
+                            element.dispatchEvent(new CustomEvent("select", {
+                                detail:{
+                                    circle:circle,
+                                    datum:circle.__data__
+                                }
+                            }));
+                        } else {
+                            element.config.state.mode = "default";
+                            set(undefined);
+                            element.dispatchEvent(new CustomEvent("deselect"));
+                        }
+                    })
+                }
+            }
+        };
+        element[$config] = layer(config, modifier);
+    }
+    function implementD3(element) {
         element[$data] = {};
         element[$d3svg] = d3.select(element.svg);
         var force = d3.layout.force();
         element[$force] = force;
-        force.on("tick", draw.bind(element));
+        force.on("tick", element[$draw]);
         force.size([ force_size, force_size ]);
         element.resize();
-        addEventListener("polymer-ready", element.resize);
-        var size_transition = layer(element.options.size, {
+        addEventListener("polymer-ready", element[$resize]);
+    }
+    function implementUIBehavior(element) {
+        element[$resize] = requestAnimationFunction(function() {
+            var svg = element.svg;
+            var _getComputedStyle = getComputedStyle(svg);
+            var width = _getComputedStyle.width;
+            var height = _getComputedStyle.height;
+            var ratio = element.config.UI.size.ratio;
+            width = parseFloat(width) / ratio;
+            height = parseFloat(height) / ratio;
+            mixin(svg.viewBox.baseVal, {
+                x:-width / 2,
+                y:-height / 2,
+                width:width,
+                height:height
+            }, mixin.OVERRIDE);
+            element.config.d3.force.linkDistance += 0;
+            element.config.d3.force.start();
+            element.draw();
+        });
+        element[$draw] = function() {
+            var _element$svg$viewBox$baseVal = element.svg.viewBox.baseVal;
+            var x = _element$svg$viewBox$baseVal.x;
+            var y = _element$svg$viewBox$baseVal.y;
+            var width = _element$svg$viewBox$baseVal.width;
+            var height = _element$svg$viewBox$baseVal.height;
+            var offset = element.config.UI.size.offset;
+            var ratio = element.config.UI.size.ratio;
+            x = x * ratio + offset.x;
+            y = y * ratio + offset.y;
+            width *= ratio / force_size;
+            height *= ratio / force_size;
+            var arrow = element.config.UI.arrow;
+            var _element$$data = element[$data];
+            var circles = _element$$data.circles;
+            var paths = _element$$data.paths;
+            if (circles) circles.attr("transform", function(node) {
+                return "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")";
+            });
+            if (paths) paths.attr("d", function(_ref) {
+                var source = _ref.source;
+                var target = _ref.target;
+                var sx = source.x * width + x;
+                var sy = source.y * height + y;
+                var tx = target.x * width + x;
+                var ty = target.y * height + y;
+                var dx = sx - tx;
+                var dy = sy - ty;
+                var hyp = Math.hypot(dx, dy);
+                var wx = dx / hyp * arrow.width;
+                var wy = dy / hyp * arrow.width;
+                if (isNaN(wx)) wx = 0;
+                if (isNaN(wy)) wy = 0;
+                var px = sx - wx * arrow.ratio;
+                var py = sy - wy * arrow.ratio;
+                return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
+            });
+        };
+        var size_transition = layer(element.config.UI.size, {
             ratio:{
                 translate:function translate(ratio) {
                     console.log("ratio", ratio);
@@ -288,9 +618,6 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             var layerX = _ref.layerX;
             var layerY = _ref.layerY;
             var wheelDelta = _ref.wheelDelta;
-            var _getComputedStyle = getComputedStyle(element.svg);
-            var width = _getComputedStyle.width;
-            var height = _getComputedStyle.height;
             size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
         });
         PolymerGestures.addEventListener(element.svg, "tap", function(event) {
@@ -300,13 +627,8 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 element[$d3svg].selectAll("circle.node").each(function() {
                     this.classList.remove("selected");
                 });
-                element.selectNode();
+                element.config.state.selected = undefined;
             }
-        });
-        element.svg.addEventListener("click", function(_ref) {
-            var layerX = _ref.layerX;
-            var layerY = _ref.layerY;
-            return console.log(layerX, layerY);
         });
         {
             (function() {
@@ -331,9 +653,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             console.log("track");
             event.bubbles = false;
             if (event.srcElement === element.svg) {
-                var ratio = element.options.size.ratio;
-                element.options.size.offset.x += event.ddx / ratio;
-                element.options.size.offset.y += event.ddy / ratio;
+                var ratio = element.config.UI.size.ratio;
+                element.config.UI.size.offset.x += event.ddx / ratio;
+                element.config.UI.size.offset.y += event.ddy / ratio;
             }
         });
         {
@@ -353,325 +675,22 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     console.log("holdpulse");
                     event.bubbles = false;
                     if (srcElement === element.svg && holdTime > 800 && !added) {
-                        var getUniqueID = function() {
-                            return element.graph.nodes.size;
-                        };
                         added = true;
                         console.log("add node");
-                        element.graph.addNode(getUniqueID());
+                        element.graph.addNode({});
                         element.updateGraph();
                     }
                 });
             })();
         }
     }
-    function draw() {
-        var _svg$viewBox$baseVal = this.svg.viewBox.baseVal;
-        var x = _svg$viewBox$baseVal.x;
-        var y = _svg$viewBox$baseVal.y;
-        var width = _svg$viewBox$baseVal.width;
-        var height = _svg$viewBox$baseVal.height;
-        var offset = this.options.size.offset;
-        var ratio = this.options.size.ratio;
-        x = x * ratio + offset.x;
-        y = y * ratio + offset.y;
-        width *= ratio / force_size;
-        height *= ratio / force_size;
-        var arrow = this.options.arrow;
-        var _$data = this[$data];
-        var circles = _$data.circles;
-        var paths = _$data.paths;
-        if (circles) circles.attr("transform", function(node) {
-            return "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")";
-        });
-        if (paths) paths.attr("d", function(_ref) {
-            var source = _ref.source;
-            var target = _ref.target;
-            var sx = source.x * width + x;
-            var sy = source.y * height + y;
-            var tx = target.x * width + x;
-            var ty = target.y * height + y;
-            var dx = sx - tx;
-            var dy = sy - ty;
-            var hyp = Math.hypot(dx, dy);
-            var wx = dx / hyp * arrow.width;
-            var wy = dy / hyp * arrow.width;
-            if (isNaN(wx)) wx = 0;
-            if (isNaN(wy)) wy = 0;
-            var px = sx - wx * arrow.ratio;
-            var py = sy - wy * arrow.ratio;
-            return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
-        });
-    }
-    function configureOptions(element) {
-        var options = {
-            circle:{
-                radius:6
-            },
-            arrow:{
-                width:5.5,
-                ratio:2
-            },
-            force:{
-                charge:-200,
-                linkDistance:30,
-                linkStrength:1,
-                gravity:.15,
-                enabled:true,
-                start:function start() {
-                    if (element.options.force.enabled) {
-                        var force = element.force;
-                        force.start();
-                        force.alpha(.1);
-                    }
-                }
-            },
-            size:{
-                ratio:2,
-                offset:{
-                    x:0,
-                    y:0
-                }
-            },
-            state:{
-                mode:"default"
-            }
-        };
-        element[$options] = options;
-        element[$options_layer] = layer(options, {
-            circle:{
-                radius:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(radius, set) {
-                        radius = parseFloat(radius);
-                        if (radius < Infinity && -Infinity < radius) {
-                            set(radius);
-                            element.force.stop();
-                            element.options.force.start();
-                        }
-                    })
-                }
-            },
-            arrow:{
-                width:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(width, set) {
-                        width = parseFloat(width);
-                        if (width < Infinity && -Infinity < width) {
-                            set(width);
-                            element.force.stop();
-                            element.options.force.start();
-                        }
-                    })
-                },
-                ratio:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(ratio, set) {
-                        ratio = Math.abs(parseFloat(ratio));
-                        if (ratio < Infinity) {
-                            set(ratio);
-                            element.force.stop();
-                            element.options.force.start();
-                        }
-                    })
-                }
-            },
-            force:{
-                charge:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(charge, set) {
-                        charge = parseFloat(charge);
-                        if (charge < Infinity && -Infinity < charge) {
-                            set(charge);
-                            element.force.charge(charge).stop();
-                            element.options.force.start();
-                        }
-                    })
-                },
-                linkDistance:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(linkDistance, set) {
-                        linkDistance = Math.max(0, parseFloat(linkDistance));
-                        if (linkDistance < Infinity) {
-                            var _getComputedStyle = getComputedStyle(element.svg);
-                            var width = _getComputedStyle.width;
-                            var height = _getComputedStyle.height;
-                            set(linkDistance);
-                            element.force.linkDistance(linkDistance * 2e3 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
-                            element.options.force.start();
-                        }
-                    })
-                },
-                linkStrength:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(linkStrength, set) {
-                        linkStrength = Math.max(0, parseFloat(linkStrength));
-                        if (linkStrength < Infinity) {
-                            set(linkStrength);
-                            element.force.linkStrength(linkStrength).stop();
-                            element.options.force.start();
-                        }
-                    })
-                },
-                gravity:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(gravity, set) {
-                        gravity = Math.max(0, parseFloat(gravity));
-                        if (gravity < Infinity) {
-                            set(gravity);
-                            element.force.gravity(gravity).stop();
-                            element.options.force.start();
-                        }
-                    })
-                },
-                enabled:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(enabled, set) {
-                        set(!!enabled);
-                        if (enabled) element.force.start(); else element.force.stop();
-                    })
-                }
-            },
-            size:{
-                ratio:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(ratio, set) {
-                        ratio = Math.max(min_ratio, parseFloat(ratio));
-                        if (ratio < Infinity) {
-                            set(ratio);
-                            element.resize();
-                        }
-                    })
-                },
-                offset:{
-                    x:{
-                        set:function(_set) {
-                            var _setWrapper = function set(_x, _x2) {
-                                return _set.apply(this, arguments);
-                            };
-                            _setWrapper.toString = function() {
-                                return _set.toString();
-                            };
-                            return _setWrapper;
-                        }(function(x, set) {
-                            x = parseFloat(x);
-                            if (x < Infinity && -Infinity < x) {
-                                set(x);
-                                element.resize();
-                            }
-                        })
-                    },
-                    y:{
-                        set:function(_set) {
-                            var _setWrapper = function set(_x, _x2) {
-                                return _set.apply(this, arguments);
-                            };
-                            _setWrapper.toString = function() {
-                                return _set.toString();
-                            };
-                            return _setWrapper;
-                        }(function(y, set) {
-                            y = parseFloat(y);
-                            if (y < Infinity && -Infinity < y) {
-                                set(y);
-                                element.resize();
-                            }
-                        })
-                    }
-                }
-            },
-            state:{
-                mode:{
-                    set:function(_set) {
-                        var _setWrapper = function set(_x, _x2) {
-                            return _set.apply(this, arguments);
-                        };
-                        _setWrapper.toString = function() {
-                            return _set.toString();
-                        };
-                        return _setWrapper;
-                    }(function(mode, set) {
-                        mode = [ "default", "edit" ].indexOf(mode) != -1 ? mode :"default";
-                        element.setAttribute("mode", mode);
-                        element.dispatchEvent(new CustomEvent("modechange", {
-                            detail:mode
-                        }));
-                        set(mode);
-                    })
-                }
-            }
-        });
-    }
-    function implementDrag(element, selection) {
+    function implementNodeUIBehavior(element, selection) {
         console.log("entering circles", selection);
         selection.each(function(datum, index) {
             PolymerGestures.addEventListener(this, "tap", function(event) {
                 console.log("tap on node");
                 event.bubbles = false;
-                if (element.options.state.mode == "edit") {} else element.selectNode(index);
+                if (element.config.state.mode == "edit") {} else element.config.state.selected = index;
             });
             PolymerGestures.addEventListener(this, "trackstart", function(event) {
                 event.preventTap();
@@ -685,7 +704,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 var y = _element$toNodeCoordinates.y;
                 datum.px = datum.x += x;
                 datum.py = datum.y += y;
-                draw.call(element);
+                element.draw();
             });
             PolymerGestures.addEventListener(this, "trackend", function(event) {
                 event.bubbles = false;
@@ -695,8 +714,8 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 console.log("hold on node");
                 event.bubbles = false;
                 event.preventTap();
-                element.selectNode(index);
-                element.options.state.mode = "edit";
+                element.config.state.selected = index;
+                element.config.state.mode = "edit";
             });
         });
     }

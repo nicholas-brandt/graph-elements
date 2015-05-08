@@ -42,7 +42,7 @@ window.IO = IO;
     });
     tezcatlipoca.addEventListener("deselect", () => {
         node_id.value = "";
-        config.selected = null;
+        config.selected = undefined;
     });
     tezcatlipoca.addEventListener("modechange", ({detail}) => {
         config.mode = detail;
@@ -52,7 +52,7 @@ window.IO = IO;
     force_layout_checkbox.onchange = event => {
         console.log("force-layout change", force_layout_checkbox.checked);
         event.bubbles = false;
-        config.force_layout = tezcatlipoca.options.force.enabled = force_layout_checkbox.checked;
+        config.force_layout = tezcatlipoca.config.d3.force.enabled = force_layout_checkbox.checked;
     };
     const config = storage("config", {
         force_layout: true,
@@ -62,8 +62,8 @@ window.IO = IO;
     // apply configuration
     force_layout_checkbox.checked = config.force_layout;
     force_layout_checkbox.onchange({});
-    tezcatlipoca.selectNode(config.selected);
-    tezcatlipoca.options.state.mode = config.mode;
+    tezcatlipoca.config.state.selected = config.selected;
+    tezcatlipoca.config.state.mode = config.mode;
     // debugging
     window.tezcatlipoca = tezcatlipoca;
     window.graph = graph;

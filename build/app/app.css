@@ -4,7 +4,7 @@
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 body graphjs-tezcatlipoca[mode=edit] /deep/ svg > circle.selected {
-  stroke-dasharray: 11,1;
+  stroke-dasharray: 8,1;
   transition: -webkit-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
   transition: -moz-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
   transition: -o-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
@@ -22,7 +22,7 @@ body graphjs-tezcatlipoca[mode=edit] /deep/ svg > circle.selected {
 body graphjs-tezcatlipoca /deep/ svg > circle {
   fill: #2196f3;
   stroke: #e3f2fd;
-  stroke-dasharray: 11,0;
+  stroke-dasharray: 9,0;
   stroke-width: 1px;
   transition: -webkit-opacity 0.5s, fill 0.5s;
   transition: -moz-opacity 0.5s, fill 0.5s;

@@ -111,7 +111,7 @@ export default {
     selectNode(index) {
         console.log("select", index);
         const circles = this[$d3svg].selectAll("circle.node");
-        const circle = circles.filter(datum => index == datum.index).node();
+        const circle = circles.filter(datum => index === datum.index).node();
         circles.each(function() {
             if (this !== circle) this.classList.remove("selected");
         });
@@ -123,7 +123,10 @@ export default {
                     datum: circle.__data__
                 }
             }));
-        } else this.dispatchEvent(new CustomEvent("unselect"));
+        } else {
+            this.options.state.mode = "default";
+            this.dispatchEvent(new CustomEvent("unselect"));
+        }
     }
 };
 function initializeD3(element) {
@@ -175,7 +178,7 @@ function initializeD3(element) {
             element[$d3svg].selectAll("circle.node").each(function() {
                 this.classList.remove("selected");
             });
-            element.dispatchEvent(new CustomEvent("deselect"));
+            element.selectNode();
         }
     });
     element.svg.addEventListener("click", ({layerX, layerY}) => console.log(layerX, layerY));
@@ -294,6 +297,9 @@ function configureOptions(element) {
                 x: 0,
                 y: 0
             }
+        },
+        state: {
+            mode: "default"
         }
     };
     element[$options] = options;
@@ -412,6 +418,18 @@ function configureOptions(element) {
                     }
                 }
             }
+        },
+        state: {
+            mode: {
+                set(mode, set) {
+                    mode = ["default", "edit"].indexOf(mode) != -1 ? mode : "default";
+                    element.setAttribute("mode", mode);
+                    element.dispatchEvent(new CustomEvent("modechange", {
+                        detail: mode
+                    }));
+                    set(mode);
+                }
+            }
         }
     });
 }
@@ -419,9 +437,12 @@ function implementDrag(element, selection) {
     console.log("entering circles", selection);
     selection.each(function(datum, index) {
         PolymerGestures.addEventListener(this, "tap", event => {
-            event.preventTap();
+            console.log("tap on node");
             event.bubbles = false;
-            element.selectNode(index);
+            if (element.options.state.mode == "edit") {
+                // add edge
+                // element.updateGraph();
+            } else element.selectNode(index);
         });
         PolymerGestures.addEventListener(this, "trackstart", event => {
             event.preventTap();
@@ -440,8 +461,11 @@ function implementDrag(element, selection) {
             datum.fixed = false;
         });
         PolymerGestures.addEventListener(this, "hold", event => {
+            console.log("hold on node");
             event.bubbles = false;
             event.preventTap();
+            element.selectNode(index);
+            element.options.state.mode = "edit";
         });
     });
 }

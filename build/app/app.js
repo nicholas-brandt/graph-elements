@@ -44,6 +44,10 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
                 node_id.value = "";
                 config.selected = null;
             });
+            tezcatlipoca.addEventListener("modechange", function(_ref) {
+                var detail = _ref.detail;
+                config.mode = detail;
+            });
             var force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
             force_layout_checkbox.onchange = function(event) {
                 console.log("force-layout change", force_layout_checkbox.checked);
@@ -52,11 +56,13 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
             };
             var config = storage("config", {
                 force_layout:true,
-                selected:undefined
+                selected:undefined,
+                mode:"default"
             });
             force_layout_checkbox.checked = config.force_layout;
             force_layout_checkbox.onchange({});
             tezcatlipoca.selectNode(config.selected);
+            tezcatlipoca.options.state.mode = config.mode;
             window.tezcatlipoca = tezcatlipoca;
             window.graph = graph;
         })();

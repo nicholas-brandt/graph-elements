@@ -44,6 +44,9 @@ window.IO = IO;
         node_id.value = "";
         config.selected = null;
     });
+    tezcatlipoca.addEventListener("modechange", ({detail}) => {
+        config.mode = detail;
+    });
     // load configuration
     const force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
     force_layout_checkbox.onchange = event => {
@@ -53,12 +56,14 @@ window.IO = IO;
     };
     const config = storage("config", {
         force_layout: true,
-        selected: undefined
+        selected: undefined,
+        mode: "default"
     });
     // apply configuration
     force_layout_checkbox.checked = config.force_layout;
     force_layout_checkbox.onchange({});
     tezcatlipoca.selectNode(config.selected);
+    tezcatlipoca.options.state.mode = config.mode;
     // debugging
     window.tezcatlipoca = tezcatlipoca;
     window.graph = graph;

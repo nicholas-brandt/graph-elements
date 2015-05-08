@@ -2,18 +2,31 @@
  * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
-body /deep/ svg {
-    >circle {
-        fill: @color-toolbar-background;
-        stroke: @color-background;
-        &.selected {
-            fill: @color-toolbar;
-            stroke: @color-toolbar-background;
+body graphjs-tezcatlipoca {
+    &[mode=edit] /deep/ svg {
+        >circle.selected {
+            stroke-dasharray: 11,1;
+            .prefixed(transition, ~"opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s");
         }
     }
-    >path {
-        fill: @color-grey-menu;
-        stroke: @color-grey-menu;
+    /deep/ svg {
+        >circle {
+            fill: @color-toolbar-background;
+            stroke: @color-background;
+            stroke-dasharray: 11,0;
+            stroke-width: 1px;
+            .prefixed(transition, ~"opacity 0.5s, fill 0.5s");
+            &.selected {
+                fill: @color-toolbar;
+                stroke: @color-toolbar-background;
+            }
+        }
+        >path {
+            fill: @color-grey-menu;
+            stroke: @color-grey-menu;
+            stroke-width: 1px;
+            .prefixed(transition, opacity 0.5s);
+        }
     }
 }
 

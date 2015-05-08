@@ -197,7 +197,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             console.log("select", index);
             var circles = this[$d3svg].selectAll("circle.node");
             var circle = circles.filter(function(datum) {
-                return index == datum.index;
+                return index === datum.index;
             }).node();
             circles.each(function() {
                 if (this !== circle) this.classList.remove("selected");
@@ -210,7 +210,10 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         datum:circle.__data__
                     }
                 }));
-            } else this.dispatchEvent(new CustomEvent("unselect"));
+            } else {
+                this.options.state.mode = "default";
+                this.dispatchEvent(new CustomEvent("unselect"));
+            }
         }
     }, {
         svg:{
@@ -297,7 +300,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 element[$d3svg].selectAll("circle.node").each(function() {
                     this.classList.remove("selected");
                 });
-                element.dispatchEvent(new CustomEvent("deselect"));
+                element.selectNode();
             }
         });
         element.svg.addEventListener("click", function(_ref) {
@@ -429,6 +432,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     x:0,
                     y:0
                 }
+            },
+            state:{
+                mode:"default"
             }
         };
         element[$options] = options;
@@ -636,6 +642,26 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         })
                     }
                 }
+            },
+            state:{
+                mode:{
+                    set:function(_set) {
+                        var _setWrapper = function set(_x, _x2) {
+                            return _set.apply(this, arguments);
+                        };
+                        _setWrapper.toString = function() {
+                            return _set.toString();
+                        };
+                        return _setWrapper;
+                    }(function(mode, set) {
+                        mode = [ "default", "edit" ].indexOf(mode) != -1 ? mode :"default";
+                        element.setAttribute("mode", mode);
+                        element.dispatchEvent(new CustomEvent("modechange", {
+                            detail:mode
+                        }));
+                        set(mode);
+                    })
+                }
             }
         });
     }
@@ -643,9 +669,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         console.log("entering circles", selection);
         selection.each(function(datum, index) {
             PolymerGestures.addEventListener(this, "tap", function(event) {
-                event.preventTap();
+                console.log("tap on node");
                 event.bubbles = false;
-                element.selectNode(index);
+                if (element.options.state.mode == "edit") {} else element.selectNode(index);
             });
             PolymerGestures.addEventListener(this, "trackstart", function(event) {
                 event.preventTap();
@@ -666,8 +692,11 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 datum.fixed = false;
             });
             PolymerGestures.addEventListener(this, "hold", function(event) {
+                console.log("hold on node");
                 event.bubbles = false;
                 event.preventTap();
+                element.selectNode(index);
+                element.options.state.mode = "edit";
             });
         });
     }

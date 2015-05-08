@@ -3,17 +3,62 @@
  * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
-body /deep/ svg > circle {
+body graphjs-tezcatlipoca[mode=edit] /deep/ svg > circle.selected {
+  stroke-dasharray: 11,1;
+  transition: -webkit-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  transition: -moz-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  transition: -o-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  transition: -ms-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -webkit-transition: -webkit-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -moz-transition: -moz-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -o-transition: -o-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -ms-transition: -ms-opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -webkit-transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -moz-transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -o-transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  -ms-transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+  transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+}
+body graphjs-tezcatlipoca /deep/ svg > circle {
   fill: #2196f3;
   stroke: #e3f2fd;
+  stroke-dasharray: 11,0;
+  stroke-width: 1px;
+  transition: -webkit-opacity 0.5s, fill 0.5s;
+  transition: -moz-opacity 0.5s, fill 0.5s;
+  transition: -o-opacity 0.5s, fill 0.5s;
+  transition: -ms-opacity 0.5s, fill 0.5s;
+  -webkit-transition: -webkit-opacity 0.5s, fill 0.5s;
+  -moz-transition: -moz-opacity 0.5s, fill 0.5s;
+  -o-transition: -o-opacity 0.5s, fill 0.5s;
+  -ms-transition: -ms-opacity 0.5s, fill 0.5s;
+  -webkit-transition: opacity 0.5s, fill 0.5s;
+  -moz-transition: opacity 0.5s, fill 0.5s;
+  -o-transition: opacity 0.5s, fill 0.5s;
+  -ms-transition: opacity 0.5s, fill 0.5s;
+  transition: opacity 0.5s, fill 0.5s;
 }
-body /deep/ svg > circle.selected {
+body graphjs-tezcatlipoca /deep/ svg > circle.selected {
   fill: #81d4fa;
   stroke: #2196f3;
 }
-body /deep/ svg > path {
+body graphjs-tezcatlipoca /deep/ svg > path {
   fill: #757575;
   stroke: #757575;
+  stroke-width: 1px;
+  transition: -webkit-opacity 0.5s;
+  transition: -moz-opacity 0.5s;
+  transition: -o-opacity 0.5s;
+  transition: -ms-opacity 0.5s;
+  -webkit-transition: -webkit-opacity 0.5s;
+  -moz-transition: -moz-opacity 0.5s;
+  -o-transition: -o-opacity 0.5s;
+  -ms-transition: -ms-opacity 0.5s;
+  -webkit-transition: opacity 0.5s;
+  -moz-transition: opacity 0.5s;
+  -o-transition: opacity 0.5s;
+  -ms-transition: opacity 0.5s;
+  transition: opacity 0.5s;
 }
 core-drawer-panel > core-header-panel {
   background: #e3f2fd;

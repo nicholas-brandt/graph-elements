@@ -55,7 +55,7 @@ force.addEventListener("change", () => {
 // load graph
 let graph;
 try {
-    graph = IO.deserialize(localStorage.graph);
+    graph = IO.deserialize(config.graph);
     document.querySelector("paper-toast#graph-loaded").show();
 } catch (e) {
     console.error(e);

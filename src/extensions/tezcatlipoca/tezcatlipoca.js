@@ -76,9 +76,9 @@ export default {
         console.log("update graph");
         if (this.graph) {
             let index = 0;
-            const node_map = new Map([for ([i] of this.graph.nodes) [i, {
+            const node_map = new Map([for ([key, relations] of this.graph.nodes) [key, {
                 index: index++,
-                value: i
+                value: key
             }]]);
             const nodes = [for ([, node] of node_map) node];
             const edges = [for ({source, target} of this.graph.edges) {

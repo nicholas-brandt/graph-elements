@@ -3,3 +3,4 @@ bower_components
 .codio
 .settings
 npm-debug.log
+.jshintrc

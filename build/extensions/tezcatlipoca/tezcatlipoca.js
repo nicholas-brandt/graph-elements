@@ -70,11 +70,12 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         var _iteratorError = undefined;
                         try {
                             for (var _iterator = _this.graph.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                var _step$value = _slicedToArray(_step.value, 1);
-                                var i = _step$value[0];
-                                _ref.push([ i, {
+                                var _step$value = _slicedToArray(_step.value, 2);
+                                var key = _step$value[0];
+                                var relations = _step$value[1];
+                                _ref.push([ key, {
                                     index:index++,
-                                    value:i
+                                    value:key
                                 } ]);
                             }
                         } catch (err) {

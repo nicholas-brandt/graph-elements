@@ -3,7 +3,7 @@
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
 import { Graph, AcyclicGraph, Tree } from "../graph";
-import { D3SVG } from "../extensions/2d3";
+import { D3SVG } from "2d3";
 const svg = document.querySelector("svg");
 svg.addEventListener("wheel", function({wheelDelta}) {
     console.log(wheelDelta);

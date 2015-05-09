@@ -1,9 +1,9 @@
-define([ "exports", "../graph", "../extensions/2d3" ], function(exports, _graph, _extensions2d3) {
+define([ "exports", "../graph", "2d3" ], function(exports, _graph, _d3) {
     "use strict";
     var Graph = _graph.Graph;
     var AcyclicGraph = _graph.AcyclicGraph;
     var Tree = _graph.Tree;
-    var D3SVG = _extensions2d3.D3SVG;
+    var D3SVG = _d3.D3SVG;
     var svg = document.querySelector("svg");
     svg.addEventListener("wheel", function(_ref) {
         var wheelDelta = _ref.wheelDelta;

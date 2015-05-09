@@ -86,7 +86,7 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
     });
     var graph = undefined;
     try {
-        graph = IO.deserialize(localStorage.graph);
+        graph = IO.deserialize(config.graph);
         document.querySelector("paper-toast#graph-loaded").show();
     } catch (e) {
         console.error(e);

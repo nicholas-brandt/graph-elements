@@ -1,4 +1,4 @@
-define([ "exports", "module", "../graph", "../../external/circular-json.amd" ], function(exports, module, _graph, _externalCircularJsonAmd) {
+define([ "exports", "module", "../external/mixin", "../graph", "../../external/circular-json.amd" ], function(exports, module, _externalMixin, _graph, _externalCircularJsonAmd) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -37,6 +37,7 @@ define([ "exports", "module", "../graph", "../../external/circular-json.amd" ], 
             throw new TypeError("Cannot call a class as a function");
         }
     };
+    var mixin = _interopRequire(_externalMixin);
     var Graph = _graph.Graph;
     var CircularJSON = _interopRequire(_externalCircularJsonAmd);
     var IO = function() {
@@ -119,9 +120,11 @@ define([ "exports", "module", "../graph", "../../external/circular-json.amd" ], 
                     var _iteratorError = undefined;
                     try {
                         for (var _iterator = source.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                            var _step$value = _slicedToArray(_step.value, 1);
+                            var _step$value = _slicedToArray(_step.value, 2);
                             var node = _step$value[0];
+                            var property_object = _step$value[1];
                             target.addNode(node);
+                            mixin(target.nodes.get(node), property_object, mixin.SAFE_OVERRIDE);
                         }
                     } catch (err) {
                         _didIteratorError = true;

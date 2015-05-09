@@ -6,6 +6,7 @@ import { Graph, AcyclicGraph, Tree } from "../graph";
 import IO from "../extensions/IO";
 import mixin from "../external/mixin";
 import storage from "../external/storage";
+import requestAnimationFunction from "../external/requestAnimationFunction";
 //debugging
 window.Graph = Graph;
 window.AcyclicGraph = AcyclicGraph;
@@ -22,7 +23,8 @@ const config = storage("config", {
     state: {
         selected: undefined,
         mode: "default"
-    }
+    },
+    graph: undefined
 });
 // proxy
 tezcatlipoca.proxyHandler = {
@@ -41,11 +43,23 @@ tezcatlipoca.proxyHandler = {
         mode(mode) {
             config.state.mode = mode;
         }
-    },
-    graph(graph) {
-        config.graph = IO.serialize(graph);
     }
 };
+{
+    let reset = true;
+    const saveGraph = requestAnimationFunction(() => {
+        if (reset) {
+            console.log("save graph");
+            config.graph = IO.serialize(tezcatlipoca.graph);
+            setTimeout(() => {
+                reset = true;
+                saveGraph();
+            }, 1000);
+            reset = false;
+        }
+    });
+    tezcatlipoca.addEventListener("graphchange", saveGraph);
+}
 const node_id = document.querySelector("#node-id");
 const graph_saved = document.querySelector("paper-toast#graph-saved");
 const force = document.querySelector("#force-layout>paper-checkbox");

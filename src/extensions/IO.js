@@ -1,3 +1,4 @@
+import mixin from "../external/mixin";
 import { Graph } from "../graph";
 import CircularJSON from "../../external/circular-json.amd";
 export default class IO {
@@ -31,7 +32,10 @@ export default class IO {
      * @return {Graph} - The target graph.
      * */
     static migrateGraph(source, target = new Graph) {
-        for (let [node] of source.nodes) target.addNode(node);
+        for (let [node, property_object] of source.nodes) {
+            target.addNode(node);
+            mixin(target.nodes.get(node), property_object, mixin.SAFE_OVERRIDE);
+        }
         for (let edge of source.edges) target.addEdge(edge.source, edge.target, edge.weight);
         return target;
     }

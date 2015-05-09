@@ -1,4 +1,4 @@
-define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../external/storage" ], function(exports, _graph, _extensionsIO, _externalMixin, _externalStorage) {
+define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../external/storage", "../external/requestAnimationFunction" ], function(exports, _graph, _extensionsIO, _externalMixin, _externalStorage, _externalRequestAnimationFunction) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -9,6 +9,7 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
     var IO = _interopRequire(_extensionsIO);
     var mixin = _interopRequire(_externalMixin);
     var storage = _interopRequire(_externalStorage);
+    var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     window.Graph = Graph;
     window.AcyclicGraph = AcyclicGraph;
     window.Tree = Tree;
@@ -23,7 +24,8 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
         state:{
             selected:undefined,
             mode:"default"
-        }
+        },
+        graph:undefined
     });
     tezcatlipoca.proxyHandler = {
         d3:{
@@ -65,19 +67,25 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
             }(function(mode) {
                 config.state.mode = mode;
             })
-        },
-        graph:function(_graph) {
-            var _graphWrapper = function graph(_x) {
-                return _graph.apply(this, arguments);
-            };
-            _graphWrapper.toString = function() {
-                return _graph.toString();
-            };
-            return _graphWrapper;
-        }(function(graph) {
-            config.graph = IO.serialize(graph);
-        })
+        }
     };
+    {
+        (function() {
+            var reset = true;
+            var saveGraph = requestAnimationFunction(function() {
+                if (reset) {
+                    console.log("save graph");
+                    config.graph = IO.serialize(tezcatlipoca.graph);
+                    setTimeout(function() {
+                        reset = true;
+                        saveGraph();
+                    }, 1e3);
+                    reset = false;
+                }
+            });
+            tezcatlipoca.addEventListener("graphchange", saveGraph);
+        })();
+    }
     var node_id = document.querySelector("#node-id");
     var graph_saved = document.querySelector("paper-toast#graph-saved");
     var force = document.querySelector("#force-layout>paper-checkbox");

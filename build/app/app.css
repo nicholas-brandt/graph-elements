@@ -45,7 +45,7 @@ body graphjs-tezcatlipoca /deep/ svg > circle.selected {
 body graphjs-tezcatlipoca /deep/ svg > path {
   fill: #757575;
   stroke: #757575;
-  stroke-width: 1px;
+  stroke-width: 0.5px;
   transition: -webkit-opacity 0.5s;
   transition: -moz-opacity 0.5s;
   transition: -o-opacity 0.5s;

@@ -30,6 +30,9 @@ export default {
         implementUIBehavior(this);
         implementD3(this);
         mixin(this.config, this.config, mixin.OVERRIDE);
+        // @dirty
+        this.resize();
+        addEventListener("polymer-ready", this[$resize]);
     },
     attached() {
         addEventListener("resize", this[$resize]);
@@ -76,10 +79,7 @@ export default {
         console.log("update graph");
         if (this.graph) {
             let index = 0;
-            const node_map = new Map([for ([key, relations] of this.graph.nodes) [key, {
-                index: index++,
-                value: key
-            }]]);
+            const node_map = this.graph.nodes;
             const nodes = [for ([, node] of node_map) node];
             const edges = [for ({source, target} of this.graph.edges) {
                 source: node_map.get(source),
@@ -100,13 +100,11 @@ export default {
             implementNodeUIBehavior(this, entering_circles);
             paths.exit().remove();
             circles.exit().remove();
-            d3svg.selectAll("circle.node,path.edge").sort((a,b) => ("value" in a) - 0.5);
-            force.start();
-            // @dirty
-            for (let i = 0; i < 10; ++i) force.tick();
-            force.alpha(0);
-            this.config.d3.force.start();
-        } else this.graph = new Graph;
+            d3svg.selectAll("circle.node,path.edge").sort((a,b) => ("index" in a) - 0.5);
+            const state = this.config.state;
+            state.selected = state.selected;
+            this.startForce();
+        } else this.graph = new Graph(true);
         this.dispatchEvent(new CustomEvent("graphchange", {
             detail: this.graph
         }));
@@ -119,6 +117,13 @@ export default {
             x: x / parseFloat(width) / ratio * force_size,
             y: y / parseFloat(height) / ratio * force_size
         };
+    },
+    startForce() {
+        console.log("start force");
+        if (this.config.d3.force.enabled) {
+            console.log("force.start()");
+            this.force.start();}
+        else this.draw();
     }
 };
 // configuration
@@ -146,15 +151,7 @@ function implementConfig(element) {
                 linkDistance: 30,
                 linkStrength: 1,
                 gravity: 0.15,
-                enabled: true,
-                start() {
-                    //console.log("start", element.config.d3.force.enabled);
-                    if (element.config.d3.force.enabled) {
-                        const force = element.force;
-                        force.start();
-                        force.alpha(0.1);
-                    }
-                }
+                enabled: false
             }
         },
         state: {
@@ -170,8 +167,7 @@ function implementConfig(element) {
                         radius = parseFloat(radius);
                         if (radius < Infinity && -Infinity < radius) {
                             set(radius);
-                            element.force.stop();
-                            element.config.d3.force.start();
+                            element.draw();
                         }
                     }
                 }
@@ -182,8 +178,7 @@ function implementConfig(element) {
                         width = parseFloat(width);
                         if (width < Infinity && -Infinity < width) {
                             set(width);
-                            element.force.stop();
-                            element.config.d3.force.start();
+                            element.draw();
                         }
                     }
                 },
@@ -192,8 +187,7 @@ function implementConfig(element) {
                         ratio = Math.abs(parseFloat(ratio));
                         if (ratio < Infinity) {
                             set(ratio);
-                            element.force.stop();
-                            element.config.d3.force.start();
+                            element.draw();
                         }
                     }
                 }
@@ -204,7 +198,7 @@ function implementConfig(element) {
                         ratio = Math.max(min_ratio, parseFloat(ratio));
                         if (ratio < Infinity) {
                             set(ratio);
-                            element.resize();
+                            element.draw();
                         }
                     }
                 },
@@ -238,7 +232,7 @@ function implementConfig(element) {
                         if (charge < Infinity && -Infinity < charge) {
                             set(charge);
                             element.force.charge(charge).stop();
-                            element.config.d3.force.start();
+                            element.startForce();
                         }
                     }
                 },
@@ -250,8 +244,8 @@ function implementConfig(element) {
                                 width, height
                             } = getComputedStyle(element.svg);
                             set(linkDistance);
-                            element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height))).stop()
-                            element.config.d3.force.start();
+                            element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
+                            element.startForce();
                         }
                     }
                 },
@@ -261,7 +255,7 @@ function implementConfig(element) {
                         if (linkStrength < Infinity) {
                             set(linkStrength);
                             element.force.linkStrength(linkStrength).stop();
-                            element.config.d3.force.start();
+                            element.startForce();
                         }
                     }
                 },
@@ -271,13 +265,13 @@ function implementConfig(element) {
                         if (gravity < Infinity) {
                             set(gravity);
                             element.force.gravity(gravity).stop();
-                            element.config.d3.force.start();
+                            element.startForce();
                         }
                     }
                 },
                 enabled: {
                     set(enabled, set) {
-                        set( !! enabled);
+                        set(!!enabled);
                         if (enabled) element.force.start();
                         else element.force.stop();
                     }
@@ -298,24 +292,20 @@ function implementConfig(element) {
             selected: {
                 set(selected, set) {
                     console.log("select", selected);
+                    if (isNaN(selected)) selected = undefined;
                     const circles = element[$d3svg].selectAll("circle.node");
-                    const circle = circles.filter(datum => selected === datum.index).node();
+                    const circle = circles.filter(function() {
+                        return selected === this.__data__.index;
+                    }).node();
                     circles.each(function() {
                         if (this !== circle) this.classList.remove("selected");
                     });
-                    if (circle) {
+                    if (circle && selected !== undefined) {
                         circle.classList.add("selected");
                         set(selected);
-                        element.dispatchEvent(new CustomEvent("select", {
-                            detail: {
-                                circle,
-                                datum: circle.__data__
-                            }
-                        }));
                     } else {
                         element.config.state.mode = "default";
                         set(undefined);
-                        element.dispatchEvent(new CustomEvent("deselect"));
                     }
                 }
             }
@@ -333,8 +323,6 @@ function implementD3(element) {
     force.on("tick", element[$draw]);
     // resizing
     force.size([force_size, force_size]);
-    element.resize();
-    addEventListener("polymer-ready", element[$resize]);
 }
 // UI behavior
 function implementUIBehavior(element) {
@@ -352,10 +340,9 @@ function implementUIBehavior(element) {
             height
         }, mixin.OVERRIDE);
         element.config.d3.force.linkDistance += 0;
-        element.config.d3.force.start();
-        element.draw();
     });
-    element[$draw] = () => {
+    element[$draw] = requestAnimationFunction(() => {
+        // console.log("draw");
         let { x, y, width, height } = element.svg.viewBox.baseVal;
         const offset = element.config.UI.size.offset;
         const ratio = element.config.UI.size.ratio;
@@ -385,7 +372,7 @@ function implementUIBehavior(element) {
             // triangle
             return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
         });
-    };
+    });
     const size_transition = layer(element.config.UI.size, {
         ratio: {
             translate(ratio) {
@@ -463,7 +450,7 @@ function implementUIBehavior(element) {
             event.preventTap();
             if (event.srcElement === element.svg) added = false;
         });
-        PolymerGestures.addEventListener(element.svg, "holdpulse", function({x, y, srcElement, holdTime}) {
+        PolymerGestures.addEventListener(element.svg, "holdpulse", function({ x, y, srcElement, holdTime }) {
             console.log("holdpulse");
             event.bubbles = false;
             if (srcElement === element.svg && holdTime > 800 && !added) {
@@ -479,37 +466,45 @@ function implementUIBehavior(element) {
 // Node UI Behavior
 function implementNodeUIBehavior(element, selection) {
     console.log("entering circles", selection);
-    selection.each(function(datum, index) {
+    const graph = element.graph;
+    const state = element.config.state;
+    selection.each(function() {
+        console.log("each");
         PolymerGestures.addEventListener(this, "tap", event => {
-            console.log("tap on node");
+            console.log("tap on node", this.__data__.index);
             event.bubbles = false;
-            if (element.config.state.mode == "edit") {
+            if (state.mode == "edit") {
+                const node_map = new Map([for ([key, { index }] of graph.nodes) [index, key]]);
                 // add edge
-                // element.updateGraph();
-            } else element.config.state.selected = index;
+                const edge = [node_map.get(state.selected), node_map.get(this.__data__.index)];
+                if (graph.hasEdge(...edge)) graph.removeEdge(...edge);
+                else graph.addEdge(...edge);
+                element.updateGraph();
+            } else state.selected = this.__data__.index;
         });
         PolymerGestures.addEventListener(this, "trackstart", event => {
             event.preventTap();
             event.bubbles = false;
-            datum.fixed = true;
+            this.__data__.fixed = true;
         });
         PolymerGestures.addEventListener(this, "track", event => {
             event.bubbles = false;
             const { x, y } = element.toNodeCoordinates(event.ddx, event.ddy);
+            const datum = this.__data__;
             datum.px = datum.x += x;
             datum.py = datum.y += y;
             element.draw();
         });
         PolymerGestures.addEventListener(this, "trackend", event => {
             event.bubbles = false;
-            datum.fixed = false;
+            this.__data__.fixed = false;
         });
         PolymerGestures.addEventListener(this, "hold", event => {
             console.log("hold on node");
             event.bubbles = false;
             event.preventTap();
-            element.config.state.selected = index;
-            element.config.state.mode = "edit";
+            state.selected = this.__data__.index;
+            state.mode = "edit";
         });
     });
 }

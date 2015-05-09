@@ -44,6 +44,8 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             implementUIBehavior(this);
             implementD3(this);
             mixin(this.config, this.config, mixin.OVERRIDE);
+            this.resize();
+            addEventListener("polymer-ready", this[$resize]);
         },
         attached:function attached() {
             addEventListener("resize", this[$resize]);
@@ -63,37 +65,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             if (this.graph) {
                 (function() {
                     var index = 0;
-                    var node_map = new Map(function() {
-                        var _ref = [];
-                        var _iteratorNormalCompletion = true;
-                        var _didIteratorError = false;
-                        var _iteratorError = undefined;
-                        try {
-                            for (var _iterator = _this.graph.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                var _step$value = _slicedToArray(_step.value, 2);
-                                var key = _step$value[0];
-                                var relations = _step$value[1];
-                                _ref.push([ key, {
-                                    index:index++,
-                                    value:key
-                                } ]);
-                            }
-                        } catch (err) {
-                            _didIteratorError = true;
-                            _iteratorError = err;
-                        } finally {
-                            try {
-                                if (!_iteratorNormalCompletion && _iterator["return"]) {
-                                    _iterator["return"]();
-                                }
-                            } finally {
-                                if (_didIteratorError) {
-                                    throw _iteratorError;
-                                }
-                            }
-                        }
-                        return _ref;
-                    }());
+                    var node_map = _this.graph.nodes;
                     var nodes = function() {
                         var _nodes = [];
                         var _iteratorNormalCompletion = true;
@@ -167,16 +139,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     paths.exit().remove();
                     circles.exit().remove();
                     d3svg.selectAll("circle.node,path.edge").sort(function(a, b) {
-                        return ("value" in a) - .5;
+                        return ("index" in a) - .5;
                     });
-                    force.start();
-                    for (var i = 0; i < 10; ++i) {
-                        force.tick();
-                    }
-                    force.alpha(0);
-                    _this.config.d3.force.start();
+                    var state = _this.config.state;
+                    state.selected = state.selected;
+                    _this.startForce();
                 })();
-            } else this.graph = new Graph();
+            } else this.graph = new Graph(true);
             this.dispatchEvent(new CustomEvent("graphchange", {
                 detail:this.graph
             }));
@@ -191,6 +160,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 x:x / parseFloat(width) / ratio * force_size,
                 y:y / parseFloat(height) / ratio * force_size
             };
+        },
+        startForce:function startForce() {
+            console.log("start force");
+            if (this.config.d3.force.enabled) {
+                console.log("force.start()");
+                this.force.start();
+            } else this.draw();
         }
     }, {
         svg:{
@@ -264,14 +240,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     linkDistance:30,
                     linkStrength:1,
                     gravity:.15,
-                    enabled:true,
-                    start:function start() {
-                        if (element.config.d3.force.enabled) {
-                            var force = element.force;
-                            force.start();
-                            force.alpha(.1);
-                        }
-                    }
+                    enabled:false
                 }
             },
             state:{
@@ -295,8 +264,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             radius = parseFloat(radius);
                             if (radius < Infinity && -Infinity < radius) {
                                 set(radius);
-                                element.force.stop();
-                                element.config.d3.force.start();
+                                element.draw();
                             }
                         })
                     }
@@ -315,8 +283,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             width = parseFloat(width);
                             if (width < Infinity && -Infinity < width) {
                                 set(width);
-                                element.force.stop();
-                                element.config.d3.force.start();
+                                element.draw();
                             }
                         })
                     },
@@ -333,8 +300,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             ratio = Math.abs(parseFloat(ratio));
                             if (ratio < Infinity) {
                                 set(ratio);
-                                element.force.stop();
-                                element.config.d3.force.start();
+                                element.draw();
                             }
                         })
                     }
@@ -353,7 +319,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             ratio = Math.max(min_ratio, parseFloat(ratio));
                             if (ratio < Infinity) {
                                 set(ratio);
-                                element.resize();
+                                element.draw();
                             }
                         })
                     },
@@ -411,7 +377,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             if (charge < Infinity && -Infinity < charge) {
                                 set(charge);
                                 element.force.charge(charge).stop();
-                                element.config.d3.force.start();
+                                element.startForce();
                             }
                         })
                     },
@@ -432,7 +398,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                                 var height = _getComputedStyle.height;
                                 set(linkDistance);
                                 element.force.linkDistance(linkDistance * 2e3 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
-                                element.config.d3.force.start();
+                                element.startForce();
                             }
                         })
                     },
@@ -450,7 +416,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             if (linkStrength < Infinity) {
                                 set(linkStrength);
                                 element.force.linkStrength(linkStrength).stop();
-                                element.config.d3.force.start();
+                                element.startForce();
                             }
                         })
                     },
@@ -468,7 +434,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             if (gravity < Infinity) {
                                 set(gravity);
                                 element.force.gravity(gravity).stop();
-                                element.config.d3.force.start();
+                                element.startForce();
                             }
                         })
                     },
@@ -518,26 +484,20 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                         return _setWrapper;
                     }(function(selected, set) {
                         console.log("select", selected);
+                        if (isNaN(selected)) selected = undefined;
                         var circles = element[$d3svg].selectAll("circle.node");
-                        var circle = circles.filter(function(datum) {
-                            return selected === datum.index;
+                        var circle = circles.filter(function() {
+                            return selected === this.__data__.index;
                         }).node();
                         circles.each(function() {
                             if (this !== circle) this.classList.remove("selected");
                         });
-                        if (circle) {
+                        if (circle && selected !== undefined) {
                             circle.classList.add("selected");
                             set(selected);
-                            element.dispatchEvent(new CustomEvent("select", {
-                                detail:{
-                                    circle:circle,
-                                    datum:circle.__data__
-                                }
-                            }));
                         } else {
                             element.config.state.mode = "default";
                             set(undefined);
-                            element.dispatchEvent(new CustomEvent("deselect"));
                         }
                     })
                 }
@@ -552,8 +512,6 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         element[$force] = force;
         force.on("tick", element[$draw]);
         force.size([ force_size, force_size ]);
-        element.resize();
-        addEventListener("polymer-ready", element[$resize]);
     }
     function implementUIBehavior(element) {
         element[$resize] = requestAnimationFunction(function() {
@@ -571,10 +529,8 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 height:height
             }, mixin.OVERRIDE);
             element.config.d3.force.linkDistance += 0;
-            element.config.d3.force.start();
-            element.draw();
         });
-        element[$draw] = function() {
+        element[$draw] = requestAnimationFunction(function() {
             var _element$svg$viewBox$baseVal = element.svg.viewBox.baseVal;
             var x = _element$svg$viewBox$baseVal.x;
             var y = _element$svg$viewBox$baseVal.y;
@@ -611,7 +567,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 var py = sy - wy * arrow.ratio;
                 return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
             });
-        };
+        });
         var size_transition = layer(element.config.UI.size, {
             ratio:{
                 translate:function translate(ratio) {
@@ -707,36 +663,73 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     }
     function implementNodeUIBehavior(element, selection) {
         console.log("entering circles", selection);
-        selection.each(function(datum, index) {
+        var graph = element.graph;
+        var state = element.config.state;
+        selection.each(function() {
+            var _this = this;
+            console.log("each");
             PolymerGestures.addEventListener(this, "tap", function(event) {
-                console.log("tap on node");
+                console.log("tap on node", _this.__data__.index);
                 event.bubbles = false;
-                if (element.config.state.mode == "edit") {} else element.config.state.selected = index;
+                if (state.mode == "edit") {
+                    var node_map = new Map(function() {
+                        var _ref = [];
+                        var _iteratorNormalCompletion = true;
+                        var _didIteratorError = false;
+                        var _iteratorError = undefined;
+                        try {
+                            for (var _iterator = graph.nodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                                var _step$value = _slicedToArray(_step.value, 2);
+                                var key = _step$value[0];
+                                var index = _step$value[1].index;
+                                _ref.push([ index, key ]);
+                            }
+                        } catch (err) {
+                            _didIteratorError = true;
+                            _iteratorError = err;
+                        } finally {
+                            try {
+                                if (!_iteratorNormalCompletion && _iterator["return"]) {
+                                    _iterator["return"]();
+                                }
+                            } finally {
+                                if (_didIteratorError) {
+                                    throw _iteratorError;
+                                }
+                            }
+                        }
+                        return _ref;
+                    }());
+                    var edge = [ node_map.get(state.selected), node_map.get(_this.__data__.index) ];
+                    if (graph.hasEdge.apply(graph, edge)) graph.removeEdge.apply(graph, edge); else graph.addEdge.apply(graph, edge);
+                    element.updateGraph();
+                } else state.selected = _this.__data__.index;
             });
             PolymerGestures.addEventListener(this, "trackstart", function(event) {
                 event.preventTap();
                 event.bubbles = false;
-                datum.fixed = true;
+                _this.__data__.fixed = true;
             });
             PolymerGestures.addEventListener(this, "track", function(event) {
                 event.bubbles = false;
                 var _element$toNodeCoordinates = element.toNodeCoordinates(event.ddx, event.ddy);
                 var x = _element$toNodeCoordinates.x;
                 var y = _element$toNodeCoordinates.y;
+                var datum = _this.__data__;
                 datum.px = datum.x += x;
                 datum.py = datum.y += y;
                 element.draw();
             });
             PolymerGestures.addEventListener(this, "trackend", function(event) {
                 event.bubbles = false;
-                datum.fixed = false;
+                _this.__data__.fixed = false;
             });
             PolymerGestures.addEventListener(this, "hold", function(event) {
                 console.log("hold on node");
                 event.bubbles = false;
                 event.preventTap();
-                element.config.state.selected = index;
-                element.config.state.mode = "edit";
+                state.selected = _this.__data__.index;
+                state.mode = "edit";
             });
         });
     }

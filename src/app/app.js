@@ -11,64 +11,58 @@ window.Graph = Graph;
 window.AcyclicGraph = AcyclicGraph;
 window.Tree = Tree;
 window.IO = IO;
-
-{
-    // load graph
-    let graph;
-    try {
-        graph = IO.deserialize(localStorage.graph);
-        document.querySelector("paper-toast#graph-loaded").show();
-    } catch (e) {
-        console.error(e);
-        graph = new Graph;
-    }
-    // init tezcatlipoca
-    const tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
-    tezcatlipoca.graph = graph;
-    PolymerGestures.addEventListener(document.querySelector("paper-button#save-graph"), "tap", () => {
-        saveGraph();
-        document.querySelector("paper-toast#graph-saved").show();
-    });
-    // init ui
-    const node_id = document.querySelector("#node-id");
-    tezcatlipoca.addEventListener("select", ({
-        detail: {
-            node,
-            datum
+const tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
+// init config
+const config = storage("config", {
+    d3: {
+        force: {
+            enabled: true
         }
-    }) => {
-        node_id.value = datum.value;
-        config.selected = datum.value;
-    });
-    tezcatlipoca.addEventListener("deselect", () => {
-        node_id.value = "";
-        config.selected = undefined;
-    });
-    tezcatlipoca.addEventListener("modechange", ({detail}) => {
-        config.mode = detail;
-    });
-    // load configuration
-    const force_layout_checkbox = document.querySelector("#force-layout>paper-checkbox");
-    force_layout_checkbox.onchange = event => {
-        console.log("force-layout change", force_layout_checkbox.checked);
-        event.bubbles = false;
-        config.force_layout = tezcatlipoca.config.d3.force.enabled = force_layout_checkbox.checked;
-    };
-    const config = storage("config", {
-        force_layout: true,
+    },
+    state: {
         selected: undefined,
         mode: "default"
-    });
-    // apply configuration
-    force_layout_checkbox.checked = config.force_layout;
-    force_layout_checkbox.onchange({});
-    tezcatlipoca.config.state.selected = config.selected;
-    tezcatlipoca.config.state.mode = config.mode;
-    // debugging
-    window.tezcatlipoca = tezcatlipoca;
-    window.graph = graph;
-    
-    function saveGraph() {
-        localStorage.graph = IO.serialize(tezcatlipoca.graph);
     }
+});
+// proxy
+tezcatlipoca.proxyHandler = {
+    d3: {
+        force: {
+            enabled(enabled) {
+                force.checked = config.d3.force.enabled = enabled;
+            }
+        }
+    },
+    state: {
+        selected(selected) {
+            node_id.value = isNaN(selected) ? "" : selected;
+            config.state.selected = selected;
+        },
+        mode(mode) {
+            config.state.mode = mode;
+        }
+    },
+    graph(graph) {
+        config.graph = IO.serialize(graph);
+    }
+};
+const node_id = document.querySelector("#node-id");
+const graph_saved = document.querySelector("paper-toast#graph-saved");
+const force = document.querySelector("#force-layout>paper-checkbox");
+force.addEventListener("change", () => {
+    tezcatlipoca.config.d3.force.enabled = force.checked;
+});
+// load graph
+let graph;
+try {
+    graph = IO.deserialize(localStorage.graph);
+    document.querySelector("paper-toast#graph-loaded").show();
+} catch (e) {
+    console.error(e);
 }
+tezcatlipoca.graph = graph;
+// apply configuration
+mixin(tezcatlipoca.config, config, mixin.OVERRIDE);
+// debugging
+window.tezcatlipoca = tezcatlipoca;
+window.graph = graph;

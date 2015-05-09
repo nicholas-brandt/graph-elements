@@ -6,9 +6,13 @@ import { Graph } from "../../graph";
 import d3 from "../../../node_modules/d3/d3";
 import mixin from "../../external/mixin";
 import layer from "../../external/layer";
+import proxy from "../../external/proxy";
 import requestAnimationFunction from "../../external/requestAnimationFunction";
 const $force = Symbol();
 const $config = Symbol();
+const $config_layer = Symbol();
+const $config_modifier = Symbol();
+const $proxy_handler = Symbol();
 const $data = Symbol();
 const $d3svg = Symbol();
 const $graph = Symbol();
@@ -41,10 +45,10 @@ export default {
         return this[$force];
     },
     get config() {
-        return this[$config];
+        return this[$config_layer];
     },
     set config(config) {
-        mixin(this[$config], config, mixin.OVERRIDE);
+        mixin(this[$config_layer], config, mixin.OVERRIDE);
     },
     get graph() {
         return this[$graph];
@@ -52,6 +56,13 @@ export default {
     set graph(graph) {
         this[$graph] = graph;
         this.updateGraph();
+    },
+    get proxyHandler() {
+        return this[$proxy_handler];
+    },
+    set proxyHandler(handler) {
+        this[$proxy_handler] = handler;
+        this[$config_layer] = layer(proxy(this[$config], handler), this[$config_modifier]);
     },
     // delegators
     draw() {
@@ -64,7 +75,9 @@ export default {
     updateGraph() {
         console.log("update graph");
         if (this.graph) {
+            let index = 0;
             const node_map = new Map([for ([i] of this.graph.nodes) [i, {
+                index: index++,
                 value: i
             }]]);
             const nodes = [for ([, node] of node_map) node];
@@ -94,6 +107,9 @@ export default {
             force.alpha(0);
             this.config.d3.force.start();
         } else this.graph = new Graph;
+        this.dispatchEvent(new CustomEvent("graphchange", {
+            detail: this.graph
+        }));
     },
     toNodeCoordinates(x, y) {
         const { width, height } = getComputedStyle(this.svg);
@@ -107,7 +123,7 @@ export default {
 };
 // configuration
 function implementConfig(element) {
-    const config = {
+    element[$config] = {
         UI: {
             circle: {
                 radius: 6
@@ -146,7 +162,7 @@ function implementConfig(element) {
             selected: undefined
         }
     };
-    const modifier = {
+    element[$config_modifier] = {
         UI: {
             circle: {
                 radius: {
@@ -305,7 +321,7 @@ function implementConfig(element) {
             }
         }
     };
-    element[$config] = layer(config, modifier);
+    element.proxyHandler = {};
 }
 // d3
 function implementD3(element) {

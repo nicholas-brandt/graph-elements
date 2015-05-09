@@ -1,4 +1,4 @@
-define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../../external/mixin", "../../external/layer", "../../external/requestAnimationFunction" ], function(exports, module, _graph, _node_modulesD3D3, _externalMixin, _externalLayer, _externalRequestAnimationFunction) {
+define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../../external/mixin", "../../external/layer", "../../external/proxy", "../../external/requestAnimationFunction" ], function(exports, module, _graph, _node_modulesD3D3, _externalMixin, _externalLayer, _externalProxy, _externalRequestAnimationFunction) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -21,9 +21,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     var d3 = _interopRequire(_node_modulesD3D3);
     var mixin = _interopRequire(_externalMixin);
     var layer = _interopRequire(_externalLayer);
+    var proxy = _interopRequire(_externalProxy);
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     var $force = Symbol();
     var $config = Symbol();
+    var $config_layer = Symbol();
+    var $config_modifier = Symbol();
+    var $proxy_handler = Symbol();
     var $data = Symbol();
     var $d3svg = Symbol();
     var $graph = Symbol();
@@ -58,6 +62,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             console.log("update graph");
             if (this.graph) {
                 (function() {
+                    var index = 0;
                     var node_map = new Map(function() {
                         var _ref = [];
                         var _iteratorNormalCompletion = true;
@@ -68,6 +73,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                                 var _step$value = _slicedToArray(_step.value, 1);
                                 var i = _step$value[0];
                                 _ref.push([ i, {
+                                    index:index++,
                                     value:i
                                 } ]);
                             }
@@ -170,6 +176,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     _this.config.d3.force.start();
                 })();
             } else this.graph = new Graph();
+            this.dispatchEvent(new CustomEvent("graphchange", {
+                detail:this.graph
+            }));
         },
         toNodeCoordinates:function toNodeCoordinates(x, y) {
             var _getComputedStyle = getComputedStyle(this.svg);
@@ -199,10 +208,10 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
         },
         config:{
             get:function() {
-                return this[$config];
+                return this[$config_layer];
             },
             set:function(config) {
-                mixin(this[$config], config, mixin.OVERRIDE);
+                mixin(this[$config_layer], config, mixin.OVERRIDE);
             },
             configurable:true,
             enumerable:true
@@ -217,10 +226,21 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             },
             configurable:true,
             enumerable:true
+        },
+        proxyHandler:{
+            get:function() {
+                return this[$proxy_handler];
+            },
+            set:function(handler) {
+                this[$proxy_handler] = handler;
+                this[$config_layer] = layer(proxy(this[$config], handler), this[$config_modifier]);
+            },
+            configurable:true,
+            enumerable:true
         }
     });
     function implementConfig(element) {
-        var config = {
+        element[$config] = {
             UI:{
                 circle:{
                     radius:6
@@ -258,7 +278,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 selected:undefined
             }
         };
-        var modifier = {
+        element[$config_modifier] = {
             UI:{
                 circle:{
                     radius:{
@@ -522,7 +542,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 }
             }
         };
-        element[$config] = layer(config, modifier);
+        element.proxyHandler = {};
     }
     function implementD3(element) {
         element[$data] = {};

@@ -7,9 +7,10 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
     var mixin = _interopRequire(_externalMixin);
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
     var default_duration = 1e3;
-    function layer(storage, modifier) {
+    function layer(storage, modifier, global_change_callback) {
         if (typeof storage != "object") throw Error("{storage} is not an object");
         if (!modifier || typeof modifier != "object") modifier = {};
+        if (typeof global_change_callback != "function") global_change_callback = undefined;
         var layer_object = {};
         for (var property in storage) {
             var _mixin;
@@ -17,7 +18,7 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                 var modify = modifier[property];
                 if (typeof storage[property] == "object") {
                     (function() {
-                        var object = layer(storage[property], modify);
+                        var object = layer(storage[property], modify, global_change_callback);
                         Object.defineProperty(layer_object, property, {
                             get:function get() {
                                 return object;
@@ -30,7 +31,10 @@ define([ "exports", "module", "../external/mixin", "../external/requestAnimation
                     })();
                 } else {
                     (function() {
-                        var store = function(value) {
+                        var store = global_change_callback ? function(value) {
+                            storage[property] = value;
+                            global_change_callback();
+                        } :function(value) {
                             storage[property] = value;
                         };
                         var set_callback = undefined;

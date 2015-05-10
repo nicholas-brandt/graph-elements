@@ -1,4 +1,4 @@
-define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../external/storage", "../external/requestAnimationFunction" ], function(exports, _graph, _extensionsIO, _externalMixin, _externalStorage, _externalRequestAnimationFunction) {
+define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../external/storage", "../external/requestAnimationFunction", "../../external/circular-json.amd" ], function(exports, _graph, _extensionsIO, _externalMixin, _externalStorage, _externalRequestAnimationFunction, _externalCircularJsonAmd) {
     "use strict";
     var _interopRequire = function(obj) {
         return obj && obj.__esModule ? obj["default"] :obj;
@@ -10,22 +10,15 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
     var mixin = _interopRequire(_externalMixin);
     var storage = _interopRequire(_externalStorage);
     var requestAnimationFunction = _interopRequire(_externalRequestAnimationFunction);
+    var CircularJSON = _interopRequire(_externalCircularJsonAmd);
+    var tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
     window.Graph = Graph;
     window.AcyclicGraph = AcyclicGraph;
     window.Tree = Tree;
     window.IO = IO;
-    var tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
-    var config = storage("config", {
-        d3:{
-            force:{
-                enabled:true
-            }
-        },
-        state:{
-            selected:undefined,
-            mode:"default"
-        },
-        graph:undefined
+    window.tezcatlipoca = tezcatlipoca;
+    tezcatlipoca.addEventListener("configchange", function() {
+        localStorage.config = CircularJSON.stringify(tezcatlipoca.config);
     });
     tezcatlipoca.proxyHandler = {
         d3:{
@@ -39,7 +32,7 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
                     };
                     return _enabledWrapper;
                 }(function(enabled) {
-                    force.checked = config.d3.force.enabled = enabled;
+                    force.checked = enabled;
                 })
             }
         },
@@ -54,37 +47,15 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
                 return _selectedWrapper;
             }(function(selected) {
                 node_id.value = isNaN(selected) ? "" :selected;
-                config.state.selected = selected;
-            }),
-            mode:function(_mode) {
-                var _modeWrapper = function mode(_x) {
-                    return _mode.apply(this, arguments);
-                };
-                _modeWrapper.toString = function() {
-                    return _mode.toString();
-                };
-                return _modeWrapper;
-            }(function(mode) {
-                config.state.mode = mode;
             })
         }
     };
     {
-        (function() {
-            var reset = true;
-            var saveGraph = requestAnimationFunction(function() {
-                if (reset) {
-                    console.log("save graph");
-                    config.graph = IO.serialize(tezcatlipoca.graph);
-                    setTimeout(function() {
-                        reset = true;
-                        saveGraph();
-                    }, 1e3);
-                    reset = false;
-                }
-            });
-            tezcatlipoca.addEventListener("graphchange", saveGraph);
-        })();
+        var saveGraph = requestAnimationFunction(function() {
+            console.log("save graph");
+            localStorage.graph = IO.serialize(tezcatlipoca.graph);
+        });
+        tezcatlipoca.addEventListener("graphchange", saveGraph);
     }
     var node_id = document.querySelector("#node-id");
     var graph_saved = document.querySelector("paper-toast#graph-saved");
@@ -92,15 +63,21 @@ define([ "exports", "../graph", "../extensions/IO", "../external/mixin", "../ext
     force.addEventListener("change", function() {
         tezcatlipoca.config.d3.force.enabled = force.checked;
     });
-    var graph = undefined;
+    {
+        var graph = undefined;
+        try {
+            graph = IO.deserialize(localStorage.graph);
+            document.querySelector("paper-toast#graph-loaded").show();
+        } catch (e) {
+            console.error(e);
+        }
+        console.log("apply graph");
+        tezcatlipoca.graph = graph;
+        window.graph = graph;
+    }
     try {
-        graph = IO.deserialize(config.graph);
-        document.querySelector("paper-toast#graph-loaded").show();
+        mixin(tezcatlipoca.config, CircularJSON.parse(localStorage.config), mixin.OVERRIDE);
     } catch (e) {
         console.error(e);
     }
-    tezcatlipoca.graph = graph;
-    mixin(tezcatlipoca.config, config, mixin.OVERRIDE);
-    window.tezcatlipoca = tezcatlipoca;
-    window.graph = graph;
 });

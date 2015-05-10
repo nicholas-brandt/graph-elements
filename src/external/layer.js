@@ -5,14 +5,15 @@
 import mixin from "../external/mixin";
 import requestAnimationFunction from "../external/requestAnimationFunction";
 const default_duration = 1000;
-export default function layer(storage, modifier) {
+export default function layer(storage, modifier, global_change_callback) {
     if (typeof storage != "object") throw Error("{storage} is not an object");
     if (!modifier || typeof modifier != "object") modifier = {};
+    if (typeof global_change_callback != "function") global_change_callback = undefined;
     const layer_object = {};
     for (let property in storage) {
         const modify = modifier[property];
         if (typeof storage[property] == "object") {
-            const object = layer(storage[property], modify);
+            const object = layer(storage[property], modify, global_change_callback);
             Object.defineProperty(layer_object, property, {
                 get() {
                     return object;
@@ -23,6 +24,12 @@ export default function layer(storage, modifier) {
                 enumerable: true
             });
         } else {
+            const store = global_change_callback ? value => {
+                storage[property] = value;
+                global_change_callback();
+            } : value => {
+                storage[property] = value;
+            };
             let set_callback;
             let { get, set, translate, duration } = mixin({}, modify);
             if (duration === undefined) duration = default_duration;
@@ -61,9 +68,6 @@ export default function layer(storage, modifier) {
                 set: setter,
                 enumerable: true
             });
-            function store(value) {
-                storage[property] = value;
-            }
         }
     }
     return layer_object;

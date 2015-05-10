@@ -7,56 +7,37 @@ import IO from "../extensions/IO";
 import mixin from "../external/mixin";
 import storage from "../external/storage";
 import requestAnimationFunction from "../external/requestAnimationFunction";
+import CircularJSON from "../../external/circular-json.amd";
+const tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
 //debugging
 window.Graph = Graph;
 window.AcyclicGraph = AcyclicGraph;
 window.Tree = Tree;
 window.IO = IO;
-const tezcatlipoca = document.querySelector("graphjs-tezcatlipoca");
+window.tezcatlipoca = tezcatlipoca;
 // init config
-const config = storage("config", {
-    d3: {
-        force: {
-            enabled: true
-        }
-    },
-    state: {
-        selected: undefined,
-        mode: "default"
-    },
-    graph: undefined
+tezcatlipoca.addEventListener("configchange", () => {
+    localStorage.config = CircularJSON.stringify(tezcatlipoca.config);
 });
 // proxy
 tezcatlipoca.proxyHandler = {
     d3: {
         force: {
             enabled(enabled) {
-                force.checked = config.d3.force.enabled = enabled;
+                force.checked = enabled;
             }
         }
     },
     state: {
         selected(selected) {
             node_id.value = isNaN(selected) ? "" : selected;
-            config.state.selected = selected;
-        },
-        mode(mode) {
-            config.state.mode = mode;
         }
     }
 };
 {
-    let reset = true;
     const saveGraph = requestAnimationFunction(() => {
-        if (reset) {
-            console.log("save graph");
-            config.graph = IO.serialize(tezcatlipoca.graph);
-            setTimeout(() => {
-                reset = true;
-                saveGraph();
-            }, 1000);
-            reset = false;
-        }
+        console.log("save graph");
+        localStorage.graph = IO.serialize(tezcatlipoca.graph);
     });
     tezcatlipoca.addEventListener("graphchange", saveGraph);
 }
@@ -67,16 +48,22 @@ force.addEventListener("change", () => {
     tezcatlipoca.config.d3.force.enabled = force.checked;
 });
 // load graph
-let graph;
+{
+    let graph;
+    try {
+        graph = IO.deserialize(localStorage.graph);
+        document.querySelector("paper-toast#graph-loaded").show();
+    } catch (e) {
+        console.error(e);
+    }
+    console.log("apply graph");
+    tezcatlipoca.graph = graph;
+    // debugging
+    window.graph = graph;
+}
+// load config
 try {
-    graph = IO.deserialize(config.graph);
-    document.querySelector("paper-toast#graph-loaded").show();
+    mixin(tezcatlipoca.config, CircularJSON.parse(localStorage.config), mixin.OVERRIDE);
 } catch (e) {
     console.error(e);
 }
-tezcatlipoca.graph = graph;
-// apply configuration
-mixin(tezcatlipoca.config, config, mixin.OVERRIDE);
-// debugging
-window.tezcatlipoca = tezcatlipoca;
-window.graph = graph;

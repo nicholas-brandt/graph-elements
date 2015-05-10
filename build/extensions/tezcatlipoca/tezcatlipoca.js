@@ -27,14 +27,16 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
     var $config = Symbol();
     var $config_layer = Symbol();
     var $config_modifier = Symbol();
+    var $config_change_callback = Symbol();
     var $proxy_handler = Symbol();
     var $data = Symbol();
     var $d3svg = Symbol();
     var $graph = Symbol();
+    var $graph_change_callback = Symbol();
     var $resize = Symbol();
     var $draw = Symbol();
     var force_size = 1e3;
-    var min_ratio = .35;
+    var min_zoom = .35;
     module.exports = Object.defineProperties({
         is:"graphjs-tezcatlipoca",
         created:function created() {
@@ -146,26 +148,23 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     _this.startForce();
                 })();
             } else this.graph = new Graph(true);
-            this.dispatchEvent(new CustomEvent("graphchange", {
-                detail:this.graph
-            }));
+            this[$graph_change_callback]();
         },
         toNodeCoordinates:function toNodeCoordinates(x, y) {
             var _getComputedStyle = getComputedStyle(this.svg);
             var width = _getComputedStyle.width;
             var height = _getComputedStyle.height;
-            var ratio = this.config.UI.size.ratio;
+            var zoom = this.config.UI.size.zoom;
             var baseVal = this.svg.viewBox.baseVal;
             return {
-                x:x / parseFloat(width) / ratio * force_size,
-                y:y / parseFloat(height) / ratio * force_size
+                x:x / parseFloat(width) / zoom * force_size,
+                y:y / parseFloat(height) / zoom * force_size
             };
         },
         startForce:function startForce() {
-            console.log("start force");
+            console.log("start force", this.force.alpha());
             if (this.config.d3.force.enabled) {
-                console.log("force.start()");
-                this.force.start();
+                if (!this.force.alpha()) this.force.start();
             } else this.draw();
         }
     }, {
@@ -210,7 +209,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             },
             set:function(handler) {
                 this[$proxy_handler] = handler;
-                this[$config_layer] = layer(proxy(this[$config], handler), this[$config_modifier]);
+                this[$config_layer] = layer(proxy(this[$config], handler), this[$config_modifier], this[$config_change_callback]);
             },
             configurable:true,
             enumerable:true
@@ -227,7 +226,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     ratio:2
                 },
                 size:{
-                    ratio:2,
+                    zoom:2,
                     offset:{
                         x:0,
                         y:0
@@ -264,7 +263,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             radius = parseFloat(radius);
                             if (radius < Infinity && -Infinity < radius) {
                                 set(radius);
-                                element.draw();
+                                element.updateGraph();
                             }
                         })
                     }
@@ -283,7 +282,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             width = parseFloat(width);
                             if (width < Infinity && -Infinity < width) {
                                 set(width);
-                                element.draw();
+                                element.updateGraph();
                             }
                         })
                     },
@@ -300,13 +299,13 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             ratio = Math.abs(parseFloat(ratio));
                             if (ratio < Infinity) {
                                 set(ratio);
-                                element.draw();
+                                element.updateGraph();
                             }
                         })
                     }
                 },
                 size:{
-                    ratio:{
+                    zoom:{
                         set:function(_set) {
                             var _setWrapper = function set(_x, _x2) {
                                 return _set.apply(this, arguments);
@@ -315,11 +314,11 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                                 return _set.toString();
                             };
                             return _setWrapper;
-                        }(function(ratio, set) {
-                            ratio = Math.max(min_ratio, parseFloat(ratio));
-                            if (ratio < Infinity) {
-                                set(ratio);
-                                element.draw();
+                        }(function(zoom, set) {
+                            zoom = Math.max(min_zoom, parseFloat(zoom));
+                            if (zoom < Infinity) {
+                                set(zoom);
+                                element.resize();
                             }
                         })
                     },
@@ -376,7 +375,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             charge = parseFloat(charge);
                             if (charge < Infinity && -Infinity < charge) {
                                 set(charge);
-                                element.force.charge(charge).stop();
+                                element.force.charge(charge);
                                 element.startForce();
                             }
                         })
@@ -397,7 +396,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                                 var width = _getComputedStyle.width;
                                 var height = _getComputedStyle.height;
                                 set(linkDistance);
-                                element.force.linkDistance(linkDistance * 2e3 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
+                                element.force.linkDistance(linkDistance * 2e3 / Math.hypot(parseFloat(width), parseFloat(height)));
                                 element.startForce();
                             }
                         })
@@ -415,7 +414,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             linkStrength = Math.max(0, parseFloat(linkStrength));
                             if (linkStrength < Infinity) {
                                 set(linkStrength);
-                                element.force.linkStrength(linkStrength).stop();
+                                element.force.linkStrength(linkStrength);
                                 element.startForce();
                             }
                         })
@@ -433,7 +432,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             gravity = Math.max(0, parseFloat(gravity));
                             if (gravity < Infinity) {
                                 set(gravity);
-                                element.force.gravity(gravity).stop();
+                                element.force.gravity(gravity);
                                 element.startForce();
                             }
                         })
@@ -449,7 +448,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                             return _setWrapper;
                         }(function(enabled, set) {
                             set(!!enabled);
-                            if (enabled) element.force.start(); else element.force.stop();
+                            if (enabled) element.startForce(); else element.force.stop();
                         })
                     }
                 }
@@ -503,25 +502,23 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 }
             }
         };
+        element[$config_change_callback] = requestAnimationFunction(function() {
+            console.log("dispatch config change");
+            element.dispatchEvent(new CustomEvent("configchange"));
+        });
         element.proxyHandler = {};
-    }
-    function implementD3(element) {
-        element[$data] = {};
-        element[$d3svg] = d3.select(element.svg);
-        var force = d3.layout.force();
-        element[$force] = force;
-        force.on("tick", element[$draw]);
-        force.size([ force_size, force_size ]);
-    }
-    function implementUIBehavior(element) {
+        element[$graph_change_callback] = requestAnimationFunction(function() {
+            console.log("dispatch graph change");
+            element.dispatchEvent(new CustomEvent("graphchange"));
+        });
         element[$resize] = requestAnimationFunction(function() {
             var svg = element.svg;
             var _getComputedStyle = getComputedStyle(svg);
             var width = _getComputedStyle.width;
             var height = _getComputedStyle.height;
-            var ratio = element.config.UI.size.ratio;
-            width = parseFloat(width) / ratio;
-            height = parseFloat(height) / ratio;
+            var zoom = element.config.UI.size.zoom;
+            width = parseFloat(width) / zoom;
+            height = parseFloat(height) / zoom;
             mixin(svg.viewBox.baseVal, {
                 x:-width / 2,
                 y:-height / 2,
@@ -531,17 +528,18 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             element.config.d3.force.linkDistance += 0;
         });
         element[$draw] = requestAnimationFunction(function() {
+            console.log("draw");
             var _element$svg$viewBox$baseVal = element.svg.viewBox.baseVal;
             var x = _element$svg$viewBox$baseVal.x;
             var y = _element$svg$viewBox$baseVal.y;
             var width = _element$svg$viewBox$baseVal.width;
             var height = _element$svg$viewBox$baseVal.height;
             var offset = element.config.UI.size.offset;
-            var ratio = element.config.UI.size.ratio;
-            x = x * ratio + offset.x;
-            y = y * ratio + offset.y;
-            width *= ratio / force_size;
-            height *= ratio / force_size;
+            var zoom = element.config.UI.size.zoom;
+            x = x * zoom + offset.x;
+            y = y * zoom + offset.y;
+            width *= zoom / force_size;
+            height *= zoom / force_size;
             var arrow = element.config.UI.arrow;
             var _element$$data = element[$data];
             var circles = _element$$data.circles;
@@ -568,11 +566,21 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
             });
         });
+    }
+    function implementD3(element) {
+        element[$data] = {};
+        element[$d3svg] = d3.select(element.svg);
+        var force = d3.layout.force();
+        element[$force] = force;
+        force.on("tick", element[$draw]);
+        force.on("end", element[$graph_change_callback]);
+        force.size([ force_size, force_size ]);
+    }
+    function implementUIBehavior(element) {
         var size_transition = layer(element.config.UI.size, {
-            ratio:{
-                translate:function translate(ratio) {
-                    console.log("ratio", ratio);
-                    element.resize();
+            zoom:{
+                translate:function translate(zoom) {
+                    console.log("zoom", zoom);
                 },
                 duration:280
             },
@@ -580,13 +588,11 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                 x:{
                     translate:function translate(x) {
                         console.log("x", x);
-                        element.resize();
                     }
                 },
                 y:{
                     translate:function translate(y) {
                         console.log("y", y);
-                        element.resize();
                     }
                 }
             }
@@ -595,7 +601,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             var layerX = _ref.layerX;
             var layerY = _ref.layerY;
             var wheelDelta = _ref.wheelDelta;
-            size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
+            size_transition.zoom = Math.max(0, size_transition.zoom + wheelDelta / 20);
         });
         PolymerGestures.addEventListener(element.svg, "tap", function(event) {
             console.log("tap");
@@ -616,7 +622,7 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
                     var preventTap = _ref.preventTap;
                     preventTap();
                     if (last_scale !== undefined) {
-                        size_transition.ratio = Math.max(0, size_transition.ratio + (scale - last_scale) * 2);
+                        size_transition.zoom = Math.max(0, size_transition.zoom + (scale - last_scale) * 2);
                         clearTimeout(timeout);
                         timeout = setTimeout(function() {
                             last_scale = undefined;
@@ -630,9 +636,9 @@ define([ "exports", "module", "../../graph", "../../../node_modules/d3/d3", "../
             console.log("track");
             event.bubbles = false;
             if (event.srcElement === element.svg) {
-                var ratio = element.config.UI.size.ratio;
-                element.config.UI.size.offset.x += event.ddx / ratio;
-                element.config.UI.size.offset.y += event.ddy / ratio;
+                var zoom = element.config.UI.size.zoom;
+                element.config.UI.size.offset.x += event.ddx / zoom;
+                element.config.UI.size.offset.y += event.ddy / zoom;
             }
         });
         {

@@ -12,14 +12,16 @@ const $force = Symbol();
 const $config = Symbol();
 const $config_layer = Symbol();
 const $config_modifier = Symbol();
+const $config_change_callback = Symbol();
 const $proxy_handler = Symbol();
 const $data = Symbol();
 const $d3svg = Symbol();
 const $graph = Symbol();
+const $graph_change_callback = Symbol();
 const $resize = Symbol();
 const $draw = Symbol();
 const force_size = 1000;
-const min_ratio = 0.35;
+const min_zoom = 0.35;
 export default {
     is: "graphjs-tezcatlipoca",
     // lifecycle
@@ -65,7 +67,7 @@ export default {
     },
     set proxyHandler(handler) {
         this[$proxy_handler] = handler;
-        this[$config_layer] = layer(proxy(this[$config], handler), this[$config_modifier]);
+        this[$config_layer] = layer(proxy(this[$config], handler), this[$config_modifier], this[$config_change_callback]);
     },
     // delegators
     draw() {
@@ -105,25 +107,22 @@ export default {
             state.selected = state.selected;
             this.startForce();
         } else this.graph = new Graph(true);
-        this.dispatchEvent(new CustomEvent("graphchange", {
-            detail: this.graph
-        }));
+        this[$graph_change_callback]();
     },
     toNodeCoordinates(x, y) {
         const { width, height } = getComputedStyle(this.svg);
-        const ratio = this.config.UI.size.ratio;
+        const zoom = this.config.UI.size.zoom;
         const baseVal = this.svg.viewBox.baseVal;
         return {
-            x: x / parseFloat(width) / ratio * force_size,
-            y: y / parseFloat(height) / ratio * force_size
+            x: x / parseFloat(width) / zoom * force_size,
+            y: y / parseFloat(height) / zoom * force_size
         };
     },
     startForce() {
-        console.log("start force");
+        console.log("start force", this.force.alpha());
         if (this.config.d3.force.enabled) {
-            console.log("force.start()");
-            this.force.start();}
-        else this.draw();
+            if (!this.force.alpha()) this.force.start();
+        } else this.draw();
     }
 };
 // configuration
@@ -138,7 +137,7 @@ function implementConfig(element) {
                 ratio: 2
             },
             size: {
-                ratio: 2,
+                zoom: 2,
                 offset: {
                     x: 0,
                     y: 0
@@ -167,7 +166,7 @@ function implementConfig(element) {
                         radius = parseFloat(radius);
                         if (radius < Infinity && -Infinity < radius) {
                             set(radius);
-                            element.draw();
+                            element.updateGraph();
                         }
                     }
                 }
@@ -178,7 +177,7 @@ function implementConfig(element) {
                         width = parseFloat(width);
                         if (width < Infinity && -Infinity < width) {
                             set(width);
-                            element.draw();
+                            element.updateGraph();
                         }
                     }
                 },
@@ -187,18 +186,18 @@ function implementConfig(element) {
                         ratio = Math.abs(parseFloat(ratio));
                         if (ratio < Infinity) {
                             set(ratio);
-                            element.draw();
+                            element.updateGraph();
                         }
                     }
                 }
             },
             size: {
-                ratio: {
-                    set(ratio, set) {
-                        ratio = Math.max(min_ratio, parseFloat(ratio));
-                        if (ratio < Infinity) {
-                            set(ratio);
-                            element.draw();
+                zoom: {
+                    set(zoom, set) {
+                        zoom = Math.max(min_zoom, parseFloat(zoom));
+                        if (zoom < Infinity) {
+                            set(zoom);
+                            element.resize();
                         }
                     }
                 },
@@ -231,7 +230,7 @@ function implementConfig(element) {
                         charge = parseFloat(charge);
                         if (charge < Infinity && -Infinity < charge) {
                             set(charge);
-                            element.force.charge(charge).stop();
+                            element.force.charge(charge);
                             element.startForce();
                         }
                     }
@@ -240,11 +239,9 @@ function implementConfig(element) {
                     set(linkDistance, set) {
                         linkDistance = Math.max(0, parseFloat(linkDistance));
                         if (linkDistance < Infinity) {
-                            const {
-                                width, height
-                            } = getComputedStyle(element.svg);
+                            const { width, height } = getComputedStyle(element.svg);
                             set(linkDistance);
-                            element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height))).stop();
+                            element.force.linkDistance(linkDistance * 2000 / Math.hypot(parseFloat(width), parseFloat(height)));
                             element.startForce();
                         }
                     }
@@ -254,7 +251,7 @@ function implementConfig(element) {
                         linkStrength = Math.max(0, parseFloat(linkStrength));
                         if (linkStrength < Infinity) {
                             set(linkStrength);
-                            element.force.linkStrength(linkStrength).stop();
+                            element.force.linkStrength(linkStrength);
                             element.startForce();
                         }
                     }
@@ -264,7 +261,7 @@ function implementConfig(element) {
                         gravity = Math.max(0, parseFloat(gravity));
                         if (gravity < Infinity) {
                             set(gravity);
-                            element.force.gravity(gravity).stop();
+                            element.force.gravity(gravity);
                             element.startForce();
                         }
                     }
@@ -272,7 +269,7 @@ function implementConfig(element) {
                 enabled: {
                     set(enabled, set) {
                         set(!!enabled);
-                        if (enabled) element.force.start();
+                        if (enabled) element.startForce();
                         else element.force.stop();
                     }
                 }
@@ -311,28 +308,22 @@ function implementConfig(element) {
             }
         }
     };
+    element[$config_change_callback] = requestAnimationFunction(() => {
+        console.log("dispatch config change");
+        element.dispatchEvent(new CustomEvent("configchange"));
+    });
     element.proxyHandler = {};
-}
-// d3
-function implementD3(element) {
-    element[$data] = {};
-    element[$d3svg] = d3.select(element.svg);
-    const force = d3.layout.force();
-    element[$force] = force;
-    // drawing
-    force.on("tick", element[$draw]);
-    // resizing
-    force.size([force_size, force_size]);
-}
-// UI behavior
-function implementUIBehavior(element) {
     // helpers
+    element[$graph_change_callback] = requestAnimationFunction(() => {
+        console.log("dispatch graph change");
+        element.dispatchEvent(new CustomEvent("graphchange"));
+    });
     element[$resize] = requestAnimationFunction(() => {
         const svg = element.svg;
         let { width, height } = getComputedStyle(svg);
-        const ratio = element.config.UI.size.ratio;
-        width = parseFloat(width) / ratio;
-        height = parseFloat(height) / ratio;
+        const zoom = element.config.UI.size.zoom;
+        width = parseFloat(width) / zoom;
+        height = parseFloat(height) / zoom;
         mixin(svg.viewBox.baseVal, {
             x: -width / 2,
             y: -height / 2,
@@ -342,14 +333,14 @@ function implementUIBehavior(element) {
         element.config.d3.force.linkDistance += 0;
     });
     element[$draw] = requestAnimationFunction(() => {
-        // console.log("draw");
+        console.log("draw");
         let { x, y, width, height } = element.svg.viewBox.baseVal;
         const offset = element.config.UI.size.offset;
-        const ratio = element.config.UI.size.ratio;
-        x = x * ratio + offset.x;
-        y = y * ratio + offset.y;
-        width *= ratio / force_size;
-        height *= ratio / force_size;
+        const zoom = element.config.UI.size.zoom;
+        x = x * zoom + offset.x;
+        y = y * zoom + offset.y;
+        width *= zoom / force_size;
+        height *= zoom / force_size;
         const arrow = element.config.UI.arrow;
         const { circles, paths } = element[$data];
         if (circles) circles.attr("transform", node => "translate(" + (node.x * width + x) + "," + (node.y * height + y) + ")");
@@ -373,11 +364,26 @@ function implementUIBehavior(element) {
             return "M" + tx + "," + ty + "L " + px + "," + py + "L " + (sx + wy) + "," + (sy - wx) + "L " + (sx - wy) + "," + (sy + wx) + "L " + px + "," + py;
         });
     });
+}
+// d3
+function implementD3(element) {
+    element[$data] = {};
+    element[$d3svg] = d3.select(element.svg);
+    const force = d3.layout.force();
+    element[$force] = force;
+    // drawing
+    force.on("tick", element[$draw]);
+    // saving
+    force.on("end", element[$graph_change_callback]);
+    // resizing
+    force.size([force_size, force_size]);
+}
+// UI behavior
+function implementUIBehavior(element) {
     const size_transition = layer(element.config.UI.size, {
-        ratio: {
-            translate(ratio) {
-                console.log("ratio", ratio);
-                element.resize();
+        zoom: {
+            translate(zoom) {
+                console.log("zoom", zoom);
             },
             duration: 280
         },
@@ -385,13 +391,11 @@ function implementUIBehavior(element) {
             x: {
                 translate(x) {
                     console.log("x", x);
-                    element.resize();
                 }
             },
             y: {
                 translate(y) {
                     console.log("y", y);
-                    element.resize();
                 }
             }
         },
@@ -399,7 +403,7 @@ function implementUIBehavior(element) {
     // scrolling
     element.svg.addEventListener("wheel", ({ layerX, layerY, wheelDelta }) => {
         // add offset
-        size_transition.ratio = Math.max(0, size_transition.ratio + wheelDelta / 20);
+        size_transition.zoom = Math.max(0, size_transition.zoom + wheelDelta / 20);
     });
     // selecting
     PolymerGestures.addEventListener(element.svg, "tap", event => {
@@ -421,7 +425,7 @@ function implementUIBehavior(element) {
         PolymerGestures.addEventListener(element.svg, "pinch", ({ scale, preventTap }) => {
             preventTap();
             if (last_scale !== undefined) {
-                size_transition.ratio = Math.max(0, size_transition.ratio + (scale - last_scale) * 2);
+                size_transition.zoom = Math.max(0, size_transition.zoom + (scale - last_scale) * 2);
                 clearTimeout(timeout);
                 timeout = setTimeout(function() {
                     last_scale = undefined;
@@ -435,9 +439,9 @@ function implementUIBehavior(element) {
         console.log("track");
         event.bubbles = false;
         if (event.srcElement === element.svg) {
-            const ratio = element.config.UI.size.ratio;
-            element.config.UI.size.offset.x += event.ddx / ratio;
-            element.config.UI.size.offset.y += event.ddy / ratio;
+            const zoom = element.config.UI.size.zoom;
+            element.config.UI.size.offset.x += event.ddx / zoom;
+            element.config.UI.size.offset.y += event.ddy / zoom;
         }
     });
     // adding

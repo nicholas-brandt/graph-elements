@@ -7,6 +7,14 @@ module.exports = function(grunt) {
                 comments: true
             },
             scripts: {
+                files: [{
+                    expand: true,
+                    cwd: "src/",
+                    dest: "build/",
+                    src: ["**/*.js", "!tests/spec/**/*.js"]
+                }]
+            },
+            modules: {
                 options: {
                     modules: "amd"
                 },
@@ -14,7 +22,7 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "src/",
                     dest: "build/",
-                    src: ["**/*.js", "!tests/spec/**/*.js"]
+                    src: ["**/*.module.js", "!tests/spec/**/*.js", "!**/*.script.js"]
                 }]
             },
             tests: {
@@ -109,7 +117,7 @@ module.exports = function(grunt) {
                 options: {
                     removeComments: true,
                     useShortDoctype: true,
-                    customAttrAssign: [/\?=/g],
+                    customAttrAssign: [/\?=/g, /\$=/g],
                     minifyJS: true,
                     minifyCSS: true,
                     collapseWhitespace: true
@@ -131,7 +139,7 @@ module.exports = function(grunt) {
                     strip: true
                 },
                 files: {
-                    "build/external/vulcanized.html": "build/external/polymer.html"
+                    //"build/app/vulcanized.html": "build/app/dependencies.html"
                 }
             }
         },
@@ -207,7 +215,7 @@ module.exports = function(grunt) {
                 tasks: ["htmlmin:minify"]
             },
             vulcanizePolymer: {
-                files: ["build/external/polymer.html"],
+                files: ["build/app/polymer.html"],
                 tasks: ["vulcanize:polymer"]
             },
             copyAppcache: {

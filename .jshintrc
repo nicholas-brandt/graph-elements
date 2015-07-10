@@ -1,5 +1,5 @@
 {
-    "strict": false
+    "strict": false,
     "esnext": true,
     "futurehostile": true,
     "nonew": true,

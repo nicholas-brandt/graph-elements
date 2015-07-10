@@ -1,29 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <testsuites>
- <testsuite name="Graph" timestamp="2015-05-10T11:07:53" hostname="localhost" time="0.002" errors="0" tests="2" skipped="0" disabled="0" failures="0">
-  <testcase classname="Graph" name="Direction" time="0.002">
-  </testcase>
-  <testcase classname="Graph" name="Consistency" time="0">
-  </testcase>
+ <testsuite name="Graph" timestamp="2015-07-10T12:52:52" hostname="localhost" time="0.002" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Graph" name="Direction" time="0.002" />
+  <testcase classname="Graph" name="Consistency" time="0" />
  </testsuite>
- <testsuite name="AcyclicGraph" timestamp="2015-05-10T11:07:53" hostname="localhost" time="0" errors="0" tests="2" skipped="0" disabled="0" failures="0">
-  <testcase classname="AcyclicGraph" name="Direction" time="0">
-  </testcase>
-  <testcase classname="AcyclicGraph" name="Consistency" time="0">
-  </testcase>
+ <testsuite name="AcyclicGraph" timestamp="2015-07-10T12:52:52" hostname="localhost" time="0.001" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="AcyclicGraph" name="Direction" time="0.001" />
+  <testcase classname="AcyclicGraph" name="Consistency" time="0" />
  </testsuite>
- <testsuite name="Tree" timestamp="2015-05-10T11:07:53" hostname="localhost" time="0" errors="0" tests="2" skipped="0" disabled="0" failures="0">
-  <testcase classname="Tree" name="Direction" time="0">
-  </testcase>
-  <testcase classname="Tree" name="Consistency" time="0">
-  </testcase>
+ <testsuite name="Tree" timestamp="2015-07-10T12:52:52" hostname="localhost" time="0" errors="0" tests="2" skipped="0" disabled="0" failures="0">
+  <testcase classname="Tree" name="Direction" time="0" />
+  <testcase classname="Tree" name="Consistency" time="0" />
  </testsuite>
- <testsuite name="layer" timestamp="2015-05-10T11:07:53" hostname="localhost" time="1.306" errors="0" tests="3" skipped="0" disabled="0" failures="0">
-  <testcase classname="layer" name="Basic" time="1.103">
+ <testsuite name="layer" timestamp="2015-07-10T12:52:52" hostname="localhost" time="1.312" errors="0" tests="3" skipped="0" disabled="0" failures="2">
+  <testcase classname="layer" name="Basic" time="1.103" />
+  <testcase classname="layer" name="Modifier" time="0.105">
+   <failure type="toBe" message="Expected 1 to be 2."><![CDATA[Error: Expected 1 to be 2.
+    at stack (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1482:17)
+    at buildExpectationResult (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1452:14)
+    at Spec.Env.expectationResultFactory (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:583:18)
+    at Spec.addExpectationResult (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:324:34)
+    at Expectation.addExpectationResult (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:533:21)
+    at Expectation.toBe (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1406:12)
+    at null._onTimeout (/home/codio/workspace/build/tests/spec/layer.tests.min.js:1:1390)
+    at Timer.listOnTimeout [as ontimeout] (timers.js:112:15)]]>
+   </failure>
+   <failure type="toBe" message="Expected 1 to be 3."><![CDATA[Error: Expected 1 to be 3.
+    at stack (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1482:17)
+    at buildExpectationResult (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1452:14)
+    at Spec.Env.expectationResultFactory (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:583:18)
+    at Spec.addExpectationResult (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:324:34)
+    at Expectation.addExpectationResult (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:533:21)
+    at Expectation.toBe (/home/codio/workspace/node_modules/grunt-jasmine-nodejs/node_modules/jasmine-core/lib/jasmine-core/jasmine.js:1406:12)
+    at null._onTimeout (/home/codio/workspace/build/tests/spec/layer.tests.min.js:1:1437)
+    at Timer.listOnTimeout [as ontimeout] (timers.js:112:15)]]>
+   </failure>
   </testcase>
-  <testcase classname="layer" name="Modifier" time="0.101">
-  </testcase>
-  <testcase classname="layer" name="Translation" time="0.102">
-  </testcase>
+  <testcase classname="layer" name="Translation" time="0.104" />
  </testsuite>
 </testsuites>

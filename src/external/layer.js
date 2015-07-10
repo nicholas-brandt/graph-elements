@@ -2,8 +2,8 @@
  * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA [https://creativecommons.org/licenses/by-sa/4.0/]
  * */
-import mixin from "../external/mixin";
-import requestAnimationFunction from "../external/requestAnimationFunction";
+import mixin from "../../node_modules/various/build/LayerJS/mixin";
+import requestAnimationFunction from "../../node_modules/various/build/requestAnimationFunction";
 const default_duration = 1000;
 export default function layer(storage, modifier, global_change_callback) {
     if (typeof storage != "object") throw Error("{storage} is not an object");

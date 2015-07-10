@@ -10,9 +10,9 @@ global.performance = {
     now:require("performance-now")
 };
 
-var layer = _interopRequire(require("../../external/layer"));
+var layer = _interopRequire(require("../../../node_modules/various/build/LayerJS/layer"));
 
-var mixin = _interopRequire(require("../../external/mixin"));
+var mixin = _interopRequire(require("../../../node_modules/various/build/LayerJS/mixin"));
 
 describe("layer", function() {
     var storage = undefined;

@@ -1,6 +1,6 @@
-import mixin from "../external/mixin";
+import mixin from "../../node_modules/various/build/LayerJS/mixin";
 import { Graph } from "../graph";
-import CircularJSON from "../../external/circular-json.amd";
+import CircularJSON from "../../node_modules/circular-json/build/circular-json";
 export default class IO {
     /**
      * @function importObject

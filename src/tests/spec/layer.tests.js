@@ -2,8 +2,8 @@ global.requestAnimationFrame = require("raf");
 global.performance = {
     now: require("performance-now")
 };
-import layer from "../../external/layer";
-import mixin from "../../external/mixin";
+import layer from "../../../node_modules/various/build/LayerJS/layer";
+import mixin from "../../../node_modules/various/build/LayerJS/mixin";
 describe("layer", function() {
     let storage;
     beforeEach(() => {

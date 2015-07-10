@@ -1,0 +1,10 @@
+<dom-module name="graphjs-viewer">
+    <template>
+        <svg>
+            <template is="dom-repeat" items="{{nodes}}">
+                <circle cx$="{{item.x}}" cy$="{{item.y}}" r="1"></circle>
+            </template>
+        </svg>
+    </template>
+    <script src="./graphjs-viewer.script.js"></script>
+</dom-module>

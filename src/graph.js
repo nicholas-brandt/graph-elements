@@ -1,6 +1,3 @@
-const $nodes = Symbol();
-const $dependencies = Symbol();
-const $dependents = Symbol();
 const $directed = Symbol();
 /**
  * @class
@@ -13,7 +10,9 @@ export class Graph {
      * @þaram {boolean} directed - Whether the graph is unidirectional.
      * */
     constructor(directed = false) {
-        this[$nodes] = new Map;
+        Object.defineProperty(this, "nodes", {
+            value: new Map
+        });
         this.directed = !!directed;
     }
     /**
@@ -33,18 +32,11 @@ export class Graph {
             for (let edge of this.edges) this.addEdge(...edge);
     }
     /**
-     * @getter nodes
-     * @returns {Map} - A copy of the {nodes} map.
-     * */
-    get nodes() {
-        return new Map(this[$nodes]);
-    }
-    /**
      * @getter edges
      * @returns {Array} - A array of all edges.
      * */
     get edges() {
-        return [for ([node, relations] of this[$nodes])
+        return [for ([node, relations] of this.nodes)
                 for ([dependent, weight] of relations.dependents)
                 {
                     source: node,
@@ -62,17 +54,16 @@ export class Graph {
         if (this.hasNode(object)) return false;
         // {relations} to be stored in the {nodes} map
         // stored as a double-linked list
-        const relations = {
-            get dependencies() {
-                return new Map(this[$dependencies]);
+        const relations = {};
+        Object,defineProperties(relations, {
+            "dependents": {
+                value: new Map
             },
-            get dependents() {
-                return new Map(this[$dependents]);
+            "dependencies": {
+                value: new Map
             }
-        };
-        relations[$dependencies] = new Map;
-        relations[$dependents] = new Map;
-        this[$nodes].set(object, relations);
+        });
+        this.nodes.set(object, relations);
         return true;
     }
     /**
@@ -81,7 +72,7 @@ export class Graph {
      * @return {boolean} - Whether the object is a node in this graph.
      * */
     hasNode(object) {
-        return this[$nodes].has(object);
+        return this.nodes.has(object);
     }
     /**
      * @function removeNode
@@ -90,12 +81,12 @@ export class Graph {
      * */
     removeNode(object) {
         if (!this.hasNode(object)) return false;
-        const relations = this[$nodes].get(object);
+        const relations = this.nodes.get(object);
         // remove {object} from nodes
-        this[$nodes].delete(object);
+        this.nodes.delete(object);
         // remove all edges containing {object}
-        for (let [, dependents] of relations[$dependencies]) dependents.delete(object);
-        for (let [, dependencies] of relations[$dependents]) dependencies.delete(object);
+        for (let [, dependents] of relations.dependencies) dependents.delete(object);
+        for (let [, dependencies] of relations.dependents) dependencies.delete(object);
         return true;
     }
     /**
@@ -106,13 +97,13 @@ export class Graph {
      * @return {boolean} - Whether the object has been removed from the graph.
      * */
     addEdge(source, target, weight = 1) {
-        const nodes = this[$nodes];
+        const nodes = this.nodes;
         if (nodes.has(source) && nodes.has(target)) {
-            nodes.get(source)[$dependents].set(target, weight);
-            nodes.get(target)[$dependencies].set(source, weight);
+            nodes.get(source).dependents.set(target, weight);
+            nodes.get(target).dependencies.set(source, weight);
             if (!this.directed) {
-                nodes.get(target)[$dependents].set(source, weight);
-                nodes.get(source)[$dependencies].set(target, weight);
+                nodes.get(target).dependents.set(source, weight);
+                nodes.get(source).dependencies.set(target, weight);
             }
             return true;
         }
@@ -125,13 +116,13 @@ export class Graph {
      * @return {boolean} - Whether the edge has been removed from the graph.
      * */
     removeEdge(source, target) {
-        const nodes = this[$nodes];
+        const nodes = this.nodes;
         if (nodes.has(source) && nodes.has(target)) {
-            nodes.get(source)[$dependents].delete(target);
-            nodes.get(target)[$dependencies].delete(source);
+            nodes.get(source).dependents.delete(target);
+            nodes.get(target).dependencies.delete(source);
             if (!this.directed) {
-                nodes.get(target)[$dependents].delete(source);
-                nodes.get(source)[$dependencies].delete(target);
+                nodes.get(target).dependents.delete(source);
+                nodes.get(source).dependencies.delete(target);
             }
             return true;
         }
@@ -143,7 +134,7 @@ export class Graph {
      * @return {boolean} - Whether there is an edge between the {source} and {target} node in this graph.
      * */
     hasEdge(source, target) {
-        return this.hasNode(source) && this.hasNode(target) && this[$nodes].get(source)[$dependents].has(target);
+        return this.hasNode(source) && this.hasNode(target) && this.nodes.get(source).dependents.has(target);
     }
     /**
      * Removes all nodes and edges from the graph.
@@ -151,7 +142,7 @@ export class Graph {
      * @return {boolean} - Whether all nodes have been removed.
      * */
     clear() {
-        return this[$nodes].clear();
+        return this.nodes.clear();
     }
     /**
      * @function hasCycle
@@ -168,7 +159,7 @@ export class Graph {
         const directed = this.directed;
         const finished = new Set;
         const visited = new Set;
-        for (let [, relations] of this[$nodes]) {
+        for (let [, relations] of this.nodes) {
             const depth = DFS.call(this, relations, undefined, 0);
             if (depth) return depth;
         }
@@ -178,8 +169,8 @@ export class Graph {
             if (!finished.has(node)) {
                 if (visited.has(node)) return length;
                 visited.add(node);
-                const nodes = this[$nodes];
-                for (let[dependent] of node[$dependents]) {
+                const nodes = this.nodes;
+                for (let[dependent] of node.dependents) {
                     const dependent_node = nodes.get(dependent);
                     if (directed || dependent_node !== dependency) {
                         const depth = DFS.call(this, dependent_node, node, length + 1);
@@ -196,16 +187,16 @@ export class Graph {
      * @return {object} - An object containing all in-/out-nodes
      * */
     getDegree(node) {
-        const relations = this[$nodes].get(node);
+        const relations = this.nodes.get(node);
         if (!relations) return [
-            for ([node, relations] of this[$nodes]) {
+            for ([node, relations] of this.nodes) {
                 node: node,
                 in : relations.dependencies.size,
                 out: relations.dependents.size
             }];
         return {
             node: node,
-            in : relations.dependencies.size,
+            in: relations.dependencies.size,
             out: relations.dependents.size
         };
     }
@@ -262,7 +253,7 @@ export class Tree extends AcyclicGraph {
      * The edge is only added if the result would be a tree.
      * */
     addEdge(source, target, weight) {
-        if (this[$nodes].get(target)[$dependencies].size > 0) return false;
+        if (this.nodes.get(target).dependencies.size > 0) return false;
         return super.addEdge(source, target, weight);
     }
 }

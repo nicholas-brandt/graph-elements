@@ -4,13 +4,13 @@ require("babel/polyfill");
 
 require("amdefine/intercept");
 
-var _graph = require("../../graph");
+var _libGraph = require("../../lib/graph");
 
-var Graph = _graph.Graph;
+var Graph = _libGraph.Graph;
 
-var AcyclicGraph = _graph.AcyclicGraph;
+var AcyclicGraph = _libGraph.AcyclicGraph;
 
-var Tree = _graph.Tree;
+var Tree = _libGraph.Tree;
 
 describe("Graph", function() {
     var graph = new Graph();

@@ -1,0 +1,16 @@
+<link rel="stylesheet" href="./graphjs-viewer.css">
+<link rel="import" href="../graphjs-graph/graphjs-graph.html">
+<dom-module name="graphjs-viewer">
+    <template>
+        <graphjs-graph nodes="{{nodes}}" edges="{{edges}}"></graphjs-graph>
+        <svg on-tap="_tapCanvas" on-track="_trackCanvas" on-hold="_holdCanvas">
+            <template is="dom-repeat" items="{{nodes}}">
+                <circle cx$="{{item.x}}" cy$="{{item.y}}" r$="{{item.radius}}" selected$="{{item.selected}}" on-tap="_tapCircle" on-track="_trackCircle" on-hold="_holdCircle"></circle>
+            </template>
+            <template is="dom-repeat" items="{{edges}}">
+                <path d$="{{calcPath(item)}}"></path>
+            </template>
+        </svg>
+    </template>
+    <script src="./graphjs-viewer.js"></script>
+</dom-module>

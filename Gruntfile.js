@@ -11,7 +11,7 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: "src/",
                     dest: "build/",
-                    src: ["**/*.js", "!tests/spec/**/*.js"]
+                    src: ["**/*.js", "!lib/spec/**/*.js"]
                 }]
             },
             modules: {
@@ -20,17 +20,9 @@ module.exports = function(grunt) {
                 },
                 files: [{
                     expand: true,
-                    cwd: "src/",
-                    dest: "build/",
-                    src: ["**/*.module.js", "!tests/spec/**/*.js", "!**/*.script.js"]
-                }]
-            },
-            tests: {
-                files: [{
-                    expand: true,
-                    cwd: "src/",
-                    dest: "build/",
-                    src: ["tests/spec/**/*.js"]
+                    cwd: "src/lib/",
+                    dest: "build/lib/",
+                    src: ["**/*.js"]
                 }]
             }
         },
@@ -135,23 +127,15 @@ module.exports = function(grunt) {
         vulcanize: {
             polymer: {
                 options: {
-                    inline: true,
-                    strip: true
+                    inlineScripts: true,
+                    inlineCss: true
                 },
                 files: {
-                    //"build/app/vulcanized.html": "build/app/dependencies.html"
+                    "build/web/webapp.vulcanized.html": "build/web/webapp.html"
                 }
             }
         },
         copy: {
-            appcache: {
-                files: [{
-                    expand: true,
-                    cwd: "src/",
-                    dest: "build/",
-                    src: ["**/*.appcache"]
-                }]
-            },
             html: {
                 files: [{
                     expand: true,
@@ -217,10 +201,6 @@ module.exports = function(grunt) {
             vulcanizePolymer: {
                 files: ["build/app/polymer.html"],
                 tasks: ["vulcanize:polymer"]
-            },
-            copyAppcache: {
-                files: ["src/**/*.appcache"],
-                tasks: ["copy"]
             },
             test: {
                 files: ["build/**/*.js"],

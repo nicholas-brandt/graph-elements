@@ -1,0 +1,30 @@
+/*
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
+ * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
+ * */
+@import url("../settings.less");
+@import url("//fonts.googleapis.com/css?family=Open+Sans|Lobster");
+
+paper-drawer-panel paper-header-panel {
+    background-color: @color-background;
+    &[drawer] {
+        border-right: 1px solid @color-menu-border;
+    }
+    &[main] {
+        #mainContainer {
+            display: flex;
+        }
+        graphjs-viewer {
+            flex: 1 1 0;
+        }
+        .toast-text {
+            font: 300 15px @font-info;
+            color: @color-toolbar;
+        }
+    }
+    >paper-toolbar {
+        background-color: @color-toolbar-background;
+        color: @color-toolbar;
+        font: 300 26px @font-fancy;
+    }
+}

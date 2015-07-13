@@ -1,6 +1,6 @@
 require("babel/polyfill");
 require("amdefine/intercept");
-import { Graph, AcyclicGraph, Tree } from "../../graph";
+import { Graph, AcyclicGraph, Tree } from "../../lib/graph";
 describe("Graph", () => {
     const graph = new Graph;
     const dgraph = new Graph(true);

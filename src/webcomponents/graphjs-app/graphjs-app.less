@@ -5,8 +5,12 @@
 @import url("../settings.less");
 @import url("//fonts.googleapis.com/css?family=Open+Sans|Lobster");
 
+:host {
+    --color-background: #E3F2FD;
+}
 paper-drawer-panel paper-header-panel {
     background-color: @color-background;
+    background-color: var(--color-background, @color-background);
     &[drawer] {
         border-right: 1px solid @color-menu-border;
     }
@@ -23,8 +27,8 @@ paper-drawer-panel paper-header-panel {
         }
     }
     >paper-toolbar {
-        background-color: @color-toolbar-background;
-        color: @color-toolbar;
+        background-color: @color-toolbar-background !important;
+        color: @color-toolbar !important;
         font: 300 26px @font-fancy;
     }
 }

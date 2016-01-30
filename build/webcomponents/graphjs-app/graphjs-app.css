@@ -10,11 +10,15 @@
  * @menu: 600
  * @background: 50
  * */
+:host {
+  --color-background: #E3F2FD;
+}
 paper-drawer-panel paper-header-panel {
-  background-color: #e3f2fd;
+  background-color: #fff8e1;
+  background-color: var(--color-background, #fff8e1);
 }
 paper-drawer-panel paper-header-panel[drawer] {
-  border-right: 1px solid #1e88e5;
+  border-right: 1px solid #ffb300;
 }
 paper-drawer-panel paper-header-panel[main] #mainContainer {
   display: flex;
@@ -24,10 +28,10 @@ paper-drawer-panel paper-header-panel[main] graphjs-viewer {
 }
 paper-drawer-panel paper-header-panel[main] .toast-text {
   font: 300 15px "Open Sans";
-  color: #81d4fa;
+  color: #fff59d;
 }
 paper-drawer-panel paper-header-panel > paper-toolbar {
-  background-color: #2196f3;
-  color: #81d4fa;
+  background-color: #ffc107 !important;
+  color: #fff59d !important;
   font: 300 26px "Lobster";
 }

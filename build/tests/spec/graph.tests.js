@@ -1,20 +1,14 @@
 "use strict";
 
+var _graph = require("../../lib/graph");
+
 require("babel/polyfill");
 
 require("amdefine/intercept");
 
-var _libGraph = require("../../lib/graph");
-
-var Graph = _libGraph.Graph;
-
-var AcyclicGraph = _libGraph.AcyclicGraph;
-
-var Tree = _libGraph.Tree;
-
 describe("Graph", function() {
-    var graph = new Graph();
-    var dgraph = new Graph(true);
+    var graph = new _graph.Graph();
+    var dgraph = new _graph.Graph(true);
     it("Direction", function(done) {
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);
@@ -24,8 +18,8 @@ describe("Graph", function() {
 });
 
 describe("AcyclicGraph", function() {
-    var graph = new AcyclicGraph();
-    var dgraph = new AcyclicGraph(true);
+    var graph = new _graph.AcyclicGraph();
+    var dgraph = new _graph.AcyclicGraph(true);
     it("Direction", function(done) {
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);
@@ -34,8 +28,8 @@ describe("AcyclicGraph", function() {
 });
 
 describe("Tree", function() {
-    var graph = new Tree();
-    var dgraph = new Tree(true);
+    var graph = new _graph.Tree();
+    var dgraph = new _graph.Tree(true);
     it("Direction", function(done) {
         expect(graph.directed).toBe(false);
         expect(dgraph.directed).toBe(true);

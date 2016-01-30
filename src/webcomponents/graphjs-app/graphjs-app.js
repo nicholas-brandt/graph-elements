@@ -1,16 +1,38 @@
-// SVG workaround
-(function() {
-    var templates = document.currentScript.parentElement.querySelector("template").content.querySelectorAll("svg template");
-    Array.prototype.forEach.call(templates, function(template) {
-        var new_template = template.ownerDocument.createElement("template");
-        template.parentElement.replaceChild(new_template, template);
-        Array.prototype.forEach.call(template.attributes, function(attribute) {
-            new_template.setAttribute(attribute.name, attribute.value);
-        });
-        for (var child = template.firstChild; child; child = template.firstChild) new_template.content.appendChild(child);
-    });
-})();
 Polymer({
     is: "graphjs-app",
-    calcPath(edge) {}
+    properties: {
+        nodes: {
+            type: Array,
+            notify: true,
+            value: () => []
+        },
+        edges: {
+            type: Array,
+            notify: true,
+            value: () => []
+        }
+    },
+    _initLocalstorage(event) {
+        event.preventDefault();
+        event.cancelBubble = true;
+        console.log("load", event, this.nodes);
+        const graph = this.querySelector("graphjs-graph");
+        const value = event.srcElement.value;
+        if (value) {
+            this.nodes = value.nodes || [];
+            this.edges = value.edges || [];
+        }
+    },
+    _initEmptyLocalstorage(event) {
+        event.preventDefault();
+        event.cancelBubble = true;
+        console.log("empty", event);
+        event.srcElement.value = this._storage(this.nodes, this.edges);
+    },
+    _storage(nodes, edges) {
+        return {
+            nodes,
+            edges
+        };
+    }
 });

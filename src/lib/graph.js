@@ -13,7 +13,7 @@ export class Graph {
         Object.defineProperty(this, "nodes", {
             value: new Map
         });
-        this.directed = !!directed;
+        this.directed = !! directed;
     }
     /**
      * @getter directed
@@ -27,7 +27,7 @@ export class Graph {
      * @param {boolean} directed - Whether the graph shall be unidirectional.
      * */
     set directed(directed) {
-        this[$directed] = !!directed;
+        this[$directed] = !! directed;
         if (this.directed)
             for (let edge of this.edges) this.addEdge(...edge);
     }
@@ -36,26 +36,24 @@ export class Graph {
      * @returns {Array} - A array of all edges.
      * */
     get edges() {
-        return [for ([node, relations] of this.nodes)
-                for ([dependent, weight] of relations.dependents)
-                {
-                    source: node,
-                    target: dependent,
-                    weight: weight
-                }];
+        return this.nodes.map(([node, relations]) => relations.dependents.map(([dependent, weight]) => ({
+            source: node,
+            target: dependent,
+            weight
+        })));
     }
     /**
      * @function addNode
      * @param {any} object - An object to be set as a node.
      * @returns {boolean} - {true} if the object has been set as a node
-     *                      {false} if the object was already a node in this graph. 
+     *                      {false} if the object was already a node in this graph.
      * */
     addNode(object) {
         if (this.hasNode(object)) return false;
         // {relations} to be stored in the {nodes} map
         // stored as a double-linked list
         const relations = {};
-        Object,defineProperties(relations, {
+        Object.defineProperties(relations, {
             "dependents": {
                 value: new Map
             },
@@ -170,7 +168,7 @@ export class Graph {
                 if (visited.has(node)) return length;
                 visited.add(node);
                 const nodes = this.nodes;
-                for (let[dependent] of node.dependents) {
+                for (let [dependent] of node.dependents) {
                     const dependent_node = nodes.get(dependent);
                     if (directed || dependent_node !== dependency) {
                         const depth = DFS.call(this, dependent_node, node, length + 1);
@@ -188,15 +186,13 @@ export class Graph {
      * */
     getDegree(node) {
         const relations = this.nodes.get(node);
-        if (!relations) return [
-            for ([node, relations] of this.nodes) {
-                node: node,
-                in : relations.dependencies.size,
-                out: relations.dependents.size
-            }];
+        if (!relations) return this.nodes.map(([node, relations]) => ({
+            node, in : relations.dependencies.size,
+            out: relations.dependents.size
+        }));
         return {
             node: node,
-            in: relations.dependencies.size,
+            in : relations.dependencies.size,
             out: relations.dependents.size
         };
     }

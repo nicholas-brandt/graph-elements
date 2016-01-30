@@ -1,5 +1,9 @@
 @import url("../settings.less");
 
+:host {
+    --node-color: @color-toolbar-background;
+    --edge-color: @color-grey-menu;
+}
 graphjs-viewer {
     display: flex;
     >svg {
@@ -11,23 +15,28 @@ graphjs-viewer {
         }
         >circle {
             fill: @color-toolbar-background;
+            fill: var(--node-color, @color-toolbar-background);
             stroke: @color-background;
-            stroke-dasharray: 9,0;
-            stroke-width: 1px;
+            //stroke-dasharray: 9,0;
+            stroke-width: 4px;
             transition: opacity 0.5s, fill 0.5s;
             &[selected] {
                 fill: @color-toolbar;
                 stroke: @color-toolbar-background;
                 stroke-width: 5px;
-                stroke-dasharray: 8,1;
+                stroke-dasharray: 8,2;
                 transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
             }
         }
         >path {
             fill: @color-grey-menu;
+            fill: var(--edge-color, @color-grey-menu);
             stroke: @color-grey-menu;
-            stroke-width: 0.5px;
+            stroke-width: 1px;
             transition: opacity 0.5s;
+            &[loop] {
+                fill: none;
+            }
         }
     }
 }

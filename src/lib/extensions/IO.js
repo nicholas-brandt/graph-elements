@@ -20,8 +20,8 @@ export default class IO {
      * */
     static exportGraph(graph) {
         const object = {
-            nodes: [for (pair of graph.nodes) pair],
-            edges: [for (edge of graph.edges) edge]
+            nodes: Array.from(graph.nodes),
+            edges: Array.from(graph.edges)
         };
         return object;
     }

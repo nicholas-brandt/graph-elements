@@ -1,15 +1,28 @@
 {
-    "name": "graphjs",
-    "version": "1.0.0",
-    "homepage": "https://github.com/Jamtis/graphjs",
-    "authors": ["Nicholas-Philip Brandt <nicholas.brandt@mail.de>"],
-    "main": "src/graph.js",
-    "moduleType": ["amd", "es6"],
-    "license": "CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]",
-    "ignore": ["**/.*", "node_modules", "bower_components", "test", "tests"],
-    "dependencies": {
-        "paper-elements": "PolymerElements/paper-elements",
-        "iron-elements": "PolymerElements/iron-elements"
-    },
-    "devDependencies": {}
+  "name": "graphjs",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Jamtis/graphjs",
+  "authors": [
+    "Nicholas-Philip Brandt <nicholas.brandt@mail.de>"
+  ],
+  "main": "src/graph.js",
+  "moduleType": [
+    "amd",
+    "es6"
+  ],
+  "license": "CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "paper-elements": "PolymerElements/paper-elements",
+    "iron-elements": "PolymerElements/iron-elements",
+    "platinum-elements": "PolymerElements/platinum-elements",
+    "circular-localstorage": "jamtis/circular-localstorage"
+  },
+  "devDependencies": {}
 }

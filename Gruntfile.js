@@ -2,7 +2,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         babel: {
             options: {
-                experimental: true,
+                presets: ["es2015"],
                 compact: false,
                 comments: true
             },

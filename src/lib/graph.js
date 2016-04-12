@@ -13,7 +13,7 @@ export class Graph {
         Object.defineProperty(this, "nodes", {
             value: new Map
         });
-        this.directed = !! directed;
+        this.directed = !!directed;
     }
     /**
      * @getter directed

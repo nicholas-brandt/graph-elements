@@ -1,4 +1,3 @@
-import mixin from "../../node_modules/various/build/LayerJS/mixin";
 import { Graph } from "../graph";
 import CircularJSON from "../../node_modules/circular-json/build/circular-json";
 export default class IO {

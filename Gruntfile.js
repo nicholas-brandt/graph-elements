@@ -1,19 +1,12 @@
 "use strict";
 const src = "src";
 const build = "build";
-const staticElements = [];
-const elements = [];
-const HTML_PIPE = ["htmlmin"];
-const JS_PIPE = ["babel", "uglify"];
-const LESS_PIPE = ["less", "cssmin"];
-const PIPE = HTML_PIPE.concat(JS_PIPE, LESS_PIPE);
-const STATIC_PIPE = ["vulcanize", "crisper"].concat(HTML_PIPE, JS_PIPE);
 const config = {
-     watch: {
-         options: {
-             atBegin: true
-         }
-     },
+    watch: {
+        options: {
+            atBegin: true
+        }
+    },
     vulcanize: {
         options: {
             inlineScripts: true,
@@ -39,8 +32,7 @@ const config = {
     babel: {
         options: {
             compact: false,
-            comments: true,
-            plugins: ["babel-preset-es2015"]
+            comments: true
         }
     },
     uglify: {
@@ -77,113 +69,66 @@ const config = {
     },
     cssmin: {}
 };
-for (let element of elements) {
-    config.htmlmin[element] = {
-        files: [{
-            expand: true,
-            cwd: src,
-            dest: build,
-            src: [`html/${element}.html`]
-        }]
-    };
-    config.babel[element] = {
-        files: [{
-            expand: true,
-            cwd: src,
-            dest: build,
-            src: [`scripts/${element}.js`]
-        }]
-    };
-    config.uglify[element] = {
-        files: [{
-            expand: true,
-            cwd: build,
-            dest: build,
-            src: [`scripts/${element}.js`]
-        }]
-    };
-    config.less[element] = {
-        files: {
-            [`${build}/stylesheets/${element}.css`]: `${src}/stylesheets/${element}.less`
-        }
-    };
-    config.cssmin[element] = {
-        files: [{
-            expand: true,
-            cwd: build,
-            dest: build,
-            src: [`stylesheets/${element}.css`]
-        }]
-    };
-    config.watch[element + "HTML"] = {
-        files: [`${src}/html/${element}.html`],
-        tasks: HTML_PIPE.map(part => part + ":" + element)
-    };
-    config.watch[element + "JS"] = {
-        files: [`${src}/scripts/${element}.js`],
-        tasks: JS_PIPE.map(part => part + ":" + element)
-    };
-    config.watch[element + "LESS"] = {
-        files: [`${src}/stylesheets/${element}.less`],
-        tasks: LESS_PIPE.map(part => part + ":" + element)
-    };
-}
-for (let element of staticElements) {
-    config.vulcanize[element] = {
-        files: {
-            [`${build}/html/${element}.html`]: `${src}/html/${element}.html`
-        }
-    };
-    config.crisper[element] = {
-        src: `${build}/html/${element}.html`,
-        dest: `${build}/html/${element}.html`
-    };
-    config.htmlmin[element] = {
-        files: [{
-            expand: true,
-            cwd: build,
-            dest: build,
-            src: [`html/${element}.html`]
-        }]
-    };
-    config.babel[element] = {
-        files: [{
-            expand: true,
-            cwd: build,
-            dest: build,
-            src: [`html/${element}.js`]
-        }]
-    };
-    config.uglify[element] = {
-        files: [{
-            expand: true,
-            cwd: build,
-            dest: build,
-            src: [`html/${element}.js`]
-        }]
-    };
-    config.watch[element] = {
-        files: [`${src}/html/${element}.html`],
-        tasks: STATIC_PIPE.map(part => part + ":" + element)
-    };
-}
+const elementsSrc = src + "/elements";
+const elementsBuild = build + "/elements";
+config.htmlmin.elements = {
+    files: [{
+        expand: true,
+        cwd: elementsSrc,
+        dest: elementsBuild,
+        src: ["**/*.html"]
+    }]
+};
+config.babel.elements = {
+    files: [{
+        expand: true,
+        cwd: elementsSrc,
+        dest: elementsBuild,
+        src: ["**/*.js"]
+    }]
+};
+//config.uglify.elements = {
+//    files: [{
+//        expand: true,
+//        cwd: elementsBuild,
+//        dest: elementsBuild,
+//        src: ["**/*.js"]
+//    }]
+//};
+config.less.elements = {
+    files: [{
+        expand: true,
+        cwd: elementsSrc,
+        src: ["**/*.less"],
+        dest: elementsBuild,
+        ext: ".css"
+    }]
+};
+config.cssmin.elements = {
+    files: [{
+        expand: true,
+        cwd: elementsBuild,
+        dest: elementsBuild,
+        src: ["**/*.css"]
+    }]
+};
+config.babel.library = {
+    options: {
+        plugins: ["transform-es2015-modules-amd"]
+    },
+    files: [{
+        expand: true,
+        cwd: src + "/lib",
+        dest: build + "/lib",
+        src: ["**/*.js"]
+    }]
+};
 const modules = ["babel", "contrib-uglify", "vulcanize", "contrib-htmlmin", "contrib-less", "contrib-cssmin", "crisper", "contrib-watch"];
 module.exports = function(grunt) {
     grunt.initConfig(config);
     for (let mod of modules) grunt.loadNpmTasks("grunt-" + mod);
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["less", "cssmin", "babel:avatec-template", "vulcanize", "crisper", "htmlmin", "babel", "uglify"]);
-    const element_task = [];
-    for (let element of elements) {
-        const pipe = PIPE.map(part => part + ":" + element);
-        element_task.push(...pipe);
-    }
-    grunt.registerTask("elements", element_task);
-    const static_element_task = [];
-    for (let element of staticElements) {
-        const pipe = STATIC_PIPE.map(part => part + ":" + element);
-        grunt.registerTask("static-elements", pipe);
-        static_element_task.push(...pipe);
-    }
-    grunt.registerTask("static-elements", static_element_task);
+    grunt.registerTask("run", ["less", "cssmin", "babel", "htmlmin"]);
+    grunt.registerTask("elements", ["htmlmin", "babel", /*"uglify",*/ "less", "cssmin"].map(task => task + ":elements"));
+    grunt.registerTask("library", ["babel:library"]);
 };

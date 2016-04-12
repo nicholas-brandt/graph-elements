@@ -1,8 +1,10 @@
+@import (reference) "../styles.less";
+
 :host {
-    --node-color: green;
-    --edge-color: ;
+    --node-color: @node;
+    --edge-color: @edge;
 }
-graphjs-viewer {
+graphjs-display {
     display: flex;
     >svg {
         flex: 1 1 0;
@@ -12,24 +14,24 @@ graphjs-viewer {
             touch-action: none;
         }
         >circle {
-            fill: @color-toolbar-background;
-            fill: var(--node-color, @color-toolbar-background);
-            stroke: @color-background;
+            fill: @node;
+            fill: var(--node-color, @node);
+            stroke: @node-stroke;
             //stroke-dasharray: 9,0;
             stroke-width: 4px;
             transition: opacity 0.5s, fill 0.5s;
             &[selected] {
-                fill: @color-toolbar;
-                stroke: @color-toolbar-background;
+                fill: @selected-node;
+                stroke: @selected-node-stroke;
                 stroke-width: 5px;
                 stroke-dasharray: 8,2;
                 transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
             }
         }
         >path {
-            fill: @color-grey-menu;
-            fill: var(--edge-color, @color-grey-menu);
-            stroke: @color-grey-menu;
+            fill: @edge;
+            fill: var(--edge-color, @edge);
+            stroke: @edge;
             stroke-width: 1px;
             transition: opacity 0.5s;
             &[loop] {

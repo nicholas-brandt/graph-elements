@@ -22,10 +22,18 @@
 })();
 */
 Polymer({
-    is: "graphjs-viewer",
+    is: "graphjs-display",
     properties: {
         graph: {
             type: Object
+        },
+        nodes: {
+            type: Array,
+            notify: true
+        },
+        edges: {
+            type: Array,
+            notify: true
         }
     },
     _trackCircle(event) {
@@ -54,7 +62,7 @@ Polymer({
             this.set("nodes." + index + ".selected", false);
         });
     },
-    _calcPath({source, target}, record) {
+    _calcPath({ source, target }, record) {
         //console.log("calcPath", record);
         if (source === target) {
             const short = source.radius / 2;
@@ -69,14 +77,12 @@ Polymer({
             const offset = 2;
             const m_x = target.x - xr_diff * offset;
             const m_y = target.y - yr_diff * offset;
-            return "M " + source.x + " " + source.y + "L " + m_x + " " + m_y + "L " + (target.x + yr_diff) + " " + (target.y - xr_diff) + "l " + (-2 * yr_diff) + " " + (2 * xr_diff) + "L " + m_x + " " + m_y;
+            return "M " + source.x + " " + source.y + "L " + m_x + " " + m_y + "L " + (target.x + yr_diff) + " " + (target.y - xr_diff) + "l " + -2 * yr_diff + " " + 2 * xr_diff + "L " + m_x + " " + m_y;
         }
     },
-    _arrayNodes() {
-        return Array.from(this.graph.nodes);
-    },
-    _arrayEdges() {
-        return Array.from(this.graph.edges);
+    graphChanged() {
+        this.nodes = this.graph.nodes;
+        this.edges = this.graph.edges;
     }
 });
 

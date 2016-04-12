@@ -13,26 +13,19 @@
   "author": "Nicholas-Philip Brandt <nicholas.brandt@mail.de>",
   "license": "CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]",
   "dependencies": {
-  },
-  "devDependencies": {
-    "amdefine": "",
+    "babel-plugin-transform-es2015-modules-amd": "",
     "grunt": "",
     "grunt-babel": "",
     "grunt-cli": "",
-    "grunt-contrib-copy": "",
     "grunt-contrib-cssmin": "",
-    "grunt-contrib-htmlmin": "",
+    "grunt-contrib-htmlmin": "~1.0.0",
     "grunt-contrib-less": "",
     "grunt-contrib-uglify": "",
     "grunt-contrib-watch": "",
-    "grunt-jasmine-nodejs": "",
-    "grunt-jsdoc": "",
-    "grunt-vulcanize": "",
-    "performance-now": "",
-    "raf": "",
-    "babel": "",
-    "requirejs": ""
+    "grunt-crisper": "",
+    "grunt-vulcanize": ""
   },
+  "devDependencies": {},
   "bugs": {
     "url": "https://github.com/jamtis/graphjs/issues"
   },

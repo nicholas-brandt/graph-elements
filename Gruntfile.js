@@ -71,6 +71,8 @@ const config = {
 };
 const elementsSrc = src + "/elements";
 const elementsBuild = build + "/elements";
+const appsSrc = src + "/apps";
+const appsBuild = build + "/apps";
 config.htmlmin.elements = {
     files: [{
         expand: true,
@@ -123,12 +125,57 @@ config.babel.library = {
         src: ["**/*.js"]
     }]
 };
+config.htmlmin.apps = {
+    files: [{
+        expand: true,
+        cwd: appsSrc,
+        dest: appsBuild,
+        src: ["**/*.html"]
+    }]
+};
+config.babel.apps = {
+    options: {
+        plugins: ["transform-es2015-modules-commonjs"]
+    },
+    files: [{
+        expand: true,
+        cwd: appsSrc,
+        dest: appsBuild,
+        src: ["**/*.js"]
+    }]
+};
+//config.uglify.elements = {
+//    files: [{
+//        expand: true,
+//        cwd: elementsBuild,
+//        dest: elementsBuild,
+//        src: ["**/*.js"]
+//    }]
+//};
+config.less.apps = {
+    files: [{
+        expand: true,
+        cwd: appsSrc,
+        src: ["**/*.less"],
+        dest: appsBuild,
+        ext: ".css"
+    }]
+};
+config.cssmin.apps = {
+    files: [{
+        expand: true,
+        cwd: appsBuild,
+        dest: appsBuild,
+        src: ["**/*.css"]
+    }]
+};
 const modules = ["babel", "contrib-uglify", "vulcanize", "contrib-htmlmin", "contrib-less", "contrib-cssmin", "crisper", "contrib-watch"];
 module.exports = function(grunt) {
     grunt.initConfig(config);
     for (let mod of modules) grunt.loadNpmTasks("grunt-" + mod);
     grunt.registerTask("default", ["watch"]);
     grunt.registerTask("run", ["less", "cssmin", "babel", "htmlmin"]);
+    grunt.registerTask("apps", ["htmlmin", "babel", /*"uglify",*/ "less", "cssmin"].map(task => task + ":apps"));
     grunt.registerTask("elements", ["htmlmin", "babel", /*"uglify",*/ "less", "cssmin"].map(task => task + ":elements"));
     grunt.registerTask("library", ["babel:library"]);
 };

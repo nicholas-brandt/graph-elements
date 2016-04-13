@@ -14,6 +14,7 @@
   "license": "CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]",
   "dependencies": {
     "babel-plugin-transform-es2015-modules-amd": "",
+    "babel-plugin-transform-es2015-modules-commonjs": "",
     "grunt": "",
     "grunt-babel": "",
     "grunt-cli": "",
@@ -23,7 +24,8 @@
     "grunt-contrib-uglify": "",
     "grunt-contrib-watch": "",
     "grunt-crisper": "",
-    "grunt-vulcanize": ""
+    "grunt-vulcanize": "",
+    "requirejs": "^2.2.0"
   },
   "devDependencies": {},
   "bugs": {

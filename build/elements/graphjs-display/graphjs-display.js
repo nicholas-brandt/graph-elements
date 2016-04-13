@@ -9,23 +9,23 @@
         for (let child = template.firstChild; child; child = template.firstChild) new_template.content.appendChild(child);
     });
 })();*/
-/*
-(function() {
-    for (let template of document.currentScript.parentElement.querySelector("template").content.querySelectorAll("svg template")) {
+
+(function () {
+    for (let template of Array.from(document.currentScript.parentElement.querySelector("template").content.querySelectorAll("svg template"))) {
         var new_template = template.ownerDocument.createElement("template");
         template.parentElement.replaceChild(new_template, template);
-        for (let attribute of template.attributes) {
+        Array.prototype.forEach.call(template.attributes, attribute => {
             new_template.setAttribute(attribute.name, attribute.value);
-        }
-        for (var child = template.firstChild; child; child = template.firstChild) new_template.content.appendChild(child);
+        });
+        for (let child = template.firstChild; child; child = template.firstChild) new_template.content.appendChild(child);
     }
 })();
-*/
 Polymer({
     is: "graphjs-display",
     properties: {
         graph: {
-            type: Object
+            type: Object,
+            observer: "graphChanged"
         },
         nodes: {
             type: Array,

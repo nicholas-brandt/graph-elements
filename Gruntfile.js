@@ -67,7 +67,16 @@ const config = {
             optimization: 0
         }
     },
-    cssmin: {}
+    cssmin: {},
+    browserify: {
+        options: {
+            transform: [
+                ["babelify", {
+                    plugins: ["transform-es2015-modules-commonjs"]
+                }]
+            ]
+        }
+    }
 };
 const elementsSrc = src + "/elements";
 const elementsBuild = build + "/elements";
@@ -135,7 +144,7 @@ config.htmlmin.apps = {
 };
 config.babel.apps = {
     options: {
-        plugins: ["transform-es2015-modules-commonjs"]
+        plugins: ["transform-es2015-modules-amd"]
     },
     files: [{
         expand: true,
@@ -169,13 +178,19 @@ config.cssmin.apps = {
         src: ["**/*.css"]
     }]
 };
-const modules = ["babel", "contrib-uglify", "vulcanize", "contrib-htmlmin", "contrib-less", "contrib-cssmin", "crisper", "contrib-watch"];
+config.browserify.d3 = {
+    files: {
+        "src/ext/d3-custom.js": ["./node_modules/d3/src/layout/force.js"]
+    }
+};
+const modules = ["babel", "contrib-uglify", "vulcanize", "contrib-htmlmin", "contrib-less", "contrib-cssmin", "crisper", "contrib-watch", "browserify"];
 module.exports = function(grunt) {
     grunt.initConfig(config);
     for (let mod of modules) grunt.loadNpmTasks("grunt-" + mod);
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["less", "cssmin", "babel", "htmlmin"]);
+    grunt.registerTask("run", ["less", "cssmin", "babel", "htmlmin"/*, "browserify"*/]);
     grunt.registerTask("apps", ["htmlmin", "babel", /*"uglify",*/ "less", "cssmin"].map(task => task + ":apps"));
     grunt.registerTask("elements", ["htmlmin", "babel", /*"uglify",*/ "less", "cssmin"].map(task => task + ":elements"));
     grunt.registerTask("library", ["babel:library"]);
+    grunt.registerTask("d3", ["browserify:d3"]);
 };

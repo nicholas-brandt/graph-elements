@@ -15,8 +15,11 @@
   "dependencies": {
     "babel-plugin-transform-es2015-modules-amd": "",
     "babel-plugin-transform-es2015-modules-commonjs": "",
+    "babelify": "",
+    "d3": "",
     "grunt": "",
     "grunt-babel": "",
+    "grunt-browserify": "",
     "grunt-cli": "",
     "grunt-contrib-cssmin": "",
     "grunt-contrib-htmlmin": "~1.0.0",
@@ -25,7 +28,9 @@
     "grunt-contrib-watch": "",
     "grunt-crisper": "",
     "grunt-vulcanize": "",
-    "requirejs": "^2.2.0"
+    "requirejs": "",
+    "smash": "",
+    "uglify-js": ""
   },
   "devDependencies": {},
   "bugs": {

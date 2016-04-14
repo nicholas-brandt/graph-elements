@@ -2,8 +2,9 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="app.css">
     <script src="../../../node_modules/requirejs/require.js"></script>
-    <script async>require([], "app.js");</script>
+    <script async>require(["app.js", "../../../node_modules/d3/d3.js"], () => {});</script>
     <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js" asnyc></script>
     <link href="../../../bower_components/polymer/polymer.html" rel="import">
     <link href="../../elements/graphjs-display/graphjs-display.html" rel="import">

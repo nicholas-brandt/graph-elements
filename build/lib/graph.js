@@ -38,14 +38,18 @@ define(["exports"], function (exports) {
         }
         /**
          * @getter edges
-         * @returns {Array} - A array of all edges.
+         * @returns {Set} - A set of all edges.
          * */
         get edges() {
-            return this.nodes.map(([node, relations]) => relations.dependents.map(([dependent, weight]) => ({
-                source: node,
-                target: dependent,
-                weight
-            })));
+            const edges = new Set();
+            this.nodes.forEach((relations, node) => relations.dependents.forEach((weight, dependent) => {
+                edges.add({
+                    source: node,
+                    target: dependent,
+                    weight
+                });
+            }));
+            return edges;
         }
         /**
          * @function addNode

@@ -80,9 +80,12 @@ Polymer({
             return "M " + source.x + " " + source.y + "L " + m_x + " " + m_y + "L " + (target.x + yr_diff) + " " + (target.y - xr_diff) + "l " + (-2 * yr_diff) + " " + (2 * xr_diff) + "L " + m_x + " " + m_y;
         }
     },
+    _property(item, property) {
+        return item[property];
+    },
     graphChanged() {
-        this.nodes = this.graph.nodes;
-        this.edges = this.graph.edges;
+        this.set("nodes", Array.from(this.graph.nodes.keys()));
+        this.set("edges", Array.from(this.graph.edges));
     }
 });
 

@@ -1,6 +1,6 @@
 import { Graph } from "../../lib/graph.js";
 const graph = new Graph;
-for (let i = 0; i < 100; ++i) {
+for (let i = 0; i < 20; ++i) {
     graph.addNode({
         x: Math.random() * 500,
         y: Math.random() * 500,
@@ -8,59 +8,18 @@ for (let i = 0; i < 100; ++i) {
     });
 }
 const nodes = Array.from(graph.nodes.keys());
-for (let i = 0; i < 100; ++i) {
+for (let i = 0; i < 10; ++i) {
     graph.addEdge(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
 }
 if (window.Polymer) initialize();
 else addEventListener("WebComponentsReady", initialize);
 
 function initialize() {
-    window.display = document.querySelector("graphjs-display");
+    const display = document.querySelector("graphjs-display");
+    window.display = display;
     display.graph = graph;
-    window.force = d3.layout.force().nodes(display.nodes).links(display.edges).size([1000, 1000]);
-    inflate();
-    window.inflate = inflate;
-    window.deflate = deflate;
-
-    function inflate() {
-        force.linkStrength(0.1);
-        force.linkDistance(0);
-        force.charge(-6000);
-        force.gravity(0.1);
-        force.friction(0.5);
-        const alpha = force.alpha();
-        force.stop();
-        if (alpha > 0) force.alpha(alpha);
-        else force.start();
-        update();
-
-        function update() {
-            requestAnimationFrame(() => {
-                display.notifyPath("nodes.0.x", display.nodes[0].x);
-                const alpha = force.alpha();
-                if (alpha < 0.03) {
-                    force.stop();
-                    deflate(alpha);
-                } else if (force.alpha() > 0) update();
-            });
-        }
-    }
-
-    function deflate(alpha = 0.03) {
-        force.linkStrength(10);
-        force.linkDistance(60);
-        force.charge(-6000);
-        force.gravity(2);
-        force.friction(0.9);
-        force.start();
-        force.alpha(alpha);
-        update();
-
-        function update() {
-            requestAnimationFrame(() => {
-                display.notifyPath("nodes.0.x", display.nodes[0].x);
-                if (force.alpha() > 0) update();
-            });
-        }
-    }
+    const d3_force = document.querySelector("d3-force");
+    window.d3_force = d3_force;
+    d3_force.start = true;
+    d3_force.send();
 }

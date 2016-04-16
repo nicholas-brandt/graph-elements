@@ -9,7 +9,6 @@
         for (let child = template.firstChild; child; child = template.firstChild) new_template.content.appendChild(child);
     });
 })();*/
-
 (function() {
     for (let template of Array.from(document.currentScript.parentElement.querySelector("template").content.querySelectorAll("svg template"))) {
         var new_template = template.ownerDocument.createElement("template");
@@ -81,6 +80,7 @@ Polymer({
         }
     },
     _property(item, property) {
+        //console.log("_proeprty", property);
         return item[property];
     },
     graphChanged() {

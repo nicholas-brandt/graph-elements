@@ -1,3 +1,4 @@
+<link href="../../../bower_components/polymer/polymer.html" rel="import">
 <dom-module id="graphjs-display">
     <link rel="stylesheet" href="graphjs-display.css">
     <template>
@@ -9,6 +10,7 @@
                 <circle cx$="{{_property(item, 'x', nodes, nodes.*)}}" cy$="{{_property(item, 'y', nodes, nodes.*)}}" r$="{{_property(item, 'radius', nodes, nodes.*)}}" selected$="{{_property(item, 'selected', nodes, nodes.*)}}" on-tap="_tapCircle" on-track="_trackCircle" on-hold="_holdCircle"></circle>
             </template>
         </svg>
+        <content></content>
     </template>
     <script src="./graphjs-display.js"></script>
 </dom-module>

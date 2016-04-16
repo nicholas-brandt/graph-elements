@@ -4,14 +4,25 @@
 <head>
     <link rel="stylesheet" href="app.css">
     <script src="../../../node_modules/requirejs/require.js"></script>
-    <script async>require(["app.js", "../../../node_modules/d3/d3.js"], () => {});</script>
-    <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js" asnyc></script>
-    <link href="../../../bower_components/polymer/polymer.html" rel="import">
+    <link href="../../elements/d3-force/d3-force.html" rel="import">
     <link href="../../elements/graphjs-display/graphjs-display.html" rel="import">
+    <script>
+        require(["app.js"], () => {});
+    </script>
+    <!--<script src="../../../bower_components/webcomponentsjs/webcomponents-lite.js" asnyc></script>-->
 </head>
 
 <body>
-    <graphjs-display items="[8,1,23,3,4,324,2,65,47,6,876,8,87,1,87,56,645,4,56,65,56,6,6,563,4324,34,6654]"></graphjs-display>
+    <template is="dom-bind">
+        <graphjs-display nodes="{{nodes}}" edges="{{edges}}">
+            <d3-force nodes="{{nodes}}" edges="{{edges}}"
+                      linkStrength="10"
+                      linkDistance="60"
+                      charge="-6000"
+                      gravity="2"
+                      friction="0.9"></d3-force>
+        </graphjs-display>
+    </template>
 </body>
 
 </html>

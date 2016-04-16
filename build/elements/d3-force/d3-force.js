@@ -6,12 +6,10 @@ Polymer({
             readOnly: true
         },
         nodes: {
-            type: Array,
-            notify: true
+            type: Array
         },
-        edges: {
-            type: Array,
-            notify: true
+        links: {
+            type: Array
         },
         size: {
             type: Array
@@ -46,20 +44,21 @@ Polymer({
         }
     },
     attached() {
-        const updateNodes = requestAnimationFunction(nodes => {
-            //console.log("update nodes", nodes);
-            for (let i = 0; i < this.nodes.length; ++i) {
-                const this_node = this.nodes[i];
-                const new_node = nodes[i];
-                this_node.x = new_node.x;
-                this_node.y = new_node.y;
-            }
-            this.notifyPath("nodes.0.x", this.nodes[0].x);
-        });
+        const display = this.parentElement;
         this.worker.addEventListener("message", event => {
-            if (event.data.nodes) updateNodes(event.data.nodes);
+            //console.log("nodes received");
+            if (event.data.nodes) {
+                const nodes = event.data.nodes;
+                let i = 0;
+                for (let [node] of display.graph) {
+                    if (i >= nodes.length) break;
+                    node.x = nodes[i].x;
+                    node.y = nodes[i].y;
+                    ++i;
+                }
+                display.nodesUpdated();
+            }
         });
-        this.send();
     },
     send() {
         this.worker.postMessage({
@@ -73,16 +72,18 @@ Polymer({
             alpha: this.alpha,
             theta: this.theta,
             start: !!this.nodes || this.start,
-            nodes: this.nodes,
-            links: this.edges
+            data: CircularJSON.stringify({
+                nodes: this.nodes,
+                links: this.links
+            })
         });
     }
 });
-
 /*
  * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
  * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
  * */
+
 function requestAnimationFunction(callback, weak = true) {
     if (typeof callback != "function") throw Error("{callback} is not a function");
     //{updated} defines whether the frame has been animated since the last call

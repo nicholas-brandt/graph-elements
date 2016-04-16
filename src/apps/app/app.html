@@ -13,16 +13,13 @@
 </head>
 
 <body>
-    <template is="dom-bind">
-        <graphjs-display nodes="{{nodes}}" edges="{{edges}}">
-            <d3-force nodes="{{nodes}}" edges="{{edges}}"
-                      linkStrength="10"
-                      linkDistance="60"
-                      charge="-6000"
-                      gravity="2"
-                      friction="0.9"></d3-force>
-        </graphjs-display>
-    </template>
+    <graphjs-display>
+        <d3-force link-strength="10"
+                  link-distance="60"
+                  charge="-6000"
+                  gravity="3"
+                  friction="0.9"></d3-force>
+    </graphjs-display>
 </body>
 
 </html>

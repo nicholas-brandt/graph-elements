@@ -1,17 +1,22 @@
-importScripts("../../../node_modules/d3/d3.js");
+importScripts("../../../node_modules/d3/d3.js", "../../../node_modules/circular-json/build/circular-json.js");
 console.log("worker started");
 const force = d3.layout.force();
-let nodes = [];
 force.on("tick", () => {
-    postMessage({ nodes });
+    postMessage({
+        nodes: force.nodes()
+    });
 });
 const properties = ["linkDistance", "linkStrength", "charge", "chargeDistance", "alpha", "theta", "gravity", "size", "nodes", "links"];
 addEventListener("message", event => {
-    console.log(event);
+    console.log("worker got message:", event.data);
     for (let property of properties) {
         const value = event.data[property];
         if (value) force[property](value);
     }
-    if (event.data.nodes) nodes = event.data.nodes;
+    if (event.data.data) {
+        const data = CircularJSON.parse(event.data.data);
+        force.nodes(data.nodes);
+        force.links(data.links);
+    }
     if (event.data.start) force.start();
 });

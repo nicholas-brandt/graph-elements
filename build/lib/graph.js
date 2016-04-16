@@ -6,21 +6,11 @@ define(["exports"], function (exports) {
     });
     const $directed = Symbol();
     /**
-     * @class
+     * @class Graph
      * Fundamental class that implements the basic graph structures.
      * #Following https://en.wikipedia.org/wiki/Graph_theory
      * */
-    class Graph {
-        /**
-         * @constructor
-         * @þaram {boolean} directed - Whether the graph is unidirectional.
-         * */
-        constructor(directed = false) {
-            Object.defineProperty(this, "nodes", {
-                value: new Map()
-            });
-            this.directed = !!directed;
-        }
+    class Graph extends Map {
         /**
          * @getter directed
          * @returns {boolean} - Whether the graph is unidirectional.
@@ -34,204 +24,155 @@ define(["exports"], function (exports) {
          * */
         set directed(directed) {
             this[$directed] = !!directed;
-            if (this.directed) for (let edge of this.edges) this.addEdge(...edge);
+            const links = this.links;
+            this.clearLinks();
+            for (let { source, target, weight } of links) this.addLink(source, target, weight);
         }
         /**
-         * @getter edges
-         * @returns {Set} - A set of all edges.
+         * @getter links
+         * @returns {Set} - A set of all links.
          * */
-        get edges() {
-            const edges = new Set();
-            this.nodes.forEach((relations, node) => relations.dependents.forEach((weight, dependent) => {
-                edges.add({
-                    source: node,
-                    target: dependent,
-                    weight
-                });
-            }));
-            return edges;
+        get links() {
+            const links = new Set();
+            for (let [, relations] of this) for (let [, link] of relations.dependents) links.add(link);
+            return links;
         }
         /**
          * @function addNode
-         * @param {any} object - An object to be set as a node.
+         * @param {any} node - An object to be set as a node.
          * @returns {boolean} - {true} if the object has been set as a node
          *                      {false} if the object was already a node in this graph.
          * */
-        addNode(object) {
-            if (this.hasNode(object)) return false;
+        addNode(node) {
+            if (this.has(node)) return false;
             // {relations} to be stored in the {nodes} map
             // stored as a double-linked list
-            const relations = {};
-            Object.defineProperties(relations, {
-                "dependents": {
-                    value: new Map()
-                },
-                "dependencies": {
-                    value: new Map()
-                }
-            });
-            this.nodes.set(object, relations);
+            this.set(node, new Relations());
             return true;
         }
         /**
-         * @function hasNode
-         * @param {any} object
-         * @return {boolean} - Whether the object is a node in this graph.
-         * */
-        hasNode(object) {
-            return this.nodes.has(object);
-        }
-        /**
          * @function removeNode
-         * @param {any} object - The node to be removed.
+         * @param {any} node - The node to be removed.
          * @return {boolean} - Whether the object has been removed from the graph.
          * */
-        removeNode(object) {
-            if (!this.hasNode(object)) return false;
+        removeNode(node) {
+            if (!this.has(node)) return false;
             const relations = this.nodes.get(object);
             // remove {object} from nodes
             this.nodes.delete(object);
-            // remove all edges containing {object}
+            // remove all links containing {object}
             for (let [, dependents] of relations.dependencies) dependents.delete(object);
             for (let [, dependencies] of relations.dependents) dependencies.delete(object);
             return true;
         }
         /**
-         * @function addEdge
+         * @function addLink
          * @param {any} source - The source node
          * @param {any} target - The target node
-         * @param {any} weight - The weight of the edge
+         * @param {any} weight - The weight of the link
          * @return {boolean} - Whether the object has been removed from the graph.
          * */
-        addEdge(source, target, weight = 1) {
-            const nodes = this.nodes;
-            if (nodes.has(source) && nodes.has(target)) {
-                nodes.get(source).dependents.set(target, weight);
-                nodes.get(target).dependencies.set(source, weight);
+        addLink(source, target, weight = 1) {
+            const source_relations = this.get(source);
+            const target_relations = this.get(target);
+            if (source_relations && target_relations) {
+                const link = new Link(source, target, weight);
+                source_relations.dependents.set(target, link);
+                target_relations.dependencies.set(source, link);
                 if (!this.directed) {
-                    nodes.get(target).dependents.set(source, weight);
-                    nodes.get(source).dependencies.set(target, weight);
+                    const reverse_link = new Link(target, source, weight);
+                    target_relations.dependents.set(source, reverse_link);
+                    source_relations.dependencies.set(target, reverse_link);
                 }
                 return true;
             }
             return false;
         }
         /**
-         * @function removeEdge
+         * @function removeLink
          * @param {any} source - The source node
          * @param {any} target - The target node
-         * @return {boolean} - Whether the edge has been removed from the graph.
+         * @return {boolean} - Whether the link has been removed from the graph.
          * */
-        removeEdge(source, target) {
-            const nodes = this.nodes;
-            if (nodes.has(source) && nodes.has(target)) {
-                nodes.get(source).dependents.delete(target);
-                nodes.get(target).dependencies.delete(source);
+        removeLink(source, target) {
+            const source_relations = this.get(source);
+            const target_relations = this.get(target);
+            if (source_relations && target_relations) {
+                source_relations.dependents.delete(target);
+                target_relations.dependencies.delete(source);
                 if (!this.directed) {
-                    nodes.get(target).dependents.delete(source);
-                    nodes.get(source).dependencies.delete(target);
+                    target_relations.dependents.delete(source);
+                    source_relations.dependencies.delete(target);
                 }
                 return true;
             }
             return false;
         }
         /**
-         * @function hasEdge
-         * @param {any} object
-         * @return {boolean} - Whether there is an edge between the {source} and {target} node in this graph.
+         * @function clearLinks
+         * Removes all links
          * */
-        hasEdge(source, target) {
-            return this.hasNode(source) && this.hasNode(target) && this.nodes.get(source).dependents.has(target);
+        clearLinks() {
+            for (let [, relations] of this) {
+                relations.dependents.clear();
+                relations.dependencies.clear();
+            }
         }
         /**
-         * Removes all nodes and edges from the graph.
-         * @function clear
-         * @return {boolean} - Whether all nodes have been removed.
+         * @function hasLink
+         * @param {any} source - The source node
+         * @param {any} target - The target node
+         * @return {boolean} - Whether there is an link between the {source} and {target} node in this graph.
          * */
-        clear() {
-            return this.nodes.clear();
+        hasLink(source, target) {
+            return this.has(source) && this.has(target) && this.get(source).dependents.has(target);
         }
         /**
          * @function hasCycle
          * @return {boolean} - Whether the graph has a cycle.
+         * Deep field search.
          * */
-        hasCycle(...args) {
-            return !!this.getCycle(...args);
-        }
-        /**
-         * @function getCycle
-         * @return {number} - The length of a cycle or {0} if there is no cycle.
-         * */
-        getCycle() {
-            const directed = this.directed;
+        hasCycle() {
             const finished = new Set();
             const visited = new Set();
-            for (let [, relations] of this.nodes) {
-                const depth = DFS.call(this, relations, undefined, 0);
-                if (depth) return depth;
-            }
-            return 0;
-
-            function DFS(node, dependency, length) {
-                if (!finished.has(node)) {
-                    if (visited.has(node)) return length;
-                    visited.add(node);
-                    const nodes = this.nodes;
-                    for (let [dependent] of node.dependents) {
-                        const dependent_node = nodes.get(dependent);
-                        if (directed || dependent_node !== dependency) {
-                            const depth = DFS.call(this, dependent_node, node, length + 1);
-                            if (depth) return depth;
-                        }
+            const search = (start_relations, referrer_relations) => {
+                for (let [dependent] of start_relations.dependents) {
+                    const dependent_relations = this.get(dependent);
+                    if (!this.directed && dependent_relations === referrer_relations) continue;
+                    if (visited.has(dependent_relations)) return true;else {
+                        visited.add(dependent_relations);
+                        if (search(dependent_relations, start_relations)) return true;
                     }
-                    finished.add(node);
                 }
-            }
-        }
-        /**
-         * @function getDegree
-         * @param {any} node
-         * @return {object} - An object containing all in-/out-nodes
-         * */
-        getDegree(node) {
-            const relations = this.nodes.get(node);
-            if (!relations) return this.nodes.map(([node, relations]) => ({
-                node, in: relations.dependencies.size,
-                out: relations.dependents.size
-            }));
-            return {
-                node: node,
-                in: relations.dependencies.size,
-                out: relations.dependents.size
             };
+            for (let [, relations] of this) {
+                if (finished.has(relations)) continue;
+                if (search(relations)) return true;
+                finished.add(...visited);
+                visited.clear();
+            }
+            return false;
         }
     }
     exports.Graph = Graph;
     /**
+     * @class AcyclicGraph
      * A class implementing cycleless graphs.
      * #Following https://en.wikipedia.org/wiki/Cycle_%28graph_theory%29
      * */
     class AcyclicGraph extends Graph {
         /**
-         * @function addEdge
+         * @function addLink
          * @param {any} source - The source node
          * @param {any} target - The target node
-         * @param {any} weight - The weight of the edge
+         * @param {any} weight - The weight of the link
          * @return {boolean} - Whether the object has been removed from the graph.
-         * The edge is only added if it does not create a cycle.
+         * The link is only added if it does not create a cycle.
          * */
-        addEdge(source, target, weight) {
-            const added = super.addEdge(source, target, weight);
-            if (added && this.hasCycle(true)) if (this.removeEdge(source, target)) return false;else throw Error("Cyclic node could not be removed");
+        addLink(source, target, weight) {
+            const added = super.addLink(source, target, weight);
+            if (added && this.hasCycle(true)) if (this.removeLink(source, target)) return false;else throw Error("Cyclic node could not be removed; Graph is no longer acyclic");
             return added;
-        }
-        /**
-         * @function getCycle
-         * @param {boolean} real - Whether a real test shall be performed (for debugging | normally returns 0 as acyclic graph).
-         * @return {number} - The length of a cycle or {0} if there is no cycle.
-         * */
-        getCycle(real = false) {
-            return !!real ? super.getCycle() : 0;
         }
         /**
          * @function hasCycle
@@ -239,28 +180,83 @@ define(["exports"], function (exports) {
          * @return {boolean} Whether the graph has a cycle.
          * */
         hasCycle(real = false) {
-            return !!super.hasCycle(real);
+            return real ? super.hasCycle() : false;
         }
     }
     exports.AcyclicGraph = AcyclicGraph;
     /**
+     * @class Tree
      * A class implementing trees.
      * #Following https://en.wikipedia.org/wiki/Tree_%28graph_theory%29
      * Must not be connected!
      * */
     class Tree extends AcyclicGraph {
         /**
-         * @function addEdge
+         * @function addLink
          * @param {any} source - The source node
          * @param {any} target - The target node
-         * @param {any} weight - The weight of the edge
+         * @param {any} weight - The weight of the link
          * @return {boolean} - Whether the object has been removed from the graph.
-         * The edge is only added if the result would be a tree.
+         * The link is only added if the result would be a tree.
          * */
-        addEdge(source, target, weight) {
-            if (this.nodes.get(target).dependencies.size > 0) return false;
-            return super.addEdge(source, target, weight);
+        addLink(source, target, weight) {
+            if (this.get(target).in > 0) return false;
+            return super.addLink(source, target, weight);
         }
     }
     exports.Tree = Tree;
+    /**
+     * A helper class.
+     * Handles relations between nodes.
+     * */
+    class Relations {
+        constructor() {
+            Object.defineProperties(this, {
+                "dependents": {
+                    value: new Map(),
+                    enumerable: true
+                },
+                "dependencies": {
+                    value: new Map(),
+                    enumerable: true
+                },
+                "in": {
+                    get() {
+                        return this.dependencies.size;
+                    },
+                    enumerable: true
+                },
+                "out": {
+                    get() {
+                        return this.dependents.size;
+                    },
+                    enumerable: true
+                }
+            });
+        }
+    }
+    /**
+     * @class Link
+     * A helper class.
+     * Represents a link between two nodes.
+     * */
+    class Link {
+        constructor(source, target, weight) {
+            Object.defineProperties(this, {
+                "source": {
+                    value: source,
+                    enumerable: true
+                },
+                "target": {
+                    value: target,
+                    enumerable: true
+                },
+                "weight": {
+                    value: weight,
+                    enumerable: true,
+                    writeable: true
+                }
+            });
+        }
+    }
 });

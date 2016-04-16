@@ -1,15 +1,15 @@
-import { Graph } from "../../lib/graph.js";
+import { Graph, AcyclicGraph } from "../../lib/graph.js";
 const graph = new Graph;
-for (let i = 0; i < 20; ++i) {
+for (let i = 0; i < 2e2; ++i) {
     graph.addNode({
         x: Math.random() * 500,
         y: Math.random() * 500,
         radius: 10
     });
 }
-const nodes = Array.from(graph.nodes.keys());
-for (let i = 0; i < 10; ++i) {
-    graph.addEdge(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
+const nodes = Array.from(graph.keys());
+for (let i = 0; i < 2e2; ++i) {
+    graph.addLink(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
 }
 if (window.Polymer) initialize();
 else addEventListener("WebComponentsReady", initialize);
@@ -20,6 +20,8 @@ function initialize() {
     display.graph = graph;
     const d3_force = document.querySelector("d3-force");
     window.d3_force = d3_force;
+    d3_force.nodes = nodes;
+    d3_force.links = Array.from(graph.links);
     d3_force.start = true;
     d3_force.send();
 }

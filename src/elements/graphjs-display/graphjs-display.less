@@ -2,7 +2,7 @@
 
 :host {
     --node-color: @node;
-    --edge-color: @edge;
+    --link-color: @link;
 }
 graphjs-display {
     display: flex;
@@ -30,9 +30,9 @@ graphjs-display {
             }
         }
         >path {
-            fill: @edge;
-            fill: var(--edge-color, @edge);
-            stroke: @edge;
+            fill: @link;
+            fill: var(--link-color, @link);
+            stroke: @link;
             stroke-width: 1px;
             transition: opacity 0.5s;
             &[loop] {

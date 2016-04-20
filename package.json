@@ -34,11 +34,10 @@
     "grunt-contrib-uglify": "",
     "grunt-contrib-watch": "",
     "grunt-crisper": "",
-    "grunt-mocha-test": "",
+    "grunt-mocha-cli": "",
     "grunt-vulcanize": "",
-    "mocha": "^2.4.5",
+    "mocha": "",
     "requirejs": "",
-    "smash": "",
     "uglify-js": ""
   },
   "devDependencies": {},

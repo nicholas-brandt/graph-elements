@@ -1,4 +1,6 @@
 "use strict";
+
+const babelPlugins = ["babel-plugin-check-es2015-constants", "babel-plugin-transform-es2015-arrow-functions", "babel-plugin-transform-es2015-block-scoped-functions", "babel-plugin-transform-es2015-block-scoping", "babel-plugin-transform-es2015-classes", "babel-plugin-transform-es2015-computed-properties", "babel-plugin-transform-es2015-destructuring", "babel-plugin-transform-es2015-for-of", "babel-plugin-transform-es2015-function-name", "babel-plugin-transform-es2015-literals", "babel-plugin-transform-es2015-object-super", "babel-plugin-transform-es2015-parameters", "babel-plugin-transform-es2015-shorthand-properties", "babel-plugin-transform-es2015-spread", "babel-plugin-transform-es2015-sticky-regex", "babel-plugin-transform-es2015-template-literals", "babel-plugin-transform-es2015-typeof-symbol", "babel-plugin-transform-es2015-unicode-regex", "babel-plugin-transform-regenerator"];
 const src = "src";
 const build = "build";
 const config = {
@@ -68,7 +70,11 @@ const config = {
         }
     },
     cssmin: {},
-    mochaTest: {}
+    mochacli: {
+        options: {
+            harmony: true
+        }
+    }
 };
 const elementsSrc = src + "/elements";
 const elementsBuild = build + "/elements";
@@ -172,27 +178,20 @@ config.cssmin.apps = {
         src: ["**/*.css"]
     }]
 };
+config.babel.transpile = {
+    options: {
+        plugins: babelPlugins.concat("transform-es2015-modules-commonjs")
+    },
+    files: [{
+        expand: true,
+        cwd: src + "/lib",
+        dest: "transpiled/lib",
+        src: ["**/*.js"]
+    }]
+};
 config.babel.tests = {
     options: {
-        plugins: ["babel-plugin-check-es2015-constants",
-                      "babel-plugin-transform-es2015-arrow-functions",
-                      "babel-plugin-transform-es2015-block-scoped-functions",
-                      "babel-plugin-transform-es2015-block-scoping",
-                      "babel-plugin-transform-es2015-classes",
-                      "babel-plugin-transform-es2015-computed-properties",
-                      "babel-plugin-transform-es2015-destructuring",
-                      "babel-plugin-transform-es2015-for-of",
-                      "babel-plugin-transform-es2015-function-name",
-                      "babel-plugin-transform-es2015-literals",
-                      "babel-plugin-transform-es2015-object-super",
-                      "babel-plugin-transform-es2015-parameters",
-                      "babel-plugin-transform-es2015-shorthand-properties",
-                      "babel-plugin-transform-es2015-spread",
-                      "babel-plugin-transform-es2015-sticky-regex",
-                      "babel-plugin-transform-es2015-template-literals",
-                      "babel-plugin-transform-es2015-typeof-symbol",
-                      "babel-plugin-transform-es2015-unicode-regex",
-                      "babel-plugin-transform-regenerator"]
+        plugins: babelPlugins
     },
     files: [{
         expand: true,
@@ -209,22 +208,24 @@ config.uglify.tests = {
         src: ["**/*.js"]
     }]
 };
-config.mochaTest.graph = {
+config.mochacli.graph = {
     src: "build/tests/*.js",
     options: {
         reporter: "json",
-        captureFile: "build/tests/report.json",
-        quiet: false
+        save: "build/tests/report.json",
+        quiet: false,
+        force: true,
+        harmony: true
     }
 };
-const modules = ["babel", "contrib-uglify", "vulcanize", "contrib-htmlmin", "contrib-less", "contrib-cssmin", "crisper", "contrib-watch", "mocha-test"];
+const modules = ["babel", "contrib-uglify", "vulcanize", "contrib-htmlmin", "contrib-less", "contrib-cssmin", "crisper", "contrib-watch", "mocha-cli"];
 module.exports = grunt => {
     grunt.initConfig(config);
     for (let mod of modules) grunt.loadNpmTasks("grunt-" + mod);
     grunt.registerTask("default", ["watch"]);
-    grunt.registerTask("run", ["less", "cssmin", "babel", "htmlmin", "mochaTest"]);
+    grunt.registerTask("run", ["less", "cssmin", "babel", "htmlmin", "mochacli"]);
     grunt.registerTask("apps", ["htmlmin", "babel", "less", "cssmin"].map(task => task + ":apps"));
     grunt.registerTask("elements", ["htmlmin", "babel", "less", "cssmin"].map(task => task + ":elements"));
     grunt.registerTask("library", ["babel:library"]);
-    grunt.registerTask("test", ["babel:tests", "uglify:tests", "mochaTest:graph"]);
+    grunt.registerTask("test", ["babel:tests", "uglify:tests", "mochacli:graph"]);
 };

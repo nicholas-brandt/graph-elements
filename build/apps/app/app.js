@@ -2,15 +2,16 @@ define(["../../lib/graph.js"], function (_graph) {
     "use strict";
 
     const graph = new _graph.Graph();
-    for (let i = 0; i < 2e2; ++i) {
+    for (let i = 0; i < 4; ++i) {
         graph.addNode({
             x: Math.random() * 500,
             y: Math.random() * 500,
-            radius: 10
+            radius: 10,
+            index: i
         });
     }
     const nodes = Array.from(graph.keys());
-    for (let i = 0; i < 2e2; ++i) {
+    for (let i = 0; i < 8; ++i) {
         graph.addLink(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
     }
     if (window.Polymer) initialize();else addEventListener("WebComponentsReady", initialize);

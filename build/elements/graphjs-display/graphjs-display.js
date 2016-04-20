@@ -56,8 +56,8 @@ Polymer({
     },
     _calcPath({ source, target }) {
         if (source === target) {
-            const short = source.radius / 2;
-            const long = source.radius * 2;
+            const short = source.radius / 3;
+            const long = source.radius * 3;
             return `M ${ source.x } ${ source.y }c ${ short } ${ long } ${ long } ${ short } 0 0`;
         } else {
             const x_diff = target.x - source.x;
@@ -80,6 +80,7 @@ Polymer({
         this.$.svg.innerHTML = "";
         for (let link of this.graph.links) {
             if (!link._path) link._path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            if (link.source === link.target) link._path.setAttribute("loop", "");else link._path.removeAttribute("loop");
             this.$.svg.appendChild(link._path);
         }
         for (let [node, relations] of this.graph) {

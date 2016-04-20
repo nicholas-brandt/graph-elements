@@ -149,6 +149,22 @@ export class Graph extends Map {
         }
         return false;
     }
+    /**
+    * @function getAllCyclesFromNode
+    * @param {any} node - The node contained by all cycles
+    * @return {Set} - A set of all cycles containing the node
+    * */
+    getAllCyclesFromNode(start_node) {
+        const cycles = new Set;
+        const search = (node, path) => {
+            for (let [neighbor_node] of this.get(node).dependents)
+                if (neighbor_node === start_node) cycles.add(path);
+                else if (!path.includes(neighbor_node)) search(neighbor_node, path.concat(neighbor_node));
+        };
+        const relations = this.get(start_node);
+        if (relations) search(start_node, [start_node]);
+        return cycles;
+    }
 }
 /**
  * @class AcyclicGraph

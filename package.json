@@ -15,7 +15,13 @@
   "dependencies": {
     "babel-plugin-transform-es2015-modules-amd": "",
     "babel-plugin-transform-es2015-modules-commonjs": "",
+    "babel-preset-es2015": "",
+    "babel-preset-stage-0": "",
+    "babel-preset-stage-1": "",
+    "babel-preset-stage-2": "",
+    "babel-preset-stage-3": "",
     "babelify": "",
+    "chai": "^3.5.0",
     "circular-json": "",
     "d3": "",
     "grunt": "",
@@ -28,7 +34,9 @@
     "grunt-contrib-uglify": "",
     "grunt-contrib-watch": "",
     "grunt-crisper": "",
+    "grunt-mocha-test": "",
     "grunt-vulcanize": "",
+    "mocha": "^2.4.5",
     "requirejs": "",
     "smash": "",
     "uglify-js": ""

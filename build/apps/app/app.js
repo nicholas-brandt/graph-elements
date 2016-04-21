@@ -27,4 +27,7 @@ define(["../../lib/graph.js"], function (_graph) {
         d3_force.start = true;
         d3_force.send();
     }
+
+    window.Graph = _graph.Graph;
+    window.AcyclicGraph = _graph.AcyclicGraph;
 });

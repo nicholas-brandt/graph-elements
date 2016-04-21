@@ -26,3 +26,6 @@ function initialize() {
     d3_force.start = true;
     d3_force.send();
 }
+
+window.Graph = Graph;
+window.AcyclicGraph = AcyclicGraph;

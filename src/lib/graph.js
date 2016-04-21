@@ -10,14 +10,14 @@ export class Graph extends Map {
      * @returns {boolean} - Whether the graph is unidirectional.
      * */
     get directed() {
-        return this[$directed];
+        return !!this[$directed];
     }
     /**
      * @setter directed
      * @param {boolean} directed - Whether the graph shall be unidirectional.
      * */
     set directed(directed) {
-        this[$directed] = !! directed;
+        this[$directed] = !!directed;
         const links = this.links;
         this.clearLinks();
         for (let {source, target, weight} of links) this.addLink(source, target, weight);
@@ -42,7 +42,7 @@ export class Graph extends Map {
         if (this.has(node)) return false;
         // {relations} to be stored in the {nodes} map
         // stored as a double-linked list
-        this.set(node, new Relations);
+        super.set(node, new Relations);
         return true;
     }
     /**
@@ -131,14 +131,12 @@ export class Graph extends Map {
         const finished = new Set;
         const visited = new Set;
         const search = (start_relations, referrer_relations) => {
+            visited.add(start_relations);
             for (let [dependent] of start_relations.dependents) {
                 const dependent_relations = this.get(dependent);
                 if (!this.directed && dependent_relations === referrer_relations) continue;
                 if (visited.has(dependent_relations)) return true;
-                else {
-                    visited.add(dependent_relations);
-                    if (search(dependent_relations, start_relations)) return true;
-                }
+                else if (search(dependent_relations, start_relations)) return true;
             }
         };
         for (let [, relations] of this) {
@@ -165,6 +163,23 @@ export class Graph extends Map {
         if (relations) search(start_node, [start_node]);
         return cycles;
     }
+    /**
+     * @function set
+     * @override
+     * @param {any} node - The node to be set
+     * @param {any} meta_data - Meta data belonging to the {node}
+     * @return {this} - The current Map
+     * */
+    set(node, meta_data) {
+        const relations = this.get(node);
+        if (relations) {
+            // just set the meta data
+            relations.metaData = meta_data;
+            return this;
+        }
+        // create new {Relations} with the meta data
+        return super.set(node, new Relations(meta_data));
+    }
 }
 /**
  * @class AcyclicGraph
@@ -189,7 +204,7 @@ export class AcyclicGraph extends Graph {
     }
     /**
      * @function hasCycle
-     * @param {boolean} real - Whether a real test shall be performed (for debugging | normally returns false as acyclic graph).
+     * @param {boolean} real - Whether a real test shall be performed (for debugging | must return false as acyclic graph).
      * @return {boolean} Whether the graph has a cycle.
      * */
     hasCycle(real = false) {
@@ -221,7 +236,7 @@ export class Tree extends AcyclicGraph {
  * Handles relations between nodes.
  * */
 class Relations {
-    constructor() {
+    constructor(meta_data) {
         Object.defineProperties(this, {
             "dependents": {
                 value: new Map,
@@ -242,6 +257,12 @@ class Relations {
                     return this.dependents.size;
                 },
                 enumerable: true
+            },
+            "metaData": {
+                value: meta_data,
+                enumerable: true,
+                writable: true,
+                configurable: true
             }
         });
     }

@@ -19,10 +19,14 @@ define(["exports", "./acyclic-graph.js"], function (exports, _acyclicGraph) {
      * #Following https://en.wikipedia.org/wiki/Tree_%28graph_theory%29
      * Must not be connected!
      * */
-    class Tree extends _acyclicGraph2.default {
-        preCondition(source, target) {
-            return this.get(target).in > 0;
+    class OutTree extends _acyclicGraph2.default {
+        set directed(directed) {}
+        get directed() {
+            return true;
+        }
+        preCondition(target) {
+            return this.get(target).in === 0;
         }
     }
-    exports.default = Tree;
+    exports.default = OutTree;
 });

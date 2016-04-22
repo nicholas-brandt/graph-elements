@@ -10,6 +10,9 @@ var _conditionedGraph2 = _interopRequireDefault(_conditionedGraph);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var $maxInLinks = Symbol();
+var $maxOutLinks = Symbol();
+
 /**
  * @class MaxLinkGraph
  * A class implementing graphs with maximal IO links.

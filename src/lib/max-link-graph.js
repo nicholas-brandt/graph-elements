@@ -1,5 +1,8 @@
 import ConditionedGraph from "./conditioned-graph.js";
 
+const $maxInLinks = Symbol();
+const $maxOutLinks = Symbol();
+
 /**
  * @class MaxLinkGraph
  * A class implementing graphs with maximal IO links.

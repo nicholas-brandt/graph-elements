@@ -13,6 +13,8 @@ define(["exports", "./conditioned-graph.js"], function (exports, _conditionedGra
         };
     }
 
+    const $maxCycleLength = Symbol();
+
     /**
      * @class MaxCyclicGraph
      * A class implementing graphs with a maximal cycle length.

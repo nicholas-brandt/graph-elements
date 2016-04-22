@@ -1,33 +1,26 @@
 {
   "stats": {
     "suites": 3,
-    "tests": 25,
-    "passes": 25,
+    "tests": 26,
+    "passes": 26,
     "pending": 0,
     "failures": 0,
-    "start": "2016-04-22T10:24:20.885Z",
-    "end": "2016-04-22T10:24:20.901Z",
-    "duration": 16
+    "start": "2016-04-22T23:38:24.313Z",
+    "end": "2016-04-22T23:38:24.344Z",
+    "duration": 31
   },
   "tests": [
     {
-      "title": "Graph is function",
-      "fullTitle": "Graph consistency Graph is function",
-      "duration": 1,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
       "title": "Graph is constructor",
       "fullTitle": "Graph consistency Graph is constructor",
-      "duration": 1,
+      "duration": 2,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph is instanceof Map",
       "fullTitle": "Graph consistency Graph is instanceof Map",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -39,8 +32,29 @@
       "err": {}
     },
     {
+      "title": "Graph#set",
+      "fullTitle": "Graph consistency Graph#set",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "Graph#delete",
+      "fullTitle": "Graph consistency Graph#delete",
+      "duration": 2,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
       "title": "Graph#addNode",
       "fullTitle": "Graph consistency Graph#addNode",
+      "duration": 0,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "Graph#addNodes",
+      "fullTitle": "Graph consistency Graph#addNodes",
       "duration": 1,
       "currentRetry": 0,
       "err": {}
@@ -48,14 +62,21 @@
     {
       "title": "Graph#removeNode",
       "fullTitle": "Graph consistency Graph#removeNode",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
-      "title": "Graph#set",
-      "fullTitle": "Graph consistency Graph#set",
-      "duration": 0,
+      "title": "Graph#removeNodes",
+      "fullTitle": "Graph consistency Graph#removeNodes",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "Graph#links",
+      "fullTitle": "Graph consistency Graph#links",
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -67,9 +88,9 @@
       "err": {}
     },
     {
-      "title": "Graph#links",
-      "fullTitle": "Graph consistency Graph#links",
-      "duration": 0,
+      "title": "Graph#addLinks",
+      "fullTitle": "Graph consistency Graph#addLinks",
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -83,14 +104,14 @@
     {
       "title": "Graph#clearLinks",
       "fullTitle": "Graph consistency Graph#clearLinks",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#hasCycle",
       "fullTitle": "Graph consistency Graph#hasCycle",
-      "duration": 1,
+      "duration": 2,
       "currentRetry": 0,
       "err": {}
     },
@@ -109,16 +130,44 @@
       "err": {}
     },
     {
-      "title": "AcyclicGraph is function",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph is function",
+      "title": "Graph#getMaximalCycleLength",
+      "fullTitle": "Graph consistency Graph#getMaximalCycleLength",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph is instanceof Graph",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph is instanceof Graph",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph#preCondition is true by default",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#preCondition is true by default",
       "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
-      "title": "AcyclicGraph is constructor",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph is constructor",
+      "title": "ConditionedGraph#postCondition is true by default",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#postCondition is true by default",
       "duration": 0,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph#addLink is pre-conditioned",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#addLink is pre-conditioned",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph#addLink is post-conditioned",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#addLink is post-conditioned",
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -132,55 +181,13 @@
     {
       "title": "AcyclicGraph#addLink",
       "fullTitle": "AcyclicGraph consistency AcyclicGraph#addLink",
-      "duration": 0,
+      "duration": 2,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "AcyclicGraph#hasCycle",
       "fullTitle": "AcyclicGraph consistency AcyclicGraph#hasCycle",
-      "duration": 1,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "AcyclicGraph#getAllCyclesByNode",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph#getAllCyclesByNode",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "AcyclicGraph#getMaximalCycleLengthByNode",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph#getMaximalCycleLengthByNode",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree is function",
-      "fullTitle": "Tree consistency Tree is function",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree is constructor",
-      "fullTitle": "Tree consistency Tree is constructor",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree is instanceof Map",
-      "fullTitle": "Tree consistency Tree is instanceof Map",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree#addLink",
-      "fullTitle": "Tree consistency Tree#addLink",
       "duration": 0,
       "currentRetry": 0,
       "err": {}
@@ -190,23 +197,16 @@
   "failures": [],
   "passes": [
     {
-      "title": "Graph is function",
-      "fullTitle": "Graph consistency Graph is function",
-      "duration": 1,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
       "title": "Graph is constructor",
       "fullTitle": "Graph consistency Graph is constructor",
-      "duration": 1,
+      "duration": 2,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph is instanceof Map",
       "fullTitle": "Graph consistency Graph is instanceof Map",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -218,8 +218,29 @@
       "err": {}
     },
     {
+      "title": "Graph#set",
+      "fullTitle": "Graph consistency Graph#set",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "Graph#delete",
+      "fullTitle": "Graph consistency Graph#delete",
+      "duration": 2,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
       "title": "Graph#addNode",
       "fullTitle": "Graph consistency Graph#addNode",
+      "duration": 0,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "Graph#addNodes",
+      "fullTitle": "Graph consistency Graph#addNodes",
       "duration": 1,
       "currentRetry": 0,
       "err": {}
@@ -227,14 +248,21 @@
     {
       "title": "Graph#removeNode",
       "fullTitle": "Graph consistency Graph#removeNode",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
-      "title": "Graph#set",
-      "fullTitle": "Graph consistency Graph#set",
-      "duration": 0,
+      "title": "Graph#removeNodes",
+      "fullTitle": "Graph consistency Graph#removeNodes",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "Graph#links",
+      "fullTitle": "Graph consistency Graph#links",
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -246,9 +274,9 @@
       "err": {}
     },
     {
-      "title": "Graph#links",
-      "fullTitle": "Graph consistency Graph#links",
-      "duration": 0,
+      "title": "Graph#addLinks",
+      "fullTitle": "Graph consistency Graph#addLinks",
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -262,14 +290,14 @@
     {
       "title": "Graph#clearLinks",
       "fullTitle": "Graph consistency Graph#clearLinks",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#hasCycle",
       "fullTitle": "Graph consistency Graph#hasCycle",
-      "duration": 1,
+      "duration": 2,
       "currentRetry": 0,
       "err": {}
     },
@@ -288,16 +316,44 @@
       "err": {}
     },
     {
-      "title": "AcyclicGraph is function",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph is function",
+      "title": "Graph#getMaximalCycleLength",
+      "fullTitle": "Graph consistency Graph#getMaximalCycleLength",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph is instanceof Graph",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph is instanceof Graph",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph#preCondition is true by default",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#preCondition is true by default",
       "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
-      "title": "AcyclicGraph is constructor",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph is constructor",
+      "title": "ConditionedGraph#postCondition is true by default",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#postCondition is true by default",
       "duration": 0,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph#addLink is pre-conditioned",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#addLink is pre-conditioned",
+      "duration": 1,
+      "currentRetry": 0,
+      "err": {}
+    },
+    {
+      "title": "ConditionedGraph#addLink is post-conditioned",
+      "fullTitle": "ConditionedGraph consistency ConditionedGraph#addLink is post-conditioned",
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -311,55 +367,13 @@
     {
       "title": "AcyclicGraph#addLink",
       "fullTitle": "AcyclicGraph consistency AcyclicGraph#addLink",
-      "duration": 0,
+      "duration": 2,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "AcyclicGraph#hasCycle",
       "fullTitle": "AcyclicGraph consistency AcyclicGraph#hasCycle",
-      "duration": 1,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "AcyclicGraph#getAllCyclesByNode",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph#getAllCyclesByNode",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "AcyclicGraph#getMaximalCycleLengthByNode",
-      "fullTitle": "AcyclicGraph consistency AcyclicGraph#getMaximalCycleLengthByNode",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree is function",
-      "fullTitle": "Tree consistency Tree is function",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree is constructor",
-      "fullTitle": "Tree consistency Tree is constructor",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree is instanceof Map",
-      "fullTitle": "Tree consistency Tree is instanceof Map",
-      "duration": 0,
-      "currentRetry": 0,
-      "err": {}
-    },
-    {
-      "title": "Tree#addLink",
-      "fullTitle": "Tree consistency Tree#addLink",
       "duration": 0,
       "currentRetry": 0,
       "err": {}

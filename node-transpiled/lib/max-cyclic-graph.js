@@ -10,6 +10,8 @@ var _conditionedGraph2 = _interopRequireDefault(_conditionedGraph);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var $maxCycleLength = Symbol();
+
 /**
  * @class MaxCyclicGraph
  * A class implementing graphs with a maximal cycle length.

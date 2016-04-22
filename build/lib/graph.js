@@ -6,9 +6,6 @@ define(["exports"], function (exports) {
     });
     // private properties
     const $directed = Symbol();
-    const $maxCycleLength = Symbol();
-    const $maxInLinks = Symbol();
-    const $maxOutLinks = Symbol();
     /**
      * @class Graph
      * Fundamental class that implements the basic graph structures.
@@ -33,18 +30,35 @@ define(["exports"], function (exports) {
             for (let { source, target, metaData } of links) this.addLink(source, target, metaData);
         }
         /**
-         * @getter links
-         * @returns {Set} - A set of all links.
+         * @function set
+         * @override
+         * @param {any} node - The node to be set
+         * @param {any} meta_data - Meta data belonging to the {node}
+         * @return {this} - The current Map
          * */
-        get links() {
-            const links = new Set();
-            for (let [, relations] of this) for (let [, link] of relations.dependents) links.add(link);
-            return links;
+        set(node, meta_data) {
+            const relations = this.get(node);
+            if (relations) {
+                // just set the meta data
+                relations.metaData = meta_data;
+                return this;
+            }
+            // create new {Relations} with the meta data
+            return super.set(node, new Relations(meta_data));
+        }
+        /**
+         * @function removeNode
+         * @override
+         * @param {any} node - The node to be removed.
+         * @return {boolean} - Whether the object has been removed from the graph.
+         * */
+        delete(node) {
+            return this.removeNode(node);
         }
         /**
          * @function addNode
          * @param {any} node - An object to be set as a node.
-         * @returns {Graph} - {this} forr chaining
+         * @returns {Graph} - {this} for chaining
          * */
         addNode(node) {
             // {relations} to be stored in the {nodes} map
@@ -53,17 +67,18 @@ define(["exports"], function (exports) {
         }
         /**
          * @function addNodes
-         * @param {Iterable} nodes - An Iterable of nodes
+         * @param {Iterable} nodes - An Iterable of nodes to be added
          * @returns {Graph} - {this} for chaining
          * */
-        addNodes(nodes) {
+        addNodes(...nodes) {
+            if (arguments.length <= 1) nodes = nodes[0];
             for (let node of nodes) this.addNode(node);
             return this;
         }
         /**
          * @function removeNode
-         * @param {any} node - The node to be removed.
-         * @return {boolean} - Whether the object has been removed from the graph.
+         * @param {any} node - The node to be removed
+         * @return {boolean} - Whether the object has been removed
          * */
         removeNode(node) {
             const relations = this.get(node);
@@ -74,6 +89,26 @@ define(["exports"], function (exports) {
             for (let [, dependents] of relations.dependencies) dependents.delete(node);
             for (let [, dependencies] of relations.dependents) dependencies.delete(node);
             return deleted;
+        }
+        /**
+         * @function removesNode
+         * @param {Iterable} nodes - An Iterable of nodes to be removed
+         * @return {boolean} - Whether all nodes have been removed
+         * */
+        removeNodes(...nodes) {
+            if (arguments.length <= 1) nodes = nodes[0];
+            let success = true;
+            for (let node of nodes) if (!this.removeNode(node)) success = false;
+            return success;
+        }
+        /**
+         * @getter links
+         * @returns {Set} - A set of all links.
+         * */
+        get links() {
+            const links = new Set();
+            for (let [, relations] of this) for (let [, link] of relations.dependents) links.add(link);
+            return links;
         }
         /**
          * @function addLink
@@ -100,12 +135,14 @@ define(["exports"], function (exports) {
         }
         /**
          * @function addLinks
-         * @param {Iterable} links - An Iterable of links
+         * @param {Iterable} links - An Iterable of links to be added
          * @returns {Graph} - {this} for chaining
          * */
-        addLinks(links) {
-            for (let { source, target, metaData } of links) this.addLink(source, target, metaData);
-            return this;
+        addLinks(...links) {
+            if (arguments.length <= 1) links = links[0];
+            let success = true;
+            for (let { source, target, metaData } of links) if (!this.addLink(source, target, metaData)) success = false;
+            return success;
         }
         /**
          * @function removeLink
@@ -126,6 +163,17 @@ define(["exports"], function (exports) {
                 return true;
             }
             return false;
+        }
+        /**
+         * @function removeLinks
+         * @param {Iterable} links - An Iterable of links to be removed
+         * @return {boolean} - Whether all links has been removed from the graph.
+         * */
+        removeLinks(...links) {
+            if (arguments.length <= 1) links = links[0];
+            let success = true;
+            for (let { source, target, metaData } of links) if (!this.removeLink(source, target, metaData)) success = false;
+            return success;
         }
         /**
          * @function clearLinks
@@ -219,32 +267,6 @@ define(["exports"], function (exports) {
             };
             for (let [current_node] of this) if (!visited.has(current_node)) search(current_node, [current_node]);
             return max_length;
-        }
-        /**
-         * @function set
-         * @override
-         * @param {any} node - The node to be set
-         * @param {any} meta_data - Meta data belonging to the {node}
-         * @return {this} - The current Map
-         * */
-        set(node, meta_data) {
-            const relations = this.get(node);
-            if (relations) {
-                // just set the meta data
-                relations.metaData = meta_data;
-                return this;
-            }
-            // create new {Relations} with the meta data
-            return super.set(node, new Relations(meta_data));
-        }
-        /**
-         * @function removeNode
-         * @override
-         * @param {any} node - The node to be removed.
-         * @return {boolean} - Whether the object has been removed from the graph.
-         * */
-        delete(node) {
-            return this.removeNode(node);
         }
     }
     exports.default = Graph;

@@ -1,5 +1,7 @@
 import ConditionedGraph from "./conditioned-graph.js";
 
+const $maxCycleLength = Symbol();
+
 /**
  * @class MaxCyclicGraph
  * A class implementing graphs with a maximal cycle length.

@@ -13,6 +13,9 @@ define(["exports", "./conditioned-graph.js"], function (exports, _conditionedGra
         };
     }
 
+    const $maxInLinks = Symbol();
+    const $maxOutLinks = Symbol();
+
     /**
      * @class MaxLinkGraph
      * A class implementing graphs with maximal IO links.

@@ -6,13 +6,18 @@ import ConditionedGraph from "./conditioned-graph.js";
  * #Following https://en.wikipedia.org/wiki/Cycle_%28graph_theory%29
  * */
 export default class AcyclicGraph extends ConditionedGraph {
+    /**
+     * @function postCondition
+     * @override
+     * @return {Boolean} - Whether the graph is acyclic
+     * */
     postCondition() {
-        return !this.hasCycle(true);
+        return !super.hasCycle();
     }
     /**
      * @function hasCycle
      * @param {boolean} real - Whether a real test shall be performed (for debugging | must return false as acyclic graph).
-     * @return {boolean} Whether the graph has a cycle.
+     * @return {boolean} - Whether the graph has a cycle.
      * */
     hasCycle(real = false) {
         return real ? super.hasCycle() : false;

@@ -1,6 +1,18 @@
-import { Graph, AcyclicGraph } from "../../lib/graph.js";
-const graph = new Graph;
-for (let i = 0; i < 4; ++i) {
+import Graph from "../../lib/graph.js";
+import ConditionedGraph from "../../lib/conditioned-graph.js";
+
+const graph = new class HybridGraph extends ConditionedGraph {
+    preCondition(source, target) {
+        return this.get(target).in < 3 && this.get(source).out < 3;
+    }
+    postCondition() {
+        return this.getMaximalCycleLength() <= 6;
+    }
+};
+graph.maxCycleLength = 3;
+graph.maxOutLinks = 3;
+graph.maxInLinks = 3;
+for (let i = 0; i < 50; ++i) {
     graph.addNode({
         x: Math.random() * 500,
         y: Math.random() * 500,
@@ -9,7 +21,7 @@ for (let i = 0; i < 4; ++i) {
     });
 }
 const nodes = Array.from(graph.keys());
-for (let i = 0; i < 8; ++i) {
+for (let i = 0; i < 1000; ++i) {
     graph.addLink(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
 }
 if (window.Polymer) initialize();
@@ -28,4 +40,4 @@ function initialize() {
 }
 
 window.Graph = Graph;
-window.AcyclicGraph = AcyclicGraph;
+//window.AcyclicGraph = AcyclicGraph;

@@ -1,8 +1,28 @@
-define(["../../lib/graph.js"], function (_graph) {
+define(["../../lib/graph.js", "../../lib/conditioned-graph.js"], function (_graph, _conditionedGraph) {
     "use strict";
 
-    const graph = new _graph.Graph();
-    for (let i = 0; i < 4; ++i) {
+    var _graph2 = _interopRequireDefault(_graph);
+
+    var _conditionedGraph2 = _interopRequireDefault(_conditionedGraph);
+
+    function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+            default: obj
+        };
+    }
+
+    const graph = new class HybridGraph extends _conditionedGraph2.default {
+        preCondition(source, target) {
+            return this.get(target).in < 3 && this.get(source).out < 3;
+        }
+        postCondition() {
+            return this.getMaximalCycleLength() <= 6;
+        }
+    }();
+    graph.maxCycleLength = 3;
+    graph.maxOutLinks = 3;
+    graph.maxInLinks = 3;
+    for (let i = 0; i < 50; ++i) {
         graph.addNode({
             x: Math.random() * 500,
             y: Math.random() * 500,
@@ -11,7 +31,7 @@ define(["../../lib/graph.js"], function (_graph) {
         });
     }
     const nodes = Array.from(graph.keys());
-    for (let i = 0; i < 8; ++i) {
+    for (let i = 0; i < 1000; ++i) {
         graph.addLink(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
     }
     if (window.Polymer) initialize();else addEventListener("WebComponentsReady", initialize);
@@ -28,6 +48,6 @@ define(["../../lib/graph.js"], function (_graph) {
         d3_force.send();
     }
 
-    window.Graph = _graph.Graph;
-    window.AcyclicGraph = _graph.AcyclicGraph;
+    window.Graph = _graph2.default;
+    //window.AcyclicGraph = AcyclicGraph;
 });

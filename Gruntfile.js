@@ -199,21 +199,21 @@ config.babel.tests = {
         src: ["**/*.js"]
     }]
 };
-config.uglify.tests = {
-    files: [{
-        expand: true,
-        cwd: testsBuild,
-        dest: testsBuild,
-        src: ["**/*.js"]
-    }]
-};
+//config.uglify.tests = {
+//    files: [{
+//        expand: true,
+//        cwd: testsBuild,
+//        dest: testsBuild,
+//        src: ["**/*.js"]
+//    }]
+//};
 config.mochacli.graph = {
     src: "build/tests/*.js",
     options: {
         reporter: "json",
         save: "build/tests/report.json",
         quiet: false,
-        force: true,
+        force: false,
         harmony: true
     }
 };
@@ -226,5 +226,5 @@ module.exports = grunt => {
     grunt.registerTask("apps", ["htmlmin", "babel", "less", "cssmin"].map(task => task + ":apps"));
     grunt.registerTask("elements", ["htmlmin", "babel", "less", "cssmin"].map(task => task + ":elements"));
     grunt.registerTask("library", ["babel:library"]);
-    grunt.registerTask("test", ["babel:tests", "uglify:tests", "mochacli:graph"]);
+    grunt.registerTask("test", ["babel:tests", /*"uglify:tests",*/ "mochacli:graph"]);
 };

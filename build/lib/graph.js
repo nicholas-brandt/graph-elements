@@ -4,7 +4,11 @@ define(["exports"], function (exports) {
     Object.defineProperty(exports, "__esModule", {
         value: true
     });
+    // private properties
     const $directed = Symbol();
+    const $maxCycleLength = Symbol();
+    const $maxInLinks = Symbol();
+    const $maxOutLinks = Symbol();
     /**
      * @class Graph
      * Fundamental class that implements the basic graph structures.
@@ -26,7 +30,7 @@ define(["exports"], function (exports) {
             this[$directed] = !!directed;
             const links = this.links;
             this.clearLinks();
-            for (let { source, target, weight } of links) this.addLink(source, target, weight);
+            for (let { source, target, metaData } of links) this.addLink(source, target, metaData);
         }
         /**
          * @getter links
@@ -40,15 +44,21 @@ define(["exports"], function (exports) {
         /**
          * @function addNode
          * @param {any} node - An object to be set as a node.
-         * @returns {boolean} - {true} if the object has been set as a node
-         *                      {false} if the object was already a node in this graph.
+         * @returns {Graph} - {this} forr chaining
          * */
         addNode(node) {
-            if (this.has(node)) return false;
             // {relations} to be stored in the {nodes} map
             // stored as a double-linked list
-            super.set(node, new Relations());
-            return true;
+            return super.set(node, new Relations());
+        }
+        /**
+         * @function addNodes
+         * @param {Iterable} nodes - An Iterable of nodes
+         * @returns {Graph} - {this} for chaining
+         * */
+        addNodes(nodes) {
+            for (let node of nodes) this.addNode(node);
+            return this;
         }
         /**
          * @function removeNode
@@ -56,37 +66,46 @@ define(["exports"], function (exports) {
          * @return {boolean} - Whether the object has been removed from the graph.
          * */
         removeNode(node) {
-            if (!this.has(node)) return false;
-            const relations = this.nodes.get(object);
+            const relations = this.get(node);
+            if (!relations) return false;
             // remove {object} from nodes
-            this.nodes.delete(object);
+            const deleted = super.delete(node);
             // remove all links containing {object}
-            for (let [, dependents] of relations.dependencies) dependents.delete(object);
-            for (let [, dependencies] of relations.dependents) dependencies.delete(object);
-            return true;
+            for (let [, dependents] of relations.dependencies) dependents.delete(node);
+            for (let [, dependencies] of relations.dependents) dependencies.delete(node);
+            return deleted;
         }
         /**
          * @function addLink
          * @param {any} source - The source node
          * @param {any} target - The target node
-         * @param {any} weight - The weight of the link
+         * @param {any} meta_data - The meta data of the link
          * @return {boolean} - Whether the object has been removed from the graph.
          * */
-        addLink(source, target, weight = 1) {
+        addLink(source, target, meta_data) {
             const source_relations = this.get(source);
             const target_relations = this.get(target);
             if (source_relations && target_relations) {
-                const link = new Link(source, target, weight);
+                const link = new Link(source, target, meta_data);
                 source_relations.dependents.set(target, link);
                 target_relations.dependencies.set(source, link);
                 if (!this.directed) {
-                    const reverse_link = new Link(target, source, weight);
+                    const reverse_link = new Link(target, source, meta_data);
                     target_relations.dependents.set(source, reverse_link);
                     source_relations.dependencies.set(target, reverse_link);
                 }
                 return true;
             }
             return false;
+        }
+        /**
+         * @function addLinks
+         * @param {Iterable} links - An Iterable of links
+         * @returns {Graph} - {this} for chaining
+         * */
+        addLinks(links) {
+            for (let { source, target, metaData } of links) this.addLink(source, target, metaData);
+            return this;
         }
         /**
          * @function removeLink
@@ -140,7 +159,8 @@ define(["exports"], function (exports) {
                 for (let [dependent] of start_relations.dependents) {
                     const dependent_relations = this.get(dependent);
                     if (!this.directed && dependent_relations === referrer_relations) continue;
-                    if (visited.has(dependent_relations)) return true;else if (search(dependent_relations, start_relations)) return true;
+                    if (visited.has(dependent_relations)) return true;
+                    if (search(dependent_relations, start_relations)) return true;
                 }
             };
             for (let [, relations] of this) {
@@ -153,17 +173,52 @@ define(["exports"], function (exports) {
         }
         /**
         * @function getAllCyclesFromNode
-        * @param {any} node - The node contained by all cycles
+        * @param {any} start_node - The node contained by all cycles
         * @return {Set} - A set of all cycles containing the node
         * */
-        getAllCyclesFromNode(start_node) {
+        getAllCyclesByNode(start_node) {
+            if (!this.has(start_node)) throw Error("{start_node} not in graph");
             const cycles = new Set();
             const search = (node, path) => {
-                for (let [neighbor_node] of this.get(node).dependents) if (neighbor_node === start_node) cycles.add(path);else if (!path.includes(neighbor_node)) search(neighbor_node, path.concat(neighbor_node));
+                for (let [neighbor_node] of this.get(node).dependents) if (neighbor_node === start_node) {
+                    if (this.directed || path.length != 2) cycles.add(path);
+                } else if (!path.includes(neighbor_node)) search(neighbor_node, path.concat(neighbor_node));
             };
-            const relations = this.get(start_node);
-            if (relations) search(start_node, [start_node]);
+            search(start_node, [start_node]);
             return cycles;
+        }
+        /**
+         * @function getMaximalCycleLengthByNode
+         * @param {any} start_node - The node contained by all cycles
+         * @return {Number} - An integer presenting the number of links in the cycle (number of unique nodes)
+         * */
+        getMaximalCycleLengthByNode(start_node) {
+            if (!this.has(start_node)) throw Error("{start_node} not in graph");
+            let max_length = 0;
+            const search = (node, path) => {
+                for (let [neighbor_node] of this.get(node).dependents) if (neighbor_node === start_node) {
+                    if ((this.directed || path.length != 2) && path.length > max_length) max_length = path.length;
+                } else if (!path.includes(neighbor_node)) search(neighbor_node, path.concat(neighbor_node));
+            };
+            search(start_node, [start_node]);
+            return max_length;
+        }
+        /**
+         * @function getMaximalCycleLength
+         * @return {Number} - An integer presenting the number of links in the longest possible cycle (number of unique nodes)
+         * */
+        getMaximalCycleLength() {
+            let max_length = 0;
+            const visited = new Set();
+            const search = (node, path) => {
+                visited.add(node);
+                for (let [neighbor_node] of this.get(node).dependents) if (path.length > max_length) {
+                    const index = path.length - path.indexOf(neighbor_node);
+                    if ((this.directed || index != 2) && index <= path.length && index > max_length) max_length = index;else if (index > path.length) search(neighbor_node, path.concat(neighbor_node));
+                } else if (!path.includes(neighbor_node)) search(neighbor_node, path.concat(neighbor_node));
+            };
+            for (let [current_node] of this) if (!visited.has(current_node)) search(current_node, [current_node]);
+            return max_length;
         }
         /**
          * @function set
@@ -182,64 +237,23 @@ define(["exports"], function (exports) {
             // create new {Relations} with the meta data
             return super.set(node, new Relations(meta_data));
         }
-    }
-    exports.Graph = Graph;
-    /**
-     * @class AcyclicGraph
-     * A class implementing cycleless graphs.
-     * #Following https://en.wikipedia.org/wiki/Cycle_%28graph_theory%29
-     * */
-    class AcyclicGraph extends Graph {
         /**
-         * @function addLink
-         * @param {any} source - The source node
-         * @param {any} target - The target node
-         * @param {any} weight - The weight of the link
+         * @function removeNode
+         * @override
+         * @param {any} node - The node to be removed.
          * @return {boolean} - Whether the object has been removed from the graph.
-         * The link is only added if it does not create a cycle.
          * */
-        addLink(source, target, weight) {
-            const added = super.addLink(source, target, weight);
-            if (added && this.hasCycle(true)) if (this.removeLink(source, target)) return false;else throw Error("Cyclic node could not be removed; Graph is no longer acyclic");
-            return added;
-        }
-        /**
-         * @function hasCycle
-         * @param {boolean} real - Whether a real test shall be performed (for debugging | must return false as acyclic graph).
-         * @return {boolean} Whether the graph has a cycle.
-         * */
-        hasCycle(real = false) {
-            return real ? super.hasCycle() : false;
+        delete(node) {
+            return this.removeNode(node);
         }
     }
-    exports.AcyclicGraph = AcyclicGraph;
-    /**
-     * @class Tree
-     * A class implementing trees.
-     * #Following https://en.wikipedia.org/wiki/Tree_%28graph_theory%29
-     * Must not be connected!
-     * */
-    class Tree extends AcyclicGraph {
-        /**
-         * @function addLink
-         * @param {any} source - The source node
-         * @param {any} target - The target node
-         * @param {any} weight - The weight of the link
-         * @return {boolean} - Whether the object has been removed from the graph.
-         * The link is only added if the result would be a tree.
-         * */
-        addLink(source, target, weight) {
-            if (this.get(target).in > 0) return false;
-            return super.addLink(source, target, weight);
-        }
-    }
-    exports.Tree = Tree;
+    exports.default = Graph;
     /**
      * A helper class.
      * Handles relations between nodes.
      * */
     class Relations {
-        constructor(meta_data) {
+        constructor(meta_data = null) {
             Object.defineProperties(this, {
                 "dependents": {
                     value: new Map(),
@@ -276,7 +290,7 @@ define(["exports"], function (exports) {
      * Represents a link between two nodes.
      * */
     class Link {
-        constructor(source, target, weight) {
+        constructor(source, target, meta_data = null) {
             Object.defineProperties(this, {
                 "source": {
                     value: source,
@@ -286,8 +300,8 @@ define(["exports"], function (exports) {
                     value: target,
                     enumerable: true
                 },
-                "weight": {
-                    value: weight,
+                "metaData": {
+                    value: meta_data,
                     enumerable: true,
                     writeable: true
                 }

@@ -6,9 +6,6 @@ const $directed = Symbol();
  * #Following https://en.wikipedia.org/wiki/Graph_theory
  * */
 export default class Graph extends Map {
-    constructor(...values) {
-        super(...values);
-    }
     /**
      * @getter directed
      * @returns {boolean} - Whether the graph is unidirectional.

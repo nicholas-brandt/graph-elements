@@ -1,51 +1,28 @@
 {
   "name": "graphjs",
-  "version": "1.0.0",
-  "description": "GraphJS =======",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jamtis/graphjs.git"
-  },
-  "main": "src/graph.js",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
   "scripts": {
-    "test": "grunt jasmine"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Nicholas-Philip Brandt <nicholas.brandt@mail.de>",
-  "license": "CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]",
+  "author": "nicholas.brandt@mail.de",
+  "license": "",
   "dependencies": {
-    "babel-plugin-transform-es2015-modules-amd": "",
-    "babel-plugin-transform-es2015-modules-commonjs": "",
-    "babel-preset-es2015": "",
-    "babel-preset-stage-0": "",
-    "babel-preset-stage-1": "",
-    "babel-preset-stage-2": "",
-    "babel-preset-stage-3": "",
-    "babelify": "",
-    "chai": "^3.5.0",
-    "circular-json": "",
-    "d3": "",
-    "grunt": "",
-    "grunt-babel": "",
-    "grunt-browserify": "",
-    "grunt-cli": "",
-    "grunt-contrib-cssmin": "",
-    "grunt-contrib-htmlmin": "~1.0.0",
-    "grunt-contrib-less": "",
-    "grunt-contrib-uglify": "",
-    "grunt-contrib-watch": "",
-    "grunt-crisper": "",
-    "grunt-mocha-cli": "",
-    "grunt-vulcanize": "",
-    "mocha": "",
-    "requirejs": "",
-    "uglify-js": ""
-  },
-  "devDependencies": {},
-  "bugs": {
-    "url": "https://github.com/jamtis/graphjs/issues"
-  },
-  "homepage": "https://github.com/jamtis/graphjs",
-  "directories": {
-    "doc": "doc"
+    "babel-plugin-transform-es2015-modules-amd": "^6.8.0",
+    "babel-plugin-transform-regenerator": "^6.9.0",
+    "babel-polyfill": "^6.9.1",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2017": "^1.4.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-clean-css": "^2.0.8",
+    "gulp-crisper": "^1.0.0",
+    "gulp-htmlmin": "^2.0.0",
+    "gulp-less": "^3.1.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-vulcanize": "^6.1.0",
+    "gulp-watch": "^4.3.6",
+    "requirejs": "^2.2.0"
   }
 }

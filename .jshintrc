@@ -1,9 +1,0 @@
-{
-    "strict": false,
-    "esnext": true,
-    "futurehostile": true,
-    "nonew": true,
-    "shadow": "outer",
-    "singleGroups": true,
-    "unused": true
-}

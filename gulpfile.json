@@ -1,0 +1,110 @@
+{
+    "base": "src",
+    "config": {
+        "vulcanize": {
+            "inlineScripts": true,
+            "inlineCss": true
+        },
+        "crisper": {
+            "cleanup": false
+        },
+        "htmlmin": {
+            "removeComments": true,
+            "useShortDoctype": true,
+            "customAttrAssign": ["?=", "$="],
+            "minifyJS": true,
+            "minifyCSS": false,
+            "collapseWhitespace": true
+        },
+        "babel": {
+            "compact": false,
+            "comments": true,
+            "presets": ["es2017"]
+        },
+        "uglify": {
+            "beautify": true,
+            "compress": {
+                "sequences": false,
+                "properties": true,
+                "dead_code": true,
+                "drop_debugger": false,
+                "conditionals": true,
+                "comparisons": true,
+                "evaluate": true,
+                "booleans": true,
+                "loops": true,
+                "unused": true,
+                "hoist_funs": true,
+                "if_return": true,
+                "join_vars": true,
+                "cascade": true,
+                "negate_iife": true
+            },
+            "mangle": false,
+            "screwIe8": true
+        },
+        "less": {
+            "ieCompat": false,
+            "compress": false,
+            "optimization": 0
+        },
+        "clean-css": {}
+    },
+    "packages": {
+        "app": {
+            "html": {
+                "src": "src/app/*.html",
+                "tasks": [
+                    ["htmlmin"]
+                ]
+            },
+            "scripts": {
+                "src": "src/app/*.js",
+                "tasks": [
+                    ["babel", {
+                        "presets": [],
+                        "plugins": ["transform-es2015-modules-amd"]
+                    }]
+                ]
+            },
+            "less": {
+                "src": "src/app/*.less",
+                "tasks": [
+                    ["less"],
+                    ["clean-css"]
+                ]
+            }
+        },
+        "elements": {
+            "html": {
+                "src": "src/elements/**/*.html",
+                "tasks": [
+                    ["htmlmin"]
+                ]
+            },
+            "scripts": {
+                "src": "src/elements/**/*.js",
+                "tasks": [
+                    ["babel", {}]
+                ]
+            },
+            "less": {
+                "src": "src/elements/**/*.less",
+                "tasks": [
+                    ["less"],
+                    ["clean-css"]
+                ]
+            }
+        },
+        "lib": {
+            "scripts": {
+                "src": "src/lib/**/*.js",
+                "tasks": [
+                    ["babel", {
+                        "plugins": ["transform-es2015-modules-amd"]
+                    }]
+                ]
+            }
+        }
+    }
+}

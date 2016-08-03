@@ -1,0 +1,39 @@
+@import (reference) "../styles.less";
+
+:host {
+    display: flex;
+    >svg {
+        transform: translateZ(0);
+        touch-action: none;
+        flex: 1;
+        >* {
+            touch-action: none;
+        }
+        >circle {
+            fill: @node;
+            fill: var(--node-color, @node);
+            stroke: @node-stroke;
+            //stroke-dasharray: 9,0;
+            stroke-width: 4px;
+            transition: opacity 0.5s, fill 0.5s;
+            &[selected] {
+                fill: @selected-node;
+                stroke: @selected-node-stroke;
+                stroke-width: 5px;
+                stroke-dasharray: 8,2;
+                transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+            }
+        }
+        >path {
+            fill: @link;
+            fill: var(--link-color, @link);
+            stroke: @link;
+            stroke-width: 1px;
+            transition: opacity 0.5s;
+            &[loop] {
+                fill: none;
+                stroke-width: 2px;
+            }
+        }
+    }
+}

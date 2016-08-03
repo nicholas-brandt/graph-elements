@@ -1,0 +1,46 @@
+/*
+ * http://www.google.com/design/spec/style/color.html#color-color-palette
+ * @toolbar: light 200
+ * @toolbar-background: 500
+ * @menu: 600
+ * @background: 50
+ * */
+:host {
+  --node-color: #ffc107;
+  --edge-color: #757575;
+}
+graphjs-viewer {
+  display: flex;
+}
+graphjs-viewer > svg {
+  flex: 1 1 0;
+  touch-action: none;
+  cursor: default;
+}
+graphjs-viewer > svg > * {
+  touch-action: none;
+}
+graphjs-viewer > svg > circle {
+  fill: #ffc107;
+  fill: var(--node-color, #ffc107);
+  stroke: #fff8e1;
+  stroke-width: 4px;
+  transition: opacity 0.5s, fill 0.5s;
+}
+graphjs-viewer > svg > circle[selected] {
+  fill: #fff59d;
+  stroke: #ffc107;
+  stroke-width: 5px;
+  stroke-dasharray: 8,2;
+  transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+}
+graphjs-viewer > svg > path {
+  fill: #757575;
+  fill: var(--edge-color, #757575);
+  stroke: #757575;
+  stroke-width: 1px;
+  transition: opacity 0.5s;
+}
+graphjs-viewer > svg > path[loop] {
+  fill: none;
+}

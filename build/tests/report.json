@@ -5,22 +5,22 @@
     "passes": 26,
     "pending": 0,
     "failures": 0,
-    "start": "2016-04-22T23:38:24.313Z",
-    "end": "2016-04-22T23:38:24.344Z",
-    "duration": 31
+    "start": "2016-04-26T13:08:27.966Z",
+    "end": "2016-04-26T13:08:27.985Z",
+    "duration": 19
   },
   "tests": [
     {
       "title": "Graph is constructor",
       "fullTitle": "Graph consistency Graph is constructor",
-      "duration": 2,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph is instanceof Map",
       "fullTitle": "Graph consistency Graph is instanceof Map",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -41,21 +41,21 @@
     {
       "title": "Graph#delete",
       "fullTitle": "Graph consistency Graph#delete",
-      "duration": 2,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addNode",
       "fullTitle": "Graph consistency Graph#addNode",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addNodes",
       "fullTitle": "Graph consistency Graph#addNodes",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -76,21 +76,21 @@
     {
       "title": "Graph#links",
       "fullTitle": "Graph consistency Graph#links",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addLink",
       "fullTitle": "Graph consistency Graph#addLink",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addLinks",
       "fullTitle": "Graph consistency Graph#addLinks",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -104,7 +104,7 @@
     {
       "title": "Graph#clearLinks",
       "fullTitle": "Graph consistency Graph#clearLinks",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -118,14 +118,14 @@
     {
       "title": "Graph#getAllCyclesByNode",
       "fullTitle": "Graph consistency Graph#getAllCyclesByNode",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#getMaximalCycleLengthByNode",
       "fullTitle": "Graph consistency Graph#getMaximalCycleLengthByNode",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -139,14 +139,14 @@
     {
       "title": "ConditionedGraph is instanceof Graph",
       "fullTitle": "ConditionedGraph consistency ConditionedGraph is instanceof Graph",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "ConditionedGraph#preCondition is true by default",
       "fullTitle": "ConditionedGraph consistency ConditionedGraph#preCondition is true by default",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -160,7 +160,7 @@
     {
       "title": "ConditionedGraph#addLink is pre-conditioned",
       "fullTitle": "ConditionedGraph consistency ConditionedGraph#addLink is pre-conditioned",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -181,7 +181,7 @@
     {
       "title": "AcyclicGraph#addLink",
       "fullTitle": "AcyclicGraph consistency AcyclicGraph#addLink",
-      "duration": 2,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -199,14 +199,14 @@
     {
       "title": "Graph is constructor",
       "fullTitle": "Graph consistency Graph is constructor",
-      "duration": 2,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph is instanceof Map",
       "fullTitle": "Graph consistency Graph is instanceof Map",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -227,21 +227,21 @@
     {
       "title": "Graph#delete",
       "fullTitle": "Graph consistency Graph#delete",
-      "duration": 2,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addNode",
       "fullTitle": "Graph consistency Graph#addNode",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addNodes",
       "fullTitle": "Graph consistency Graph#addNodes",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -262,21 +262,21 @@
     {
       "title": "Graph#links",
       "fullTitle": "Graph consistency Graph#links",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addLink",
       "fullTitle": "Graph consistency Graph#addLink",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#addLinks",
       "fullTitle": "Graph consistency Graph#addLinks",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -290,7 +290,7 @@
     {
       "title": "Graph#clearLinks",
       "fullTitle": "Graph consistency Graph#clearLinks",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -304,14 +304,14 @@
     {
       "title": "Graph#getAllCyclesByNode",
       "fullTitle": "Graph consistency Graph#getAllCyclesByNode",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "Graph#getMaximalCycleLengthByNode",
       "fullTitle": "Graph consistency Graph#getMaximalCycleLengthByNode",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -325,14 +325,14 @@
     {
       "title": "ConditionedGraph is instanceof Graph",
       "fullTitle": "ConditionedGraph consistency ConditionedGraph is instanceof Graph",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
     {
       "title": "ConditionedGraph#preCondition is true by default",
       "fullTitle": "ConditionedGraph consistency ConditionedGraph#preCondition is true by default",
-      "duration": 0,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },
@@ -346,7 +346,7 @@
     {
       "title": "ConditionedGraph#addLink is pre-conditioned",
       "fullTitle": "ConditionedGraph consistency ConditionedGraph#addLink is pre-conditioned",
-      "duration": 1,
+      "duration": 0,
       "currentRetry": 0,
       "err": {}
     },
@@ -367,7 +367,7 @@
     {
       "title": "AcyclicGraph#addLink",
       "fullTitle": "AcyclicGraph consistency AcyclicGraph#addLink",
-      "duration": 2,
+      "duration": 1,
       "currentRetry": 0,
       "err": {}
     },

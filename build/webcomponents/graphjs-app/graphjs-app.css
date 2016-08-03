@@ -1,0 +1,37 @@
+@import url("//fonts.googleapis.com/css?family=Open+Sans|Lobster");
+/*
+ * Author: Nicholas-Philip Brandt [nicholas.brandt@mail.de]
+ * License: CC BY-SA[https://creativecommons.org/licenses/by-sa/4.0/]
+ * */
+/*
+ * http://www.google.com/design/spec/style/color.html#color-color-palette
+ * @toolbar: light 200
+ * @toolbar-background: 500
+ * @menu: 600
+ * @background: 50
+ * */
+:host {
+  --color-background: #E3F2FD;
+}
+paper-drawer-panel paper-header-panel {
+  background-color: #fff8e1;
+  background-color: var(--color-background, #fff8e1);
+}
+paper-drawer-panel paper-header-panel[drawer] {
+  border-right: 1px solid #ffb300;
+}
+paper-drawer-panel paper-header-panel[main] #mainContainer {
+  display: flex;
+}
+paper-drawer-panel paper-header-panel[main] graphjs-viewer {
+  flex: 1 1 0;
+}
+paper-drawer-panel paper-header-panel[main] .toast-text {
+  font: 300 15px "Open Sans";
+  color: #fff59d;
+}
+paper-drawer-panel paper-header-panel > paper-toolbar {
+  background-color: #ffc107 !important;
+  color: #fff59d !important;
+  font: 300 26px "Lobster";
+}

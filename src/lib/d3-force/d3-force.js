@@ -22,9 +22,11 @@ export default class D3Force {
             if (!this[$updated]) {
                 let i = 0;
                 const nodes = this[$nodes];
+                // console.log("received nodes", data.nodes);
                 for (const {x, y} of data.nodes) {
                     nodes[i].x = x;
                     nodes[i].y = y;
+                    ++i;
                 }
                 // replace old promise
                 const {resolve} = this[$tick_promise];

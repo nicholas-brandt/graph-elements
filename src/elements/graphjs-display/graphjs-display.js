@@ -11,6 +11,12 @@
                 style.textContent = css;
                 this.root.appendChild(style);
                 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                Object.assign(svg.viewBox.baseVal, {
+                    x: -1000,
+                    y: -1000,
+                    width: 2000,
+                    height: 2000
+                });
                 Object.defineProperty(this, "svg", {
                     value: svg
                 });
@@ -48,32 +54,35 @@
                     circle.r.baseVal.value = node.radius || 0;
                 }
                 for (const[link, path] of this[$links]) {
-                    path.setAttribute("d", __calcPath(link));
+                    path.setAttribute("d", this._calcPath(link));
                 }
             }
-        };
+            _calcPath(link) {
+                return this.constructor.calcPath(link);
+            }
+            static calcPath({source, target}) {
+               if (source === target || source.x === target.x && source.y === target.y) {
+                   const short = source.radius / 3;
+                   const long = source.radius * 3;
+                   return `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;
+               } else {
+                   const x_diff = target.x - source.x;
+                   const y_diff = target.y - source.y;
+                   const r_diff = Math.hypot(x_diff, y_diff) / target.radius;
+                   const xr_diff = x_diff / r_diff;
+                   const yr_diff = y_diff / r_diff;
+                   const offset = 2;
+                   const m_x = target.x - xr_diff * offset;
+                   const m_y = target.y - yr_diff * offset;
+                   return `M ${source.x} ${source.y}L ${m_x} ${m_y}L ${target.x + yr_diff} ${target.y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m_x} ${m_y}`;
+               }
+            }
+        }
         // uri relative to app.html
         const response = await fetch("../elements/graphjs-display/graphjs-display.css");
         const css = await response.text();
         document.registerElement("graphjs-display", GraphjsDisplay);
     } catch (e) {
         console.error(e);
-    }
-    function __calcPath({source, target}) {
-        if (source === target || source.x === target.x && source.y === target.y) {
-            const short = source.radius / 3;
-            const long = source.radius * 3;
-            return `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;
-        } else {
-            const x_diff = target.x - source.x;
-            const y_diff = target.y - source.y;
-            const r_diff = Math.hypot(x_diff, y_diff) / target.radius;
-            const xr_diff = x_diff / r_diff;
-            const yr_diff = y_diff / r_diff;
-            const offset = 2;
-            const m_x = target.x - xr_diff * offset;
-            const m_y = target.y - yr_diff * offset;
-            return `M ${source.x} ${source.y}L ${m_x} ${m_y}L ${target.x + yr_diff} ${target.y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m_x} ${m_y}`;
-        }
     }
 })();

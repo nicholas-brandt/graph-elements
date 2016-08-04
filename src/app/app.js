@@ -2,7 +2,7 @@ import Graph from "../lib/graph.js";
 import D3Force from "../lib/d3-force/d3-force.js";
 
 const graph = new Graph;
-for (let i = 0; i < 5; ++i) {
+for (let i = 0; i < 10; ++i) {
     graph.addNode({
         x: Math.random() * 500,
         y: Math.random() * 500,
@@ -11,7 +11,7 @@ for (let i = 0; i < 5; ++i) {
     });
 }
 const nodes = Array.from(graph.keys());
-for (let i = 0; i < 1000; ++i) {
+for (let i = 0; i < 100; ++i) {
     graph.addLink(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
 }
 (async () => {
@@ -20,6 +20,12 @@ for (let i = 0; i < 1000; ++i) {
     display.graph = graph;
     
     const d3_force = new D3Force;
+    d3_force.configuration = {
+        link: {
+            distance: 200
+        },
+        charge: -100
+    };
     d3_force.graph = graph;
     window.d3_force = d3_force;
     while (true) {

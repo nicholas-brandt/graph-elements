@@ -1,4 +1,4 @@
-importScripts("../../../node_modules/d3/d3.js", "../../../node_modules/circular-json/build/circular-json.js");
+importScripts("../../../node_modules/d3/d3.js");
 console.log("worker started");
 const force = d3.layout.force();
 force.on("tick", () => {
@@ -7,7 +7,7 @@ force.on("tick", () => {
     });
 });
 const properties = ["linkDistance", "linkStrength", "charge", "chargeDistance", "alpha", "theta", "gravity", "size", "nodes", "links"];
-addEventListener("message", event => {
+addEventListener("message", ({data}) => {
     console.log("worker got message:", event.data);
     for (let property of properties) {
         const value = event.data[property];
@@ -18,5 +18,5 @@ addEventListener("message", event => {
         force.nodes(data.nodes);
         force.links(data.links);
     }
-    if (event.data.start) force.start();
+    if (event.data.run) force.start();
 });

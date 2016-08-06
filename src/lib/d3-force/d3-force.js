@@ -55,7 +55,16 @@ export default class D3Force {
         }
         const nodes = Array.from(graph.keys());
         this[$nodes] = nodes;
-        const links_string = JSON.stringify(Array.from(graph.links).map(({source, target}) => [nodes.indexOf(source), nodes.indexOf(target)]));
+        const links_string = JSON.stringify(Array.from(graph.links).map(({source, target, nodes: _nodes}) => {
+            if (_nodes) {
+                [source, target] = Array.from(_nodes);
+                if (!target) {
+                    const index = nodes.indexOf(source);
+                    return [index, index];
+                }
+            }
+            return [nodes.indexOf(source), nodes.indexOf(target)]
+        }));
         const sanitized_nodes = this[$nodes].map(({x, y}) => ({x, y}));
         const nodes_string = JSON.stringify(sanitized_nodes);
         this[$worker].postMessage({

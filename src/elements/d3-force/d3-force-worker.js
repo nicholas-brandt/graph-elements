@@ -9,7 +9,6 @@ simulation.force("link", link_force);
 simulation.force("center", center_force);
 simulation.force("charge", charge_force);
 simulation.stop();
-console.log("link force", link_force);
 simulation.on("tick", () => {
     postMessage({
         nodes: simulation.nodes()
@@ -35,7 +34,7 @@ addEventListener("message", ({data}) => {
             }
             simulation.force("link", link_force);
         }
-        if (charge) {
+        if (charge !== undefined) {
             charge_force.strength(charge);
             simulation.force("charge", charge_force);
         }
@@ -55,7 +54,10 @@ addEventListener("message", ({data}) => {
     if (data.graph) {
         const nodes = JSON.parse(data.graph.nodes);
         const indexed_links = JSON.parse(data.graph.links);
-        const links = indexed_links.map(([source, target]) => ({source, target}));
+        const links = indexed_links.map(([source, target]) => ({
+            source: nodes[source],
+            target: nodes[target]
+        }));
         simulation.nodes(nodes);
         link_force.links(links);
     }

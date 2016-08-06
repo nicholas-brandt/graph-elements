@@ -104,6 +104,14 @@
                     }]
                 ]
             }
+        },
+        "tools": {
+            "scripts": {
+                "src": "src/tools/**/*.js",
+                "tasks": [
+                    ["babel"]
+                ]
+            }
         }
     }
 }

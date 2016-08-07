@@ -13,21 +13,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
  * */
 const wrap = node => node;
 // detect native touch action support
-var HAS_NATIVE_TA = typeof document.head.style.touchAction === 'string';
-var GESTURE_KEY = '__polymerGestures';
-var HANDLED_OBJ = '__polymerGesturesHandled';
-var TOUCH_ACTION = '__polymerGesturesTouchAction';
+const HAS_NATIVE_TA = typeof document.head.style.touchAction === 'string';
+const GESTURE_KEY = '__polymerGestures';
+const HANDLED_OBJ = '__polymerGesturesHandled';
+const TOUCH_ACTION = '__polymerGesturesTouchAction';
 // radius for tap and track
-var TAP_DISTANCE = 25;
-var TRACK_DISTANCE = 5;
+const TAP_DISTANCE = 25;
+const TRACK_DISTANCE = 5;
 // number of last N track positions to keep
-var TRACK_LENGTH = 2;
+const TRACK_LENGTH = 2;
 // Disabling "mouse" handlers for 2500ms is enough
-var MOUSE_TIMEOUT = 2500;
-var MOUSE_EVENTS = ['mousedown', 'mousemove', 'mouseup', 'click'];
+const MOUSE_TIMEOUT = 2500;
+const MOUSE_EVENTS = ['mousedown', 'mousemove', 'mouseup', 'click'];
 // an array of bitmask values for mapping MouseEvent.which to MouseEvent.buttons
-var MOUSE_WHICH_TO_BUTTONS = [0, 1, 4, 2];
-var MOUSE_HAS_BUTTONS = (function() {
+const MOUSE_WHICH_TO_BUTTONS = [0, 1, 4, 2];
+const MOUSE_HAS_BUTTONS = (function() {
     try {
         return new MouseEvent('test', {
             buttons: 1
@@ -37,18 +37,18 @@ var MOUSE_HAS_BUTTONS = (function() {
     }
 })();
 // Check for touch-only devices
-var IS_TOUCH_ONLY = navigator.userAgent.match(/iP(?:[oa]d|hone)|Android/);
+const IS_TOUCH_ONLY = navigator.userAgent.match(/iP(?:[oa]d|hone)|Android/);
 // touch will make synthetic mouse events
 // `preventDefault` on touchend will cancel them,
 // but this breaks `<input>` focus and link clicks
 // disable mouse handlers for MOUSE_TIMEOUT ms after
 // a touchend to ignore synthetic mouse events
-var mouseCanceller = function(mouseEvent) {
+const mouseCanceller = function(mouseEvent) {
     // Check for sourceCapabilities, used to distinguish synthetic events
     // if mouseEvent did not come from a device that fires touch events,
     // it was made by a real mouse and should be counted
     // http://wicg.github.io/InputDeviceCapabilities/#dom-inputdevicecapabilities-firestouchevents
-    var sc = mouseEvent.sourceCapabilities;
+    const sc = mouseEvent.sourceCapabilities;
     if (sc && !sc.firesTouchEvents) {
         return;
     }
@@ -58,9 +58,9 @@ var mouseCanceller = function(mouseEvent) {
     };
     // disable "ghost clicks"
     if (mouseEvent.type === 'click') {
-        var path = Polymer.dom(mouseEvent).path;
-        for (var i = 0; i < path.length; i++) {
-            if (path[i] === POINTERSTATE.mouse.target) {
+        const path = Polymer.dom(mouseEvent).path;
+        for (const part of path) {
+            if (part === POINTERSTATE.mouse.target) {
                 return;
             }
         }
@@ -70,8 +70,7 @@ var mouseCanceller = function(mouseEvent) {
 };
 
 function setupTeardownMouseCanceller(setup) {
-    for (var i = 0, en; i < MOUSE_EVENTS.length; i++) {
-        en = MOUSE_EVENTS[i];
+    for (const en of MOUSE_EVENTS) {
         if (setup) {
             document.addEventListener(en, mouseCanceller, true);
         } else {
@@ -87,7 +86,7 @@ function ignoreMouse() {
     if (!POINTERSTATE.mouse.mouseIgnoreJob) {
         setupTeardownMouseCanceller(true);
     }
-    var unset = function() {
+    const unset = function() {
         setupTeardownMouseCanceller();
         POINTERSTATE.mouse.target = null;
         POINTERSTATE.mouse.mouseIgnoreJob = null;
@@ -96,7 +95,7 @@ function ignoreMouse() {
 }
 
 function hasLeftMouseButton(ev) {
-    var type = ev.type;
+    const type = ev.type;
     // exit early if the event is not a mouse event
     if (MOUSE_EVENTS.indexOf(type) === -1) {
         return false;
@@ -105,7 +104,7 @@ function hasLeftMouseButton(ev) {
     // instead we use ev.buttons (bitmask of buttons) or fall back to ev.which (deprecated, 0 for no buttons, 1 for left button)
     if (type === 'mousemove') {
         // allow undefined for testing events
-        var buttons = ev.buttons === undefined ? 1 : ev.buttons;
+        let buttons = ev.buttons === undefined ? 1 : ev.buttons;
         if ((ev instanceof window.MouseEvent) && !MOUSE_HAS_BUTTONS) {
             buttons = MOUSE_WHICH_TO_BUTTONS[ev.which] || 0;
         }
@@ -113,7 +112,7 @@ function hasLeftMouseButton(ev) {
         return Boolean(buttons & 1);
     } else {
         // allow undefined for testing events
-        var button = ev.button === undefined ? 0 : ev.button;
+        const button = ev.button === undefined ? 0 : ev.button;
         // ev.button is 0 in mousedown/mouseup/click for left button activation
         return button === 0;
     }
@@ -128,17 +127,19 @@ function isSyntheticClick(ev) {
         // in the worst case, check that the x/y position of the click is within
         // the bounding box of the target of the event
         // Thanks IE 10 >:(
-        var t = Gestures.findOriginalTarget(ev);
-        var bcr = t.getBoundingClientRect();
+        const t = Gestures.findOriginalTarget(ev);
+        const bcr = t.getBoundingClientRect();
         // use page x/y to account for scrolling
-        var x = ev.pageX,
-            y = ev.pageY;
+        const {
+            pageX: x,
+            pageY: y
+        } = ev;
         // ev is a synthetic click if the position is outside the bounding box of the target
         return !((x >= bcr.left && x <= bcr.right) && (y >= bcr.top && y <= bcr.bottom));
     }
     return false;
 }
-var POINTERSTATE = {
+const POINTERSTATE = {
     mouse: {
         target: null,
         mouseIgnoreJob: null
@@ -152,16 +153,13 @@ var POINTERSTATE = {
 };
 
 function firstTouchAction(ev) {
-    var path = Polymer.dom(ev).path;
-    var ta = 'auto';
-    for (var i = 0, n; i < path.length; i++) {
-        n = path[i];
+    const path = Polymer.dom(ev).path;
+    for (const n of path) {
         if (n[TOUCH_ACTION]) {
-            ta = n[TOUCH_ACTION];
-            break;
+            return n[TOUCH_ACTION];
         }
     }
-    return ta;
+    return 'auto';
 }
 
 function trackDocument(stateObj, movefn, upfn) {
@@ -177,12 +175,12 @@ function untrackDocument(stateObj) {
     stateObj.movefn = null;
     stateObj.upfn = null;
 }
-var Gestures = {
+const Gestures = {
     gestures: {},
     recognizers: [],
     deepTargetFind: function(x, y) {
-        var node = document.elementFromPoint(x, y);
-        var next = node;
+        let node = document.elementFromPoint(x, y);
+        let next = node;
         // this code path is only taken when native ShadowDOM is used
         // if there is a shadowroot, it may have a node at x/y
         // if there is not a shadowroot, exit the loop
@@ -205,21 +203,21 @@ var Gestures = {
         return ev.target;
     },
     handleNative: function(ev) {
-        var handled;
-        var type = ev.type;
-        var node = wrap(ev.currentTarget);
-        var gobj = node[GESTURE_KEY];
+        let handled;
+        const type = ev.type;
+        const node = wrap(ev.currentTarget);
+        const gobj = node[GESTURE_KEY];
         if (!gobj) {
             return;
         }
-        var gs = gobj[type];
+        const gs = gobj[type];
         if (!gs) {
             return;
         }
         if (!ev[HANDLED_OBJ]) {
             ev[HANDLED_OBJ] = {};
             if (type.slice(0, 5) === 'touch') {
-                var t = ev.changedTouches[0];
+                const t = ev.changedTouches[0];
                 if (type === 'touchstart') {
                     // only handle the first finger
                     if (ev.touches.length === 1) {
@@ -247,10 +245,9 @@ var Gestures = {
         if (handled.skip) {
             return;
         }
-        var recognizers = Gestures.recognizers;
+        const recognizers = Gestures.recognizers;
         // reset recognizer state
-        for (var i = 0, r; i < recognizers.length; i++) {
-            r = recognizers[i];
+        for (const r of recognizers) {
             if (gs[r.name] && !handled[r.name]) {
                 if (r.flow && r.flow.start.indexOf(ev.type) > -1 && r.reset) {
                     r.reset();
@@ -258,8 +255,7 @@ var Gestures = {
             }
         }
         // enforce gesture recognizer order
-        for (i = 0, r; i < recognizers.length; i++) {
-            r = recognizers[i];
+        for (const r of recognizers) {
             if (gs[r.name] && !handled[r.name]) {
                 handled[r.name] = true;
                 r[type](ev);
@@ -267,8 +263,8 @@ var Gestures = {
         }
     },
     handleTouchAction: function(ev) {
-        var t = ev.changedTouches[0];
-        var type = ev.type;
+        const t = ev.changedTouches[0];
+        const type = ev.type;
         if (type === 'touchstart') {
             POINTERSTATE.touch.x = t.clientX;
             POINTERSTATE.touch.y = t.clientY;
@@ -278,10 +274,10 @@ var Gestures = {
                 return;
             }
             POINTERSTATE.touch.scrollDecided = true;
-            var ta = firstTouchAction(ev);
-            var prevent = false;
-            var dx = Math.abs(POINTERSTATE.touch.x - t.clientX);
-            var dy = Math.abs(POINTERSTATE.touch.y - t.clientY);
+            const ta = firstTouchAction(ev);
+            let prevent = false;
+            const dx = Math.abs(POINTERSTATE.touch.x - t.clientX);
+            const dy = Math.abs(POINTERSTATE.touch.y - t.clientY);
             if (!ev.cancelable) {
                 // scrolling is happening
             } else if (ta === 'none') {
@@ -302,20 +298,19 @@ var Gestures = {
     add: function(node, evType, handler) {
         // SD polyfill: handle case where `node` is unwrapped, like `document`
         node = wrap(node);
-        var recognizer = this.gestures[evType];
-        var deps = recognizer.deps;
-        var name = recognizer.name;
-        var gobj = node[GESTURE_KEY];
+        const recognizer = this.gestures[evType];
+        const deps = recognizer.deps;
+        const name = recognizer.name;
+        let gobj = node[GESTURE_KEY];
         if (!gobj) {
             node[GESTURE_KEY] = gobj = {};
         }
-        for (var i = 0, dep, gd; i < deps.length; i++) {
-            dep = deps[i];
+        for (const dep of deps) {
             // don't add mouse handlers on iOS because they cause gray selection overlays
             if (IS_TOUCH_ONLY && MOUSE_EVENTS.indexOf(dep) > -1) {
                 continue;
             }
-            gd = gobj[dep];
+            let gd = gobj[dep];
             if (!gd) {
                 gobj[dep] = gd = {
                     _count: 0
@@ -336,14 +331,13 @@ var Gestures = {
     remove: function(node, evType, handler) {
         // SD polyfill: handle case where `node` is unwrapped, like `document`
         node = wrap(node);
-        var recognizer = this.gestures[evType];
-        var deps = recognizer.deps;
-        var name = recognizer.name;
-        var gobj = node[GESTURE_KEY];
+        const recognizer = this.gestures[evType];
+        const deps = recognizer.deps;
+        const name = recognizer.name;
+        const gobj = node[GESTURE_KEY];
         if (gobj) {
-            for (var i = 0, dep, gd; i < deps.length; i++) {
-                dep = deps[i];
-                gd = gobj[dep];
+            for (const dep of deps) {
+                let gd = gobj[dep];
                 if (gd && gd[name]) {
                     gd[name] = (gd[name] || 1) - 1;
                     gd._count = (gd._count || 1) - 1;
@@ -357,15 +351,13 @@ var Gestures = {
     },
     register: function(recog) {
         this.recognizers.push(recog);
-        for (var i = 0; i < recog.emits.length; i++) {
-            this.gestures[recog.emits[i]] = recog;
+        for (const emit of recog.emits) {
+            this.gestures[emit] = recog;
         }
     },
     findRecognizerByEvent: function(evName) {
-        for (var i = 0, r; i < this.recognizers.length; i++) {
-            r = this.recognizers[i];
-            for (var j = 0, n; j < r.emits.length; j++) {
-                n = r.emits[j];
+        for (const r of this.recognizers) {
+            for (const n of r.emits) {
                 if (n === evName) {
                     return r;
                 }
@@ -382,7 +374,7 @@ var Gestures = {
         node[TOUCH_ACTION] = value;
     },
     fire: function(target, type, detail) {
-        var ev = new CustomEvent(type, {
+        const ev = new CustomEvent(type, {
             detail,
             bubbles: true,
             cancelable: true
@@ -390,14 +382,14 @@ var Gestures = {
         target.dispatchEvent(ev);
         // forward `preventDefault` in a clean way
         if (ev.defaultPrevented) {
-            var preventer = detail.preventer || detail.sourceEvent;
+            const preventer = detail.preventer || detail.sourceEvent;
             if (preventer && preventer.preventDefault) {
                 preventer.preventDefault();
             }
         }
     },
     prevent: function(evName) {
-        var recognizer = this.findRecognizerByEvent(evName);
+        const recognizer = this.findRecognizerByEvent(evName);
         if (recognizer.info) {
             recognizer.info.prevent = true;
         }
@@ -436,15 +428,15 @@ Gestures.register({
         if (!hasLeftMouseButton(e)) {
             return;
         }
-        var t = Gestures.findOriginalTarget(e);
-        var self = this;
-        var movefn = function movefn(e) {
+        const t = Gestures.findOriginalTarget(e);
+        const self = this;
+        const movefn = function movefn(e) {
             if (!hasLeftMouseButton(e)) {
                 self.fire('up', t, e);
                 untrackDocument(self.info);
             }
         };
-        var upfn = function upfn(e) {
+        const upfn = function upfn(e) {
             if (hasLeftMouseButton(e)) {
                 self.fire('up', t, e);
             }
@@ -512,18 +504,18 @@ Gestures.register({
         if (this.info.started) {
             return true;
         }
-        var dx = Math.abs(this.info.x - x);
-        var dy = Math.abs(this.info.y - y);
+        const dx = Math.abs(this.info.x - x);
+        const dy = Math.abs(this.info.y - y);
         return (dx >= TRACK_DISTANCE || dy >= TRACK_DISTANCE);
     },
     mousedown: function(e) {
         if (!hasLeftMouseButton(e)) {
             return;
         }
-        var t = Gestures.findOriginalTarget(e);
-        var self = this;
-        var movefn = function movefn(e) {
-            var x = e.clientX,
+        const t = Gestures.findOriginalTarget(e);
+        const self = this;
+        const movefn = function movefn(e) {
+            const x = e.clientX,
                 y = e.clientY;
             if (self.hasMovedEnough(x, y)) {
                 // first move is 'start', subsequent moves are 'move', mouseup is 'end'
@@ -545,7 +537,7 @@ Gestures.register({
                 self.info.started = true;
             }
         };
-        var upfn = function upfn(e) {
+        const upfn = function upfn(e) {
             if (self.info.started) {
                 movefn(e);
             }
@@ -558,14 +550,14 @@ Gestures.register({
         this.info.y = e.clientY;
     },
     touchstart: function(e) {
-        var ct = e.changedTouches[0];
+        const ct = e.changedTouches[0];
         this.info.x = ct.clientX;
         this.info.y = ct.clientY;
     },
     touchmove: function(e) {
-        var t = Gestures.findOriginalTarget(e);
-        var ct = e.changedTouches[0];
-        var x = ct.clientX,
+        const t = Gestures.findOriginalTarget(e);
+        const ct = e.changedTouches[0];
+        const x = ct.clientX,
             y = ct.clientY;
         if (this.hasMovedEnough(x, y)) {
             if (this.info.state === 'start') {
@@ -582,8 +574,8 @@ Gestures.register({
         }
     },
     touchend: function(e) {
-        var t = Gestures.findOriginalTarget(e);
-        var ct = e.changedTouches[0];
+        const t = Gestures.findOriginalTarget(e);
+        const ct = e.changedTouches[0];
         // only trackend if track was started and not aborted
         if (this.info.started) {
             // reset started state on up
@@ -596,11 +588,11 @@ Gestures.register({
         }
     },
     fire: function(target, touch, preventer) {
-        var secondlast = this.info.moves[this.info.moves.length - 2];
-        var lastmove = this.info.moves[this.info.moves.length - 1];
-        var dx = lastmove.x - this.info.x;
-        var dy = lastmove.y - this.info.y;
-        var ddx, ddy = 0;
+        const secondlast = this.info.moves[this.info.moves.length - 2];
+        const lastmove = this.info.moves[this.info.moves.length - 1];
+        const dx = lastmove.x - this.info.x;
+        const dy = lastmove.y - this.info.y;
+        let ddx, ddy = 0;
         if (secondlast) {
             ddx = lastmove.x - secondlast.x;
             ddy = lastmove.y - secondlast.y;
@@ -660,9 +652,9 @@ Gestures.register({
         this.forward(e.changedTouches[0], e);
     },
     forward: function(e, preventer) {
-        var dx = Math.abs(e.clientX - this.info.x);
-        var dy = Math.abs(e.clientY - this.info.y);
-        var t = Gestures.findOriginalTarget(e);
+        const dx = Math.abs(e.clientX - this.info.x);
+        const dy = Math.abs(e.clientY - this.info.y);
+        const t = Gestures.findOriginalTarget(e);
         // dx,dy can be NaN if `click` has been simulated and there was no `down` for `start`
         if (isNaN(dx) || isNaN(dy) || (dx <= TAP_DISTANCE && dy <= TAP_DISTANCE) || isSyntheticClick(e)) {
             // prevent taps from being generated if an event has canceled them
@@ -677,7 +669,7 @@ Gestures.register({
         }
     }
 });
-var DIRECTION_MAP = {
+const DIRECTION_MAP = {
     x: 'pan-x',
     y: 'pan-y',
     none: 'none',
@@ -685,5 +677,4 @@ var DIRECTION_MAP = {
 };
 // export
 // Polymer.Gestures = Gestures;
-export
-default Gestures;
+export default Gestures;

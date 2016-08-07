@@ -61,9 +61,7 @@
             "scripts": {
                 "src": "src/app/*.js",
                 "tasks": [
-                    ["babel", {
-                        "plugins": ["transform-es2015-modules-amd"]
-                    }]
+                    ["babel"]
                 ]
             },
             "less": {

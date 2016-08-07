@@ -84,7 +84,7 @@ export default class D3Force {
             run: false
         });
     }
-    async tick() {
-        await this[$tick_promise].promise;
+    get tick() {
+        return this[$tick_promise].promise;
     }
 };

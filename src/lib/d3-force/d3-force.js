@@ -15,7 +15,7 @@ export default class D3Force {
             };
         }
         // uri relative to app.html
-        const worker = new Worker("../elements/d3-force/d3-force-worker.js");
+        const worker = new Worker("../worker/d3-force/d3-force-worker.js");
         this[$worker] = worker;
         worker.addEventListener("message", ({data}) => {
             // skip old calculation results if updated

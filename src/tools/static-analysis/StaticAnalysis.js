@@ -5,102 +5,216 @@ default class StaticAnalysis {
     static analyze(code) {
         const tree = esprima.parse(code);
         console.log(tree);
-        const scopes = new Set;
-        Scope.discover(tree, scopes);
-        return scopes;
+        const scope = new Scope;
+        scope.discover(tree);
+        return scope;
     }
     static analyzeFile(path) {
         return StaticAnalysis.analyze(fs.readFileSync(path).toString());
     }
 };
 class Scope {
-    constructor(name) {
+    constructor(parent, weak = true) {
         Object.defineProperties(this, {
-            name: {
-                value: name,
+            declarations: {
+                value: new Set,
                 enumerable: true
             },
-            accessing: {
+            accesses: {
                 value: new Set,
+                enumerable: true
+            },
+            literals: {
+                value: new Set,
+                enumerable: true
+            },
+            scopes: {
+                value: new Set,
+                enumerable: true
+            },
+            parent: {
+                value: parent instanceof Scope ? parent : null
+            },
+            weak: {
+                value: !!weak,
                 enumerable: true
             }
         });
     }
-    static resolveAddress(object) {}
-    static discover(root, scopes, scope, member) {
-        console.log("discover", root.type);
-        // create new scope for BlockStatements
-        let _scope;
-        if (!scope || root.type == "BlockStatement") {
-            _scope = new Scope("anonymous");
-            scopes.add(_scope);
-        } else {
-            _scope = scope;
+    discover(node, declaration) {
+        if (!node) {
+            // missing alternate statment
+            return;
         }
-        // iterate over bodies
-        if (root.body) {
-            if (Array.isArray(root.body)) {
-                for (let body_part of root.body) {
-                    Scope.discover(body_part, scopes, _scope);
+        // console.log("discover", node);
+        if (Array.isArray(node)) {
+            for (const part of node) {
+                this.discover(part);
+            }
+            return;
+        }
+        switch (node.type) {
+            case "Identifier":
+                if (declaration) {
+                    let scope = this;
+                    if (declaration == "var") {
+                        while (scope.parent && scope.weak) scope = scope.parent;
+                    }
+                    scope.declarations.add(node.name);
+                } else {
+                    this.accesses.add(node.name);
                 }
-            } else {
-                Scope.discover(root.body, scopes, _scope);
+                break;
+            case "VariableDeclaration":
+                for (const declaration of node.declarations) {
+                    this.discover(declaration, node.kind);
+                }
+                break;
+            case "VariableDeclarator":
+                this.discover(node.id, declaration);
+                this.discover(node.init);
+                break;
+            case "ExpressionStatement":
+                this.discover(node.expression);
+                break;
+            case "NewExpression":
+            case "CallExpression":
+                this.discover(node.callee);
+                for (const argument of node.arguments) {
+                     this.discover(argument);
+                }
+                break;
+            case "FunctionDeclaration":
+                this.discover(node.id, "var");
+            case "CatchClause":
+            case "ArrowFunctionExpression":
+            case "FunctionExpression": {
+                const scope = new Scope(this, false);
+                scope.discover(node.params);
+                scope.discover(node.defaults);
+                if (node.expression) {
+                    // expression type arrow function
+                    scope.discover(node.body);
+                } else {
+                    // skip inner blockstatement
+                    scope.discover(node.body.body);
+                }
+                this.scopes.add(scope);
+                break;
             }
-        }
-        // encounter variables
-        if (root.expression) {
-            Scope.discover(root.expression, scopes, _scope);
-        }
-        if (root.expressions) {
-            for (let expression of root.expressions) {
-                Scope.discover(expression, scopes, _scope);
+            case "ArrayExpression":
+                for (const element of node.elements) {
+                    this.discover(element);
+                }
+                break;
+            case "Literal":
+                this.literals.add(node.value);
+                break;
+            case "ObjectExpression":
+                for (const property of node.properties) {
+                    this.discover(property.key);
+                    this.discover(property.value);
+                }
+                break;
+            case "ObjectPattern":
+                for (const property of node.properties) {
+                    this.discover(property, declaration);
+                }
+                break;
+            case "BlockStatement": {
+                const scope = new Scope(this);
+                scope.discover(node.body);
+                this.scopes.add(scope);
+                break;
             }
-        }
-        // declarations
-        if (root.declarations) {
-            for (let declaration of root.declarations) {
-                Scope.discover(declaration, scopes, _scope);
+            case "ForInStatement":
+            case "ForOfStatement": {
+                const scope = new Scope(this);
+                scope.discover(node.left);
+                scope.discover(node.right);
+                scope.discover(node.body);
+                this.scopes.add(scope);
+                break;
             }
-        }
-        // declarator
-        if (root.type.endsWith("Declarator")) {
-            _scope.accessing.add(root.id.name);
-            Scope.discover(root.init, scopes, _scope);
-        }
-        // is identifier
-        if (root.name) {
-            console.log("root.name", root.name, "in", root.type);
-            if (member) {
-                return root.name;
-            } else {
-                _scope.accessing.add(root.name);
+            case "ForStatement": {
+                const scope = new Scope(this);
+                scope.discover(node.init);
+                scope.discover(node.test);
+                scope.discover(node.update);
+                scope.discover(node.body);
+                this.scopes.add(scope);
+                break;
             }
-        }
-        // memberexpressions
-        if (root.type == "MemberExpression") {
-            const name = Scope.discover(root.object, scopes, _scope, true) + "." + Scope.discover(root.property, scopes, _scope, true);
-            if (member) {
-                return name;
-            } else {
-                _scope.accessing.add(name);
-            }
-        }
-        // assignments
-        if (root.type == "AssignmentExpression") {
-            Scope.discover(root.left, scopes, _scope);
-            Scope.discover(root.right, scopes, _scope);
+            case "WhileStatement":
+            case "DoWhileStatement":
+                this.discover(node.test);
+                this.discover(node.body);
+                break;
+            case "ConditionalExpression":
+            case "IfStatement":
+                this.discover(node.test);
+                this.discover(node.consequent);
+                this.discover(node.alternate);
+                break;
+            case "UnaryExpression":
+            case "UpdateExpression":
+            case "ThrowStatement":
+            case "ReturnStatement":
+                this.discover(node.argument);
+                break;
+            case "LogicalExpression":
+            case "BinaryExpression":
+            case "AssignmentExpression":
+                this.discover(node.left);
+                this.discover(node.right);
+                break;
+            case "MemberExpression":
+                this.discover(node.object);
+                if (node.computed) {
+                    this.discover(node.property);
+                }
+                break;
+                break;
+            case "LabeledStatement":
+                this.discover(this.label);
+                this.discover(this.body);
+                break;
+            case "ClassBody":
+            case "Program":
+                this.discover(node.body);
+                break;
+            case "SequenceExpression":
+                for (let expression of node.expressions) {
+                    this.discover(expression);
+                }
+                break;
+            case "ThisExpression":
+                this.accesses.add("this");
+                break;
+            case "TryStatement":
+                this.discover(node.block);
+                this.discover(node.handler);
+                this.discover(node.finalizer);
+                break;
+            case "BreakStatement":
+            case "ContinueStatement":
+            case "EmptyStatement":
+                break;
+            case "ClassDeclaration":
+                this.discover(node.id);
+                this.discover(node.superClass);
+                this.discover(node.classBody);
+                break;
+            case "Property":
+            case "MethodDefinition":
+                this.discover(property.key);
+                this.discover(property.value, declaration);
+                break;
+            default:
+                console.log("ignore", node.type);
         }
     }
 }
-
-function search(node) {
-    switch (node.type) {
-        case "Identifier":
-            return node.name;
-        case "MemberExpression":
-            return search(node.object) + "." + search(node.property);
-        case "ArrowFunctionExpression":
-            
-            return "{{ArrowFunctionExpression}}";
-    }
-}
+Set.prototype.toJSON = function toJSON() {
+    return [...this];
+};

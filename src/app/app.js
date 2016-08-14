@@ -20,11 +20,16 @@
     }
     // init function when require is provided
     async function init() {
+        let _resolve;
+        const dependencies_promise = new Promise(resolve => {
+            _resolve = resolve;
+        });
+        require(["../lib/undirected/AcyclicUndirectedGraph.js", "../lib/d3-force/d3-force.js"], _resolve);
         const [{
             default: AcyclicUndirectedGraph
         }, {
             default: D3Force
-        }] = await require(["../lib/undirected/AcyclicUndirectedGraph.js", "../lib/d3-force/d3-force.js"]);
+        }] = await dependencies_promise;
         const graph = new AcyclicUndirectedGraph;
         window.graph = graph;
         for (let i = 0; i < 100; ++i) {

@@ -24,5 +24,8 @@
     "platinum-elements": "PolymerElements/platinum-elements#^0",
     "circular-localstorage": "jamtis/circular-localstorage"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "resolutions": {
+    "polymer": "^1.5.0"
+  }
 }

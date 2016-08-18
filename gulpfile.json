@@ -19,7 +19,8 @@
         "babel": {
             "compact": false,
             "comments": true,
-            "presets": ["es2017"]
+            "presets": ["es2017"],
+            "plugins": ["transform-es2015-modules-umd"]
         },
         "uglify": {
             "beautify": true,
@@ -51,34 +52,26 @@
         "clean-css": {}
     },
     "packages": {
-        "app": {
+        "apps": {
             "html": {
-                "src": "src/app/*.html",
+                "src": "src/apps/**/*.html",
                 "tasks": [
                     ["htmlmin"]
                 ]
             },
             "scripts": {
-                "src": "src/app/*.js",
+                "src": "src/apps/**/*.js",
                 "tasks": [
                     ["babel", {
-                        "plugins": ["transform-es2015-modules-amd"]
+                        "plugins": []
                     }]
                 ]
             },
             "less": {
-                "src": "src/app/*.less",
+                "src": "src/apps/**/*.less",
                 "tasks": [
                     ["less"],
                     ["clean-css"]
-                ]
-            }
-        },
-        "worker": {
-            "scripts": {
-                "src": "src/worker/*.js",
-                "tasks": [
-                    ["babel"]
                 ]
             }
         },
@@ -92,9 +85,7 @@
             "scripts": {
                 "src": "src/elements/**/*.js",
                 "tasks": [
-                    ["babel", {
-                        "plugins": ["transform-es2015-modules-amd"]
-                    }]
+                    ["babel"]
                 ]
             },
             "less": {
@@ -108,16 +99,6 @@
         "lib": {
             "scripts": {
                 "src": "src/lib/**/*.js",
-                "tasks": [
-                    ["babel", {
-                        "plugins": ["transform-es2015-modules-amd"]
-                    }]
-                ]
-            }
-        },
-        "tools": {
-            "scripts": {
-                "src": "src/tools/**/*.js",
                 "tasks": [
                     ["babel"]
                 ]

@@ -67,11 +67,11 @@ export default class DirectedGraph extends Map {
         // remove {object} from nodes
         const deleted = super.delete(node);
         // remove all links containing {object}
-        for (let [, dependents] of relations.dependencies) {
-            dependents.delete(node);
+        for (let [, targets] of relations.sources) {
+            targets.delete(node);
         }
-        for (let [, dependencies] of relations.dependents) {
-            dependencies.delete(node);
+        for (let [, sources] of relations.targets) {
+            sources.delete(node);
         }
         return deleted;
     }
@@ -99,7 +99,7 @@ export default class DirectedGraph extends Map {
     get links() {
         const links = new Set;
         for (let [, relations] of this) {
-            for (let [, link] of relations.dependents) {
+            for (let [, link] of relations.targets) {
                 links.add(link);
             }
         }
@@ -117,8 +117,8 @@ export default class DirectedGraph extends Map {
         const target_relations = this.get(target);
         if (source_relations && target_relations) {
             const link = new DirectedLink(source, target, meta_data);
-            source_relations.dependents.set(target, link);
-            target_relations.dependencies.set(source, link);
+            source_relations.targets.set(target, link);
+            target_relations.sources.set(source, link);
             return true;
         }
         return false;
@@ -150,8 +150,8 @@ export default class DirectedGraph extends Map {
         const source_relations = this.get(source);
         const target_relations = this.get(target);
         if (source_relations && target_relations) {
-            source_relations.dependents.delete(target);
-            target_relations.dependencies.delete(source);
+            source_relations.targets.delete(target);
+            target_relations.sources.delete(source);
             return true;
         }
         return false;
@@ -177,8 +177,8 @@ export default class DirectedGraph extends Map {
      * */
     clearLinks() {
         for (let [, relations] of this) {
-            relations.dependents.clear();
-            relations.dependencies.clear();
+            relations.targets.clear();
+            relations.sources.clear();
         }
     }
     /**
@@ -188,7 +188,7 @@ export default class DirectedGraph extends Map {
      * @return {boolean} - Whether there is an link between the {source} and {target} node in this graph.
      * */
     hasLink(source, target) {
-        return this.has(source) && this.has(target) && this.get(source).dependents.has(target);
+        return this.has(source) && this.has(target) && this.get(source).targets.has(target);
     }
     /**
      * @function hasCycle
@@ -200,12 +200,12 @@ export default class DirectedGraph extends Map {
         const visited = new Set;
         const search = start_relations => {
             visited.add(start_relations);
-            for (let [dependent] of start_relations.dependents) {
-                const dependent_relations = this.get(dependent);
-                if (visited.has(dependent_relations)) {
+            for (let [target] of start_relations.targets) {
+                const target_relations = this.get(target);
+                if (visited.has(target_relations)) {
                     return true;
                 }
-                if (search(dependent_relations)) {
+                if (search(target_relations)) {
                     return true;
                 }
             }
@@ -230,23 +230,23 @@ export default class DirectedGraph extends Map {
 class Relations {
     constructor(meta_data = null) {
         Object.defineProperties(this, {
-            dependents: {
+            targets: {
                 value: new Map,
                 enumerable: true
             },
-            dependencies: {
+            sources: {
                 value: new Map,
                 enumerable: true
             },
             in: {
                 get() {
-                    return this.dependencies.size;
+                    return this.sources.size;
                 },
                 enumerable: true
             },
             out: {
                 get() {
-                    return this.dependents.size;
+                    return this.targets.size;
                 },
                 enumerable: true
             },

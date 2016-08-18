@@ -1,10 +1,10 @@
-// import UndirectedGraph from "../lib/UndirectedGraph.js";
 {
     // require bootstrap
     if (window.require) {
         init();
     } else {
-        const setter = Object.getOwnPropertyDescriptor(window, "require").set;
+        const descriptor = Object.getOwnPropertyDescriptor(window, "require");
+        const setter = descriptor && descriptor.set;
         Object.defineProperty(window, "require", {
             set(_require) {
                 if (setter) {

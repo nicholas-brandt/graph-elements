@@ -1,4 +1,4 @@
-import DirectedGraph from "../directed/DirectedGraph.js";
+import DirectedGraph from "./DirectedGraph.js";
 export default class UndirectedGraoh extends DirectedGraph {
     /**
      * @function addLink
@@ -12,10 +12,10 @@ export default class UndirectedGraoh extends DirectedGraph {
         const target_relations = this.get(target);
         if (source_relations && target_relations) {
             const link = new UndirectedLink(source, target, meta_data);
-            source_relations.dependents.set(target, link);
-            target_relations.dependencies.set(source, link);
-            source_relations.dependencies.set(target, link);
-            target_relations.dependents.set(source, link);
+            source_relations.targets.set(target, link);
+            target_relations.sources.set(source, link);
+            source_relations.sources.set(target, link);
+            target_relations.targets.set(source, link);
             return true;
         }
         return false;
@@ -71,15 +71,15 @@ export default class UndirectedGraoh extends DirectedGraph {
         const visited = new Set;
         const search = (start_relations, referrer_relations) => {
             visited.add(start_relations);
-            for (let [dependent] of start_relations.dependents) {
-                const dependent_relations = this.get(dependent);
-                if (dependent_relations === referrer_relations) {
+            for (let [target] of start_relations.targets) {
+                const target_relations = this.get(target);
+                if (target_relations === referrer_relations) {
                     continue;
                 }
-                if (visited.has(dependent_relations)) {
+                if (visited.has(target_relations)) {
                     return true;
                 }
-                if (search(dependent_relations, start_relations)) {
+                if (search(target_relations, start_relations)) {
                     return true;
                 }
             }

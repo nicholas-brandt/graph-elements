@@ -1,7 +1,6 @@
-import fs from "fs";
-import esprima from "esprima";
-export
-default class StaticAnalysis {
+//import fs from "fs";
+import esprima from "../../../node_modules/esprima/esprima.js";
+export default class StaticAnalysis {
     static analyze(code) {
         const tree = esprima.parse(code);
         console.log(tree);
@@ -9,9 +8,11 @@ default class StaticAnalysis {
         scope.discover(tree);
         return scope;
     }
+    /*
     static analyzeFile(path) {
         return StaticAnalysis.analyze(fs.readFileSync(path).toString());
     }
+    */
 };
 class Scope {
     constructor(parent, weak = true) {
@@ -159,6 +160,7 @@ class Scope {
             case "UnaryExpression":
             case "UpdateExpression":
             case "ThrowStatement":
+            case "YieldExpression":
             case "ReturnStatement":
                 this.discover(node.argument);
                 break;
@@ -173,7 +175,6 @@ class Scope {
                 if (node.computed) {
                     this.discover(node.property);
                 }
-                break;
                 break;
             case "LabeledStatement":
                 this.discover(this.label);
@@ -215,6 +216,8 @@ class Scope {
         }
     }
 }
+/*
 Set.prototype.toJSON = function toJSON() {
     return [...this];
 };
+*/

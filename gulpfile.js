@@ -6,14 +6,20 @@ const watch = require("gulp-watch");
 applyPipelinePackages(packages, base);
 
 function applyPipeline(name, src_pattern, base, dest = "build", tasks, dependency_tasks) {
-    if (!name) throw Error("Invalid pipeline name");
-    if (!src_pattern) throw Error("Invalid pipeline src-pattern");
+    if (!name) {
+        throw Error("Invalid pipeline name");
+    }
+    if (!src_pattern) {
+        throw Error("Invalid pipeline src-pattern");
+    }
     let pipeline = gulp.src(src_pattern, {
         base
     }).pipe(watch(src_pattern, {
         base
     }));
-    for (let[task, options] of tasks) pipeline = pipeline.pipe(require("gulp-" + task)(Object.assign({}, config[task], options)));
+    for (const [task, options] of tasks) {
+        pipeline = pipeline.pipe(require("gulp-" + task)(Object.assign({}, config[task], options)));
+    }
     pipeline = pipeline.pipe(gulp.dest(dest));
     console.log("register tasks", name);
     gulp.task(name, dependency_tasks || [], () => pipeline);
@@ -29,7 +35,7 @@ function applyPipelinePackages(packages, base, dest) {
             const pipeline = package[pipe_name];
             pipe_name = package_name + "-" + pipe_name;
             pipe_names.push(pipe_name);
-            applyPipeline(pipe_name, pipeline.src, base, dest, pipeline.tasks, pipeline["dependency-tasks"]);
+            applyPipeline(pipe_name, pipeline.src, pipeline.base || base, dest, pipeline.tasks, pipeline["dependency-tasks"]);
         }
         console.log("register package", package_name);
         gulp.task(package_name, pipe_names);

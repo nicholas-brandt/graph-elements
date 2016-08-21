@@ -85,7 +85,9 @@
             "scripts": {
                 "src": "src/elements/**/*.js",
                 "tasks": [
-                    ["babel"]
+                    ["babel", {
+                        "plugins": []
+                    }]
                 ]
             },
             "less": {

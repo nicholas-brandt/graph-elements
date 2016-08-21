@@ -1,10 +1,20 @@
 import StaticAnalysis from "./StaticAnalysis.js";
 Object.defineProperties(StaticAnalysis, {
     toGraph: {
-        value(global_scope) {
+        value(scope) {
+            return scope.toGraph();
+        },
+        writable: true,
+        enumerable: true
+    }
+});
+const scope = StaticAnalysis.analyze("");
+Object.defineProperties(Object.getPrototypeOf(scope), {
+    toGraph: {
+        value() {
             const graph = new DirectedGraph;
-            graph.addNode(global_scope);
-            let scopes = global_scope.scopes;
+            graph.addNode(this);
+            let scopes = this.scopes;
             for (const scope of scopes) {
                 scopes.delete(scope);
                 if (scope.scopes.size) {

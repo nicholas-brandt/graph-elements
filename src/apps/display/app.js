@@ -24,7 +24,7 @@
         const dependencies_promise = new Promise(resolve => {
             _resolve = resolve;
         });
-        require(["../lib/undirected/AcyclicUndirectedGraph.js", "../lib/d3-force/d3-force.js"], _resolve);
+        require(["../../lib/undirected/AcyclicUndirectedGraph.js", "../../lib/d3-force/d3-force.js"], _resolve);
         const [{
             default: AcyclicUndirectedGraph
         }, {
@@ -40,7 +40,7 @@
                 index: i
             });
         }
-        const nodes = Array.from(graph.keys());
+        const nodes = [...graph.keys()];
         for (let i = 0; i < 300; ++i) {
             graph.addLink(nodes[Math.floor(Math.random() * nodes.length)], nodes[Math.floor(Math.random() * nodes.length)]);
         }

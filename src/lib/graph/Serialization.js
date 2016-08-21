@@ -19,35 +19,59 @@ Object.defineProperties(DirectedGraph, {
     }
 });
 Object.defineProperties(DirectedGraph.prototype, {
-    stringify: {
+    toJSON: {
         value(...args) {
-            return CircularJSON.stringify(this, ...args);
+            const nodes = [];
+            const links = [];
+            for (const [node] of this) {
+                nodes.push(node);
+            }
+            let index = 0;
+            for (const [, relations] of this) {
+                for (const [source, metaData] of relations.sources) {
+                    links.push({
+                        source: nodes.indexOf(source),
+                        target: index,
+                        metaData
+                    });
+                }
+                for (const [target, metaData] of relations.targets) {
+                    links.push({
+                        source: index,
+                        target: nodes.indexOf(target),
+                        metaData
+                    });
+                }
+                ++index;
+            }
+            return {
+                nodes,
+                links
+            }
+        },
+        writable: true,
+        configurable: true
+    },
+    stringify: {
+        value() {
+            return JSON.stringify(this.toJSON());
         },
         writable: true,
         configurable: true
     },
     parse: {
         value(...args) {
-            const nodes = CircularJSON.parse(...args);
-            for (const [node, {metaData}] of nodes) {
-                this.set(node, metaData);
+            const {
+                nodes,
+                links
+            } = JSON.parse(...args);
+            for (const node of nodes) {
+                this.addNode(node);
             }
-            for (const [node, relations] of nodes) {
-                for (const [source] of relations.sources) {
-                    this.addLink(source, node, relations.metaData)
-                }
-                for (const [target] of relations.targets) {
-                    this.addLink(node, target, relations.metaData)
-                }
+            for (const {source, target, metaData} of links) {
+                this.addLink(nodes[source], nodes[target], metaData);
             }
             return this;
-        },
-        writable: true,
-        configurable: true
-    },
-    toJSON: {
-        value() {
-            return JSON.stringify([...this]);
         },
         writable: true,
         configurable: true

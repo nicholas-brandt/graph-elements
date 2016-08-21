@@ -11,15 +11,11 @@ export default class DirectedGraph extends Map {
      * @param {any} meta_data - Meta data belonging to the {node}
      * @return {this} - The current Map
      * */
-    set(node, meta_data) {
-        const relations = this.get(node);
-        if (relations) {
-            // just set the meta data
-            relations.metaData = meta_data;
-            return this;
+    set(node) {
+        if (!this.has(node)) {
+            // create new {Relations}
+            return super.set(node, new Relations);
         }
-        // create new {Relations} with the meta data
-        return super.set(node, new Relations(meta_data));
     }
     /**
      * @function removeNode
@@ -38,7 +34,7 @@ export default class DirectedGraph extends Map {
     addNode(node) {
         // {relations} to be stored in the {nodes} map
         // stored as a double-linked list
-        return super.set(node, new Relations);
+        return this.set(node);
     }
     /**
      * @function addNodes
@@ -162,7 +158,7 @@ export default class DirectedGraph extends Map {
      * @return {boolean} - Whether all links has been removed from the graph.
      * */
     removeLinks(...links) {
-        if (arguments.length <= 1) links = links[0];
+        if (links.length <= 1) links = links[0];
         let success = true;
         for (let {source, target} of links) {
             if (!this.removeLink(source, target)) {
@@ -176,7 +172,7 @@ export default class DirectedGraph extends Map {
      * Removes all links
      * */
     clearLinks() {
-        for (let [, relations] of this) {
+        for (const [, relations] of this) {
             relations.targets.clear();
             relations.sources.clear();
         }
@@ -210,7 +206,7 @@ export default class DirectedGraph extends Map {
                 }
             }
         };
-        for (let [, relations] of this) {
+        for (const [, relations] of this) {
             if (finished.has(relations)) {
                 continue;
             }
@@ -228,7 +224,7 @@ export default class DirectedGraph extends Map {
  * Handles relations between nodes.
  * */
 class Relations {
-    constructor(meta_data = null) {
+    constructor() {
         Object.defineProperties(this, {
             targets: {
                 value: new Map,
@@ -249,12 +245,6 @@ class Relations {
                     return this.targets.size;
                 },
                 enumerable: true
-            },
-            metaData: {
-                value: meta_data,
-                enumerable: true,
-                writable: true,
-                configurable: true
             }
         });
     }

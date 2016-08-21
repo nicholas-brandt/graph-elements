@@ -3,7 +3,6 @@ import esprima from "../../../node_modules/esprima/esprima.js";
 export default class StaticAnalysis {
     static analyze(code) {
         const tree = esprima.parse(code);
-        console.log(tree);
         const scope = new Scope;
         scope.discover(tree);
         return scope;
@@ -18,19 +17,19 @@ class Scope {
     constructor(parent, weak = true) {
         Object.defineProperties(this, {
             declarations: {
-                value: new Set,
+                value: new SerializableSet,
                 enumerable: true
             },
             accesses: {
-                value: new Set,
+                value: new SerializableSet,
                 enumerable: true
             },
             literals: {
-                value: new Set,
+                value: new SerializableSet,
                 enumerable: true
             },
             scopes: {
-                value: new Set,
+                value: new SerializableSet,
                 enumerable: true
             },
             parent: {
@@ -200,6 +199,7 @@ class Scope {
             case "BreakStatement":
             case "ContinueStatement":
             case "EmptyStatement":
+            case "DebuggerStatement":
                 break;
             case "ClassDeclaration":
                 this.discover(node.id);
@@ -216,8 +216,9 @@ class Scope {
         }
     }
 }
-/*
-Set.prototype.toJSON = function toJSON() {
-    return [...this];
-};
-*/
+
+class SerializableSet extends Set {
+    toJSON() {
+        return [...this];
+    }
+}

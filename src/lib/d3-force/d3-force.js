@@ -1,3 +1,5 @@
+// import module to get path to module for worker loading
+import module from "module";
 const $nodes = Symbol("nodes");
 const $updated = Symbol("updated");
 const $worker = Symbol("worker");
@@ -14,8 +16,7 @@ export default class D3Force {
                 resolve
             };
         }
-        // uri relative to app.html
-        const worker = new Worker("../worker/d3-force/d3-force-worker.js");
+        const worker = new Worker(module.uri + "/../d3-force-worker.js");
         this[$worker] = worker;
         worker.addEventListener("message", ({data}) => {
             // skip old calculation results if updated

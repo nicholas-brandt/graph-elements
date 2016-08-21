@@ -1,5 +1,4 @@
 import UndirectedGraph from "./UndirectedGraph.js";
-console.log("undgr", UndirectedGraph);
 export default class AcyclicUndirectedGraph extends UndirectedGraph {
     /**
      * @function addNode

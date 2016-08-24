@@ -1,6 +1,5 @@
 importScripts("../../../node_modules/d3/build/d3.js");
 
-console.log("worker started");
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
 const center_force = d3.forceCenter(0, 0);
@@ -23,7 +22,8 @@ addEventListener("message", ({data}) => {
             alpha,
             alphaTarget,
             alphaMin,
-            alphaDecay
+            alphaDecay,
+            velocityDecay
         } = data.configuration;
         if (link) {
             if ("distance" in link) {
@@ -34,8 +34,16 @@ addEventListener("message", ({data}) => {
             }
             simulation.force("link", link_force);
         }
-        if (charge !== undefined) {
-            charge_force.strength(charge);
+        if (charge) {
+            if ("strength" in charge) {
+                charge_force.strength(charge.strength);
+            }
+            if ("maxDistance" in charge) {
+                charge_force.maxDistance(charge.maxDistance);
+            }
+            if ("minDistance" in charge) {
+                charge_force.minDistance(charge.minDistance);
+            }
             simulation.force("charge", charge_force);
         }
         if (alpha !== undefined) {
@@ -50,14 +58,19 @@ addEventListener("message", ({data}) => {
         if (alphaDecay !== undefined) {
             simulation.alpha(alphaDecay);
         }
+        if (velocityDecay !== undefined) {
+            simulation.velocityDecay(velocityDecay);
+        }
     }
     if (data.graph) {
-        const nodes = JSON.parse(data.graph.nodes);
-        const indexed_links = JSON.parse(data.graph.links);
-        const links = indexed_links.map(([source, target]) => ({
-            source: nodes[source],
-            target: nodes[target]
-        }));
+        const nodes = [];
+        const links = [];
+        for (let [node, relations] of data.graph) {
+            nodes.push(node);
+            for (let [, link] of relations.targets) {
+                links.push(link);
+            }
+        }
         simulation.nodes(nodes);
         link_force.links(links);
     }

@@ -99,10 +99,14 @@ export default class UndirectedGraoh extends DirectedGraph {
  * Represents a undirected link between two nodes.
  * */
 class UndirectedLink {
-    constructor(node1, node2, meta_data = null) {
+    constructor(source, target, meta_data = null) {
         Object.defineProperties(this, {
-            nodes: {
-                value: new Set([node1, node2]),
+            source: {
+                value: source,
+                enumerable: true
+            },
+            target: {
+                value: target,
                 enumerable: true
             },
             metaData: {

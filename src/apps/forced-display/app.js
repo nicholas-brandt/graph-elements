@@ -49,11 +49,19 @@
     display.force = {
         configuration: {
             link: {
-                distance: 80
+                distance: 100,
+                strength: 2
             },
-            charge: -70,
-            alpha: 2,
-            alphaTarget: 0
+            charge: {
+                strength: -100
+            },  
+            alpha: 1,
+            alphaTarget: 0,
+            //alphaDecay: 1 - Math.pow(1e-3, 1 / 300)
+            velocityDecay: 0.1
         }
     };
+    setTimeout(() => {
+        display.force.start();
+    }, 100);
 })();

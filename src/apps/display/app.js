@@ -50,12 +50,17 @@
         const d3_force = new D3Force;
         d3_force.configuration = {
             link: {
-                distance: 50,
-                strength: 30
+                distance: 10,
+                strength: 50
             },
-            charge: -100,
-            alpha: 2,
-            alphaTarget: 0
+            charge: {
+                strength: -50,
+                maxDistance: 100
+            },
+            alpha: 5,
+            alphaTarget: 0,
+            alphaDecay: 1 - Math.pow(1e-3, 1 / 1000),
+            velocityDecay: 0.1
         };
         d3_force.graph = graph;
         d3_force.start();

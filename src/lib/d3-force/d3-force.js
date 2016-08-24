@@ -48,26 +48,9 @@ export default class D3Force {
         if (_private.nodes) {
             _private.updated = true;
         }
-        const nodes = [...graph.keys()];
-        _private.nodes = nodes;
-        const links_array = [];
-        for (let {source, target, nodes: _nodes} of graph.links) {
-            if (_nodes) {
-                [source, target] = [..._nodes];
-                if (target === undefined) {
-                    target = source;
-                }
-            }
-            links_array.push([nodes.indexOf(source), nodes.indexOf(target)]);
-        }
-        const links_string = JSON.stringify(links_array);
-        const sanitized_nodes = _private.nodes.map(({x, y}) => ({x, y}));
-        const nodes_string = JSON.stringify(sanitized_nodes);
+        _private.nodes = [...graph.keys()];
         _private.worker.postMessage({
-            graph: {
-                nodes: nodes_string,
-                links: links_string
-            }
+            graph
         });
     }
     start() {

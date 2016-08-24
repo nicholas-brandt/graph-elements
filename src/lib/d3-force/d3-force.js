@@ -1,28 +1,26 @@
 // import module to get path to module for worker loading
 import module from "module";
-const $nodes = Symbol("nodes");
-const $updated = Symbol("updated");
-const $worker = Symbol("worker");
-const $tick_promise = Symbol("tick_promise");
+const __private = {};
 export default class D3Force {
     constructor() {
-        {
-            let resolve;
-            const promise = new Promise(_resolve => {
-                resolve = _resolve;
-            });
-            this[$tick_promise] = {
-                promise,
-                resolve
-            };
-        }
-        const worker = new Worker(module.uri + "/../d3-force-worker.js");
-        this[$worker] = worker;
-        worker.addEventListener("message", ({data}) => {
+        Object.defineProperties(this, {
+            private: {
+                value: new WeakMap
+            }
+        });
+        const _private = {
+            worker: new Worker(module.uri + "/../d3-force-worker.js"),
+            updated: false
+        };
+        this.private.set(__private, _private);
+        _private.promise = new Promise(resolve => {
+            _private.resolve = resolve;
+        });
+        _private.worker.addEventListener("message", ({data}) => {
             // skip old calculation results if updated
-            if (!this[$updated]) {
+            if (!_private.updated) {
                 let i = 0;
-                const nodes = this[$nodes];
+                const nodes = _private.nodes;
                 // console.log("received nodes", data.nodes);
                 for (const {x, y} of data.nodes) {
                     nodes[i].x = x;
@@ -30,45 +28,42 @@ export default class D3Force {
                     ++i;
                 }
                 // replace old promise
-                const {resolve} = this[$tick_promise];
-                let _resolve;
-                const promise = new Promise(__resolve => {
-                    _resolve = __resolve;
+                const resolve = _private.resolve;
+                _private.promise = new Promise(resolve => {
+                    _private.resolve = resolve;
                 });
-                this[$tick_promise] = {
-                    promise,
-                    resolve: _resolve
-                };
                 // resolve old promise
                 resolve();
             }
-            this[$updated] = false;
+            _private.updated = false;
         });
     }
     set configuration(config) {
-        this[$worker].postMessage({
+        this.private.get(__private).worker.postMessage({
             configuration: config
         });
     }
     set graph(graph) {
-        if (this[$nodes]) {
-            this[$updated] = true;
+        const _private = this.private.get(__private);
+        if (_private.nodes) {
+            _private.updated = true;
         }
-        const nodes = Array.from(graph.keys());
-        this[$nodes] = nodes;
-        const links_string = JSON.stringify(Array.from(graph.links).map(({source, target, nodes: _nodes}) => {
+        const nodes = [...graph.keys()];
+        _private.nodes = nodes;
+        const links_array = [];
+        for (let {source, target, nodes: _nodes} of graph.links) {
             if (_nodes) {
-                [source, target] = Array.from(_nodes);
-                if (!target) {
-                    const index = nodes.indexOf(source);
-                    return [index, index];
+                [source, target] = [..._nodes];
+                if (target === undefined) {
+                    target = source;
                 }
             }
-            return [nodes.indexOf(source), nodes.indexOf(target)]
-        }));
-        const sanitized_nodes = this[$nodes].map(({x, y}) => ({x, y}));
+            links_array.push([nodes.indexOf(source), nodes.indexOf(target)]);
+        }
+        const links_string = JSON.stringify(links_array);
+        const sanitized_nodes = _private.nodes.map(({x, y}) => ({x, y}));
         const nodes_string = JSON.stringify(sanitized_nodes);
-        this[$worker].postMessage({
+        _private.worker.postMessage({
             graph: {
                 nodes: nodes_string,
                 links: links_string
@@ -76,16 +71,16 @@ export default class D3Force {
         });
     }
     start() {
-        this[$worker].postMessage({
+        this.private.get(__private).worker.postMessage({
             run: true
         });
     }
     stop() {
-        this[$worker].postMessage({
+        this.private.get(__private).worker.postMessage({
             run: false
         });
     }
     get tick() {
-        return this[$tick_promise].promise;
+        return this.private.get(__private).promise;
     }
 };

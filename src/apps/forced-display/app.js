@@ -46,4 +46,14 @@
     window.display = display;
     // top level assignment is copable
     display.graph = graph;
+    display.force = {
+        configuration: {
+            link: {
+                distance: 80
+            },
+            charge: -70,
+            alpha: 2,
+            alphaTarget: 0
+        }
+    };
 })();

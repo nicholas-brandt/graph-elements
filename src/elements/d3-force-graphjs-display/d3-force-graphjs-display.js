@@ -22,7 +22,7 @@
     });
     const dependencies_ready = new Promise(async resolve => {
         await require_ready;
-        require(["../../lib/d3-force/d3-force.js"], (...args) => resolve(args));
+        require(["../../lib/d3-force/d3-force.js", "../../lib/jamtis/requestAnimationFunction.js"], (...args) => resolve(args));
     });
     const fetchCSS = (async() => {
         return (await fetch(document.currentScript.src + "/../d3-force-graphjs-display.css")).text();
@@ -31,6 +31,8 @@
     STYLE_ELEMENT.textContent = await fetchCSS;
     const [{
         default: D3Force
+    },{
+        default: requestAnimationFunction
     }] = await dependencies_ready;
     // asserts fulfilled
     const __private = {};
@@ -80,6 +82,11 @@
                     this.graphjsDisplay.updateGraph();
                 }
             })();
+            this.graphjsDisplay.addEventListener("track", requestAnimationFunction(event => {
+                // use instance force
+                // update graph on force
+                this.force.graph = _private.graph;
+            }));
             // fire update-event
             this.dispatchEvent(new CustomEvent("update"));
         }
@@ -96,6 +103,7 @@
             Object.assign(this.private.get(__private).graphjsDisplay, graphjsDisplay);
         }
         set graph(graph) {
+            this.private.get(__private).graph = graph;
             this.force.graph = graph;
             this.graphjsDisplay.graph = graph;
         }

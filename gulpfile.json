@@ -19,7 +19,7 @@
         "babel": {
             "compact": false,
             "comments": true,
-            "presets": ["es2017"],
+            "presets": ["stage-3"],
             "plugins": ["transform-es2015-modules-umd"]
         },
         "uglify": {

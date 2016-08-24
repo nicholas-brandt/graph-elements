@@ -161,6 +161,7 @@ class Scope {
             case "ThrowStatement":
             case "YieldExpression":
             case "ReturnStatement":
+            case "SpreadElement":
                 this.discover(node.argument);
                 break;
             case "LogicalExpression":

@@ -50,9 +50,10 @@
         const d3_force = new D3Force;
         d3_force.configuration = {
             link: {
-                distance: 80
+                distance: 50,
+                strength: 30
             },
-            charge: -70,
+            charge: -100,
             alpha: 2,
             alphaTarget: 0
         };

@@ -49,11 +49,55 @@
                 svg: {
                     value: document.createElementNS("http://www.w3.org/2000/svg", "svg"),
                     enumerable: true
+                },
+                _updateGraph: {
+                    value: requestAnimationFunction(function() {
+                        let updated_circles;
+                        let updated_paths;
+                        const _private = this.private.get(__private);
+                        if (_private.updatedNodes && _private.updatedNodes.size !== _private.graph.size) {
+                            updated_circles = new Map;
+                            updated_paths = new Map;
+                            const links = new Set;
+                            for (const node of _private.updatedNodes) {
+                                // list links
+                                const relations = _private.graph.get(node);
+                                for (const[, link] of relations.sources) {
+                                    links.add(link);
+                                }
+                                for (const[, link] of relations.targets) {
+                                    links.add(link);
+                                }
+                                updated_circles.set(node, _private.circles.get(node));
+                            }
+                            for (const link of links) {
+                                updated_paths.set(link, _private.paths.get(link));
+                            }
+                        } else {
+                            updated_circles = _private.circles;
+                            updated_paths = _private.paths;
+                        }
+                        for (const[node, circle] of updated_circles) {
+                            if (circle.cx.baseVal.value !== node.x || circle.cy.baseVal.value !== node.y || circle.r.baseVal.value !== node.radius) {
+                                // only update if any value has changed
+                                circle.cx.baseVal.value = node.x || 0;
+                                circle.cy.baseVal.value = node.y || 0;
+                                circle.r.baseVal.value = node.radius || 0;
+                            }
+                        }
+                        for (const[link, path] of updated_paths) {
+                            path.setAttribute("d", this.constructor.calcPath(link));
+                        }
+                        _private.updatedNodes = new Set;
+                    }),
+                    configurable: true,
+                    writable: true
                 }
             });
             this.private.set(__private, {
                 circles: new Map,
-                paths: new Map
+                paths: new Map,
+                updatedNodes: new Set
             });
             this.root.appendChild(STYLE_ELEMENT.cloneNode(true));
             Object.assign(this.svg.viewBox.baseVal, {
@@ -83,13 +127,27 @@
             // append links before nodes
             for (const link of graph.links) {
                 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                path.__reference = link;
+                Object.defineProperties(path, {
+                    __link: {
+                        value: link
+                    },
+                    __host: {
+                        value: this
+                    }
+                });
                 _private.paths.set(link, path);
                 this.svg.appendChild(path);
             }
             for (const [node] of graph) {
                 const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.__reference = node;
+                Object.defineProperties(circle, {
+                    __node: {
+                        value: node
+                    },
+                    __host: {
+                        value: this
+                    }
+                });
                 _private.circles.set(node, circle);
                 this.svg.appendChild(circle);
                 // add gestures !!!
@@ -141,47 +199,34 @@
         static _tap(event) {
             console.log("tap event");
         }
+        /*
+         * Gets called by Gestures.js.
+         * */
         static _track(event) {
-            console.log("track event", event);
-            const circle = event.currentTarget;
-            const node = circle.__reference;
-            node.x = event.detail.ddx || 0;
-            node.y = event.detail.ddy || 0;
-            this.constructor._paintTrackedNode(node);
-        }
-        static _paintTrackedNode(node) {
-            const relations = this.private.get(__private).graph.get(node);
-            const links = new Set;
-            for (const[, link] of relations.dependents) {
-                links.add(link);
-            }
-            for (const[, link] of relations.dependencies) {
-                links.add(link);
-            }
-            for (const link of links) {
-                link.__path.setAttribute("d", this.constructor.calcPath(link));
-            }
+            // console.log("track event", event);
+            const circle = this;
+            const node = circle.__node;
+            node.x += event.detail.ddx || 0;
+            node.y += event.detail.ddy || 0;
+            // paint tracked node
+            const graphjsDisplay = circle.__host;
+            graphjsDisplay.updateGraph([node]);
         }
     };
     Object.defineProperties(GraphjsDisplay.prototype, {
         updateGraph: {
-            value: requestAnimationFunction(function() {
+            value(nodes) {
                 const _private = this.private.get(__private);
-                for (const[node, circle] of _private.circles) {
-                    if (circle.cx.baseVal.value !== node.x) {
-                        circle.cx.baseVal.value = node.x || 0;
-                    }
-                    if (circle.cy.baseVal.value !== node.y) {
-                        circle.cy.baseVal.value = node.y || 0;
-                    }
-                    if (circle.r.baseVal.value !== node.radius) {
-                        circle.r.baseVal.value = node.radius || 0;
+                if (nodes === undefined) {
+                    _private.updatedNodes = null;
+                } else if (_private.updatedNodes) {
+                    // accumulate nodes
+                    for (const node of nodes) {
+                        _private.updatedNodes.add(node);
                     }
                 }
-                for (const[link, path] of _private.paths) {
-                    path.setAttribute("d", this.constructor.calcPath(link));
-                }
-            }),
+                this._updateGraph();
+            },
             writable: true,
             configurable: true
         }

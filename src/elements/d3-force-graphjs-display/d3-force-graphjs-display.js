@@ -24,11 +24,11 @@
         await require_ready;
         require(["../../lib/d3-force/d3-force.js", "../../lib/jamtis/requestAnimationFunction.js"], (...args) => resolve(args));
     });
-    const fetchCSS = (async() => {
-        return (await fetch(document.currentScript.src + "/../d3-force-graphjs-display.css")).text();
+    const style_ready = (async () => {
+        const style = document.createElement("style");
+        style.textContent = await (await fetch(document.currentScript.src + "/../d3-force-graphjs-display.css")).text();
+        return style;
     })();
-    const STYLE_ELEMENT = document.createElement("style");
-    STYLE_ELEMENT.textContent = await fetchCSS;
     const [{
         default: D3Force
     },{
@@ -52,7 +52,10 @@
                 graphjsDisplay: document.createElement("graphjs-display")
             };
             this.private.set(__private, _private);
-            this.root.appendChild(STYLE_ELEMENT.cloneNode(true));
+            (async () => {
+                const style = await style_ready;
+                this.root.appendChild(style.cloneNode(true)); 
+            })();
             this.root.appendChild(_private.graphjsDisplay);
             if (this.graphjsDisplay !== _private.graphjsDisplay) {
                 // cope premature assignment

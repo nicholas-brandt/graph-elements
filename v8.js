@@ -3,7 +3,7 @@
  * Fundamental class that implements the basic graph structures.
  * #Following https://en.wikipedia.org/wiki/Graph_theory
  * */
-export default class DirectedGraph extends Map {
+class DirectedGraph extends Map {
     /**
      * @function set
      * @override
@@ -81,7 +81,7 @@ export default class DirectedGraph extends Map {
             nodes = nodes[0];
         }
         let success = true;
-        for (const node of nodes) {
+        for (let node of nodes) {
             if (!this.removeNode(node)) {
                 success = false;
             }
@@ -94,7 +94,7 @@ export default class DirectedGraph extends Map {
      * */
     get links() {
         const links = new Set;
-        for (const [, relations] of this) {
+        for (let [, relations] of this) {
             for (let [, link] of relations.targets) {
                 links.add(link);
             }
@@ -144,7 +144,7 @@ export default class DirectedGraph extends Map {
             links = links[0];
         }
         let success = true;
-        for (const {source, target, metaData} of links) {
+        for (let {source, target, metaData} of links) {
             if (!this.addLink(source, target, metaData)) {
                 success = false;
             }
@@ -175,7 +175,7 @@ export default class DirectedGraph extends Map {
     removeLinks(...links) {
         if (links.length <= 1) links = links[0];
         let success = true;
-        for (const {source, target} of links) {
+        for (let {source, target} of links) {
             if (!this.removeLink(source, target)) {
                 success = false;
             }
@@ -211,7 +211,7 @@ export default class DirectedGraph extends Map {
         const visited = new Set;
         const search = start_relations => {
             visited.add(start_relations);
-            for (const [target] of start_relations.targets) {
+            for (let [target] of start_relations.targets) {
                 const target_relations = this.get(target);
                 if (visited.has(target_relations)) {
                     return true;
@@ -264,3 +264,36 @@ class Relations {
         });
     }
 }
+// V8 stuff
+const graph = new DirectedGraph;
+const method = graph.;
+graph[method]();
+graph[method]();
+%OptimizeFunctionOnNextCall(graph.addNode);
+graph[method]();
+function printStatus(fn) {
+    switch (%GetOptimizationStatus(fn)) {
+        case 1:
+            console.log("Function is optimized");
+            break;
+        case 2:
+            console.log("Function is not optimized");
+            break;
+        case 3:
+            console.log("Function is always optimized");
+            break;
+        case 4:
+            console.log("Function is never optimized");
+            break;
+        case 6:
+            console.log("Function is maybe deoptimized");
+            break;
+        case 7:
+            console.log("Function is optimized by TurboFan");
+            break;
+        default:
+            console.log("Unknown optimization status");
+            break;
+    }
+}
+printStatus(graph.addNode);

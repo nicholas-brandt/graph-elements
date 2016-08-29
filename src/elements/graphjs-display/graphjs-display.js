@@ -25,11 +25,11 @@
         await require_ready;
         require(["../../lib/polymer/Gestures.js", "../../lib/jamtis/requestAnimationFunction.js"], (...args) => resolve(args));
     });
-    const fetchCSS = (async() => {
-        return (await fetch(document.currentScript.src + "/../graphjs-display.css")).text();
+    const style_ready = (async () => {
+        const style = document.createElement("style");
+        style.textContent = await (await fetch(document.currentScript.src + "/../graphjs-display.css")).text();
+        return style;
     })();
-    const STYLE_ELEMENT = document.createElement("style");
-    STYLE_ELEMENT.textContent = await fetchCSS;
     const[{
         default: Gestures
     }, {
@@ -92,6 +92,9 @@
                     }),
                     configurable: true,
                     writable: true
+                },
+                label: {
+                    value: document.createElement("div")
                 }
             });
             this.private.set(__private, {
@@ -99,7 +102,10 @@
                 paths: new Map,
                 updatedNodes: new Set
             });
-            this.root.appendChild(STYLE_ELEMENT.cloneNode(true));
+            (async () => {
+                const style = await style_ready;
+                this.root.appendChild(style.cloneNode(true)); 
+            })();
             Object.assign(this.svg.viewBox.baseVal, {
                 x: -1000,
                 y: -1000,
@@ -107,6 +113,9 @@
                 height: 2000
             });
             this.root.appendChild(this.svg);
+            this.label.id = "label";
+            this.label.textContent = "fjdkslgjfdl";
+            this.root.appendChild(this.label);
             // check for assignments before registration
             if (this.graph) {
                 const _graph = this.graph;
@@ -197,7 +206,22 @@
             }
         }
         static _tap(event) {
-            console.log("tap event");
+            console.log("tap event", event);
+            const graphjsDisplay = this.__host;
+            const svg = graphjsDisplay.svg;
+            const style = svg.style;
+            if (style.transform) {
+                style.transform = "";
+                graphjsDisplay.label.classList.remove("visible");
+            } else {
+                const {width: svg_width, height: svg_height, x, y} = svg.viewBox.baseVal;
+                const {width, height} = graphjsDisplay.getBoundingClientRect();
+                const min = Math.min(width, height);
+                const {strokeWidth} = getComputedStyle(this);
+                graphjsDisplay.label.classList.add("visible");
+                style.transform = `scale(${Math.max(svg_width, svg_height) / (this.r.baseVal.value - parseFloat(strokeWidth)) * Math.sqrt(2)})`;
+                style.transformOrigin = `${(this.cx.baseVal.value * min - x * width) / svg_width}px ${(this.cy.baseVal.value * min - y * height) / svg_height}px`;
+            }
         }
         /*
          * Gets called by Gestures.js.

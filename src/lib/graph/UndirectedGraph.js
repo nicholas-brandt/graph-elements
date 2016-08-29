@@ -11,7 +11,22 @@ export default class UndirectedGraoh extends DirectedGraph {
         const source_relations = this.get(source);
         const target_relations = this.get(target);
         if (source_relations && target_relations) {
-            const link = new UndirectedLink(source, target, meta_data);
+            const link = {};
+            Object.defineProperties(link, {
+                source: {
+                    value: source,
+                    enumerable: true
+                },
+                target: {
+                    value: target,
+                    enumerable: true
+                },
+                metaData: {
+                    value: meta_data,
+                    enumerable: true,
+                    writeable: true
+                }
+            });
             source_relations.targets.set(target, link);
             target_relations.sources.set(source, link);
             source_relations.sources.set(target, link);
@@ -91,29 +106,5 @@ export default class UndirectedGraoh extends DirectedGraph {
             visited.clear();
         }
         return false;
-    }
-}
-/**
- * @class UndirectedLink
- * A helper class.
- * Represents a undirected link between two nodes.
- * */
-class UndirectedLink {
-    constructor(source, target, meta_data = null) {
-        Object.defineProperties(this, {
-            source: {
-                value: source,
-                enumerable: true
-            },
-            target: {
-                value: target,
-                enumerable: true
-            },
-            metaData: {
-                value: meta_data,
-                enumerable: true,
-                writeable: true
-            }
-        });
     }
 }

@@ -61,7 +61,14 @@
             velocityDecay: 0.1
         }
     };
-    setTimeout(() => {
-        display.force.start();
-    }, 100);
+    if (display.force.start) {
+        start();
+    } else {
+        display.addEventListener("update", start);
+    }
+    function start() {
+        setTimeout(() => {
+            display.force.start();
+        }, 100);
+    }
 })();

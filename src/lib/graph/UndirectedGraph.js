@@ -45,7 +45,7 @@ export default class UndirectedGraoh extends DirectedGraph {
             links = links[0];
         }
         let success = true;
-        for (let {source, target, metaData} of links) {
+        for (const {source, target, metaData} of links) {
             if (!this.addLink(source, target, metaData)) {
                 success = false;
             }
@@ -69,7 +69,7 @@ export default class UndirectedGraoh extends DirectedGraph {
     removeLinks(...links) {
         if (arguments.length <= 1) links = links[0];
         let success = true;
-        for (let {source, target, metaData} of links) {
+        for (const {source, target, metaData} of links) {
             if (!this.removeLink(source, target)) {
                 success = false;
             }
@@ -86,7 +86,7 @@ export default class UndirectedGraoh extends DirectedGraph {
         const visited = new Set;
         const search = (start_relations, referrer_relations) => {
             visited.add(start_relations);
-            for (let [target] of start_relations.targets) {
+            for (const [target] of start_relations.targets) {
                 const target_relations = this.get(target);
                 if (target_relations === referrer_relations) {
                     continue;
@@ -99,7 +99,7 @@ export default class UndirectedGraoh extends DirectedGraph {
                 }
             }
         };
-        for (let [, relations] of this) {
+        for (const [, relations] of this) {
             if (finished.has(relations)) continue;
             if (search(relations)) return true;
             finished.add(...visited);

@@ -63,10 +63,10 @@ export default class DirectedGraph extends Map {
         // remove {object} from nodes
         const deleted = super.delete(node);
         // remove all links containing {object}
-        for (let [, targets] of relations.sources) {
+        for (const [, targets] of relations.sources) {
             targets.delete(node);
         }
-        for (let [, sources] of relations.targets) {
+        for (const [, sources] of relations.targets) {
             sources.delete(node);
         }
         return deleted;

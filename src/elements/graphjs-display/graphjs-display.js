@@ -23,49 +23,81 @@
     });
     const dependencies_ready = new Promise(async resolve => {
         await require_ready;
-        require(["../../lib/polymer/Gestures.js", "../../lib/jamtis/requestAnimationFunction.js"], (...args) => resolve(args));
+        require(["../../lib/polymer/Gestures.js", "../../lib/jamtis/requestAnimationFunction.js", "../../lib/early-element/early-element.js"], (...args) => resolve(args));
     });
     const style_ready = (async () => {
         const style = document.createElement("style");
         style.textContent = await (await fetch(document.currentScript.src + "/../graphjs-display.css")).text();
         return style;
     })();
-    const[{
+    const [{
         default: Gestures
     }, {
         default: requestAnimationFunction
+    }, {
+        default: EarlyElement
     }] = await dependencies_ready;
     const __private = {};
-    class GraphjsDisplay extends HTMLElement {
+    class GraphjsDisplay extends EarlyElement {
         createdCallback() {
+            const _private = {
+                circles: new Map,
+                paths: new Map,
+                updatedNodes: new Set
+            };
             Object.defineProperties(this, {
                 private: {
                     value: new WeakMap
                 },
                 root: {
-                    value: this.createShadowRoot(),
+                    value: this.attachShadow({
+                        mode: "open"
+                    }),
+                    enumerable: true
+                },
+                detailView: {
+                    set(detail_view) {
+                        const _detail_view = _private.detailView;
+                        // assign new detail-view
+                        _private.detail_view = detail_view;
+                        detail_view.id = "detail-view";
+                        // add gesture listener to new detail-view
+                        Gestures.add(detail_view, "tap", this.constructor._detailViewTap);
+                        // detail_view.addEventListener("tap", this._detailViewTap);
+                        if (_detail_view) {
+                            // from gesture listener from old detail-view
+                            Gestures.remove(_detail_view, "tap", this.constructor._detailViewTap);
+                            this.root.replaceChild(detail_view, _detail_view);
+                        } else {
+                            this.root.appendChild(detail_view);
+                        }
+                    },
+                    get() {
+                        return _private.detail_view;
+                    },
                     enumerable: true
                 },
                 svg: {
                     value: document.createElementNS("http://www.w3.org/2000/svg", "svg"),
                     enumerable: true
                 },
+                // requestAnimationFunctions must be per-instance to avoid global interference
                 _updateGraph: {
-                    value: requestAnimationFunction(function() {
+                    value: requestAnimationFunction(() => {
                         let updated_circles;
                         let updated_paths;
-                        const _private = this.private.get(__private);
                         if (_private.updatedNodes && _private.updatedNodes.size !== _private.graph.size) {
+                            // console.log("partial update");
                             updated_circles = new Map;
                             updated_paths = new Map;
                             const links = new Set;
                             for (const node of _private.updatedNodes) {
                                 // list links
                                 const relations = _private.graph.get(node);
-                                for (const[, link] of relations.sources) {
+                                for (const [, link] of relations.sources) {
                                     links.add(link);
                                 }
-                                for (const[, link] of relations.targets) {
+                                for (const [, link] of relations.targets) {
                                     links.add(link);
                                 }
                                 updated_circles.set(node, _private.circles.get(node));
@@ -73,35 +105,27 @@
                             for (const link of links) {
                                 updated_paths.set(link, _private.paths.get(link));
                             }
+                            _private.updatedNodes.clear();
                         } else {
+                            // console.log("full update");
                             updated_circles = _private.circles;
                             updated_paths = _private.paths;
+                            _private.updatedNodes = new Set;
                         }
-                        for (const[node, circle] of updated_circles) {
-                            if (circle.cx.baseVal.value !== node.x || circle.cy.baseVal.value !== node.y || circle.r.baseVal.value !== node.radius) {
-                                // only update if any value has changed
-                                circle.cx.baseVal.value = node.x || 0;
-                                circle.cy.baseVal.value = node.y || 0;
-                                circle.r.baseVal.value = node.radius || 0;
-                            }
+                        for (const [{x, y, radius}, circle] of updated_circles) {
+                            circle.cx.baseVal.value = x;
+                            circle.cy.baseVal.value = y;
+                            circle.r.baseVal.value = radius;
                         }
-                        for (const[link, path] of updated_paths) {
+                        for (const [link, path] of updated_paths) {
                             path.setAttribute("d", this.constructor.calcPath(link));
                         }
-                        _private.updatedNodes = new Set;
                     }),
                     configurable: true,
                     writable: true
-                },
-                label: {
-                    value: document.createElement("div")
                 }
             });
-            this.private.set(__private, {
-                circles: new Map,
-                paths: new Map,
-                updatedNodes: new Set
-            });
+            this.private.set(__private, _private);
             (async () => {
                 const style = await style_ready;
                 this.root.appendChild(style.cloneNode(true)); 
@@ -113,18 +137,26 @@
                 height: 2000
             });
             this.root.appendChild(this.svg);
-            this.label.id = "label";
-            this.label.textContent = "fjdkslgjfdl";
-            this.root.appendChild(this.label);
             // check for assignments before registration
-            if (this.graph) {
-                const _graph = this.graph;
-                // delete own graph property to use prototype property
-                delete this.graph;
-                this.graph = _graph;
+            this.adoptProperties();
+            // default detail-view
+            if (!this.detailView) {
+                this.detailView = this.querySelector("#detail-view") || document.createElement("graphjs-detail-view");
             }
             // fire update-event
             this.dispatchEvent(new CustomEvent("update"));
+        }
+        updateGraph(nodes) {
+            const _private = this.private.get(__private);
+            if (nodes === undefined) {
+                _private.updatedNodes = null;
+            } else if (_private.updatedNodes) {
+                // accumulate nodes
+                for (const node of nodes) {
+                    _private.updatedNodes.add(node);
+                }
+            }
+            this._updateGraph();
         }
         set graph(graph) {
             this.svg.innerHTML = "";
@@ -159,13 +191,13 @@
                 });
                 _private.circles.set(node, circle);
                 this.svg.appendChild(circle);
-                // add gestures !!!
+                // add gestures
                 Gestures.add(circle, "tap", this.constructor._tap);
                 Gestures.add(circle, "track", this.constructor._track);
             }
             this.updateGraph();
         }
-        static calcPath(link) {
+        calcPath(link) {
             if (link.nodes) {
                 // undirected link
                 const [source, target] = [...link.nodes];
@@ -205,26 +237,35 @@
                 }
             }
         }
-        static _tap(event) {
-            console.log("tap event", event);
-            const graphjsDisplay = this.__host;
-            const svg = graphjsDisplay.svg;
-            const style = svg.style;
-            if (style.transform) {
-                style.transform = "";
-                graphjsDisplay.label.classList.remove("visible");
-            } else {
-                const {width: svg_width, height: svg_height, x, y} = svg.viewBox.baseVal;
-                const {width, height} = graphjsDisplay.getBoundingClientRect();
-                const min = Math.min(width, height);
-                const {strokeWidth} = getComputedStyle(this);
-                graphjsDisplay.label.classList.add("visible");
-                style.transform = `scale(${Math.max(svg_width, svg_height) / (this.r.baseVal.value - parseFloat(strokeWidth)) * Math.sqrt(2)})`;
-                style.transformOrigin = `${(this.cx.baseVal.value * min - x * width) / svg_width}px ${(this.cy.baseVal.value * min - y * height) / svg_height}px`;
-            }
+        /*
+         * Called on tap-event.
+         * */
+        static _detailViewTap() {
+            this.classList.remove("visible");
+            this.parentNode.host.svg.style.transform = "";
         }
         /*
-         * Gets called by Gestures.js.
+         * Called on tap-event.
+         * */
+        static _tap(event) {
+            // console.log("tap event", event);
+            const graphjsDisplay = this.__host;
+            const svg = graphjsDisplay.svg;
+            const {width: svg_width, height: svg_height, x, y} = svg.viewBox.baseVal;
+            // compute layout
+            const {width, height} = graphjsDisplay.getBoundingClientRect();
+            const min = Math.min(width, height);
+            // compute layout
+            const {strokeWidth} = getComputedStyle(this);
+            // modify layout
+            graphjsDisplay.detailView.classList.add("visible");
+            Object.assign(svg.style, {
+                transform: `scale(${Math.max(svg_width, svg_height) / (this.r.baseVal.value - parseFloat(strokeWidth)) * 2})`,
+                transformOrigin: `${(this.cx.baseVal.value * min - x * width) / svg_width}px ${(this.cy.baseVal.value * min - y * height) / svg_height}px`
+            });
+        }
+        /*
+         * Called on track-event.
          * */
         static _track(event) {
             // console.log("track event", event);
@@ -237,23 +278,5 @@
             graphjsDisplay.updateGraph([node]);
         }
     };
-    Object.defineProperties(GraphjsDisplay.prototype, {
-        updateGraph: {
-            value(nodes) {
-                const _private = this.private.get(__private);
-                if (nodes === undefined) {
-                    _private.updatedNodes = null;
-                } else if (_private.updatedNodes) {
-                    // accumulate nodes
-                    for (const node of nodes) {
-                        _private.updatedNodes.add(node);
-                    }
-                }
-                this._updateGraph();
-            },
-            writable: true,
-            configurable: true
-        }
-    });
     document.registerElement("graphjs-display", GraphjsDisplay);
 })();

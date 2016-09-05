@@ -22,7 +22,7 @@
     });
     const dependencies_ready = new Promise(async resolve => {
         await require_ready;
-        require(["../../lib/d3-force/d3-force.js", "../../lib/jamtis/requestAnimationFunction.js"], (...args) => resolve(args));
+        require(["../../lib/d3-force/d3-force.js", "../../lib/jamtis/requestAnimationFunction.js", "../../lib/early-element/early-element.js"], (...args) => resolve(args));
     });
     const style_ready = (async () => {
         const style = document.createElement("style");
@@ -31,19 +31,23 @@
     })();
     const [{
         default: D3Force
-    },{
+    }, {
         default: requestAnimationFunction
+    }, {
+        default: EarlyElement
     }] = await dependencies_ready;
     // asserts fulfilled
     const __private = {};
-    class D3ForceGraphjsDisplay extends HTMLElement {
+    class D3ForceGraphjsDisplay extends EarlyElement {
         createdCallback() {
             Object.defineProperties(this, {
                 private: {
                     value: new WeakMap
                 },
                 root: {
-                    value: this.createShadowRoot(),
+                    value: this.attachShadow({
+                        mode: "open"
+                    }),
                     enumerable: true
                 }
             });
@@ -57,27 +61,8 @@
                 this.root.appendChild(style.cloneNode(true)); 
             })();
             this.root.appendChild(_private.graphjsDisplay);
-            if (this.graphjsDisplay !== _private.graphjsDisplay) {
-                // cope premature assignment
-                const _graphjsDisplay = this.graphjsDisplay;
-                // delete own property to use prototype property
-                delete this.graphjsDisplay;
-                this.graphjsDisplay = _graphjsDisplay;
-            }
-            if (this.force !== _private.force) {
-                // cope premature assignment
-                const _force = this.force;
-                // delete own property to use prototype property
-                delete this.force;
-                this.force = _force;
-            }
-            if (this.graph) {
-                // cope premature assignment
-                const _graph = this.graph;
-                // delete own property to use prototype property
-                delete this.graph;
-                this.graph = _graph;
-            }
+            // check for assignments before registration
+            this.adoptProperties();
             // link tick to drawing
             (async() => {
                 while (true) {

@@ -14,7 +14,7 @@ Object.defineProperties(Object.getPrototypeOf(scope), {
         value() {
             const graph = new DirectedGraph;
             graph.addNode(this);
-            let scopes = this.scopes;
+            const scopes = this.scopes;
             for (const scope of scopes) {
                 scopes.delete(scope);
                 if (scope.scopes.size) {

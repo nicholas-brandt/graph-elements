@@ -18,4 +18,12 @@ export default class AcyclicDirectedGraph extends DirectedGraph {
         }
         return success;
     }
+    /**
+     * @function hasCycle
+     * @return {boolean} - Whether the graph has a cycle.
+     * No actual search.
+     * */
+    hasCycle() {
+        return false;
+    }
 }

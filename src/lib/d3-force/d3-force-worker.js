@@ -14,7 +14,7 @@ simulation.on("tick", () => {
     });
 });
 addEventListener("message", ({data}) => {
-    console.log("worker got message:", data);
+    // console.log("worker got message:", data);
     if (data.configuration) {
         const {
             link,
@@ -65,9 +65,9 @@ addEventListener("message", ({data}) => {
     if (data.graph) {
         const nodes = [];
         const links = [];
-        for (let [node, relations] of data.graph) {
+        for (const [node, relations] of data.graph) {
             nodes.push(node);
-            for (let [, link] of relations.targets) {
+            for (const [, link] of relations.targets) {
                 links.push(link);
             }
         }

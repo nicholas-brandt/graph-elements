@@ -1,10 +1,7 @@
 "use strict";
 
-const chai = require("chai");
-const Graph = require("../../node-transpiled/lib/graph.js").default;
-const ConditionedGraph = require("../../node-transpiled/lib/conditioned-graph.js").default;
-const AcyclicGraph = require("../../node-transpiled/lib/acyclic-graph.js").default;
-const Tree = require("../../node-transpiled/lib/tree.js").default;
+import chai from "chai";
+import Graph from "../lib/graph/DirectedGraph.js";
 describe("Graph consistency", () => {
     test("Graph is constructor", () => {
         return new Graph instanceof Graph;
@@ -120,65 +117,6 @@ describe("Graph consistency", () => {
         graph.addNode(node);
         graph.addLink(node, node);
         return graph.getMaximalCycleLength() === 1;
-    });
-});
-describe("ConditionedGraph consistency", () => {
-    test("ConditionedGraph is instanceof Graph", () => {
-        return new ConditionedGraph instanceof Graph;
-    });
-    test("ConditionedGraph#preCondition is true by default", () => {
-        return new ConditionedGraph().preCondition() === true;
-    });
-    test("ConditionedGraph#postCondition is true by default", () => {
-        return new ConditionedGraph().postCondition() === true;
-    });
-    test("ConditionedGraph#addLink is pre-conditioned", () => {
-        class TestGraph extends ConditionedGraph {
-            preCondition() {
-                return false;
-            }
-        }
-        const graph = new TestGraph;
-        const node1 = {};
-        const node2 = {};
-        graph.addNode(node1);
-        graph.addNode(node2);
-        return !graph.addLink(node1, node2);
-    });
-    test("ConditionedGraph#addLink is post-conditioned", () => {
-        class TestGraph extends ConditionedGraph {
-            postCondition() {
-                return false;
-            }
-        }
-        const graph = new TestGraph;
-        const node1 = {};
-        const node2 = {};
-        graph.addNode(node1);
-        graph.addNode(node2);
-        return !graph.addLink(node1, node2);
-    });
-});
-describe("AcyclicGraph consistency", () => {
-    test("AcyclicGraph is instanceof Graph", () => {
-        return new AcyclicGraph instanceof Graph;
-    });
-    test("AcyclicGraph#addLink", () => {
-        const graph = new AcyclicGraph;
-        const node1 = {};
-        const node2 = {};
-        const node3 = {};
-        graph.addNodes(node1, node2, node3);
-        graph.addLink(node1, node2);
-        graph.addLink(node2, node3);
-        return !graph.addLink(node1, node3);
-    });
-    test("AcyclicGraph#hasCycle", () => {
-        const graph = new AcyclicGraph;
-        const node = {};
-        graph.addNode(node);
-        graph.addLink(node, node);
-        return !graph.hasCycle(true);
     });
 });
 function test(name, _function) {

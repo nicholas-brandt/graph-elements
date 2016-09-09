@@ -118,7 +118,7 @@
                             circle.r.baseVal.value = radius;
                         }
                         for (const [link, path] of updated_paths) {
-                            path.setAttribute("d", this.constructor.calcPath(link));
+                            path.setAttribute("d", this.calcPath(link));
                         }
                     }),
                     configurable: true,
@@ -220,7 +220,8 @@
                 }
             } else {
                 // directed link
-                const {source, target} = link;if (source === target || source.x === target.x && source.y === target.y) {
+                const {source, target} = link;
+                if (source === target || source.x === target.x && source.y === target.y) {
                     const short = source.radius / 3;
                     const long = source.radius * 3;
                     return `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;

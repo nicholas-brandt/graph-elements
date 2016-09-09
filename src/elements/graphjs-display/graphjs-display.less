@@ -8,6 +8,7 @@
     >svg {
         touch-action: none;
         flex: 1;
+        will-change: transform;
         transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
         >* {
             touch-action: none;
@@ -28,6 +29,7 @@
             }
         }
         >path {
+            pointer-events: none;
             fill: @link;
             fill: var(--link-color, @link);
             stroke: @link;

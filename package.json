@@ -9,22 +9,18 @@
     "author": "nicholas.brandt@mail.de",
     "license": "",
     "dependencies": {
-        "babel-plugin-transform-es2015-modules-umd": "^6.12.0",
-        "babel-plugin-transform-regenerator": "^6.9.0",
-        "babel-polyfill": "^6.9.1",
-        "babel-preset-stage-3": "^6.11.0",
-        "circular-json": "^0.3.1",
-        "d3": "^4.2.1",
-        "esprima": "^2.7.2",
+        "d3": "^4.12.0",
+        "requestanimationfunction": "^1.0.0"
+    },
+    "devDependencies": {
+        "graph.js": "^1.21.1",
         "gulp": "^3.9.1",
-        "gulp-babel": "^6.1.2",
-        "gulp-clean-css": "^2.0.8",
-        "gulp-htmlmin": "^2.0.0",
-        "gulp-less": "^3.1.0",
-        "gulp-mocha": "^3.0.1",
-        "gulp-uglify": "^1.5.3",
-        "gulp-vulcanize": "^6.1.0",
-        "gulp-watch": "^4.3.6",
-        "requirejs": "^2.2.0"
+        "gulp-babel-minify": "^0.2.0",
+        "gulp-clean-css": "^3.9.0",
+        "gulp-esformatter": "^6.1.0",
+        "gulp-inject": "^4.3.0",
+        "gulp-inject-file": "0.0.19",
+        "gulp-less": "^3.3.2",
+        "gulp-watch": "^4.3.11"
     }
 }

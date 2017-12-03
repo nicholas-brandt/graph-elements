@@ -1,0 +1,21 @@
+@import (reference) "../../styles.less";
+
+:host {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: @node;
+    background: var(--node-color, @node);
+    >* {
+        flex: 1;
+        transition: opacity .3s;
+        opacity: 0;
+    }
+    &(.visible) {
+        display: flex;
+        >* {
+            opacity: 1;
+        }
+    }
+}

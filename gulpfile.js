@@ -1,48 +1,45 @@
-const {
-    packages, base, config
-} = require("./gulpfile.json");
+const exec = require("child_process").exec;
 const gulp = require("gulp");
-const watch = require("gulp-watch");
-applyPipelinePackages(packages, base);
-
-function applyPipeline(name, src_pattern, base, dest = "build", tasks, dependency_tasks) {
-    if (!name) {
-        throw Error("Invalid pipeline name");
-    }
-    if (!src_pattern) {
-        throw Error("Invalid pipeline src-pattern");
-    }
-    let pipeline = gulp.src(src_pattern, {
-        base
-    }).pipe(watch(src_pattern, {
-        base
-    }));
-    for (const [task, options] of tasks) {
-        pipeline = pipeline.pipe(require("gulp-" + task)(Object.assign({}, config[task], options)));
-    }
-    pipeline = pipeline.pipe(gulp.dest(dest));
-    console.log("register tasks", name);
-    gulp.task(name, dependency_tasks || [], () => pipeline);
-}
-
-function applyPipelinePackages(packages, base, dest) {
-    const package_names = [];
-    for (let package_name in packages) {
-        package_names.push(package_name);
-        const package = packages[package_name];
-        const pipe_names = [];
-        for (let pipe_name in package) {
-            const pipeline = package[pipe_name];
-            pipe_name = package_name + "-" + pipe_name;
-            pipe_names.push(pipe_name);
-            applyPipeline(pipe_name, pipeline.src, pipeline.base || base, dest, pipeline.tasks, pipeline["dependency-tasks"]);
+const {
+    bundles, modules
+} = require("./gulpfile.json");
+for (const bundle in bundles) {
+    const tasks = bundles[bundle];
+    for (const task_name in tasks) {
+        try {
+            const task = tasks[task_name];
+            const dependencies = (task.dependencies || []).map(dependency => bundle + "-" + dependency);
+            gulp.task(bundle + "-" + task_name, dependencies, () => {
+                let pipe_part;
+                if (task.watch) {
+                    const gulp_watch = require("gulp-watch");
+                    pipe_part = gulp_watch(task.src, modules["gulp-watch"]);
+                } else {
+                    pipe_part = gulp.src(task.src);
+                }
+                for (const part of task.chain) {
+                    const module_name = typeof part == "string" ? part : part.module;
+                    const pipe_function = require(module_name);
+                    const settings = Object.assign({}, part.settings, modules[module_name]);
+                    pipe_part = pipe_part.pipe(pipe_function(settings));
+                    pipe_part.on("error", error => console.error(error.toString()));
+                }
+                pipe_part = pipe_part.pipe(gulp.dest(task.dest));
+                return pipe_part;
+            });
+        } catch (e) {
+            console.error(e);
         }
-        console.log("register package", package_name);
-        gulp.task(package_name, pipe_names);
     }
-    gulp.task("default", package_names);
+    gulp.task(bundle, Object.getOwnPropertyNames(tasks).map(task => bundle + "-" + task));
+    gulp.task("init-" + bundle, () => new Promise((resolve, reject) => {
+        exec("npm install --save-dev gulp-watch " + Object.getOwnPropertyNames(modules).join(" "), error => {
+            (error ? reject : resolve)();
+        });
+    }));
 }
-gulp.task("test", () => {});
-gulp.on("stop", () => {
-    console.log("stop");
-});
+{
+    const bundle_array = Object.getOwnPropertyNames(bundles);
+    gulp.task("default", bundle_array);
+    gulp.task("init", bundle_array.map(bundle => "init-" + bundle));
+}

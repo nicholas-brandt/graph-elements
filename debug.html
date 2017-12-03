@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://d3js.org/d3-collection.v1.min.js" async></script>
+    <script src="https://d3js.org/d3-dispatch.v1.min.js" async></script>
+    <script src="https://d3js.org/d3-quadtree.v1.min.js" async></script>
+    <script src="https://d3js.org/d3-timer.v1.min.js" async></script>
+    <script src="https://d3js.org/d3-force.v1.min.js" async></script>
+    
+    <script src="build/elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
+    <script src="build/elements/graph-d3-force/graph-d3-force.js" type="module" async></script>
+    <script src="build/elements/graph-display/graph-display.js" type="module" async></script>
+    <link href="https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js" rel="preload" as="script">
+    <script src="https://hammerjs.github.io/dist/hammer.min.js" async></script>
+    <script type="module">
+        import Graph from "./node_modules/graph.js/dist/graph.es6.js";
+        window.Graph = Graph;
+        const graph = new Graph;
+        graph.addVertex(0);
+        graph.addVertex(1);
+        graph.addEdge(0, 1);
+        for(let i = 2; i < 1e2; ++i) graph.addVertex(i);
+        // for(let i = 0; i < 3e2; ++i) graph.addEdge(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100));
+        for(let i = 0, a; i < 3e2; ++i) graph.addEdge(a = Math.floor(Math.random() * 100), (a + 1) % 1e2);
+        
+        (async() => {
+            await customElements.whenDefined("graph-display");
+            const graphDisplay = document.querySelector("graph-display");
+            graphDisplay.graph = graph;
+        })();
+    </script>
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+    <graph-display>
+        <graph-detail-view>
+            hfajköhdajskdl
+        </graph-detail-view>
+        <graph-d3-force></graph-d3-force>
+    </graph-display>
+</body>
+
+</html>

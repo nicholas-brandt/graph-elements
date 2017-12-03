@@ -4,14 +4,22 @@ const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
+let buffer_array;
 simulation.force("link", link_force);
 simulation.force("center", center_force);
 simulation.force("charge", charge_force);
 simulation.stop();
 simulation.on("tick", () => {
-    postMessage({
-        nodes: simulation.nodes()
-    });
+    const nodes = simulation.nodes();
+    for (let i = 0; i < nodes.length; ++i) {
+        const node = nodes[i];
+        buffer_array[i * 2] = node.x;
+        buffer_array[i * 2 + 1] = node.y;
+    }
+    // console.log(nodes.map(JSON.stringify), buffer_array);
+    // dispatch draw message to main window
+    // write graph data into shared buffer
+    postMessage({});
 });
 addEventListener("message", ({data}) => {
     // console.log("worker got message:", data);
@@ -19,6 +27,7 @@ addEventListener("message", ({data}) => {
         const {
             link,
             charge,
+            gravitation,
             alpha,
             alphaTarget,
             alphaMin,
@@ -62,15 +71,9 @@ addEventListener("message", ({data}) => {
             simulation.velocityDecay(velocityDecay);
         }
     }
-    if (data.graph) {
-        const nodes = [];
-        const links = [];
-        for (const [node, relations] of data.graph) {
-            nodes.push(node);
-            for (const [, link] of relations.targets) {
-                links.push(link);
-            }
-        }
+    if (data.graph && data.shared_buffer) {
+        buffer_array = new Float32Array(data.shared_buffer);
+        const {nodes, links} = data.graph;
         simulation.nodes(nodes);
         link_force.links(links);
     }

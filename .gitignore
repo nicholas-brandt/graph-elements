@@ -4,5 +4,3 @@ bower_components
 .settings
 npm-debug.log
 .jshintrc
-.grunt
-build

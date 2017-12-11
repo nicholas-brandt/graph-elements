@@ -40,7 +40,7 @@ class GraphDisplay extends HTMLElement {
             }
         });
         this.configuration = {
-            radius: 20
+            radius: 10
         };
         new ResizeObserver(this.__resize.bind(this)).observe(this);
         this.attachShadow({

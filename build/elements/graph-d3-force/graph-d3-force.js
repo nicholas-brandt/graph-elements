@@ -20,7 +20,11 @@ class GraphD3Force extends GraphExtension {
         set: (b) => {
           a.set.call(this.__graphDisplay, b), this.__graphChanged()
         }
-      })
+      }),
+      d3Force: {
+        value: this,
+        configurable: !0
+      }
     }), Object.defineProperties(this, {
       __worker: {
         value: new Worker("data:application/javascript," + encodeURIComponent(`importScripts("https://d3js.org/d3.v4.min.js");
@@ -91,7 +95,6 @@ class GraphD3Force extends GraphExtension {
     })
   }
   __receiveForceUpdate() {
-    console.log("received force update");
     for (let a = 0; a < this.__circleObjects.length; ++a) {
       const b = this.__circleObjects[a],
         c = this.__bufferArray[2 * a],

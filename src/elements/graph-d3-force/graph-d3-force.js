@@ -26,7 +26,11 @@ class GraphD3Force extends GraphExtension {
                     graph_descriptor.set.call(this.__graphDisplay, graph);
                     this.__graphChanged();
                 }
-            })
+            }),
+            d3Force: {
+                value: this,
+                configurable: true
+            }
         });
         // define own properties
         Object.defineProperties(this, {

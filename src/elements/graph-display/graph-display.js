@@ -118,10 +118,9 @@ class GraphDisplay extends HTMLElement {
                     value: this
                 }
             });
-            const circle_object = Object.assign({
+            const circle_object = Object.assign(value, {
                 circle,
-                hammer: new Hammer(circle)
-            }, value, {
+                hammer: new Hammer(circle),
                 x: 0,
                 y: 0
             });

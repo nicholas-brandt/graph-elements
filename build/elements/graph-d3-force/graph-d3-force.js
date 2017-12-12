@@ -11,6 +11,11 @@ const default_configuration = {
     strength: 100
   }
 };
+let worker_data;
+const worker_promise = (async() => {
+  const a = fetch("./build/elements/graph-d3-force/d3-force-worker.js");
+  worker_data = URL.createObjectURL((await(await a).blob()))
+})();
 class GraphD3Force extends GraphExtension {
   constructor() {
     super();
@@ -23,7 +28,7 @@ class GraphD3Force extends GraphExtension {
       })
     }), Object.defineProperties(this, {
       __worker: {
-        value: new Worker("./build/elements/graph-d3-force/d3-force-worker.js")
+        value: new Worker(worker_data)
       }
     }), this.configuration = default_configuration, this.__worker.addEventListener("message", requestAnimationFunction(this.__receiveForceUpdate.bind(this))), this.__graphChanged(), this.attachShadow({
       mode: "open"
@@ -78,14 +83,18 @@ class GraphD3Force extends GraphExtension {
   }
 }
 (async() => {
-  window.d3 || (await new Promise((a) => {
-    Object.defineProperty(window, "d3", {
-      set(b) {
-        delete window.d3
-        , window.d3 = b, setTimeout(a)
-      },
-      configurable: !0,
-      writable: !0
-    })
-  })), await customElements.whenDefined("graph-display"), customElements.define("graph-d3-force", GraphD3Force)
+  try {
+    window.d3 || (await new Promise((a) => {
+      Object.defineProperty(window, "d3", {
+        set(b) {
+          delete window.d3
+          , window.d3 = b, setTimeout(a)
+        },
+        configurable: !0,
+        writable: !0
+      })
+    })), await worker_promise, await customElements.whenDefined("graph-display"), customElements.define("graph-d3-force", GraphD3Force)
+  } catch (a) {
+    console.error(a)
+  }
 })();

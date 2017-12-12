@@ -13,6 +13,13 @@ const default_configuration = {
         strength: 100
     }
 };
+// web worker same origin policy requires host to support OPTIONS CORS
+let worker_data;
+const worker_promise = (async () => {
+    const request = fetch("./build/elements/graph-d3-force/d3-force-worker.js");
+    worker_data = URL.createObjectURL(await (await request).blob());
+})();
+
 class GraphD3Force extends GraphExtension {
     constructor() {
         super();
@@ -30,7 +37,7 @@ class GraphD3Force extends GraphExtension {
         // define own properties
         Object.defineProperties(this, {
             __worker: {
-                value: new Worker("./build/elements/graph-d3-force/d3-force-worker.js")
+                value: new Worker(worker_data)
             }
         });
         this.configuration = default_configuration;
@@ -93,20 +100,25 @@ class GraphD3Force extends GraphExtension {
     }
 }
 (async () => {
-    // ensure d3
-    if (!window.d3) {
-        await new Promise(resolve => {
-            Object.defineProperty(window, "d3", {
-                set(value) {
-                    delete window.d3;
-                    window.d3 = value;
-                    setTimeout(resolve);
-                },
-                configurable: true,
-                writable: true
-            })
-        });
+    try {
+        // ensure d3
+        if (!window.d3) {
+            await new Promise(resolve => {
+                Object.defineProperty(window, "d3", {
+                    set(value) {
+                        delete window.d3;
+                        window.d3 = value;
+                        setTimeout(resolve);
+                    },
+                    configurable: true,
+                    writable: true
+                    })
+            });
+        }
+        await worker_promise;
+        await customElements.whenDefined("graph-display");
+        customElements.define("graph-d3-force", GraphD3Force);
+    } catch (error) {
+        console.error(error);
     }
-    await customElements.whenDefined("graph-display");
-    customElements.define("graph-d3-force", GraphD3Force);
 })();

@@ -72,13 +72,7 @@ class GraphDisplay extends HTMLElement {
         __host: {
           value: this
         }
-      });const e = Object.assign(c, {
-        circle: d,
-        hammer: new Hammer(d),
-        x: 0,
-        y: 0
-      });
-      d.setAttribute("cx", e.x), d.setAttribute("cy", e.y), e.hammer.on("pan", this.__track.bind(this, b, e)), this.circles.set(b, e)
+      }), c.circle = d, c.hammer = new Hammer(d), c.x |= 0, c.y |= 0, d.setAttribute("cx", c.x), d.setAttribute("cy", c.y), c.hammer.on("pan", this.__track.bind(this, b, c)), this.circles.set(b, c)
     }
     for (const [b, c] of a.edges()) {
       const a = document.createElementNS("http://www.w3.org/2000/svg", "path");

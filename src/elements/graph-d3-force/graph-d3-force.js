@@ -81,7 +81,7 @@ class GraphD3Force extends GraphExtension {
         });
     }
     __receiveForceUpdate() {
-        console.log("received force update");
+        // console.log("received force update");
         for (let i = 0; i < this.__circleObjects.length; ++i) {
             const circle_object = this.__circleObjects[i];
             const x = this.__bufferArray[i * 2];

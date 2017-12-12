@@ -118,18 +118,16 @@ class GraphDisplay extends HTMLElement {
                     value: this
                 }
             });
-            const circle_object = Object.assign(value, {
-                circle,
-                hammer: new Hammer(circle),
-                x: 0,
-                y: 0
-            });
+            value.circle = circle;
+            value.hammer = new Hammer(circle);
+            value.x |= 0;
+            value.y |= 0;
             // necessary to make circle.cx.baseVal.value += dx work ...
-            circle.setAttribute("cx", circle_object.x);
-            circle.setAttribute("cy", circle_object.y);
+            circle.setAttribute("cx", value.x);
+            circle.setAttribute("cy", value.y);
             
-            circle_object.hammer.on("pan", this.__track.bind(this, key, circle_object));
-            this.circles.set(key, circle_object);
+            value.hammer.on("pan", this.__track.bind(this, key, value));
+            this.circles.set(key, value);
         }
         for (const [source_key, target_key] of graph.edges()) {
             const path = document.createElementNS("http://www.w3.org/2000/svg", "path");

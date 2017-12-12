@@ -11,11 +11,6 @@ const default_configuration = {
     strength: 100
   }
 };
-let worker_data;
-const worker_promise = (async() => {
-  const a = fetch("./build/elements/graph-d3-force/d3-force-worker.js");
-  worker_data = URL.createObjectURL((await(await a).blob()))
-})();
 class GraphD3Force extends GraphExtension {
   constructor() {
     super();
@@ -28,7 +23,31 @@ class GraphD3Force extends GraphExtension {
       })
     }), Object.defineProperties(this, {
       __worker: {
-        value: new Worker(worker_data)
+        value: new Worker("data:application/javascript," + encodeURIComponent(`importScripts("https://d3js.org/d3.v4.min.js");
+                const simulation = d3.forceSimulation(),
+                  link_force = d3.forceLink(),
+                  center_force = d3.forceCenter(0, 0),
+                  charge_force = d3.forceManyBody();
+                let buffer_array;
+                simulation.force("link", link_force), simulation.force("center", center_force), simulation.force("charge", charge_force), simulation.stop(), simulation.on("tick", () => {
+                  const a = simulation.nodes();
+                  for (let b = 0; b < a.length; ++b) {
+                    const c = a[b];
+                    buffer_array[2 * b] = c.x, buffer_array[2 * b + 1] = c.y
+                  }
+                  postMessage({})
+                }), addEventListener("message", ({data:a}) => {
+                  if (a.configuration) {
+                    const {link:b, charge:c, gravitation:d, alpha:e, alphaTarget:f, alphaMin:g, alphaDecay:h, velocityDecay:i} = a.configuration;
+                    b && ("distance" in b && link_force.distance(b.distance), "strength" in b && link_force.strength(b.strength), simulation.force("link", link_force)), c && ("strength" in c && charge_force.strength(c.strength), "maxDistance" in c && charge_force.maxDistance(c.maxDistance), "minDistance" in c && charge_force.minDistance(c.minDistance), simulation.force("charge", charge_force)), e !== void 0 && simulation.alpha(e), f !== void 0 && simulation.alphaTarget(f), g !== void 0 && simulation.alphaMin(g), h !== void 0 && simulation.alpha(h), i !== void 0 && simulation.velocityDecay(i)
+                  }
+                  if (a.graph && a.shared_buffer) {
+                    buffer_array = new Float32Array(a.shared_buffer);
+                    const {nodes:b, links:c} = a.graph;
+                    simulation.nodes(b), link_force.links(c)
+                  }
+                  "run" in a && (a.run ? simulation.restart() : simulation.stop())
+                });`))
       }
     }), this.configuration = default_configuration, this.__worker.addEventListener("message", requestAnimationFunction(this.__receiveForceUpdate.bind(this))), this.__graphChanged(), this.attachShadow({
       mode: "open"
@@ -93,7 +112,7 @@ class GraphD3Force extends GraphExtension {
         configurable: !0,
         writable: !0
       })
-    })), await worker_promise, await customElements.whenDefined("graph-display"), customElements.define("graph-d3-force", GraphD3Force)
+    })), await customElements.whenDefined("graph-display"), customElements.define("graph-d3-force", GraphD3Force)
   } catch (a) {
     console.error(a)
   }

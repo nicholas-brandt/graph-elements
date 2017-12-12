@@ -1,34 +1,29 @@
 {
-  "name": "graph-elements",
-  "version": "1.0.0",
-  "description": "GraphJS =======",
-  "main": "gulpfile.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "nicholas.brandt@mail.de",
-  "license": "CC-BY-SA-4.0",
-  "dependencies": {
-    "d3": "^4.12.0",
-    "requestanimationfunction": "^1.0.0"
-  },
-  "devDependencies": {
-    "graph.js": "^1.21.1",
-    "gulp": "^3.9.1",
-    "gulp-babel-minify": "^0.2.0",
-    "gulp-clean-css": "^3.9.0",
-    "gulp-esformatter": "^6.1.0",
-    "gulp-inject": "^4.3.0",
-    "gulp-inject-file": "0.0.19",
-    "gulp-less": "^3.3.2",
-    "gulp-watch": "^4.3.11"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jamtis/graphjs.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jamtis/graphjs/issues"
-  },
-  "homepage": "https://github.com/jamtis/graphjs#readme"
+    "name": "graph-elements",
+    "version": "1.0.0",
+    "description": "GraphJS =======",
+    "main": "gulpfile.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "nicholas.brandt@mail.de",
+    "license": "CC-BY-SA-4.0",
+    "dependencies": {},
+    "devDependencies": {
+        "gulp": "^3.9.1",
+        "gulp-babel-minify": "^0.2.0",
+        "gulp-clean-css": "^3.9.0",
+        "gulp-esformatter": "^6.1.0",
+        "gulp-inject-file": "0.0.19",
+        "gulp-less": "^3.3.2",
+        "gulp-watch": "^4.3.11"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jamtis/graphjs.git"
+    },
+    "bugs": {
+        "url": "https://github.com/jamtis/graphjs/issues"
+    },
+    "homepage": "https://github.com/jamtis/graphjs#readme"
 }

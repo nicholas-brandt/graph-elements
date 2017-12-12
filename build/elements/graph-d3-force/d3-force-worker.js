@@ -1,4 +1,4 @@
-importScripts(this.origin + "/node_modules/d3/build/d3.js");
+importScripts("https://d3js.org/d3.v4.min.js");
 const simulation = d3.forceSimulation(),
   link_force = d3.forceLink(),
   center_force = d3.forceCenter(0, 0),

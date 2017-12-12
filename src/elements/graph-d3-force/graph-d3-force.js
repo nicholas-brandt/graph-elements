@@ -14,12 +14,6 @@ const default_configuration = {
     }
 };
 // web worker same origin policy requires host to support OPTIONS CORS
-let worker_data;
-const worker_promise = (async () => {
-    const request = fetch("./build/elements/graph-d3-force/d3-force-worker.js");
-    worker_data = URL.createObjectURL(await (await request).blob());
-})();
-
 class GraphD3Force extends GraphExtension {
     constructor() {
         super();
@@ -37,7 +31,8 @@ class GraphD3Force extends GraphExtension {
         // define own properties
         Object.defineProperties(this, {
             __worker: {
-                value: new Worker(worker_data)
+                // value: new Worker(worker_data)
+                value: new Worker("data:application/javascript," + encodeURIComponent(`<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.js -->`))
             }
         });
         this.configuration = default_configuration;
@@ -115,7 +110,6 @@ class GraphD3Force extends GraphExtension {
                     })
             });
         }
-        await worker_promise;
         await customElements.whenDefined("graph-display");
         customElements.define("graph-d3-force", GraphD3Force);
     } catch (error) {

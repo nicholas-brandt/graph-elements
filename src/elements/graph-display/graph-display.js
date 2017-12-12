@@ -104,7 +104,11 @@ class GraphDisplay extends HTMLElement {
         this.svg.innerHTML = "";
         this.circles.clear();
         this.paths.clear();
-        for (const [key, value] of graph.vertices()) {
+        for (let [key, value] of graph.vertices()) {
+            if (!(value instanceof Object)) {
+                value = {value};
+                graph.setVertex(key, value);
+            }
             const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
             Object.defineProperties(circle, {
                 __node: {

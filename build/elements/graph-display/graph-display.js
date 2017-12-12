@@ -61,23 +61,25 @@ class GraphDisplay extends HTMLElement {
   }
   set graph(a) {
     this.__graph = a, this.svg.innerHTML = "", this.circles.clear(), this.paths.clear();
-    for (const [b, c] of a.vertices()) {
-      const a = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      Object.defineProperties(a, {
+    for (let [b, c] of a.vertices()) {
+      c instanceof Object || (c = {
+        value: c
+      }, a.setVertex(b, c));const d = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      Object.defineProperties(d, {
         __node: {
           value: b
         },
         __host: {
           value: this
         }
-      });const d = Object.assign({
-        circle: a,
-        hammer: new Hammer(a)
+      });const e = Object.assign({
+        circle: d,
+        hammer: new Hammer(d)
       }, c, {
         x: 0,
         y: 0
       });
-      a.setAttribute("cx", d.x), a.setAttribute("cy", d.y), d.hammer.on("pan", this.__track.bind(this, b, d)), this.circles.set(b, d)
+      d.setAttribute("cx", e.x), d.setAttribute("cy", e.y), e.hammer.on("pan", this.__track.bind(this, b, e)), this.circles.set(b, e)
     }
     for (const [b, c] of a.edges()) {
       const a = document.createElementNS("http://www.w3.org/2000/svg", "path");

@@ -203,7 +203,7 @@ class GraphDisplay extends HTMLElement {
      * Called on track-event.
      * */
     __track(node_key, circle_object, event) {
-        // console.log("track event", event);
+        console.log("track event", event);
         const circle = circle_object.circle;
         circle_object.x += (event.deltaX - this.__delta[0]) || 0;
         circle_object.y += (event.deltaY - this.__delta[1]) || 0;

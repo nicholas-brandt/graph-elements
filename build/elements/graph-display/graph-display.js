@@ -111,7 +111,7 @@ class GraphDisplay extends HTMLElement {
     }
   }
   __track(a, b, c) {
-    b.circle;b.x += c.deltaX - this.__delta[0] || 0, b.y += c.deltaY - this.__delta[1] || 0, this.__delta = c.isFinal ? [0, 0] : [c.deltaX, c.deltaY], this.updateGraph([a])
+    console.log("track event", c);b.circle;b.x += c.deltaX - this.__delta[0] || 0, b.y += c.deltaY - this.__delta[1] || 0, this.__delta = c.isFinal ? [0, 0] : [c.deltaX, c.deltaY], this.updateGraph([a])
   }
   __resize() {
     const {width:a, height:b} = this.svg.getBoundingClientRect();

@@ -16,11 +16,12 @@ class GraphD3Force extends GraphExtension {
     super();
     const a = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
     Object.defineProperties(this.__graphDisplay, {
-      updateGraph: Object.assign({}, a, {
-        set: (...b) => {
+      updateGraph: {
+        value: (...b) => {
           a.value.apply(this.__graphDisplay, b), this.__propagateUpdatedGraph()
-        }
-      }),
+        },
+        configurable: !0
+      },
       d3Force: {
         value: this,
         configurable: !0

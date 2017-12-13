@@ -50,6 +50,13 @@ class GraphD3Force extends GraphExtension {
                     const {nodes:b, links:c} = a.graph;
                     simulation.nodes(b), link_force.links(c)
                   }
+                  if (a.updatedNode && a.updatedNode[Symbol.iterator]) {
+                    let b = 0;
+                    for (const c of a.updatedNode) {
+                      const a = simulation.nodes()[b++];
+                      a.x = c.x, a.y = c.y
+                    }
+                  }
                   "run" in a && (a.run ? simulation.restart() : simulation.stop())
                 });`))
       }
@@ -86,7 +93,12 @@ class GraphD3Force extends GraphExtension {
         target: a.indexOf(c)
       })),
       d = new SharedArrayBuffer(2 * (4 * b.length));
-    this.__bufferArray = new Float32Array(d), this.__worker.postMessage({
+    this.__bufferArray = new Float32Array(d);
+    for (let a = 0; a < b.length; ++a) {
+      const c = b[a];
+      this.__bufferArray[2 * a] = c.x, this.__bufferArray[2 * a + 1] = c.y
+    }
+    this.__worker.postMessage({
       graph: {
         nodes: b,
         links: c

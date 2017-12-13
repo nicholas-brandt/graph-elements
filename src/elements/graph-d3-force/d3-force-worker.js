@@ -78,6 +78,14 @@ addEventListener("message", ({data}) => {
         simulation.nodes(nodes);
         link_force.links(links);
     }
+    if (data.updatedNode && data.updatedNode[Symbol.iterator]) {
+        let i = 0;
+        for (const updated_node of data.updatedNode) {
+            const node = simulation.nodes()[i++];
+            node.x = updated_node.x;
+            node.y = updated_node.y;
+        }
+    }
     if ("run" in data) {
         if (data.run) {
             simulation.restart();

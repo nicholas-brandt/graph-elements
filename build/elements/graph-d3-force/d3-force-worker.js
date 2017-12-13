@@ -21,5 +21,12 @@ simulation.force("link", link_force), simulation.force("center", center_force), 
     const {nodes:b, links:c} = a.graph;
     simulation.nodes(b), link_force.links(c)
   }
+  if (a.updatedNode && a.updatedNode[Symbol.iterator]) {
+    let b = 0;
+    for (const c of a.updatedNode) {
+      const a = simulation.nodes()[b++];
+      a.x = c.x, a.y = c.y
+    }
+  }
   "run" in a && (a.run ? simulation.restart() : simulation.stop())
 });

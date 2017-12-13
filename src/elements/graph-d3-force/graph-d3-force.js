@@ -76,6 +76,11 @@ class GraphD3Force extends GraphExtension {
         // 32 bit * 2 * N
         const shared_buffer = new SharedArrayBuffer(nodes.length * 4 * 2);
         this.__bufferArray = new Float32Array(shared_buffer);
+        for (let i = 0; i < nodes.length; ++i) {
+            const node = nodes[i];
+            this.__bufferArray[i * 2] = node.x;
+            this.__bufferArray[i * 2 + 1] = node.y;
+        }
         this.__worker.postMessage({
             graph: {
                 nodes,

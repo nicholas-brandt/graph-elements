@@ -123,7 +123,7 @@ class GraphDisplay extends HTMLElement {
                 }
             });
             if (!value.hammer) {
-                value.hammer = new Hammer(circle);
+                value.hammer = new Hammer(value.circle);
             }
             value.x |= 0;
             value.y |= 0;

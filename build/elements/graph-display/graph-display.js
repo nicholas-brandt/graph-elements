@@ -1,6 +1,6 @@
 "use strict";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";
 const style = document.createElement("style");
-style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1)}:host>svg>*{touch-action:none}:host>svg>circle{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-width:4px;transition:opacity .5s,fill .5s}:host>svg>circle[selected]{fill:#8bc34a;stroke:#33691e;stroke-width:5px;stroke-dasharray:8,2;transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>path{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path[loop]{fill:none;stroke-width:2px}";
+style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1)}:host>svg>*{touch-action:none}:host>svg>circle{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>circle[selected]{fill:#8bc34a;stroke:#33691e;stroke-width:5px;stroke-dasharray:8,2;transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>path{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path[loop]{fill:none;stroke-width:2px}";
 class GraphDisplay extends HTMLElement {
   constructor() {
     super(), Object.defineProperties(this, {
@@ -72,7 +72,7 @@ class GraphDisplay extends HTMLElement {
           value: this,
           configurable: !0
         }
-      }), c.hammer || (c.hammer = new Hammer(c.circle)), c.x |= 0, c.y |= 0, c.circle.setAttribute("cx", c.x), c.circle.setAttribute("cy", c.y), c.hammer.on("pan", this.__track.bind(this, b, c)), this.circles.set(b, c);
+      }), c.hammer || (c.hammer = new Hammer(c.circle), c.hammer.on("pan", this.__track.bind(this, b, c))), c.x |= 0, c.y |= 0, c.circle.setAttribute("cx", c.x), c.circle.setAttribute("cy", c.y), this.circles.set(b, c);
     for (const [b, c] of a.edges()) {
       const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
       Object.defineProperties(a, {

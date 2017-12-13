@@ -124,6 +124,7 @@ class GraphDisplay extends HTMLElement {
             });
             if (!value.hammer) {
                 value.hammer = new Hammer(value.circle);
+                value.hammer.on("pan", this.__track.bind(this, key, value));
             }
             value.x |= 0;
             value.y |= 0;
@@ -131,7 +132,6 @@ class GraphDisplay extends HTMLElement {
             value.circle.setAttribute("cx", value.x);
             value.circle.setAttribute("cy", value.y);
             
-            value.hammer.on("pan", this.__track.bind(this, key, value));
             this.circles.set(key, value);
         }
         for (const [source_key, target_key] of graph.edges()) {

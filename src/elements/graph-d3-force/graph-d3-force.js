@@ -18,7 +18,7 @@ class GraphD3Force extends GraphExtension {
     constructor() {
         super();
         // intercept graph change
-        const updateGraph_descriptor = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
+        const updateGraph_descriptor = Object.getOwnPropertyDescriptor(this.__graphDisplay, "updateGraph") || Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
         // console.log("graph descriptor", graph_descriptor);
         const _this = this;
         Object.defineProperties(this.__graphDisplay, {

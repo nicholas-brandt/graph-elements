@@ -14,11 +14,11 @@ const default_configuration = {
 class GraphD3Force extends GraphExtension {
   constructor() {
     super();
-    const a = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "graph");
+    const a = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
     Object.defineProperties(this.__graphDisplay, {
-      graph: Object.assign({}, a, {
-        set: (b) => {
-          a.set.call(this.__graphDisplay, b), this.__graphChanged()
+      updateGraph: Object.assign({}, a, {
+        set: (...b) => {
+          a.value.apply(this.__graphDisplay, b), this.__propagateUpdatedGraph()
         }
       }),
       d3Force: {
@@ -60,7 +60,7 @@ class GraphD3Force extends GraphExtension {
                   "run" in a && (a.run ? simulation.restart() : simulation.stop())
                 });`))
       }
-    }), this.configuration = default_configuration, this.__worker.addEventListener("message", requestAnimationFunction(this.__receiveForceUpdate.bind(this))), this.__graphChanged(), this.attachShadow({
+    }), this.configuration = default_configuration, this.__worker.addEventListener("message", requestAnimationFunction(this.__receiveForceUpdate.bind(this))), this.__propagateUpdatedGraph(), this.attachShadow({
       mode: "open"
     });
     for (const a of this.children) this.shadowRoot.appendChild(a)
@@ -80,7 +80,7 @@ class GraphD3Force extends GraphExtension {
       run: !1
     })
   }
-  __graphChanged() {
+  __propagateUpdatedGraph() {
     const a = [...this.__graphDisplay.circles.values()];
     this.__circleObjects = a;
     const b = a.map(({x:a, y:b}, c) => ({

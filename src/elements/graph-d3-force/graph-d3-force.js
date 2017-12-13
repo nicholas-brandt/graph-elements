@@ -18,13 +18,13 @@ class GraphD3Force extends GraphExtension {
     constructor() {
         super();
         // intercept graph change
-        const graph_descriptor = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "graph");
+        const updateGraph_descriptor = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
         // console.log("graph descriptor", graph_descriptor);
         Object.defineProperties(this.__graphDisplay, {
-            graph: Object.assign({}, graph_descriptor, {
-                set: graph => {
-                    graph_descriptor.set.call(this.__graphDisplay, graph);
-                    this.__graphChanged();
+            updateGraph: Object.assign({}, updateGraph_descriptor, {
+                set: (..._arguments) => {
+                    updateGraph_descriptor.value.apply(this.__graphDisplay, _arguments);
+                    this.__propagateUpdatedGraph();
                 }
             }),
             d3Force: {
@@ -41,7 +41,7 @@ class GraphD3Force extends GraphExtension {
         });
         this.configuration = default_configuration;
         this.__worker.addEventListener("message", requestAnimationFunction(this.__receiveForceUpdate.bind(this)));
-        this.__graphChanged();
+        this.__propagateUpdatedGraph();
         this.attachShadow({
             mode: "open"
         });
@@ -65,7 +65,7 @@ class GraphD3Force extends GraphExtension {
             run: false
         });
     }
-    __graphChanged() {
+    __propagateUpdatedGraph() {
         const circle_objects = [...this.__graphDisplay.circles.values()];
         this.__circleObjects = circle_objects;
         const nodes = circle_objects.map(({x, y}, index) => ({x, y, index}));

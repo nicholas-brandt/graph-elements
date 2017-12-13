@@ -72,7 +72,7 @@ class GraphDisplay extends HTMLElement {
           value: this,
           configurable: !0
         }
-      }), c.hammer || (c.hammer = new Hammer(circle)), c.x |= 0, c.y |= 0, c.circle.setAttribute("cx", c.x), c.circle.setAttribute("cy", c.y), c.hammer.on("pan", this.__track.bind(this, b, c)), this.circles.set(b, c);
+      }), c.hammer || (c.hammer = new Hammer(c.circle)), c.x |= 0, c.y |= 0, c.circle.setAttribute("cx", c.x), c.circle.setAttribute("cy", c.y), c.hammer.on("pan", this.__track.bind(this, b, c)), this.circles.set(b, c);
     for (const [b, c] of a.edges()) {
       const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
       Object.defineProperties(a, {

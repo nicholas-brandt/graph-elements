@@ -109,22 +109,27 @@ class GraphDisplay extends HTMLElement {
                 value = {value};
                 graph.setVertex(key, value);
             }
-            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            Object.defineProperties(circle, {
+            if (!value.circle) {
+                value.circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            }
+            Object.defineProperties(value.circle, {
                 __node: {
-                    value: key
+                    value: key,
+                    configurable: true
                 },
                 __host: {
-                    value: this
+                    value: this,
+                    configurable: true
                 }
             });
-            value.circle = circle;
-            value.hammer = new Hammer(circle);
+            if (!value.hammer) {
+                value.hammer = new Hammer(circle);
+            }
             value.x |= 0;
             value.y |= 0;
             // necessary to make circle.cx.baseVal.value += dx work ...
-            circle.setAttribute("cx", value.x);
-            circle.setAttribute("cy", value.y);
+            value.circle.setAttribute("cx", value.x);
+            value.circle.setAttribute("cy", value.y);
             
             value.hammer.on("pan", this.__track.bind(this, key, value));
             this.circles.set(key, value);

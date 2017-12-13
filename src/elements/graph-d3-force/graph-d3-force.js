@@ -20,11 +20,12 @@ class GraphD3Force extends GraphExtension {
         // intercept graph change
         const updateGraph_descriptor = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
         // console.log("graph descriptor", graph_descriptor);
+        const _this = this;
         Object.defineProperties(this.__graphDisplay, {
             updateGraph: {
-                value: (..._arguments) => {
-                    updateGraph_descriptor.value.apply(this.__graphDisplay, _arguments);
-                    this.__propagateUpdatedGraph();
+                value(..._arguments) {
+                    updateGraph_descriptor.value.apply(this, _arguments);
+                    _this.__propagateUpdatedGraph();
                 },
                 configurable: true
             },

@@ -14,11 +14,12 @@ const default_configuration = {
 class GraphD3Force extends GraphExtension {
   constructor() {
     super();
-    const a = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
+    const a = Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph"),
+      b = this;
     Object.defineProperties(this.__graphDisplay, {
       updateGraph: {
-        value: (...b) => {
-          a.value.apply(this.__graphDisplay, b), this.__propagateUpdatedGraph()
+        value(...c) {
+          a.value.apply(this, c), b.__propagateUpdatedGraph()
         },
         configurable: !0
       },

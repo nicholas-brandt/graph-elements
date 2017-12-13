@@ -61,19 +61,18 @@ class GraphDisplay extends HTMLElement {
   }
   set graph(a) {
     this.__graph = a, this.svg.innerHTML = "", this.circles.clear(), this.paths.clear();
-    for (let [b, c] of a.vertices()) {
-      c instanceof Object || (c = {
+    for (let [b, c] of a.vertices()) c instanceof Object || (c = {
         value: c
-      }, a.setVertex(b, c));const d = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      Object.defineProperties(d, {
+      }, a.setVertex(b, c)), c.circle || (c.circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")), Object.defineProperties(c.circle, {
         __node: {
-          value: b
+          value: b,
+          configurable: !0
         },
         __host: {
-          value: this
+          value: this,
+          configurable: !0
         }
-      }), c.circle = d, c.hammer = new Hammer(d), c.x |= 0, c.y |= 0, d.setAttribute("cx", c.x), d.setAttribute("cy", c.y), c.hammer.on("pan", this.__track.bind(this, b, c)), this.circles.set(b, c)
-    }
+      }), c.hammer || (c.hammer = new Hammer(circle)), c.x |= 0, c.y |= 0, c.circle.setAttribute("cx", c.x), c.circle.setAttribute("cy", c.y), c.hammer.on("pan", this.__track.bind(this, b, c)), this.circles.set(b, c);
     for (const [b, c] of a.edges()) {
       const a = document.createElementNS("http://www.w3.org/2000/svg", "path");
       Object.defineProperties(a, {

@@ -11,7 +11,7 @@ const default_configuration = {
     strength: 100
   }
 };
-class GraphD3Force extends GraphExtension {
+export class GraphD3Force extends GraphExtension {
   constructor() {
     super();
     const a = Object.getOwnPropertyDescriptor(this.__graphDisplay, "updateGraph") || Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph"),

@@ -1,7 +1,7 @@
 "use strict";import GraphExtension from "../graph-extension/graph-extension.js";
 const style = document.createElement("style");
 style.textContent = ":host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50)}:host>*{flex:1;transition:opacity .3s;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}";
-class GraphDetailView extends GraphExtension {
+export class GraphDetailView extends GraphExtension {
   constructor() {
     super();
     const a = Object.getOwnPropertyDescriptor(this, "graph") || Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "graph");

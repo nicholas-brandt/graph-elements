@@ -2,7 +2,7 @@
 import GraphExtension from "../graph-extension/graph-extension.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-detail-view/graph-detail-view.css -->";
-class GraphDetailView extends GraphExtension {
+export class GraphDetailView extends GraphExtension {
     constructor() {
         super();
         // intercept graph change
@@ -78,7 +78,7 @@ class GraphDetailView extends GraphExtension {
             circle_object.hammer.on("tap", this.__tapCircle.bind(this, circle_object.circle));
         }
     }
-}
+};
 (async () => {
     await customElements.whenDefined("graph-display");
     customElements.define("graph-detail-view", GraphDetailView);

@@ -2,7 +2,7 @@
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-display/graph-display.css -->";
-class GraphDisplay extends HTMLElement {
+export class GraphDisplay extends HTMLElement {
     constructor() {
         super();
         Object.defineProperties(this, {
@@ -203,7 +203,7 @@ class GraphDisplay extends HTMLElement {
      * Called on track-event.
      * */
     __track(node_key, circle_object, event) {
-        console.log("track event", event);
+        // console.log("track event", event);
         const circle = circle_object.circle;
         circle_object.x += (event.deltaX - this.__delta[0]) || 0;
         circle_object.y += (event.deltaY - this.__delta[1]) || 0;
@@ -220,7 +220,7 @@ class GraphDisplay extends HTMLElement {
             height
         });
     }
-}
+};
 (async () => {
     if (!window.Hammer) {
         await new Promise(resolve => {

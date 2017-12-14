@@ -14,7 +14,7 @@ const default_configuration = {
     }
 };
 // web worker same origin policy requires host to support OPTIONS CORS
-class GraphD3Force extends GraphExtension {
+export class GraphD3Force extends GraphExtension {
     constructor() {
         super();
         // intercept graph change
@@ -104,7 +104,7 @@ class GraphD3Force extends GraphExtension {
         }
         this.__graphDisplay.__updateGraph();
     }
-}
+};
 (async () => {
     try {
         // ensure d3

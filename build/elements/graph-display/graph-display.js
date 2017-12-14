@@ -1,7 +1,7 @@
 "use strict";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";
 const style = document.createElement("style");
 style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1)}:host>svg>*{touch-action:none}:host>svg>circle{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>circle[selected]{fill:#8bc34a;stroke:#33691e;stroke-width:5px;stroke-dasharray:8,2;transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>path{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path[loop]{fill:none;stroke-width:2px}";
-class GraphDisplay extends HTMLElement {
+export class GraphDisplay extends HTMLElement {
   constructor() {
     super(), Object.defineProperties(this, {
       svg: {
@@ -111,7 +111,7 @@ class GraphDisplay extends HTMLElement {
     }
   }
   __track(a, b, c) {
-    console.log("track event", c);b.circle;b.x += c.deltaX - this.__delta[0] || 0, b.y += c.deltaY - this.__delta[1] || 0, this.__delta = c.isFinal ? [0, 0] : [c.deltaX, c.deltaY], this.updateGraph([a])
+    b.circle;b.x += c.deltaX - this.__delta[0] || 0, b.y += c.deltaY - this.__delta[1] || 0, this.__delta = c.isFinal ? [0, 0] : [c.deltaX, c.deltaY], this.updateGraph([a])
   }
   __resize() {
     const {width:a, height:b} = this.svg.getBoundingClientRect();

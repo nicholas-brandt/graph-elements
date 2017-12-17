@@ -92,7 +92,8 @@ export class GraphDisplay extends HTMLElement {
         }
         // ensure only valid children are present
         for (const child of [...this.svg.children]) {
-            if ((child.classList.contains("node") || child.classList.contains("link")) && !valid_elements.has(child)) {
+            if (child.classList.contains("node") && !valid_node_elements.has(child)
+               || child.classList.contains("link") && !valid_link_elements.has(child)) {
                 child.parentNode.removeChild(child);
             }
         }

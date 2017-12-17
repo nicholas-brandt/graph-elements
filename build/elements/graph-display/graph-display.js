@@ -46,7 +46,7 @@ export class GraphDisplay extends HTMLElement {
     for (const b of [...this.svg.children]) (b.classList.contains("node") || b.classList.contains("link")) && !valid_elements.has(b) && b.parentNode.removeChild(b);
     for (const b of c) this.svg.appendChild(b);
     for (const c of b) this.svg.appendChild(c);
-    this.dispatchEvent(new CustomEvent("graph-structure-change"))
+    this.shadowRoot.dispatchEvent(new CustomEvent("graph-structure-change"))
   }
   get graph() {
     return this.__graph
@@ -66,7 +66,7 @@ export class GraphDisplay extends HTMLElement {
       y: -b / 2,
       width: a,
       height: b
-    }), this.dispatchEvent(new CustomEvent("resize"))
+    }), this.shadowRoot.dispatchEvent(new CustomEvent("resize"))
   }
 }
 customElements.define("graph-display", GraphDisplay);

@@ -126,7 +126,9 @@ export class GraphD3Force extends HTMLElement {
         e = this.__bufferArray[2 * c + 1];
       a.x = d, a.y = e
     }
-    a.dispatchEvent(new CustomEvent("graph-update"))
+    this.dispatchEvent(new CustomEvent("graph-update", {
+      bubbles: !0
+    }))
   }
 }
 (async() => {

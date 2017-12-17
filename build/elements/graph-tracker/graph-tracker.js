@@ -13,7 +13,7 @@ export class GraphTracker extends HTMLElement {
     }))
   }
   __attachListener(a) {
-    console.log("attach listener"), a.addEventListener("graph-structure-change", () => {
+    console.log("attach listener"), a.shadowRoot.addEventListener("graph-structure-change", () => {
       this.__bindNodes(a)
     }), this.__bindNodes(a)
   }

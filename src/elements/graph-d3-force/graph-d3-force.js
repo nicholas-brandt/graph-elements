@@ -108,7 +108,9 @@ export class GraphD3Force extends HTMLElement {
             // circle_object.circle.cy.baseVal.value = y;
         }
         // emit graph-change event
-        graph_display.dispatchEvent(new CustomEvent("graph-update"));
+        this.dispatchEvent(new CustomEvent("graph-update", {
+            bubbles:  true
+        }));
     }
 };
 (async () => {

@@ -103,7 +103,7 @@ export class GraphDisplay extends HTMLElement {
         for (const node_element of valid_node_elements) {
             this.svg.appendChild(node_element);
         }
-        this.dispatchEvent(new CustomEvent("graph-structure-change"));
+        this.shadowRoot.dispatchEvent(new CustomEvent("graph-structure-change"));
     }
     get graph() {
         return this.__graph;
@@ -135,7 +135,7 @@ export class GraphDisplay extends HTMLElement {
             width,
             height
         });
-        this.dispatchEvent(new CustomEvent("resize"));
+        this.shadowRoot.dispatchEvent(new CustomEvent("resize"));
     }
 };
 customElements.define("graph-display", GraphDisplay);

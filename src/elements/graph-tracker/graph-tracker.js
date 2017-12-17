@@ -18,7 +18,7 @@ class GraphTracker extends HTMLElement {
     }
     __attachListener(graph_display) {
         console.log("attach listener");
-        graph_display.addEventListener("graph-structure-change", event => {
+        graph_display.shadowRoot.addEventListener("graph-structure-change", event => {
             this.__bindNodes(graph_display);
         });
         this.__bindNodes(graph_display);

@@ -43,7 +43,7 @@ export class GraphDisplay extends HTMLElement {
           target: this.nodes.get(d)
         }), this.graph.setEdge(b, d, e)), c.add(e.element), this.links.add(e)
     }
-    for (const b of [...this.svg.children]) (b.classList.contains("node") || b.classList.contains("link")) && !valid_elements.has(b) && b.parentNode.removeChild(b);
+    for (const d of [...this.svg.children]) (d.classList.contains("node") && !b.has(d) || d.classList.contains("link") && !c.has(d)) && d.parentNode.removeChild(d);
     for (const b of c) this.svg.appendChild(b);
     for (const c of b) this.svg.appendChild(c);
     this.shadowRoot.dispatchEvent(new CustomEvent("graph-structure-change"))

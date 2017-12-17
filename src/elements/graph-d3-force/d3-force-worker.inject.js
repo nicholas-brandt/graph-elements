@@ -80,8 +80,9 @@ addEventListener("message", ({data}) => {
     }
     if (data.updatedNode && data.updatedNode[Symbol.iterator]) {
         let i = 0;
+        const nodes = simulation.nodes();
         for (const updated_node of data.updatedNode) {
-            const node = simulation.nodes()[i++];
+            const node = nodes[i++];
             node.x = updated_node.x;
             node.y = updated_node.y;
         }

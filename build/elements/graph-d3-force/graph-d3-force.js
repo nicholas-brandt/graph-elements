@@ -40,9 +40,10 @@ export class GraphD3Force extends HTMLElement {
                   }
                   if (a.updatedNode && a.updatedNode[Symbol.iterator]) {
                     let b = 0;
-                    for (const c of a.updatedNode) {
-                      const a = simulation.nodes()[b++];
-                      a.x = c.x, a.y = c.y
+                    const c = simulation.nodes();
+                    for (const d of a.updatedNode) {
+                      const a = c[b++];
+                      a.x = d.x, a.y = d.y
                     }
                   }
                   "run" in a && (a.run ? simulation.restart() : simulation.stop())
@@ -124,7 +125,7 @@ export class GraphD3Force extends HTMLElement {
       const a = b[c][1],
         d = this.__bufferArray[2 * c],
         e = this.__bufferArray[2 * c + 1];
-      a.x = d, a.y = e
+      isNaN(d) || (a.x = d), isNaN(e) || (a.y = e)
     }
     this.dispatchEvent(new CustomEvent("graph-update", {
       bubbles: !0

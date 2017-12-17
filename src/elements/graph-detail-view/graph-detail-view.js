@@ -1,11 +1,22 @@
 "use strict";
-import GraphExtension from "../graph-extension/graph-extension.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-detail-view/graph-detail-view.css -->";
-export class GraphDetailView extends GraphExtension {
+export class GraphDetailView extends HTMLElement {
     constructor() {
         super();
         // intercept graph change
+        this.dispatchEvent("extension-callback", {
+            detail: {
+                callback() {
+                    // add tap listener to detail view
+                    const hammer = new Hammer(this);
+                    hammer.on("tap", this.__tapDetailView.bind(this, graph_display));
+                    // add tap listener to existing elements
+                    this.__attachTapListeners();
+                }
+            },
+            bubbles: true
+        });
         const graph_descriptor = Object.getOwnPropertyDescriptor(this, "graph") || Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "graph");
         Object.defineProperties(this.__graphDisplay, {
             graph: Object.assign({
@@ -17,17 +28,12 @@ export class GraphDetailView extends GraphExtension {
         });
         // define own properties
         Object.defineProperties(this, {
-            __activeCircle: {
+            __activeElement: {
                 value: undefined,
                 writable: true,
                 configurable: true
             }
         });
-        // add tap listener to detail view
-        const hammer = new Hammer(this);
-        hammer.on("tap", this.__tapDetailView.bind(this));
-        // add tap listener to existing circles
-        this.__attachTapListeners();
         // attach shadow
         this.attachShadow({
             mode: "open"
@@ -39,43 +45,45 @@ export class GraphDetailView extends GraphExtension {
             this.shadowRoot.appendChild(child);
         }
     }
-    __tapCircle(circle) {
+    __tapNode(graph_display, element) {
         // console.log("tap");
-        const active_circle = circle.cloneNode(false);
-        this.__activeCircle = active_circle;
+        const active_element = element.cloneNode(true);
+        this.__activeElement = active_element;
+        // circle specific !!!
         const keyframes = [{}, {
-            r: Math.max(this.__graphDisplay.svg.width.baseVal.value, this.__graphDisplay.svg.height.baseVal.value)
+            r: Math.max(graph_display.svg.width.baseVal.value, graph_display.svg.height.baseVal.value)
         }];
-        this.__graphDisplay.svg.appendChild(active_circle);
-        const animation = active_circle.animate(keyframes, 500);
+        graph_display.svg.appendChild(active_element);
+        const animation = active_element.animate(keyframes, 500);
         animation.addEventListener("finish", () => {
             this.classList.add("visible");
         });
     }
-    __tapDetailView(event) {
+    __tapDetailView(graph_display, event) {
         // console.log(event);
         // prevent detail children from closing the detal view
         if (event.srcEvent.path[0] === this) {
             // hide detail view
-            const circle = this.__activeCircle;
-            this.__activeCircle = undefined;
-            // const {strokeWidth} = getComputedStyle(circle);
+            const element = this.__activeElement;
+            this.__activeElement = undefined;
+            // const {strokeWidth} = getComputedStyle(element);
             this.classList.remove("visible");
+            // circle specific !!!
             const keyframes = [{
-                r: Math.max(this.__graphDisplay.svg.width.baseVal.value, this.__graphDisplay.svg.height.baseVal.value)
+                r: Math.max(graph_display.svg.width.baseVal.value, graph_display.svg.height.baseVal.value)
             }, {
-                r: circle.r.baseVal.value // + parseFloat(strokeWidth)
+                r: element.r.baseVal.value // + parseFloat(strokeWidth)
             }];
-            circle.animate(keyframes, 500).addEventListener("finish", () => {
-                this.__graphDisplay.svg.removeChild(circle);
+            element.animate(keyframes, 500).addEventListener("finish", () => {
+                graph_display.svg.removeChild(element);
             });
         }
     }
-    __attachTapListeners() {
-        // add tap listener to new circles
-        for (const [, circle_object] of this.__graphDisplay.circles) {
-            // console.log(circle);
-            circle_object.hammer.on("tap", this.__tapCircle.bind(this, circle_object.circle));
+    __attachTapListeners(graph_display) {
+        // add tap listener to new elements
+        for (const [, node] of this.graph_display.nodes) {
+            // console.log(element);
+            node.hammer.on("tap", this.__tapNode.bind(this, graph_display, node.element));
         }
     }
 };

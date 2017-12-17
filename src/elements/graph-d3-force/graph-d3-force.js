@@ -1,6 +1,5 @@
-"use strict";
-import GraphExtension from "../graph-extension/graph-extension.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";
+import require from "../../helper/require.js";
 const default_configuration = {
     link: {
         distance: 300,
@@ -14,43 +13,40 @@ const default_configuration = {
     }
 };
 // web worker same origin policy requires host to support OPTIONS CORS
-export class GraphD3Force extends GraphExtension {
+export class GraphD3Force extends HTMLElement {
     constructor() {
         super();
-        // intercept graph change
-        const updateGraph_descriptor = Object.getOwnPropertyDescriptor(this.__graphDisplay, "updateGraph") || Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "updateGraph");
-        // console.log("graph descriptor", graph_descriptor);
-        const _this = this;
-        Object.defineProperties(this.__graphDisplay, {
-            updateGraph: {
-                value(..._arguments) {
-                    updateGraph_descriptor.value.apply(this, _arguments);
-                    _this.__propagateUpdatedGraph();
-                },
-                configurable: true
-            },
-            d3Force: {
-                value: this,
-                configurable: true
-            }
-        });
         // define own properties
         Object.defineProperties(this, {
             __worker: {
                 // value: new Worker(worker_data)
-                value: new Worker("data:application/javascript," + encodeURIComponent(`<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.js -->`))
+                value: new Worker("data:application/javascript," + encodeURIComponent(`<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.inject.js -->`))
             }
         });
+        const adaptive_request_propagation = event => {
+            this.__requestPropagateGraph();
+        };
+        this.dispatchEvent(new CustomEvent("extension-callback", {
+            detail: {
+                callback(graph_display) {
+                    graph_display.shadowRoot.addEventListener("graph-structure-change", adaptive_request_propagation);
+                    graph_display.shadowRoot.addEventListener("graph-update", adaptive_request_propagation);
+                }
+            },
+            bubbles: true
+        }))
+        this.__worker.addEventListener("message", requestAnimationFunction(() => {
+            console.log("receive force update");
+            this.dispatchEvent(new CustomEvent("extension-callback", {
+                detail: {
+                    callback: this.__applyForceUpdate
+                },
+                bubbles: true
+            }))
+        }));
         this.configuration = default_configuration;
-        this.__worker.addEventListener("message", requestAnimationFunction(this.__receiveForceUpdate.bind(this)));
-        this.__propagateUpdatedGraph();
-        this.attachShadow({
-            mode: "open"
-        });
-        // migrate all children
-        for (const child of this.children) {
-            this.shadowRoot.appendChild(child);
-        }
+        // initiate worker with preassigned graph
+        this.__requestPropagateGraph();
     }
     set configuration(configuration) {
         this.__worker.postMessage({
@@ -67,13 +63,21 @@ export class GraphD3Force extends GraphExtension {
             run: false
         });
     }
-    __propagateUpdatedGraph() {
-        const circle_objects = [...this.__graphDisplay.circles.values()];
-        this.__circleObjects = circle_objects;
-        const nodes = circle_objects.map(({x, y}, index) => ({x, y, index}));
-        const links = [...this.__graphDisplay.paths].map(({__source, __target}) => ({
-            source: circle_objects.indexOf(__source),
-            target: circle_objects.indexOf(__target)
+    __requestPropagateGraph() {
+        this.dispatchEvent(new CustomEvent("extension-callback", {
+            detail: {
+                callback: this.__propagateGraph
+            },
+            bubbles: true
+        }));
+    }
+    __propagateGraph(graph_display) {
+        console.log("D3FORCE propagate graph");
+        const _nodes = [...graph_display.nodes.values()];
+        const nodes = _nodes.map(({x, y}, index) => ({x, y, index}));
+        const links = [...graph_display.links].map(({source, target}) => ({
+            source: _nodes.indexOf(source), // index for d3
+            target: _nodes.indexOf(target) // index for d3
         }));
         // 32 bit * 2 * N
         const shared_buffer = new SharedArrayBuffer(nodes.length * 4 * 2);
@@ -91,36 +95,26 @@ export class GraphD3Force extends GraphExtension {
             shared_buffer
         });
     }
-    __receiveForceUpdate() {
-        // console.log("received force update");
-        for (let i = 0; i < this.__circleObjects.length; ++i) {
-            const circle_object = this.__circleObjects[i];
+    __applyForceUpdate(graph_display) {
+        console.log("D3FORCE apply force update");
+        const nodes = [...graph_display.graph.vertices()];
+        for (let i = 0; i < nodes.length; ++i) {
+            const node = nodes[i][1];
             const x = this.__bufferArray[i * 2];
             const y = this.__bufferArray[i * 2 + 1];
-            circle_object.x = x;
-            circle_object.y = y;
+            node.x = x;
+            node.y = y;
             // circle_object.circle.cx.baseVal.value = x;
             // circle_object.circle.cy.baseVal.value = y;
         }
-        this.__graphDisplay.__updateGraph();
+        // emit graph-change event
+        graph_display.dispatchEvent(new CustomEvent("graph-update"));
     }
 };
 (async () => {
     try {
-        // ensure d3
-        if (!window.d3) {
-            await new Promise(resolve => {
-                Object.defineProperty(window, "d3", {
-                    set(value) {
-                        delete window.d3;
-                        window.d3 = value;
-                        setTimeout(resolve);
-                    },
-                    configurable: true,
-                    writable: true
-                    })
-            });
-        }
+        // ensure requirements
+        await require(["d3"]);
         await customElements.whenDefined("graph-display");
         customElements.define("graph-d3-force", GraphD3Force);
     } catch (error) {

@@ -23,7 +23,7 @@ simulation.on("tick", () => {
     postMessage({});
 });
 addEventListener("message", ({data}) => {
-    // console.log("worker got message:", data);
+    console.log("WORKER message", data);
     if (data.configuration) {
         const {
             link,

@@ -2,13 +2,16 @@
 <html>
 
 <head>
+    <!-- ResizeObserver -->
+    <script src="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js" async></script>
     <script src="https://d3js.org/d3-dispatch.v1.min.js" async></script>
     <script src="https://d3js.org/d3-quadtree.v1.min.js" async></script>
     <script src="https://d3js.org/d3-timer.v1.min.js" async></script>
     <script src="https://d3js.org/d3-force.v1.min.js" async></script>
     
-    <script src="build/elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
+    <!--<script src="build/elements/graph-detail-view/graph-detail-view.js" type="module" async></script>-->
+    <script src="build/elements/graph-tracker/graph-tracker.js" type="module" async></script>
     <script src="build/elements/graph-d3-force/graph-d3-force.js" type="module" async></script>
     <script src="build/elements/graph-display/graph-display.js" type="module" async></script>
     <link href="https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js" rel="preload" as="script">
@@ -43,10 +46,8 @@
 
 <body>
     <graph-display>
-        <graph-detail-view>
-            hfajköhdajskdl
-        </graph-detail-view>
         <graph-d3-force></graph-d3-force>
+        <graph-tracker></graph-tracker>
     </graph-display>
 </body>
 

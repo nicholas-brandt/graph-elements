@@ -12,9 +12,9 @@ simulation.force("link", link_force), simulation.force("center", center_force), 
   }
   postMessage({})
 }), addEventListener("message", ({data:a}) => {
-  if (a.configuration) {
+  if (console.log("WORKER message", a), a.configuration) {
     const {link:b, charge:c, gravitation:d, alpha:e, alphaTarget:f, alphaMin:g, alphaDecay:h, velocityDecay:i} = a.configuration;
-    b && ("distance" in b && link_force.distance(b.distance), "strength" in b && link_force.strength(b.strength), simulation.force("link", link_force)), c && ("strength" in c && charge_force.strength(c.strength), "maxDistance" in c && charge_force.maxDistance(c.maxDistance), "minDistance" in c && charge_force.minDistance(c.minDistance), simulation.force("charge", charge_force)), e !== void 0 && simulation.alpha(e), f !== void 0 && simulation.alphaTarget(f), g !== void 0 && simulation.alphaMin(g), h !== void 0 && simulation.alpha(h), i !== void 0 && simulation.velocityDecay(i)
+    b && ("distance" in b && link_force.distance(b.distance), "strength" in b && link_force.strength(b.strength), simulation.force("link", link_force)), c && ("strength" in c && charge_force.strength(c.strength), "maxDistance" in c && charge_force.maxDistance(c.maxDistance), "minDistance" in c && charge_force.minDistance(c.minDistance), simulation.force("charge", charge_force)), void 0 !== e && simulation.alpha(e), void 0 !== f && simulation.alphaTarget(f), void 0 !== g && simulation.alphaMin(g), void 0 !== h && simulation.alpha(h), void 0 !== i && simulation.velocityDecay(i)
   }
   if (a.graph && a.shared_buffer) {
     buffer_array = new Float32Array(a.shared_buffer);

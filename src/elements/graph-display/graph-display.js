@@ -1,215 +1,131 @@
-"use strict";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";
+import {Node, Link} from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-display/graph-display.css -->";
 export class GraphDisplay extends HTMLElement {
     constructor() {
         super();
-        Object.defineProperties(this, {
-            // elements
-            svg: {
-                value: document.createElementNS("http://www.w3.org/2000/svg", "svg"),
-                enumerable: true
-            },
-            circles: {
-                value: new Map,
-                enumerable: true
-            },
-            paths: {
-                value: new Set,
-                enumerable: true
-            },
-            // private properties
-            __updatedNodeKeys: {
-                value: new Set
-            },
-            __graph: {
-                value: undefined,
-                configurable: true,
-                writable: true
-            },
-            // requestAnimationFunctions must be per-instance to avoid global interference
-            _updateGraph: {
-                value: requestAnimationFunction(this.__updateGraph.bind(this)),
-                configurable: true,
-                writable: true
-            },
-            __delta: {
-                value: [0, 0],
-                writable: true
-            }
-        });
-        this.configuration = {
-            radius: 10
-        };
-        new ResizeObserver(this.__resize.bind(this)).observe(this);
+        // shadow stuff
         this.attachShadow({
             mode: "open"
-        })
+        });
+        this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        // resize handler
+        const request_resize = requestAnimationFunction(() => {
+            this.__resize();
+        });
+        new ResizeObserver(() => {
+            request_resize();
+        }).observe(this);
+        // install request function
+        this.__requestPaint = requestAnimationFunction(() => {
+            this.__paint();
+        });
+        // map for updated nodes
+        this.nodes = new Map;
+        this.links = new Set;
+        this.__updatedNodes = new Set;
+        // install extension callback
+        this.shadowRoot.addEventListener("extension-callback", event => {
+            console.log("extension callback", event.detail.callback.name);
+            try {
+                if (typeof event.detail.callback == "function") {
+                    event.detail.callback.call(event.target, this);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
         // add style
         this.shadowRoot.appendChild(style.cloneNode(true));
         this.shadowRoot.appendChild(this.svg);
         // migrate all children
-        for (const child of this.children) {
+        // quirk - not all children get imported
+        for (const child of [...this.children]) {
             this.shadowRoot.appendChild(child);
         }
+        // set configuration
+        this.configuration = {};
         // trigger init resize
-        this.__resize();
-    }
-    updateGraph(node_keys) {
-        if (!node_keys) {
-            this.__updatedNodeKeys.clear();
-        } else {
-            // accumulate nodes
-            for (const node_key of node_keys) {
-                this.__updatedNodeKeys.add(node_key);
-            }
-        }
-        this._updateGraph();
-    }
-    __updateGraph() {
-        let updated_circles;
-        let updated_paths;
-        if (this.__updatedNodeKeys.size % this.graph.vertexCount()) {
-            // gather updated circles from keys
-            updated_circles = new Set;
-            for (const updated_node_key of this.__updatedNodeKeys) {
-                updated_circles.add(this.circles.get(updated_node_key));
-            }
-            // adapt paths of updated circles
-            updated_paths = new Set;
-            for (const path of this.paths) {
-                if (updated_circles.has(path.__source) || updated_circles.has(path.__target)) {
-                    updated_paths.add(path);
-                }
-            }
-        } else {
-            // console.log("full update");
-            updated_circles = this.circles.values();
-            updated_paths = this.paths;
-        }
-        for (const {x, y, radius, circle} of updated_circles) {
-            circle.cx.baseVal.value = x;
-            circle.cy.baseVal.value = y;
-            circle.r.baseVal.value = radius || this.configuration.radius;
-        }
-        for (const path of updated_paths) {
-            path.setAttribute("d", this.__calcPath(path));
-        }
-        this.__updatedNodeKeys.clear();
+        request_resize();
+        // trigger init graph display
+        // propagate preassigned graph to setter
+        const graph = this.graph;
+        delete this.graph;
+        this.graph = graph;
     }
     set graph(graph) {
+        const valid_node_elements = new Set;
+        const valid_link_elements = new Set;
+        this.nodes.clear();
+        this.links.clear();
         this.__graph = graph;
-        // clear
-        this.svg.innerHTML = "";
-        this.circles.clear();
-        this.paths.clear();
-        for (let [key, value] of graph.vertices()) {
-            if (!(value instanceof Object)) {
-                value = {value};
-                graph.setVertex(key, value);
-            }
-            if (!value.circle) {
-                value.circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            }
-            Object.defineProperties(value.circle, {
-                __node: {
-                    value: key,
-                    configurable: true
-                },
-                __host: {
-                    value: this,
-                    configurable: true
+        if (graph) {
+            // create functions outermost
+            const request_paint_node = (..._arguments) => {
+                this.__requestPaintNode(..._arguments);
+            };
+            // ensure valid formatting
+            for (let [key, value] of graph.vertices()) {
+                if (!(value instanceof Node)) {
+                    value = new Node({
+                        value,
+                        key
+                    }, request_paint_node);
+                    this.graph.setVertex(key, value);
                 }
-            });
-            if (!value.hammer) {
-                value.hammer = new Hammer(value.circle);
-                value.hammer.on("pan", this.__track.bind(this, key, value));
+                valid_node_elements.add(value.element);
+                this.nodes.set(key, value);
             }
-            value.x |= 0;
-            value.y |= 0;
-            // necessary to make circle.cx.baseVal.value += dx work ...
-            value.circle.setAttribute("cx", value.x);
-            value.circle.setAttribute("cy", value.y);
-            
-            this.circles.set(key, value);
-        }
-        for (const [source_key, target_key] of graph.edges()) {
-            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            Object.defineProperties(path, {
-                __source: {
-                    value: this.circles.get(source_key)
-                },
-                __target: {
-                    value: this.circles.get(target_key)
-                },
-                __host: {
-                    value: this
+            for (let [source_key, target_key, value] of graph.edges()) {
+                if (!(value instanceof Link)) {
+                    value = new Link({
+                        value,
+                        source: this.nodes.get(source_key),
+                        target: this.nodes.get(target_key)
+                    });
+                    this.graph.setEdge(source_key, target_key, value);
                 }
-            });
-            this.paths.add(path);
-            this.svg.appendChild(path);
+                valid_link_elements.add(value.element);
+                this.links.add(value);
+            }
         }
-        for (const [key, {circle}] of this.circles) {
-            this.svg.appendChild(circle);
+        // ensure only valid children are present
+        for (const child of [...this.svg.children]) {
+            if ((child.classList.contains("node") || child.classList.contains("link")) && !valid_elements.has(child)) {
+                child.parentNode.removeChild(child);
+            }
         }
-        this.updateGraph();
+        // add non-exist
+        for (const link_element of valid_link_elements) {
+            this.svg.appendChild(link_element);
+        }
+        for (const node_element of valid_node_elements) {
+            this.svg.appendChild(node_element);
+        }
+        this.dispatchEvent(new CustomEvent("graph-structure-change"));
     }
     get graph() {
         return this.__graph;
     }
-    __calcPath({__source: source, __target: target}) {
-        /*if (link.nodes) {
-            // undirected link
-            const [source, target] = [...link.nodes];
-            if (!target || source.x === target.x && source.y === target.y) {
-                const short = source.radius / 3;
-                const long = source.radius * 3;
-                return `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;
-            } else {
-                const x_diff = target.x - source.x;
-                const y_diff = target.y - source.y;
-                const r_diff = Math.hypot(x_diff, y_diff) / target.radius;
-                const xr_diff = x_diff / r_diff;
-                const yr_diff = y_diff / r_diff;
-                const offset = 2;
-                const m1_x = source.x + xr_diff * offset;
-                const m1_y = source.y + yr_diff * offset;
-                const m2_x = target.x - xr_diff * offset;
-                const m2_y = target.y - yr_diff * offset;
-                return `M ${m1_x} ${m1_y}L ${source.x + yr_diff} ${source.y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m1_x} ${m1_y}L ${m2_x} ${m2_y}L ${target.x + yr_diff} ${target.y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m2_x} ${m2_y}`;
-            }
-        } else {
-            // directed link
-            const {source, target} = link;*/
-            if (source === target || source.x === target.x && source.y === target.y) {
-                const short = (source.radius || this.configuration.radius) / 3;
-                const long = (source.radius || this.configuration.radius) * 3;
-                return `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;
-            } else {
-                const x_diff = target.x - source.x;
-                const y_diff = target.y - source.y;
-                const r_diff = Math.hypot(x_diff, y_diff) / (target.radius || this.configuration.radius);
-                const xr_diff = x_diff / r_diff;
-                const yr_diff = y_diff / r_diff;
-                const offset = 2;
-                const m_x = target.x - xr_diff * offset;
-                const m_y = target.y - yr_diff * offset;
-                return `M ${source.x} ${source.y}L ${m_x} ${m_y}L ${target.x + yr_diff} ${target.y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m_x} ${m_y}`;
-            }
-        // }
+    __requestPaintNode(node) {
+        console.assert(this instanceof GraphDisplay, "invalid this", this);
+        console.assert(node instanceof Node, "invalid node", node);
+        this.__updatedNodes.add(node);
+        this.__requestPaint();
     }
-    /*
-     * Called on track-event.
-     * */
-    __track(node_key, circle_object, event) {
-        // console.log("track event", event);
-        const circle = circle_object.circle;
-        circle_object.x += (event.deltaX - this.__delta[0]) || 0;
-        circle_object.y += (event.deltaY - this.__delta[1]) || 0;
-        this.__delta = event.isFinal ? [0, 0] : [event.deltaX, event.deltaY];
-        // paint tracked node
-        this.updateGraph([node_key]);
+    __paint() {
+        // paint affected nodes
+        for (const node of this.__updatedNodes) {
+            node.paint();
+        }
+        // find updatable links
+        for (const link of this.links) {
+            if (this.__updatedNodes.has(link.source) || this.__updatedNodes.has(link.target)) {
+                link.paint();
+            }
+        }
+        this.__updatedNodes.clear();
     }
     __resize() {
         const {width, height} = this.svg.getBoundingClientRect();
@@ -219,19 +135,7 @@ export class GraphDisplay extends HTMLElement {
             width,
             height
         });
+        this.dispatchEvent(new CustomEvent("resize"));
     }
 };
-(async () => {
-    if (!window.Hammer) {
-        await new Promise(resolve => {
-            Object.defineProperty(window, "Hammer", {
-                set(value) {
-                    delete window.Hammer;
-                    window.Hammer = value;
-                    setTimeout(resolve);
-                }
-            });
-        });
-    }
-    customElements.define("graph-display", GraphDisplay);
-})();
+customElements.define("graph-display", GraphDisplay);

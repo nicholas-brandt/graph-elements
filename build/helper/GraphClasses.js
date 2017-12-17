@@ -42,7 +42,7 @@ export class Node {
   }
   paint() {
     const {x:a, y:b, radius:c} = this;
-    this.element.cx.baseVal.value = a, this.element.cy.baseVal.value = b, this.element.r.baseVal.value = c
+    a | 0 === a && (this.element.cx.baseVal.value = a), b | 0 === b && (this.element.cy.baseVal.value = b), c | 0 === c && (this.element.r.baseVal.value = c)
   }
 }
 export class Link {

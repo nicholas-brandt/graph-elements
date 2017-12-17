@@ -125,7 +125,7 @@ export class GraphD3Force extends HTMLElement {
       const a = b[c][1],
         d = this.__bufferArray[2 * c],
         e = this.__bufferArray[2 * c + 1];
-      isNaN(d) || (a.x = d), isNaN(e) || (a.y = e)
+      a.x = d, a.y = e
     }
     this.dispatchEvent(new CustomEvent("graph-update", {
       bubbles: !0

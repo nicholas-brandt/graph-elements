@@ -102,14 +102,8 @@ export class GraphD3Force extends HTMLElement {
             const node = nodes[i][1];
             const x = this.__bufferArray[i * 2];
             const y = this.__bufferArray[i * 2 + 1];
-            if (!isNaN(x)) {
-                node.x = x;
-            }
-            if (!isNaN(y)) {
-                node.y = y;
-            }
-            // circle_object.circle.cx.baseVal.value = x;
-            // circle_object.circle.cy.baseVal.value = y;
+            node.x = x;
+            node.y = y;
         }
         // emit graph-change event
         this.dispatchEvent(new CustomEvent("graph-update", {

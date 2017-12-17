@@ -51,11 +51,17 @@ class Node {
     paint() {
         const {x, y, radius} = this;
         // this.element.setAttribute("cx", x);
-        this.element.cx.baseVal.value = x;
+        if (x | 0 === x) {
+            this.element.cx.baseVal.value = x;
+        }
         // this.element.setAttribute("cy", y);
-        this.element.cy.baseVal.value = y;
+        if (y | 0 === y) {
+            this.element.cy.baseVal.value = y;
+        }
         // this.element.setAttribute("r", radius);
-        this.element.r.baseVal.value = radius;
+        if (radius | 0 === radius) {
+            this.element.r.baseVal.value = radius;
+        }
     }
 };
 export

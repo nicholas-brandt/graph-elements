@@ -34,7 +34,7 @@ export class GraphD3Force extends HTMLElement {
                 }
             },
             bubbles: true
-        }))
+        }));
         this.__worker.addEventListener("message", requestAnimationFunction(() => {
             console.log("receive force update");
             this.dispatchEvent(new CustomEvent("extension-callback", {

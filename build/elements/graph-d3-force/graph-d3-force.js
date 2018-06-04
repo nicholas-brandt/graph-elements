@@ -27,14 +27,16 @@ export class GraphD3Force extends HTMLElement {
                     const c = a[b];
                     buffer_array[2 * b] = c.x, buffer_array[2 * b + 1] = c.y
                   }
-                  postMessage({})
+                  postMessage({
+                    buffer: buffer_array.buffer
+                  })
                 }), addEventListener("message", ({data:a}) => {
                   if (console.log("WORKER message", a), a.configuration) {
                     const {link:b, charge:c, gravitation:d, alpha:e, alphaTarget:f, alphaMin:g, alphaDecay:h, velocityDecay:i} = a.configuration;
                     b && ("distance" in b && link_force.distance(b.distance), "strength" in b && link_force.strength(b.strength), simulation.force("link", link_force)), c && ("strength" in c && charge_force.strength(c.strength), "maxDistance" in c && charge_force.maxDistance(c.maxDistance), "minDistance" in c && charge_force.minDistance(c.minDistance), simulation.force("charge", charge_force)), void 0 !== e && simulation.alpha(e), void 0 !== f && simulation.alphaTarget(f), void 0 !== g && simulation.alphaMin(g), void 0 !== h && simulation.alpha(h), void 0 !== i && simulation.velocityDecay(i)
                   }
-                  if (a.graph && a.shared_buffer) {
-                    buffer_array = new Float32Array(a.shared_buffer);
+                  if (a.graph && a.buffer) {
+                    buffer_array = new Float32Array(a.buffer);
                     const {nodes:b, links:c} = a.graph;
                     simulation.nodes(b), link_force.links(c)
                   }
@@ -60,8 +62,8 @@ export class GraphD3Force extends HTMLElement {
         }
       },
       bubbles: !0
-    })), this.__worker.addEventListener("message", requestAnimationFunction(() => {
-      console.log("receive force update"), this.dispatchEvent(new CustomEvent("extension-callback", {
+    })), this.__worker.addEventListener("message", requestAnimationFunction(({data: {buffer:a}}) => {
+      console.log("receive force update"), this.__bufferArray = new Float32Array(a), this.dispatchEvent(new CustomEvent("extension-callback", {
         detail: {
           callback: this.__applyForceUpdate
         },
@@ -104,7 +106,7 @@ export class GraphD3Force extends HTMLElement {
         source: b.indexOf(a),
         target: b.indexOf(c)
       })),
-      e = new SharedArrayBuffer(2 * (4 * c.length));
+      e = new ArrayBuffer(2 * (4 * c.length));
     this.__bufferArray = new Float32Array(e);
     for (let b = 0; b < c.length; ++b) {
       const a = c[b];
@@ -115,7 +117,7 @@ export class GraphD3Force extends HTMLElement {
         nodes: c,
         links: d
       },
-      shared_buffer: e
+      buffer: e
     })
   }
   __applyForceUpdate(a) {

@@ -35,8 +35,9 @@ export class GraphD3Force extends HTMLElement {
             },
             bubbles: true
         }));
-        this.__worker.addEventListener("message", requestAnimationFunction(() => {
+        this.__worker.addEventListener("message", requestAnimationFunction(({data: {buffer}}) => {
             console.log("receive force update");
+            this.__bufferArray = new Float32Array(buffer);
             this.dispatchEvent(new CustomEvent("extension-callback", {
                 detail: {
                     callback: this.__applyForceUpdate
@@ -80,8 +81,8 @@ export class GraphD3Force extends HTMLElement {
             target: _nodes.indexOf(target) // index for d3
         }));
         // 32 bit * 2 * N
-        const shared_buffer = new SharedArrayBuffer(nodes.length * 4 * 2);
-        this.__bufferArray = new Float32Array(shared_buffer);
+        const buffer = new ArrayBuffer(nodes.length * 4 * 2);
+        this.__bufferArray = new Float32Array(buffer);
         for (let i = 0; i < nodes.length; ++i) {
             const node = nodes[i];
             this.__bufferArray[i * 2] = node.x;
@@ -92,7 +93,7 @@ export class GraphD3Force extends HTMLElement {
                 nodes,
                 links
             },
-            shared_buffer
+            buffer
         });
     }
     __applyForceUpdate(graph_display) {

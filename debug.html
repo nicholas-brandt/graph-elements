@@ -23,14 +23,20 @@
         graph.addVertex(0);
         graph.addVertex(1);
         graph.addEdge(0, 1);
-        for(let i = 2; i < 1e2; ++i) graph.addVertex(i);
+        for(let i = 2; i < 1e1; ++i) graph.addVertex(i);
         // for(let i = 0; i < 3e2; ++i) graph.addEdge(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100));
-        for(let i = 0, a; i < 3e2; ++i) graph.addEdge(a = Math.floor(Math.random() * 100), (a + 1) % 1e2);
+        for(let i = 0, a; i < 3e2; ++i) graph.addEdge(a = Math.floor(Math.random() * 1e1), (a + 1) % 1e1);
+        
+        window.graph = graph;
+        window.graphForce = document.querySelector("graph-d3-force");
         
         (async() => {
             await customElements.whenDefined("graph-display");
             const graphDisplay = document.querySelector("graph-display");
             graphDisplay.graph = graph;
+            window.graphDisplay = graphDisplay;
+            await customElements.whenDefined("graph-d3-force");
+            graphForce.start();
         })();
     </script>
     <style>

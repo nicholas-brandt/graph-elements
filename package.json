@@ -12,10 +12,10 @@
     "devDependencies": {
         "gulp": "^3.9.1",
         "gulp-babel-minify": "^0.2.0",
-        "gulp-clean-css": "^3.9.0",
+        "gulp-clean-css": "^3.9.4",
         "gulp-esformatter": "^6.1.0",
         "gulp-inject-file": "0.0.19",
-        "gulp-less": "^3.3.2",
+        "gulp-less": "^3.5.0",
         "gulp-watch": "^4.3.11"
     },
     "repository": {

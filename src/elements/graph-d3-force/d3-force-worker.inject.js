@@ -20,7 +20,9 @@ simulation.on("tick", () => {
     // console.log(nodes.map(JSON.stringify), buffer_array);
     // dispatch draw message to main window
     // write graph data into shared buffer
-    postMessage({});
+    postMessage({
+        buffer: buffer_array.buffer
+    });
 });
 addEventListener("message", ({data}) => {
     console.log("WORKER message", data);
@@ -72,8 +74,8 @@ addEventListener("message", ({data}) => {
             simulation.velocityDecay(velocityDecay);
         }
     }
-    if (data.graph && data.shared_buffer) {
-        buffer_array = new Float32Array(data.shared_buffer);
+    if (data.graph && data.buffer) {
+        buffer_array = new Float32Array(data.buffer);
         const {nodes, links} = data.graph;
         simulation.nodes(nodes);
         link_force.links(links);

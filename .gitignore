@@ -2,4 +2,4 @@
 .settings
 npm-debug.log
 .jshintrc
-node_modules
+node_modules/

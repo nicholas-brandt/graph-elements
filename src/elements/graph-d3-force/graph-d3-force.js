@@ -16,21 +16,40 @@ const default_configuration = {
 export class GraphD3Force extends HTMLElement {
     constructor() {
         super();
+        let _configuration = this.configuration;
+        delete this.configuration;
         // define own properties
         Object.defineProperties(this, {
             __worker: {
                 // value: new Worker(worker_data)
                 value: new Worker("data:application/javascript," + encodeURIComponent(`<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.inject.js -->`))
+            },
+            configuration: {
+                set (configuration) {
+                    this.__worker.postMessage({
+                        configuration
+                    });
+                    _configuration = configuration;
+                },
+                get() {
+                    return _configuration;
+                },
+                enumerable: true
             }
         });
-        const adaptive_request_propagation = event => {
-            this.__requestPropagateGraph();
-        };
+        const _this = this;
         this.dispatchEvent(new CustomEvent("extension-callback", {
             detail: {
                 callback(graph_display) {
-                    graph_display.shadowRoot.addEventListener("graph-structure-change", adaptive_request_propagation);
-                    graph_display.shadowRoot.addEventListener("graph-update", adaptive_request_propagation);
+                    _this.graph_display = graph_display;
+                    graph_display.shadowRoot.addEventListener("graph-structure-change", () => {
+                            _this.__propagateGraph();
+                    });
+                    graph_display.shadowRoot.addEventListener("graph-update", event => {
+                        if (event.target != _this || !event.detail.original) {
+                            _this.__propagateGraph();
+                        }
+                    });
                 }
             },
             bubbles: true
@@ -38,21 +57,11 @@ export class GraphD3Force extends HTMLElement {
         this.__worker.addEventListener("message", requestAnimationFunction(({data: {buffer}}) => {
             console.log("receive force update");
             this.__bufferArray = new Float32Array(buffer);
-            this.dispatchEvent(new CustomEvent("extension-callback", {
-                detail: {
-                    callback: this.__applyForceUpdate
-                },
-                bubbles: true
-            }))
+            this.__applyForceUpdate();
         }));
-        this.configuration = default_configuration;
+        this.configuration = _configuration;
         // initiate worker with preassigned graph
-        this.__requestPropagateGraph();
-    }
-    set configuration(configuration) {
-        this.__worker.postMessage({
-            configuration
-        });
+        this.__propagateGraph();
     }
     start() {
         this.__worker.postMessage({
@@ -64,19 +73,11 @@ export class GraphD3Force extends HTMLElement {
             run: false
         });
     }
-    __requestPropagateGraph() {
-        this.dispatchEvent(new CustomEvent("extension-callback", {
-            detail: {
-                callback: this.__propagateGraph
-            },
-            bubbles: true
-        }));
-    }
-    __propagateGraph(graph_display) {
+    __propagateGraph() {
         console.log("D3FORCE propagate graph");
-        const _nodes = [...graph_display.nodes.values()];
+        const _nodes = [...this.graph_display.nodes.values()];
         const nodes = _nodes.map(({x, y}, index) => ({x, y, index}));
-        const links = [...graph_display.links].map(({source, target}) => ({
+        const links = [...this.graph_display.links].map(({source, target}) => ({
             source: _nodes.indexOf(source), // index for d3
             target: _nodes.indexOf(target) // index for d3
         }));
@@ -88,6 +89,7 @@ export class GraphD3Force extends HTMLElement {
             this.__bufferArray[i * 2] = node.x;
             this.__bufferArray[i * 2 + 1] = node.y;
         }
+        console.log("post worker");
         this.__worker.postMessage({
             graph: {
                 nodes,
@@ -96,9 +98,9 @@ export class GraphD3Force extends HTMLElement {
             buffer
         });
     }
-    __applyForceUpdate(graph_display) {
-        console.log("D3FORCE apply force update");
-        const nodes = [...graph_display.graph.vertices()];
+    __applyForceUpdate() {
+        console.log("D3FORCE apply force update to graph");
+        const nodes = [...this.graph_display.graph.vertices()];
         for (let i = 0; i < nodes.length; ++i) {
             const node = nodes[i][1];
             const x = this.__bufferArray[i * 2];
@@ -108,6 +110,9 @@ export class GraphD3Force extends HTMLElement {
         }
         // emit graph-change event
         this.dispatchEvent(new CustomEvent("graph-update", {
+            detail: {
+                original: true
+            },
             bubbles:  true
         }));
     }

@@ -6,6 +6,9 @@ class GraphTracker extends HTMLElement {
         super();
         this.__requestGraphUpdateEvent = requestAnimationFunction(() => {
             this.dispatchEvent(new CustomEvent("graph-update", {
+                detail: {
+                    original: true
+                },
                 bubbles: true
             }));
         });

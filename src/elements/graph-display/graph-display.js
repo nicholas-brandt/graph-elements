@@ -27,7 +27,7 @@ export class GraphDisplay extends HTMLElement {
         this.__updatedNodes = new Set;
         // install extension callback
         this.shadowRoot.addEventListener("extension-callback", event => {
-            console.log("extension callback", event.detail.callback.name);
+            // console.log("extension callback", event.detail.callback.name);
             try {
                 if (typeof event.detail.callback == "function") {
                     event.detail.callback.call(event.target, this);

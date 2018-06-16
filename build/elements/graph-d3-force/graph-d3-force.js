@@ -13,7 +13,10 @@ const default_configuration = {
 };
 export class GraphD3Force extends HTMLElement {
   constructor() {
-    super(), Object.defineProperties(this, {
+    super();
+    let a = this.configuration;
+    delete this.configuration
+    , Object.defineProperties(this, {
       __worker: {
         value: new Worker("data:application/javascript," + encodeURIComponent(`importScripts("https://d3js.org/d3.v4.min.js");
                 const simulation = d3.forceSimulation(),
@@ -50,31 +53,34 @@ export class GraphD3Force extends HTMLElement {
                   }
                   "run" in a && (a.run ? simulation.restart() : simulation.stop())
                 });`))
+      },
+      configuration: {
+        set(b) {
+          this.__worker.postMessage({
+            configuration: b
+          }), a = b
+        },
+        get() {
+          return a
+        },
+        enumerable: !0
       }
     });
-    const a = () => {
-      this.__requestPropagateGraph()
-    };
+    const b = this;
     this.dispatchEvent(new CustomEvent("extension-callback", {
       detail: {
-        callback(b) {
-          b.shadowRoot.addEventListener("graph-structure-change", a), b.shadowRoot.addEventListener("graph-update", a)
+        callback(a) {
+          b.graph_display = a, a.shadowRoot.addEventListener("graph-structure-change", () => {
+            b.__propagateGraph()
+          }), a.shadowRoot.addEventListener("graph-update", (a) => {
+            a.target == b && a.detail.original || b.__propagateGraph()
+          })
         }
       },
       bubbles: !0
     })), this.__worker.addEventListener("message", requestAnimationFunction(({data: {buffer:a}}) => {
-      console.log("receive force update"), this.__bufferArray = new Float32Array(a), this.dispatchEvent(new CustomEvent("extension-callback", {
-        detail: {
-          callback: this.__applyForceUpdate
-        },
-        bubbles: !0
-      }))
-    })), this.configuration = default_configuration, this.__requestPropagateGraph()
-  }
-  set configuration(a) {
-    this.__worker.postMessage({
-      configuration: a
-    })
+      console.log("receive force update"), this.__bufferArray = new Float32Array(a), this.__applyForceUpdate()
+    })), this.configuration = a, this.__propagateGraph()
   }
   start() {
     this.__worker.postMessage({
@@ -86,50 +92,45 @@ export class GraphD3Force extends HTMLElement {
       run: !1
     })
   }
-  __requestPropagateGraph() {
-    this.dispatchEvent(new CustomEvent("extension-callback", {
-      detail: {
-        callback: this.__propagateGraph
-      },
-      bubbles: !0
-    }))
-  }
-  __propagateGraph(a) {
+  __propagateGraph() {
     console.log("D3FORCE propagate graph");
-    const b = [...a.nodes.values()],
-      c = b.map(({x:a, y:b}, c) => ({
+    const a = [...this.graph_display.nodes.values()],
+      b = a.map(({x:a, y:b}, c) => ({
         x: a,
         y: b,
         index: c
       })),
-      d = [...a.links].map(({source:a, target:c}) => ({
-        source: b.indexOf(a),
-        target: b.indexOf(c)
+      c = [...this.graph_display.links].map(({source:b, target:c}) => ({
+        source: a.indexOf(b),
+        target: a.indexOf(c)
       })),
-      e = new ArrayBuffer(2 * (4 * c.length));
-    this.__bufferArray = new Float32Array(e);
-    for (let b = 0; b < c.length; ++b) {
-      const a = c[b];
-      this.__bufferArray[2 * b] = a.x, this.__bufferArray[2 * b + 1] = a.y
+      d = new ArrayBuffer(2 * (4 * b.length));
+    this.__bufferArray = new Float32Array(d);
+    for (let a = 0; a < b.length; ++a) {
+      const c = b[a];
+      this.__bufferArray[2 * a] = c.x, this.__bufferArray[2 * a + 1] = c.y
     }
-    this.__worker.postMessage({
+    console.log("post worker"), this.__worker.postMessage({
       graph: {
-        nodes: c,
-        links: d
+        nodes: b,
+        links: c
       },
-      buffer: e
+      buffer: d
     })
   }
-  __applyForceUpdate(a) {
-    console.log("D3FORCE apply force update");
-    const b = [...a.graph.vertices()];
-    for (let c = 0; c < b.length; ++c) {
-      const a = b[c][1],
-        d = this.__bufferArray[2 * c],
-        e = this.__bufferArray[2 * c + 1];
-      a.x = d, a.y = e
+  __applyForceUpdate() {
+    console.log("D3FORCE apply force update to graph");
+    const a = [...this.graph_display.graph.vertices()];
+    for (let b = 0; b < a.length; ++b) {
+      const c = a[b][1],
+        d = this.__bufferArray[2 * b],
+        e = this.__bufferArray[2 * b + 1];
+      c.x = d, c.y = e
     }
     this.dispatchEvent(new CustomEvent("graph-update", {
+      detail: {
+        original: !0
+      },
       bubbles: !0
     }))
   }

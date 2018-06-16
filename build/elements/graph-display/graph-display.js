@@ -1,6 +1,6 @@
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";import { Node, Link } from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
-style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1)}:host>svg>*{touch-action:none}:host>svg>circle{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>circle[selected]{fill:#8bc34a;stroke:#33691e;stroke-width:5px;stroke-dasharray:8,2;transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>path{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path[loop]{fill:none;stroke-width:2px}";
+style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>*{touch-action:none}:host>svg>circle{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>circle[selected]{fill:#8bc34a;stroke:#33691e;stroke-width:5px;stroke-dasharray:8,2;transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>path{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path[loop]{fill:none;stroke-width:2px}";
 export class GraphDisplay extends HTMLElement {
   constructor() {
     super(), this.attachShadow({
@@ -14,7 +14,7 @@ export class GraphDisplay extends HTMLElement {
     }).observe(this), this.__requestPaint = requestAnimationFunction(() => {
       this.__paint()
     }), this.nodes = new Map, this.links = new Set, this.__updatedNodes = new Set, this.shadowRoot.addEventListener("extension-callback", (a) => {
-      console.log("extension callback", a.detail.callback.name);try {
+      try {
         "function" == typeof a.detail.callback && a.detail.callback.call(a.target, this)
       } catch (a) {
         console.error(a)

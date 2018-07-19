@@ -30,7 +30,10 @@
             "optimization": 0
         },
         "gulp-clean-css": {},
-        "gulp-babel-minify": {},
+        "gulp-babel-minify": {
+            "mangle": false,
+            "simplify": false
+        },
         "gulp-esformatter": {},
         "gulp-inject-file": {}
     }

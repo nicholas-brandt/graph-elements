@@ -3,6 +3,7 @@ class Node {
     constructor({value, key}, request_paint) {
         this.element = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         this.element.classList.add("node");
+        this.element.node = this;
         let x = value && value.x || 0;
         let y = value && value.y || 0;
         let radius = value && value.radius || 10;
@@ -69,6 +70,7 @@ class Link {
     constructor({value, source, target}) {
         this.element = document.createElementNS("http://www.w3.org/2000/svg", "path");
         this.element.classList.add("link");
+        this.element.link = this;
         Object.assign(this, {
             value,
             source,

@@ -1,4 +1,4 @@
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js";
+import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 import {Node, Link} from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-display/graph-display.css -->";
@@ -10,6 +10,9 @@ export class GraphDisplay extends HTMLElement {
             mode: "open"
         });
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.__requestBroadcast = requestAnimationFunction(event_name => {
+            this.__broadcast(event_name);
+        });
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();
@@ -18,23 +21,23 @@ export class GraphDisplay extends HTMLElement {
             request_resize();
         }).observe(this);
         // install request function
-        this.__requestPaint = requestAnimationFunction(() => {
-            this.__paint();
-        });
+        this.__requestPaint = requestAnimationFunction(this.__paint.bind(this));
         // map for updated nodes
         this.nodes = new Map;
         this.links = new Set;
         this.__updatedNodes = new Set;
         // install extension callback
-        this.shadowRoot.addEventListener("extension-callback", event => {
-            // console.log("extension callback", event.detail.callback.name);
+        this.shadowRoot.addEventListener("addon-registry", event => {
+            // stop the event because
+            // if it would reach its target addon it would assume no host is present
+            event.stopPropagation();
             try {
-                if (typeof event.detail.callback == "function") {
-                    event.detail.callback.call(event.target, this);
-                }
+                event.target.host = this;
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            capture: true
         });
         // add style
         this.shadowRoot.appendChild(style.cloneNode(true));
@@ -61,17 +64,13 @@ export class GraphDisplay extends HTMLElement {
         this.links.clear();
         this.__graph = graph;
         if (graph) {
-            // create functions outermost
-            const request_paint_node = (..._arguments) => {
-                this.__requestPaintNode(..._arguments);
-            };
             // ensure valid formatting
             for (let [key, value] of graph.vertices()) {
                 if (!(value instanceof Node)) {
                     value = new Node({
                         value,
                         key
-                    }, request_paint_node);
+                    }, this.__requestPaintNode.bind(this));
                     this.graph.setVertex(key, value);
                 }
                 valid_node_elements.add(value.element);
@@ -97,14 +96,14 @@ export class GraphDisplay extends HTMLElement {
                 child.parentNode.removeChild(child);
             }
         }
-        // add non-exist
+        // add non-existent
         for (const link_element of valid_link_elements) {
             this.svg.appendChild(link_element);
         }
         for (const node_element of valid_node_elements) {
             this.svg.appendChild(node_element);
         }
-        this.shadowRoot.dispatchEvent(new CustomEvent("graph-structure-change"));
+        this.__broadcast("graph-structure-change");
     }
     get graph() {
         return this.__graph;
@@ -116,6 +115,7 @@ export class GraphDisplay extends HTMLElement {
         this.__requestPaint();
     }
     __paint() {
+        // console.trace("graph-display: paint");
         // paint affected nodes
         for (const node of this.__updatedNodes) {
             node.paint();
@@ -137,6 +137,9 @@ export class GraphDisplay extends HTMLElement {
             height
         });
         this.shadowRoot.dispatchEvent(new CustomEvent("resize"));
+    }
+    __broadcast(event_name) {
+        this.shadowRoot.dispatchEvent(new CustomEvent(event_name));
     }
 };
 customElements.define("graph-display", GraphDisplay);

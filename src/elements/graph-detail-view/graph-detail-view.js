@@ -1,34 +1,15 @@
 "use strict";
+import GraphAddon from "../graph-addon/graph-addon.js";
+import require from "../../helper/require.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-detail-view/graph-detail-view.css -->";
-export class GraphDetailView extends HTMLElement {
+export default
+class GraphDetailView extends GraphAddon {
     constructor() {
         super();
-        // intercept graph change
-        this.dispatchEvent("extension-callback", {
-            detail: {
-                callback() {
-                    // add tap listener to detail view
-                    const hammer = new Hammer(this);
-                    hammer.on("tap", this.__tapDetailView.bind(this, graph_display));
-                    // add tap listener to existing elements
-                    this.__attachTapListeners();
-                }
-            },
-            bubbles: true
-        });
-        const graph_descriptor = Object.getOwnPropertyDescriptor(this, "graph") || Object.getOwnPropertyDescriptor(this.__graphDisplay.constructor.prototype, "graph");
-        Object.defineProperties(this.__graphDisplay, {
-            graph: Object.assign({
-                set(graph) {
-                    graph_descriptor.set.call(this.__graphDisplay, graph);
-                    this.__attachTapListeners();
-                }
-            }, graph_descriptor)
-        });
         // define own properties
         Object.defineProperties(this, {
-            __activeElement: {
+            __activeClone: {
                 value: undefined,
                 writable: true,
                 configurable: true
@@ -45,49 +26,96 @@ export class GraphDetailView extends HTMLElement {
             this.shadowRoot.appendChild(child);
         }
     }
-    __tapNode(graph_display, element) {
+    async hosted() {
+        const host = await this.host;
+        // add tap listener to detail view
+        const hammer = new Hammer(this);
+        hammer.on("tap", event => {
+            // only accept event if it originates from the graph-detail-view not from its children
+            if (event.srcEvent.path[0] === this) {
+                this.__tapDetailView(host);
+            }
+        });
+        // add tap listener to existing elements
+        host.shadowRoot.addEventListener("graph-structure-change", event => {
+            this.__attachTapListeners(host);
+        });
+        this.__attachTapListeners(host);
+    }
+    __tapNode(host, element) {
         // console.log("tap");
-        const active_element = element.cloneNode(true);
-        this.__activeElement = active_element;
+        this.activeNode = element.node;
+        const active_clone = element.cloneNode(true);
+        this.__activeClone = active_clone;
         // circle specific !!!
-        const keyframes = [{}, {
-            r: Math.max(graph_display.svg.width.baseVal.value, graph_display.svg.height.baseVal.value)
-        }];
-        graph_display.svg.appendChild(active_element);
-        const animation = active_element.animate(keyframes, 500);
-        animation.addEventListener("finish", () => {
-            this.classList.add("visible");
+        host.svg.appendChild(active_clone);
+        return new Promise(resolve => {
+            const keyframes = [{
+                r: element.r.baseVal.value
+            }, {
+                r: Math.max(host.svg.width.baseVal.value / 2 + Math.abs(this.activeNode.x), host.svg.height.baseVal.value / 2 + Math.abs(this.activeNode.y)) * Math.SQRT2
+            }];
+            active_clone.animate(keyframes, {
+                duration: 700,
+                fill: "both"
+            }).addEventListener("finish", () => {
+                this.classList.add("visible");
+                const keyframes = [{
+                    opacity: 0
+                }, {
+                    opacity: 1
+                }];
+                this.animate(keyframes, 300).addEventListener("finish", () => {
+                    resolve();
+                });
+            });
         });
     }
-    __tapDetailView(graph_display, event) {
-        // console.log(event);
-        // prevent detail children from closing the detal view
-        if (event.srcEvent.path[0] === this) {
-            // hide detail view
-            const element = this.__activeElement;
-            this.__activeElement = undefined;
-            // const {strokeWidth} = getComputedStyle(element);
-            this.classList.remove("visible");
-            // circle specific !!!
+    __tapDetailView(host) {
+        console.log(event);
+        // hide detail view
+        const element = this.__activeClone;
+        // const {strokeWidth} = getComputedStyle(element);
+        this.classList.remove("visible");
+        // circle specific !!!
+        return new Promise(resolve => {
             const keyframes = [{
-                r: Math.max(graph_display.svg.width.baseVal.value, graph_display.svg.height.baseVal.value)
+                opacity: 1
             }, {
-                r: element.r.baseVal.value // + parseFloat(strokeWidth)
+                opacity: 0
             }];
-            element.animate(keyframes, 500).addEventListener("finish", () => {
-                graph_display.svg.removeChild(element);
+            this.animate(keyframes, 200).addEventListener("finish", () => {
+                const keyframes = [{
+                    r: Math.max(host.svg.width.baseVal.value / 2 + Math.abs(this.activeNode.x), host.svg.height.baseVal.value / 2 + Math.abs(this.activeNode.y)) * Math.SQRT2
+                }, {
+                    r: element.r.baseVal.value // + parseFloat(strokeWidth)
+                }];
+                element.animate(keyframes, {
+                    duration: 600,
+                    fill: "both"
+                }).addEventListener("finish", () => {
+                    host.svg.removeChild(element);
+                    this.__activeClone = undefined;
+                    this.activeNode = undefined;
+                    resolve();
+                });
             });
-        }
+        });
     }
-    __attachTapListeners(graph_display) {
+    __attachTapListeners(host) {
+        // TODO: check if node already has a tap-listener
         // add tap listener to new elements
-        for (const [, node] of this.graph_display.nodes) {
+        for (const [, node] of host.nodes) {
             // console.log(element);
-            node.hammer.on("tap", this.__tapNode.bind(this, graph_display, node.element));
+            if (!node.hammer) {
+                node.hammer = new Hammer(node.element);
+            }
+            node.hammer.on("tap", this.__tapNode.bind(this, host, node.element));
         }
     }
-};
+}
 (async () => {
+    await require(["Hammer"]);
     await customElements.whenDefined("graph-display");
     customElements.define("graph-detail-view", GraphDetailView);
 })();

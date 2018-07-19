@@ -7,9 +7,9 @@
     height: 100%;
     background: @node;
     background: var(--node-color, @node);
+    padding: 10px;
     >* {
         flex: 1;
-        transition: opacity .3s;
         opacity: 0;
     }
     &(.visible) {

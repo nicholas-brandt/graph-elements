@@ -1,11 +1,15 @@
-export default (async(a) => {
-  for (const b of a) window[b] || (await new Promise((a) => {
-      Object.defineProperty(window, b, {
-        set(c) {
-          delete window[b]
-          , window[b] = c, a()
-        }
+export default (async requirements => {
+  for (const requirement of requirements) {
+    if (!window[requirement]) {
+      await new Promise(resolve => {
+        Object.defineProperty(window, requirement, {
+          set(value) {
+            delete window[requirement];
+            window[requirement] = value;resolve()
+          }
+        })
       })
-    }));
-  await new Promise((a) => setTimeout(a))
+    }
+  }
+  await new Promise(resolve => setTimeout(resolve))
 });

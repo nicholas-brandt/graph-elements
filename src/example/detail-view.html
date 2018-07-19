@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- ResizeObserver -->
+    <script src="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
+    
+    <script src="../../build/elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
+    <script src="../../build/elements/graph-tracker/graph-tracker.js" type="module" async></script>
+    <script src="../../build/elements/graph-display/graph-display.js" type="module" async></script>
+    <script src="https://hammerjs.github.io/dist/hammer.min.js" async></script>
+    <script type="module">
+        import Graph from "https://rawgit.com/mhelvens/graph.js/master/dist/graph.es6.js";
+        window.Graph = Graph;
+        const graph = new Graph;
+        graph.addVertex(0);
+        graph.addVertex(1);
+        graph.addEdge(0, 1);
+        for(let i = 2; i < 1e2; ++i) graph.addVertex(i, {
+            x: Math.random() * 600 - 300,
+            y: Math.random() * 600 - 300
+        });
+        // for(let i = 0; i < 3e2; ++i) graph.addEdge(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100));
+        for(let i = 0, a; i < 3e3; ++i) graph.addEdge(a = Math.floor(Math.random() * 1e2), (a + 1) % 1e2);
+        
+        window.graph = graph;
+        console.log(graph);
+        (async() => {
+            await customElements.whenDefined("graph-display");
+            const graphDisplay = document.querySelector("graph-display");
+            graphDisplay.graph = graph;
+            window.graphDisplay = graphDisplay;
+        })();
+    </script>
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+    <graph-display>
+        <graph-detail-view>
+            <div>
+                test case
+            </div>
+        </graph-detail-view>
+        <graph-tracker tracking-mode=""></graph-tracker>
+    </graph-display>
+</body>
+
+</html>

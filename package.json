@@ -15,7 +15,7 @@
         "gulp-clean-css": "^3.9.4",
         "gulp-esformatter": "^7.0.0",
         "gulp-inject-file": "0.0.19",
-        "gulp-less": "^4.0.0",
+        "gulp-less": "^4.0.1",
         "gulp-watch": "^4.3.11"
     },
     "repository": {

@@ -1,76 +1,88 @@
 export class Node {
-  constructor({value:a, key:b}, c) {
-    this.element = document.createElementNS("http://www.w3.org/2000/svg", "circle"), this.element.classList.add("node");
-    let d = a && a.x || 0,
-      e = a && a.y || 0,
-      f = a && a.radius || 10;
+  constructor({value, key}, request_paint) {
+    this.element = document.createElementNS("http://www.w3.org/2000/svg", "circle");this.element.classList.add("node");
+    this.element.node = this;
+    let x = value && value.x || 0,
+      y = value && value.y || 0,
+      radius = value && value.radius || 10;
     Object.defineProperties(this, {
       x: {
-        set(a) {
-          d = a, c(this)
+        set(value) {
+          x = value;request_paint(this)
         },
         get() {
-          return d
+          return x
         },
         configurable: !0,
         enumerable: !0
       },
       y: {
-        set(a) {
-          e = a, c(this)
+        set(value) {
+          y = value;request_paint(this)
         },
         get() {
-          return e
+          return y
         },
         configurable: !0,
         enumerable: !0
       },
       radius: {
-        set(a) {
-          f = a, c(this)
+        set(value) {
+          radius = value;request_paint(this)
         },
         get() {
-          return f
+          return radius
         },
         configurable: !0,
         enumerable: !0
       }
-    }), Object.assign(this, {
-      value: a,
-      key: b
-    }), this.x |= 0, this.y |= 0
+    });Object.assign(this, {
+      value,
+      key
+    });
+    this.x |= 0;
+    this.y |= 0
   }
   paint() {
-    const {x:a, y:b, radius:c} = this;
-    a | 0 === a && (this.element.cx.baseVal.value = a), b | 0 === b && (this.element.cy.baseVal.value = b), c | 0 === c && (this.element.r.baseVal.value = c)
+    const {x, y, radius} = this;
+    if (x | 0 === x) {
+      this.element.cx.baseVal.value = x
+    }
+    if (y | 0 === y) {
+      this.element.cy.baseVal.value = y
+    }
+    if (radius | 0 === radius) {
+      this.element.r.baseVal.value = radius
+    }
   }
 }
 export class Link {
-  constructor({value:a, source:b, target:c}) {
-    this.element = document.createElementNS("http://www.w3.org/2000/svg", "path"), this.element.classList.add("link"), Object.assign(this, {
-      value: a,
-      source: b,
-      target: c
+  constructor({value, source, target}) {
+    this.element = document.createElementNS("http://www.w3.org/2000/svg", "path");this.element.classList.add("link");
+    this.element.link = this;Object.assign(this, {
+      value,
+      source,
+      target
     })
   }
   paint() {
-    const {source:a, target:b} = this;
-    let c;
-    if (a === b || a.x === b.x && a.y === b.y) {
-      const b = a.radius / 3,
-        d = 3 * a.radius;
-      c = `M ${a.x} ${a.y}c ${b} ${d} ${d} ${b} 0 0`
+    const {source, target} = this;
+    let path_d;
+    if (source === target || source.x === target.x && source.y === target.y) {
+      const short = source.radius / 3,
+        long = 3 * source.radius;
+      path_d = `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`
     } else {
-      const d = b.x - a.x,
-        e = b.y - a.y,
-        f = Math.hypot(d, e) / b.radius,
-        g = d / f,
-        h = e / f,
-        i = 2,
-        j = b.x - g * i,
-        k = b.y - h * i;
-      c = `M ${a.x} ${a.y}L ${j} ${k}L ${b.x + h} ${b.y - g}l ${-2 * h} ${2 * g}L ${j} ${k}`
+      const x_diff = target.x - source.x,
+        y_diff = target.y - source.y,
+        r_diff = Math.hypot(x_diff, y_diff) / target.radius,
+        xr_diff = x_diff / r_diff,
+        yr_diff = y_diff / r_diff,
+        offset = 2,
+        m_x = target.x - xr_diff * offset,
+        m_y = target.y - yr_diff * offset;
+      path_d = `M ${source.x} ${source.y}L ${m_x} ${m_y}L ${target.x + yr_diff} ${target.y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m_x} ${m_y}`
     }
-    this.element.setAttribute("d", c)
+    this.element.setAttribute("d", path_d)
   }
 }

@@ -72,7 +72,7 @@ class GraphDetailView extends GraphAddon {
         });
     }
     __tapDetailView(host) {
-        console.log(event);
+        // console.log(event);
         // hide detail view
         const element = this.__activeClone;
         // const {strokeWidth} = getComputedStyle(element);

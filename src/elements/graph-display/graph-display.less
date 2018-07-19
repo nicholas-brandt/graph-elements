@@ -14,22 +14,15 @@
         >* {
             touch-action: none;
         }
-        >circle {
+        >circle.node {
             fill: @node;
             fill: var(--node-color, @node);
             stroke: @node-stroke;
-            //stroke-dasharray: 9,0;
-            stroke-width: 3px;
+            stroke-dasharray: @node-stroke-dasharray;
+            stroke-width: @node-stroke-width;
             transition: opacity 0.5s, fill 0.5s;
-            &[selected] {
-                fill: @selected-node;
-                stroke: @selected-node-stroke;
-                stroke-width: 5px;
-                stroke-dasharray: 8,2;
-                transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
-            }
         }
-        >path {
+        >path.link {
             pointer-events: none;
             fill: @link;
             fill: var(--link-color, @link);

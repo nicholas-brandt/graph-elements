@@ -53,7 +53,6 @@ export default class GraphDetailView extends GraphAddon {
   }
   __tapDetailView(host) {
     var _Mathabs2 = Math.abs;
-    console.log(event);
     const element = this.__activeClone;
     this.classList.remove("visible");return new Promise(resolve => {
       this.animate([{

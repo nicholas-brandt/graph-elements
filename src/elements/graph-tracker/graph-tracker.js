@@ -1,5 +1,6 @@
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 export default
 class GraphTracker extends GraphAddon {
@@ -58,7 +59,6 @@ class GraphTracker extends GraphAddon {
         this.trackingMode = this.getAttribute("tracking-mode");
         this.trackingCount = 30;
         this.trackingInitialTime = 10;
-        this.__requestTime = requestAnimationFunction(time => time);
     }
     async hosted() {
         console.log("graph-tracker: attach link in to host");
@@ -79,13 +79,14 @@ class GraphTracker extends GraphAddon {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
             }
-            node.hammer.on("pan", this.__trackElement.bind(this, host, key, node));
+            node.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL});
+            node.hammer.on("pan", this.__trackNode.bind(this, host, key, node));
             node.hammer.on("panstart", this.__trackStart.bind(this, host, key, node));
             node.hammer.on("panend", this.__trackEnd.bind(this, host, key, node));
             node.hammer.on("pancancel", this.__trackEnd.bind(this, host, key, node));
         }
     }
-    async __trackElement(host, node_key, node, event) {
+    async __trackNode(host, node_key, node, event) {
         try {
             // console.log("graph-tracker: node track event", event);
             // event.srcEvent.stopPropagation();
@@ -98,7 +99,7 @@ class GraphTracker extends GraphAddon {
             // adaptively hide links
             if (this.trackingMode == "adaptive" && !node.links_hidden) {
                 // console.time("timediff");
-                const time_difference = await this.__requestTimeDifference();
+                const time_difference = await requestTimeDifference();
                 node.trackingTime = (node.trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
                 // console.timeEnd("timediff");
                 // console.log("graph-tracker: time difference", time_difference);
@@ -115,6 +116,7 @@ class GraphTracker extends GraphAddon {
     __trackStart(host, node_key, node) {
         node.tracking = true;
         node.trackingTime = this.trackingInitialTime;
+        node.element.classList.add("tracking");
         if (this.trackingMode == "hiding") {
             console.log("graph-tracker: normally hiding links");
             this.__hideLinks(host, node_key, node);
@@ -122,6 +124,7 @@ class GraphTracker extends GraphAddon {
     }
     __trackEnd(host, node_key, node) {
         node.tracking = false;
+        node.element.classList.remove("tracking");
         this.__unhideLinks(host, node_key, node);
     }
     __hideLinks(host, node_key, node) {
@@ -158,10 +161,6 @@ class GraphTracker extends GraphAddon {
                 }
             }
         }
-    }
-    async __requestTimeDifference() {
-        const time = performance.now();
-        return await this.__requestTime() - time;
     }
 }
 (async () => {

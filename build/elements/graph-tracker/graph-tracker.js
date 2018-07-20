@@ -57,28 +57,30 @@ export default class GraphTracker extends GraphAddon {
   async hosted() {
     console.log("graph-tracker: attach link in to host");
     const host = await this.host;
-    host.shadowRoot.addEventListener("graph-structure-change", async() => {
+    host.shadowRoot.addEventListener("graph-structure-change", () => {
       try {
-        await this.__bindNodes()
+        this.__bindNodes(host)
       } catch (error) {
         console.error(error)
       }
-    });await this.__bindNodes()
+    });this.__bindNodes(host)
   }
-  async __bindNodes() {
+  __bindNodes(host) {
     console.log("graph-tracker: bind tracker to nodes");
-    const host = await this.host;
     for (const [key, node] of host.nodes) {
       if (!node.hammer) {
         node.hammer = new Hammer(node.element)
       }
-      node.hammer.get("pan").set({
-        direction: Hammer.DIRECTION_ALL
-      });node.hammer.on("pan", this.__trackNode.bind(this, host, key, node));node.hammer.on("panstart", this.__trackStart.bind(this, host, key, node));node.hammer.on("panend", this.__trackEnd.bind(this, host, key, node));node.hammer.on("pancancel", this.__trackEnd.bind(this, host, key, node))
+      if (!node.trackerInstalled) {
+        node.trackerInstalled = !0;node.hammer.get("pan").set({
+          direction: Hammer.DIRECTION_ALL
+        });node.hammer.on("pan", this.__trackNode.bind(this, host, node));node.hammer.on("panstart", this.__trackStart.bind(this, host, node));node.hammer.on("panend", this.__trackEnd.bind(this, host, node));node.hammer.on("pancancel", this.__trackEnd.bind(this, host, node))
+      }
     }
   }
-  async __trackNode(host, node_key, node, event) {
+  async __trackNode(host, node, event) {
     try {
+      console.log("graph-tracker: node track event", event);
       node.x += event.deltaX - (node.__deltaX || 0);
       node.y += event.deltaY - (node.__deltaY || 0);
       node.__deltaX = event.isFinal ? 0 : event.deltaX;
@@ -87,28 +89,28 @@ export default class GraphTracker extends GraphAddon {
         const time_difference = await requestTimeDifference();
         node.trackingTime = (node.trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
         if (17 < node.trackingTime && node.tracking) {
-          console.log("graph-tracker: adaptively hiding links", time_difference);this.__hideLinks(host, node_key, node)
+          console.log("graph-tracker: adaptively hiding links", time_difference);this.__hideLinks(host, node)
         }
       }
     } catch (error) {
       console.error(error)
     }
   }
-  __trackStart(host, node_key, node) {
+  __trackStart(host, node) {
     node.tracking = !0;
     node.trackingTime = this.trackingInitialTime;node.element.classList.add("tracking");
     if ("hiding" == this.trackingMode) {
-      console.log("graph-tracker: normally hiding links");this.__hideLinks(host, node_key, node)
+      console.log("graph-tracker: normally hiding links");this.__hideLinks(host, node)
     }
   }
-  __trackEnd(host, node_key, node) {
-    node.tracking = !1;node.element.classList.remove("tracking");this.__unhideLinks(host, node_key, node)
+  __trackEnd(host, node) {
+    node.tracking = !1;node.element.classList.remove("tracking");this.__unhideLinks(host, node)
   }
-  __hideLinks(host, node_key, node) {
+  __hideLinks(host, node) {
     console.log("graph-tracker: hide links");
     node.links_hidden = !0;
     for (const [source, target, link] of host.graph.edges()) {
-      if (source == node_key || target == node_key) {
+      if (source == node.key || target == node.key) {
         if (link.element) {
           link.element.animate([{
             opacity: getComputedStyle(link.element).opacity
@@ -121,11 +123,11 @@ export default class GraphTracker extends GraphAddon {
       }
     }
   }
-  __unhideLinks(host, node_key, node) {
+  __unhideLinks(host, node) {
     if (node.links_hidden) {
       node.links_hidden = !1;console.log("graph-tracker: unhiding links");
       for (const [source, target, link] of host.graph.edges()) {
-        if (source == node_key || target == node_key) {
+        if (source == node.key || target == node.key) {
           link.element.style.visibility = "";
           if (link.element) {
             link.element.animate([{

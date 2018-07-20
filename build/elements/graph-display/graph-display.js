@@ -27,6 +27,10 @@ export class GraphDisplay extends HTMLElement {
       }
     }, {
       capture: !0
+    });this.shadowRoot.addEventListener("graph-structure-change", () => {
+      this.__adoptGraph();this.__requestPaint()
+    });this.shadowRoot.addEventListener("graph-update", () => {
+      this.__requestPaint()
     });this.shadowRoot.appendChild(style.cloneNode(!0));this.shadowRoot.appendChild(this.svg);
     for (const child of [...this.children]) {
       this.shadowRoot.appendChild(child)
@@ -37,22 +41,29 @@ export class GraphDisplay extends HTMLElement {
     this.graph = graph
   }
   set graph(graph) {
+    this.__graph = graph;this.__broadcast("graph-structure-change")
+  }
+  get graph() {
+    return this.__graph
+  }
+  __adoptGraph() {
     const valid_node_elements = new Set,
       valid_link_elements = new Set;
     this.nodes.clear();this.links.clear();
-    this.__graph = graph;
-    if (graph) {
+    if (this.__graph) {
       for (let [key, value] of graph.vertices()) {
         if (!(value instanceof Node)) {
+          console.log("new node", value);
           value = new Node({
             value,
             key
           }, this.__requestPaintNode.bind(this));this.graph.setVertex(key, value)
         }
-        valid_node_elements.add(value.element);this.nodes.set(key, value)
+        valid_node_elements.add(value.element);this.nodes.set(key, value);this.__updatedNodes.add(value)
       }
       for (let [source_key, target_key, value] of graph.edges()) {
         if (!(value instanceof Link)) {
+          console.log("new link", value);
           value = new Link({
             value,
             source: this.nodes.get(source_key),
@@ -73,10 +84,6 @@ export class GraphDisplay extends HTMLElement {
     for (const node_element of valid_node_elements) {
       this.svg.appendChild(node_element)
     }
-    this.__broadcast("graph-structure-change")
-  }
-  get graph() {
-    return this.__graph
   }
   __requestPaintNode(node) {
     console.assert(this instanceof GraphDisplay, "invalid this", this);console.assert(node instanceof Node, "invalid node", node);this.__updatedNodes.add(node);this.__requestPaint()

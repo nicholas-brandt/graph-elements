@@ -24,8 +24,18 @@ export default class GraphDetailView extends GraphAddon {
         this.__tapDetailView(host)
       }
     });host.shadowRoot.addEventListener("graph-structure-change", () => {
-      this.__attachTapListeners(host)
-    });this.__attachTapListeners(host)
+      this.__bindNodes(host)
+    });this.__bindNodes(host)
+  }
+  __bindNodes(host) {
+    for (const [, node] of host.nodes) {
+      if (!node.hammer) {
+        node.hammer = new Hammer(node.element)
+      }
+      if (!node.detailViewInstalled) {
+        node.detailViewInstalled = !0;node.hammer.on("tap", this.__tapNode.bind(this, host, node.element))
+      }
+    }
   }
   __tapNode(host, element) {
     var _Mathabs = Math.abs;
@@ -75,14 +85,6 @@ export default class GraphDetailView extends GraphAddon {
         })
       })
     })
-  }
-  __attachTapListeners(host) {
-    for (const [, node] of host.nodes) {
-      if (!node.hammer) {
-        node.hammer = new Hammer(node.element)
-      }
-      node.hammer.on("tap", this.__tapNode.bind(this, host, node.element))
-    }
   }
 }
 (async() => {

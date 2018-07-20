@@ -32,13 +32,17 @@ export default class GraphModifier extends GraphAddon {
     if (!host.svg.hammer) {
       host.svg.hammer = new Hammer(host.svg)
     }
-    host.svg.hammer.on("tap", this.__tapCanvas.bind(this, host));host.shadowRoot.addEventListener("graph-structure-change", async() => {
+    host.svg.hammer.on("tap", event => {
+      if (event.srcEvent.path[0] === host.svg) {
+        this.__tapCanvas(host, event)
+      }
+    });host.shadowRoot.addEventListener("graph-structure-change", () => {
       try {
-        await this.__bindNodes()
+        this.__bindNodes(host)
       } catch (error) {
         console.error(error)
       }
-    });await this.__bindNodes()
+    });this.__bindNodes(host)
   }
   selectNode(node) {
     this.unselectNode();
@@ -50,39 +54,48 @@ export default class GraphModifier extends GraphAddon {
       this.activeNode = void 0
     }
   }
-  async __bindNodes() {
+  __bindNodes(host) {
     console.log("graph-modifier: bind tracker to nodes");
-    const host = await this.host;
     for (const [key, node] of host.nodes) {
       if (!node.hammer) {
         node.hammer = new Hammer(node.element)
       }
-      node.hammer.get("press").set({
-        time: 500
-      });node.hammer.on("press", this.__pressNode.bind(this, host, key, node));
-      this.__tapHandlers = node.hammer.handlers.tap || [];node.hammer.off("tap");node.hammer.on("tap", this.__tapNode.bind(this, node))
+      if (!node.modifierInstalled) {
+        node.modifierInstalled = !0;node.hammer.get("press").set({
+          time: 500
+        });node.hammer.on("press", this.__pressNode.bind(this, host, node));
+        this.__tapHandlers = node.hammer.handlers.tap || [];node.hammer.off("tap");node.hammer.on("tap", this.__tapNode.bind(this, host, node))
+      }
     }
   }
-  __pressNode(host, node_key, node) {
+  __pressNode(host, node) {
     this.selectNode(node)
   }
   __tapCanvas(host, event) {
-    if (event.target === host.svg) {
-      console.log("canvas", event);this.unselectNode()
-    }
+    console.log("canvas", event);this.unselectNode()
   }
-  __tapNode(node, event) {
-    while (1 < node.hammer.handlers.tap.length) {
-      console.log("pop");this.__tapHandlers.push(node.hammer.handlers.tap.pop())
-    }
-    if (this.activeNode) {
-      console.log("modifying tap", node)
-    } else {
-      for (const tap_handler of this.__tapHandlers) {
-        tap_handler(event)
+  async __tapNode(host, node, event) {
+    try {
+      console.log("tap", event);event.srcEvent.stopPropagation();
+      while (1 < node.hammer.handlers.tap.length) {
+        console.log("pop");this.__tapHandlers.push(node.hammer.handlers.tap.pop())
       }
+      if (this.activeNode) {
+        console.log("modifying tap", node);
+        if (host.graph.hasEdge(this.activeNode.key, node.key)) {
+          host.graph.removeEdge(this.activeNode.key, node.key)
+        } else {
+          host.graph.ensureEdge(this.activeNode.key, node.key)
+        }
+        await host.__requestBroadcast("graph-structure-change")
+      } else {
+        for (const tap_handler of this.__tapHandlers) {
+          tap_handler(event)
+        }
+      }
+    } catch (error) {
+      console.error(error)
     }
-    console.log("tap", event)
   }
 }
 (async() => {

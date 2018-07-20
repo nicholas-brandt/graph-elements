@@ -38,9 +38,23 @@ class GraphDetailView extends GraphAddon {
         });
         // add tap listener to existing elements
         host.shadowRoot.addEventListener("graph-structure-change", event => {
-            this.__attachTapListeners(host);
+            this.__bindNodes(host);
         });
-        this.__attachTapListeners(host);
+        this.__bindNodes(host);
+    }
+    __bindNodes(host) {
+        // TODO: check if node already has a tap-listener
+        // add tap listener to new elements
+        for (const [, node] of host.nodes) {
+            // console.log(element);
+            if (!node.hammer) {
+                node.hammer = new Hammer(node.element);
+            }
+            if (!node.detailViewInstalled) {
+                node.detailViewInstalled = true;
+                node.hammer.on("tap", this.__tapNode.bind(this, host, node.element));
+            }
+        }
     }
     __tapNode(host, element) {
         // console.log("tap");
@@ -101,17 +115,6 @@ class GraphDetailView extends GraphAddon {
                 });
             });
         });
-    }
-    __attachTapListeners(host) {
-        // TODO: check if node already has a tap-listener
-        // add tap listener to new elements
-        for (const [, node] of host.nodes) {
-            // console.log(element);
-            if (!node.hammer) {
-                node.hammer = new Hammer(node.element);
-            }
-            node.hammer.on("tap", this.__tapNode.bind(this, host, node.element));
-        }
     }
 }
 (async () => {

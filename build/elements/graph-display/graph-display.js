@@ -1,3 +1,5 @@
+"use strict";import createConsole from "../../helper/console.js";
+const console = createConsole("graph-display");
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";import { Node, Link } from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
 style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>*{touch-action:none}:host>svg>circle.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>path.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path.link[loop]{fill:none;stroke-width:2px}";
@@ -62,7 +64,6 @@ export class GraphDisplay extends HTMLElement {
     if (this.__graph) {
       for (let [key, value] of graph.vertices()) {
         if (!(value instanceof Node)) {
-          console.log("new node", value);
           value = new Node({
             value,
             key
@@ -72,7 +73,6 @@ export class GraphDisplay extends HTMLElement {
       }
       for (let [source_key, target_key, value] of graph.edges()) {
         if (!(value instanceof Link)) {
-          console.log("new link", value);
           value = new Link({
             value,
             source: this.nodes.get(source_key),
@@ -98,7 +98,7 @@ export class GraphDisplay extends HTMLElement {
     console.assert(this instanceof GraphDisplay, "invalid this", this);console.assert(node instanceof Node, "invalid node", node);this.__updatedNodes.add(node);return this.__requestPaint()
   }
   __paint() {
-    console.log("graph-display: paint");
+    console.log("paint");
     for (const node of this.__updatedNodes) {
       node.paint()
     }

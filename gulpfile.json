@@ -34,6 +34,9 @@
             "mangle": false,
             "simplify": false
         },
+        "gulp-babel": {
+            "presets": ["stage-3"]
+        },
         "gulp-esformatter": {},
         "gulp-inject-file": {}
     }

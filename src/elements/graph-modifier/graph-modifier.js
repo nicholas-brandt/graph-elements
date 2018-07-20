@@ -1,3 +1,7 @@
+"use strict";
+import createConsole from "../../helper/console.js";
+const console = createConsole("graph-modifier");
+
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
@@ -35,7 +39,7 @@ class GraphModifier extends GraphAddon {
         this.appendChild(style.cloneNode(true));
     }
     async hosted() {
-        console.log("graph-modifier: attach link in to host");
+        console.log("attach link in to host");
         const host = await this.host;
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
@@ -75,7 +79,7 @@ class GraphModifier extends GraphAddon {
         }
     }
     __bindNodes(host) {
-        console.log("graph-modifier: bind tracker to nodes");
+        console.log("bind tracker to nodes");
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
@@ -83,7 +87,7 @@ class GraphModifier extends GraphAddon {
             if (!node.modifierInstalled) {
                 node.modifierInstalled = true;
                 // node.hammer.options.domEvents = true;
-                node.hammer.get("press").set({time: 500});
+                node.hammer.get("press").set({time: 300});
                 node.hammer.on("press", this.__pressNode.bind(this, host, node));
                 // TODO: no stopImmediatePropagation available in hammer.js
                 // e.g. detail-view tap is still triggered

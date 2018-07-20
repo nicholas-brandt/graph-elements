@@ -1,3 +1,5 @@
+"use strict";import createConsole from "../../helper/console.js";
+const console = createConsole("graph-addon");
 export default class GraphAddon extends HTMLElement {
   constructor() {
     super();

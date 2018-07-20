@@ -1,4 +1,6 @@
-"use strict";import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";
+"use strict";import createConsole from "../../helper/console.js";
+const console = createConsole("graph-detail-view");
+import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";
 const style = document.createElement("style");
 style.textContent = ":host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50);padding:10px}:host>*{flex:1;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}";
 export default class GraphDetailView extends GraphAddon {
@@ -36,6 +38,7 @@ export default class GraphDetailView extends GraphAddon {
     });this.__bindNodes(host)
   }
   __bindNodes(host) {
+    console.log("bind tracker to nodes");
     for (const [, node] of host.nodes) {
       if (!node.hammer) {
         node.hammer = new Hammer(node.element)

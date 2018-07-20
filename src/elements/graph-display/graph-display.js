@@ -1,3 +1,7 @@
+"use strict";
+import createConsole from "../../helper/console.js";
+const console = createConsole("graph-display");
+
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 import {Node, Link} from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
@@ -91,7 +95,7 @@ export class GraphDisplay extends HTMLElement {
             // ensure valid formatting
             for (let [key, value] of graph.vertices()) {
                 if (!(value instanceof Node)) {
-                    console.log("new node", value);
+                    // console.log("new node", value);
                     value = new Node({
                         value,
                         key
@@ -104,7 +108,7 @@ export class GraphDisplay extends HTMLElement {
             }
             for (let [source_key, target_key, value] of graph.edges()) {
                 if (!(value instanceof Link)) {
-                    console.log("new link", value);
+                    // console.log("new link", value);
                     value = new Link({
                         value,
                         source: this.nodes.get(source_key),
@@ -140,7 +144,7 @@ export class GraphDisplay extends HTMLElement {
         return this.__requestPaint();
     }
     __paint() {
-        console.log("graph-display: paint");
+        console.log("paint");
         // paint affected nodes
         for (const node of this.__updatedNodes) {
             node.paint();

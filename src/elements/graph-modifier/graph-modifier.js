@@ -78,7 +78,7 @@ class GraphModifier extends GraphAddon {
                 node.hammer.on("press", this.__pressNode.bind(this, host, node));
                 // TODO: no stopImmediatePropagation available in hammer.js
                 // e.g. detail-view tap is still triggered
-                this.__tapHandlers = node.hammer.handlers.tap || [];
+                node.__tapHandlers = node.hammer.handlers.tap || [];
                 node.hammer.off("tap");
                 node.hammer.on("tap", this.__tapNode.bind(this, host, node));
             }
@@ -99,7 +99,7 @@ class GraphModifier extends GraphAddon {
             event.srcEvent.stopPropagation();
             while (node.hammer.handlers.tap.length > 1) {
                 console.log("pop");
-                this.__tapHandlers.push(node.hammer.handlers.tap.pop());
+                node.__tapHandlers.push(node.hammer.handlers.tap.pop());
             }
             if (this.activeNode) {
                 console.log("modifying tap", node);
@@ -110,7 +110,7 @@ class GraphModifier extends GraphAddon {
                 }
                 await host.__requestBroadcast("graph-structure-change");
             } else {
-                for (const tap_handler of this.__tapHandlers) {
+                for (const tap_handler of node.__tapHandlers) {
                     tap_handler(event);
                 }
             }

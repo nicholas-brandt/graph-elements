@@ -52,13 +52,14 @@ class GraphDetailView extends GraphAddon {
             }
             if (!node.detailViewInstalled) {
                 node.detailViewInstalled = true;
-                node.hammer.on("tap", this.__tapNode.bind(this, host, node.element));
+                node.hammer.on("tap", this.__tapNode.bind(this, host, node));
             }
         }
     }
-    __tapNode(host, element) {
+    __tapNode(host, node) {
         // console.log("tap");
-        this.activeNode = element.node;
+        this.activeNode = node;
+        const element = node.element;
         const active_clone = element.cloneNode(true);
         this.__activeClone = active_clone;
         // circle specific !!!

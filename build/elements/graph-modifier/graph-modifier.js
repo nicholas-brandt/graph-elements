@@ -64,7 +64,7 @@ export default class GraphModifier extends GraphAddon {
         node.modifierInstalled = !0;node.hammer.get("press").set({
           time: 500
         });node.hammer.on("press", this.__pressNode.bind(this, host, node));
-        this.__tapHandlers = node.hammer.handlers.tap || [];node.hammer.off("tap");node.hammer.on("tap", this.__tapNode.bind(this, host, node))
+        node.__tapHandlers = node.hammer.handlers.tap || [];node.hammer.off("tap");node.hammer.on("tap", this.__tapNode.bind(this, host, node))
       }
     }
   }
@@ -78,7 +78,7 @@ export default class GraphModifier extends GraphAddon {
     try {
       console.log("tap", event);event.srcEvent.stopPropagation();
       while (1 < node.hammer.handlers.tap.length) {
-        console.log("pop");this.__tapHandlers.push(node.hammer.handlers.tap.pop())
+        console.log("pop");node.__tapHandlers.push(node.hammer.handlers.tap.pop())
       }
       if (this.activeNode) {
         console.log("modifying tap", node);
@@ -89,7 +89,7 @@ export default class GraphModifier extends GraphAddon {
         }
         await host.__requestBroadcast("graph-structure-change")
       } else {
-        for (const tap_handler of this.__tapHandlers) {
+        for (const tap_handler of node.__tapHandlers) {
           tap_handler(event)
         }
       }

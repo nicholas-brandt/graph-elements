@@ -33,14 +33,15 @@ export default class GraphDetailView extends GraphAddon {
         node.hammer = new Hammer(node.element)
       }
       if (!node.detailViewInstalled) {
-        node.detailViewInstalled = !0;node.hammer.on("tap", this.__tapNode.bind(this, host, node.element))
+        node.detailViewInstalled = !0;node.hammer.on("tap", this.__tapNode.bind(this, host, node))
       }
     }
   }
-  __tapNode(host, element) {
+  __tapNode(host, node) {
     var _Mathabs = Math.abs;
-    this.activeNode = element.node;
-    const active_clone = element.cloneNode(!0);
+    this.activeNode = node;
+    const element = node.element,
+      active_clone = element.cloneNode(!0);
     this.__activeClone = active_clone;host.svg.appendChild(active_clone);return new Promise(resolve => {
       const keyframes = [{
         r: element.r.baseVal.value

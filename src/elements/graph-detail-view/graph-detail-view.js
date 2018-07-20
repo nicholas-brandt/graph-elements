@@ -31,14 +31,22 @@ class GraphDetailView extends GraphAddon {
         // add tap listener to detail view
         const hammer = new Hammer(this);
         hammer.on("tap", event => {
-            // only accept event if it originates from the graph-detail-view not from its children
-            if (event.srcEvent.path[0] === this) {
-                this.__tapDetailView(host);
+            try {
+                // only accept event if it originates from the graph-detail-view not from its children
+                if (event.srcEvent.path[0] === this) {
+                    this.__tapDetailView(host);
+                }
+            } catch (error) {
+                console.error(error);
             }
         });
         // add tap listener to existing elements
         host.shadowRoot.addEventListener("graph-structure-change", event => {
-            this.__bindNodes(host);
+            try {
+                this.__bindNodes(host);
+            } catch (error) {
+                console.error(error);
+            }
         });
         this.__bindNodes(host);
     }

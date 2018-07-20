@@ -39,13 +39,22 @@ export class GraphDisplay extends HTMLElement {
         }, {
             capture: true
         });
-        this.shadowRoot.addEventListener("graph-structure-change", () => {
-            this.__adoptGraph();
-            this.__requestPaint();
+        this.shadowRoot.addEventListener("graph-structure-change", async () => {
+            try {
+                this.__adoptGraph();
+                await this.__requestPaint();
+            } catch (error) {
+                console.error(error);
+            }
         });
-        this.shadowRoot.addEventListener("graph-update", event => {
-            // register which node have changed
-            this.__requestPaint();
+        this.shadowRoot.addEventListener("graph-update", async event => {
+            console.log("graph-update");
+            try {
+                // register which node have changed
+                this.__requestPaint();
+            } catch (error) {
+                console.error(error);
+            }
         });
         // add style
         this.shadowRoot.appendChild(style.cloneNode(true));
@@ -73,6 +82,7 @@ export class GraphDisplay extends HTMLElement {
         return this.__graph;
     }
     __adoptGraph() {
+        console.log("adopt graph");
         const valid_node_elements = new Set;
         const valid_link_elements = new Set;
         this.nodes.clear();
@@ -87,10 +97,10 @@ export class GraphDisplay extends HTMLElement {
                         key
                     }, this.__requestPaintNode.bind(this));
                     this.graph.setVertex(key, value);
+                    this.__updatedNodes.add(value);
                 }
                 valid_node_elements.add(value.element);
                 this.nodes.set(key, value);
-                this.__updatedNodes.add(value);
             }
             for (let [source_key, target_key, value] of graph.edges()) {
                 if (!(value instanceof Link)) {
@@ -101,6 +111,8 @@ export class GraphDisplay extends HTMLElement {
                         target: this.nodes.get(target_key)
                     });
                     this.graph.setEdge(source_key, target_key, value);
+                    this.__updatedNodes.add(value.source);
+                    this.__updatedNodes.add(value.target);
                 }
                 valid_link_elements.add(value.element);
                 this.links.add(value);
@@ -125,10 +137,10 @@ export class GraphDisplay extends HTMLElement {
         console.assert(this instanceof GraphDisplay, "invalid this", this);
         console.assert(node instanceof Node, "invalid node", node);
         this.__updatedNodes.add(node);
-        this.__requestPaint();
+        return this.__requestPaint();
     }
     __paint() {
-        // console.trace("graph-display: paint");
+        console.log("graph-display: paint");
         // paint affected nodes
         for (const node of this.__updatedNodes) {
             node.paint();

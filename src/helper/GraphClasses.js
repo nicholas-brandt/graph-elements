@@ -1,12 +1,19 @@
 export
 class Node {
-    constructor({value, key}, request_paint) {
+    constructor({value, key}, _request_paint) {
         this.element = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         this.element.classList.add("node");
         this.element.node = this;
         let x = value && value.x || 0;
         let y = value && value.y || 0;
         let radius = value && value.radius || 10;
+        const request_paint = async node => {
+            try {
+                await _request_paint(node);
+            } catch (error) {
+                console.error(error);
+            }
+        }
         Object.defineProperties(this, {
             x: {
                 set(value) {

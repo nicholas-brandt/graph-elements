@@ -27,10 +27,18 @@ export class GraphDisplay extends HTMLElement {
       }
     }, {
       capture: !0
-    });this.shadowRoot.addEventListener("graph-structure-change", () => {
-      this.__adoptGraph();this.__requestPaint()
-    });this.shadowRoot.addEventListener("graph-update", () => {
-      this.__requestPaint()
+    });this.shadowRoot.addEventListener("graph-structure-change", async() => {
+      try {
+        this.__adoptGraph();await this.__requestPaint()
+      } catch (error) {
+        console.error(error)
+      }
+    });this.shadowRoot.addEventListener("graph-update", async() => {
+      console.log("graph-update");try {
+        this.__requestPaint()
+      } catch (error) {
+        console.error(error)
+      }
     });this.shadowRoot.appendChild(style.cloneNode(!0));this.shadowRoot.appendChild(this.svg);
     for (const child of [...this.children]) {
       this.shadowRoot.appendChild(child)
@@ -47,6 +55,7 @@ export class GraphDisplay extends HTMLElement {
     return this.__graph
   }
   __adoptGraph() {
+    console.log("adopt graph");
     const valid_node_elements = new Set,
       valid_link_elements = new Set;
     this.nodes.clear();this.links.clear();
@@ -57,9 +66,9 @@ export class GraphDisplay extends HTMLElement {
           value = new Node({
             value,
             key
-          }, this.__requestPaintNode.bind(this));this.graph.setVertex(key, value)
+          }, this.__requestPaintNode.bind(this));this.graph.setVertex(key, value);this.__updatedNodes.add(value)
         }
-        valid_node_elements.add(value.element);this.nodes.set(key, value);this.__updatedNodes.add(value)
+        valid_node_elements.add(value.element);this.nodes.set(key, value)
       }
       for (let [source_key, target_key, value] of graph.edges()) {
         if (!(value instanceof Link)) {
@@ -68,7 +77,7 @@ export class GraphDisplay extends HTMLElement {
             value,
             source: this.nodes.get(source_key),
             target: this.nodes.get(target_key)
-          });this.graph.setEdge(source_key, target_key, value)
+          });this.graph.setEdge(source_key, target_key, value);this.__updatedNodes.add(value.source);this.__updatedNodes.add(value.target)
         }
         valid_link_elements.add(value.element);this.links.add(value)
       }
@@ -86,9 +95,10 @@ export class GraphDisplay extends HTMLElement {
     }
   }
   __requestPaintNode(node) {
-    console.assert(this instanceof GraphDisplay, "invalid this", this);console.assert(node instanceof Node, "invalid node", node);this.__updatedNodes.add(node);this.__requestPaint()
+    console.assert(this instanceof GraphDisplay, "invalid this", this);console.assert(node instanceof Node, "invalid node", node);this.__updatedNodes.add(node);return this.__requestPaint()
   }
   __paint() {
+    console.log("graph-display: paint");
     for (const node of this.__updatedNodes) {
       node.paint()
     }

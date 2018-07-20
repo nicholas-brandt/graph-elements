@@ -45,6 +45,15 @@ class GraphModifier extends GraphAddon {
                 this.__tapCanvas(host, event);
             }
         });
+        host.svg.hammer.on("press", event => {
+            try {
+                if (event.srcEvent.path[0] === host.svg) {
+                    this.__pressCanvas(host, event);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
         host.shadowRoot.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
@@ -80,42 +89,59 @@ class GraphModifier extends GraphAddon {
                 // e.g. detail-view tap is still triggered
                 node.__tapHandlers = node.hammer.handlers.tap || [];
                 node.hammer.off("tap");
-                node.hammer.on("tap", this.__tapNode.bind(this, host, node));
+                node.hammer.on("tap", event => {
+                    try {
+                        this.__tapNode(host, node, event);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
             }
         }
     }
-    __pressNode(host, node, event) {
+    __pressCanvas(host, event) {
+        console.log("press canvas", event);
+        // @IMPORTANT: ensure new vertex key
+        let i = 0;
+        while (host.graph.hasVertex(i)) {
+            ++i;
+        }
+        host.graph.addNewVertex(i);
+        host.__broadcast("graph-structure-change");
+        // get freshly created node
+        const node = host.graph.vertexValue(i);
+        node.x = (event.srcEvent.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
+        node.y = (event.srcEvent.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
+    }
+    __pressNode(host, node) {
         this.selectNode(node);
     }
     __tapCanvas(host, event) {
         console.log("canvas", event);
         this.unselectNode();
     }
-    async __tapNode(host, node, event) {
-        try {
-            console.log("tap", event);
-            // @WORKAROUND: invoke usual listeners when not in modifying mode
-            // @TODO: event.stopImmediatePropagation();
-            event.srcEvent.stopPropagation();
-            while (node.hammer.handlers.tap.length > 1) {
-                console.log("pop");
-                node.__tapHandlers.push(node.hammer.handlers.tap.pop());
-            }
-            if (this.activeNode) {
-                console.log("modifying tap", node);
-                if (host.graph.hasEdge(this.activeNode.key, node.key)) {
-                    host.graph.removeEdge(this.activeNode.key, node.key);
-                } else {
-                    host.graph.ensureEdge(this.activeNode.key, node.key);
-                }
-                await host.__requestBroadcast("graph-structure-change");
+    __tapNode(host, node, event) {
+        console.log("tap", event);
+        // @WORKAROUND: invoke usual listeners when not in modifying mode
+        // @TODO: event.stopImmediatePropagation();
+        event.srcEvent.stopPropagation();
+        while (node.hammer.handlers.tap.length > 1) {
+            console.log("pop");
+            node.__tapHandlers.push(node.hammer.handlers.tap.pop());
+        }
+        if (this.activeNode) {
+            // link active node with tapped node
+            console.log("modifying tap", node);
+            if (host.graph.hasEdge(this.activeNode.key, node.key)) {
+                host.graph.removeEdge(this.activeNode.key, node.key);
             } else {
-                for (const tap_handler of node.__tapHandlers) {
-                    tap_handler(event);
-                }
+                host.graph.ensureEdge(this.activeNode.key, node.key);
             }
-        } catch (error) {
-            console.error(error);
+            host.__broadcast("graph-structure-change");
+        } else {
+            for (const tap_handler of node.__tapHandlers) {
+                tap_handler(event);
+            }
         }
     }
 }

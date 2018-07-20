@@ -20,11 +20,19 @@ export default class GraphDetailView extends GraphAddon {
     const host = await this.host,
       hammer = new Hammer(this);
     hammer.on("tap", event => {
-      if (event.srcEvent.path[0] === this) {
-        this.__tapDetailView(host)
+      try {
+        if (event.srcEvent.path[0] === this) {
+          this.__tapDetailView(host)
+        }
+      } catch (error) {
+        console.error(error)
       }
     });host.shadowRoot.addEventListener("graph-structure-change", () => {
-      this.__bindNodes(host)
+      try {
+        this.__bindNodes(host)
+      } catch (error) {
+        console.error(error)
+      }
     });this.__bindNodes(host)
   }
   __bindNodes(host) {

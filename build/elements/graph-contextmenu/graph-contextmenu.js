@@ -1,6 +1,6 @@
 "use strict";import console from "../../helper/console.js";import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";
 const style = document.createElement("style");
-style.textContent = ":host>svg>foreignObject{display:none}:host>svg>foreignObject.visible{display:block}:host>svg>foreignObject .contextmenu{font:13px Roboto;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>svg>foreignObject .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>svg>foreignObject .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>svg>foreignObject .contextmenu>:focus{outline:0}";
+style.textContent = ":host>svg>foreignObject{display:block}:host>svg>foreignObject .contextmenu{font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>svg>foreignObject .contextmenu.visible{display:flex}:host>svg>foreignObject .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>svg>foreignObject .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>svg>foreignObject .contextmenu>:focus{outline:0}";
 const listener_options = {
   capture: !0
 };
@@ -52,7 +52,7 @@ export default class GraphContextmenu extends GraphAddon {
     }
   }
   __tapCanvas() {
-    console.log("");this.__foreignObject.classList.remove("visible")
+    console.log("");this.hideContextmenu()
   }
   __contextmenuCanvas(host, event) {
     console.log(event);event.preventDefault();
@@ -72,10 +72,21 @@ export default class GraphContextmenu extends GraphAddon {
     this.showContextmenu(node.contextmenu, x, y)
   }
   showContextmenu(contextmenu, x, y) {
-    this.__foreignObject.classList.add("visible");
-    this.__foreignObject.innerHTML = "";this.__foreignObject.appendChild(contextmenu);
+    console.log(contextmenu, x, y);
+    if (this.activeContextmenu) {
+      this.activeContextmenu.classList.remove("visible")
+    }
+    contextmenu.classList.add("visible");
+    this.activeContextmenu = contextmenu;this.__foreignObject.appendChild(contextmenu);
     this.__foreignObject.x.baseVal.value = x;
     this.__foreignObject.y.baseVal.value = y
+  }
+  hideContextmenu() {
+    console.log(this.activeContextmenu);
+    if (this.activeContextmenu) {
+      this.activeContextmenu.classList.remove("visible");
+      this.activeContextmenu = void 0
+    }
   }
 }
 (async() => {

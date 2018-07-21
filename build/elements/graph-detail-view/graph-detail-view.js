@@ -18,10 +18,10 @@ export default class GraphDetailView extends GraphAddon {
   }
   hosted(host) {
     const hammer = new Hammer(this);
-    hammer.on("tap", event => {
+    hammer.on("tap", async event => {
       try {
         if (event.srcEvent.path[0] === this) {
-          this.__tapDetailView(host)
+          await this.__tapDetailView(host)
         }
       } catch (error) {
         console.error(error)
@@ -41,59 +41,79 @@ export default class GraphDetailView extends GraphAddon {
         node.hammer = new Hammer(node.element)
       }
       if (!node.detailViewInstalled) {
-        node.detailViewInstalled = !0;node.hammer.on("tap", this.__tapNode.bind(this, host, node))
+        node.detailViewInstalled = !0;node.hammer.on("tap", async() => {
+          try {
+            this.__tapNode(node)
+          } catch (error) {
+            console.error(error)
+          }
+        })
       }
     }
   }
-  __tapNode(host, node) {
-    var _Mathabs = Math.abs;
-    this.activeNode = node;
-    const element = node.element,
-      active_clone = element.cloneNode(!0);
-    this.__activeClone = active_clone;host.svg.appendChild(active_clone);return new Promise(resolve => {
-      const keyframes = [{
-        r: element.r.baseVal.value
-      }, {
-        r: Math.max(host.svg.width.baseVal.value / 2 + _Mathabs(this.activeNode.x), host.svg.height.baseVal.value / 2 + _Mathabs(this.activeNode.y)) * Math.SQRT2
-      }];
-      active_clone.animate(keyframes, {
-        duration: 700,
-        fill: "both"
-      }).addEventListener("finish", () => {
-        this.classList.add("visible");this.animate([{
-          opacity: 0
-        }, {
-          opacity: 1
-        }], 300).addEventListener("finish", () => {
-          resolve()
-        })
-      })
-    })
+  __tapNode(node) {
+    return this.showDetailView(node)
   }
-  __tapDetailView(host) {
-    var _Mathabs2 = Math.abs;
-    const element = this.__activeClone;
-    this.classList.remove("visible");return new Promise(resolve => {
-      this.animate([{
-        opacity: 1
-      }, {
-        opacity: 0
-      }], 200).addEventListener("finish", () => {
+  __tapDetailView() {
+    return this.hideDetailView()
+  }
+  async showDetailView(node) {
+    var _Mathabs = Math.abs;
+    const host = await this.host;
+    if (this.activeNode && this.activeNode !== node) {
+      await this.hideDetailView(host)
+    } else {
+      this.activeNode = node;
+      const element = node.element,
+        active_clone = element.cloneNode(!0);
+      this.__activeClone = active_clone;host.graphGroup.appendChild(active_clone);await new Promise(resolve => {
         const keyframes = [{
-          r: Math.max(host.svg.width.baseVal.value / 2 + _Mathabs2(this.activeNode.x), host.svg.height.baseVal.value / 2 + _Mathabs2(this.activeNode.y)) * Math.SQRT2
-        }, {
           r: element.r.baseVal.value
+        }, {
+          r: Math.max(host.svg.width.baseVal.value / 2 + _Mathabs(this.activeNode.x), host.svg.height.baseVal.value / 2 + _Mathabs(this.activeNode.y)) * Math.SQRT2
         }];
-        element.animate(keyframes, {
-          duration: 600,
+        active_clone.animate(keyframes, {
+          duration: 700,
           fill: "both"
         }).addEventListener("finish", () => {
-          host.svg.removeChild(element);
-          this.__activeClone = void 0;
-          this.activeNode = void 0;resolve()
+          this.classList.add("visible");this.animate([{
+            opacity: 0
+          }, {
+            opacity: 1
+          }], 300).addEventListener("finish", () => {
+            resolve()
+          })
         })
       })
-    })
+    }
+  }
+  async hideDetailView() {
+    var _Mathabs2 = Math.abs;
+    const host = await this.host;
+    if (this.activeNode) {
+      const element = this.__activeClone;
+      this.classList.remove("visible");await new Promise(resolve => {
+        this.animate([{
+          opacity: 1
+        }, {
+          opacity: 0
+        }], 200).addEventListener("finish", () => {
+          const keyframes = [{
+            r: Math.max(host.svg.width.baseVal.value / 2 + _Mathabs2(this.activeNode.x), host.svg.height.baseVal.value / 2 + _Mathabs2(this.activeNode.y)) * Math.SQRT2
+          }, {
+            r: element.r.baseVal.value
+          }];
+          element.animate(keyframes, {
+            duration: 600,
+            fill: "both"
+          }).addEventListener("finish", () => {
+            element.parentElement.removeChild(element);
+            this.__activeClone = void 0;
+            this.activeNode = void 0;resolve()
+          })
+        })
+      })
+    }
   }
 }
 (async() => {

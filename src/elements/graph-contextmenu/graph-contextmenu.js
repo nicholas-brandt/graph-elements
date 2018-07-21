@@ -66,7 +66,7 @@ class GraphContextmenu extends GraphAddon {
     }
     __tapCanvas() {
         console.log("");
-        this.__foreignObject.classList.remove("visible");
+        this.hideContextmenu();
     }
     __contextmenuCanvas(host, event) {
         console.log(event);
@@ -90,11 +90,25 @@ class GraphContextmenu extends GraphAddon {
         this.showContextmenu(node.contextmenu, x, y);
     }
     showContextmenu(contextmenu, x, y) {
-        this.__foreignObject.classList.add("visible");
-        this.__foreignObject.innerHTML = "";
+        console.log(contextmenu, x, y);
+        if (this.activeContextmenu) {
+            this.activeContextmenu.classList.remove("visible");
+        }
+        contextmenu.classList.add("visible");
+        this.activeContextmenu = contextmenu;
+        // this.__foreignObject.classList.add("visible");
+        // this.__foreignObject.innerHTML = "";
         this.__foreignObject.appendChild(contextmenu);
         this.__foreignObject.x.baseVal.value = x;
         this.__foreignObject.y.baseVal.value = y;
+    }
+    hideContextmenu() {
+        console.log(this.activeContextmenu);
+        // this.__foreignObject.classList.remove("visible");
+        if (this.activeContextmenu) {
+            this.activeContextmenu.classList.remove("visible");
+            this.activeContextmenu = undefined;
+        }
     }
 }
 (async () => {

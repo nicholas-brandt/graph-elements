@@ -31,11 +31,11 @@ class GraphDetailView extends GraphAddon {
     hosted(host) {
         // add tap listener to detail view
         const hammer = new Hammer(this);
-        hammer.on("tap", event => {
+        hammer.on("tap", async event => {
             try {
                 // only accept event if it originates from the graph-detail-view not from its children
                 if (event.srcEvent.path[0] === this) {
-                    this.__tapDetailView(host);
+                    await this.__tapDetailView(host);
                 }
             } catch (error) {
                 console.error(error);
@@ -62,70 +62,90 @@ class GraphDetailView extends GraphAddon {
             }
             if (!node.detailViewInstalled) {
                 node.detailViewInstalled = true;
-                node.hammer.on("tap", this.__tapNode.bind(this, host, node));
+                node.hammer.on("tap", async () => {
+                    try {
+                        this.__tapNode(node);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
             }
         }
     }
-    __tapNode(host, node) {
+    __tapNode(node) {
         // console.log("tap");
-        this.activeNode = node;
-        const element = node.element;
-        const active_clone = element.cloneNode(true);
-        this.__activeClone = active_clone;
-        // circle specific !!!
-        host.svg.appendChild(active_clone);
-        return new Promise(resolve => {
-            const keyframes = [{
-                r: element.r.baseVal.value
-            }, {
-                r: Math.max(host.svg.width.baseVal.value / 2 + Math.abs(this.activeNode.x), host.svg.height.baseVal.value / 2 + Math.abs(this.activeNode.y)) * Math.SQRT2
-            }];
-            active_clone.animate(keyframes, {
-                duration: 700,
-                fill: "both"
-            }).addEventListener("finish", () => {
-                this.classList.add("visible");
-                const keyframes = [{
-                    opacity: 0
-                }, {
-                    opacity: 1
-                }];
-                this.animate(keyframes, 300).addEventListener("finish", () => {
-                    resolve();
-                });
-            });
-        });
+        return this.showDetailView(node);
     }
     __tapDetailView(host) {
-        // console.log(event);
-        // hide detail view
-        const element = this.__activeClone;
-        // const {strokeWidth} = getComputedStyle(element);
-        this.classList.remove("visible");
-        // circle specific !!!
-        return new Promise(resolve => {
-            const keyframes = [{
-                opacity: 1
-            }, {
-                opacity: 0
-            }];
-            this.animate(keyframes, 200).addEventListener("finish", () => {
+        return this.hideDetailView();
+    }
+    async showDetailView(node) {
+        const host = await this.host;
+        if (this.activeNode && this.activeNode !== node) {
+            await this.hideDetailView(host);
+        } else {
+            this.activeNode = node;
+            const element = node.element;
+            const active_clone = element.cloneNode(true);
+            this.__activeClone = active_clone;
+            // circle specific !!!
+            host.graphGroup.appendChild(active_clone);
+            await new Promise(resolve => {
                 const keyframes = [{
-                    r: Math.max(host.svg.width.baseVal.value / 2 + Math.abs(this.activeNode.x), host.svg.height.baseVal.value / 2 + Math.abs(this.activeNode.y)) * Math.SQRT2
+                    r: element.r.baseVal.value
                 }, {
-                    r: element.r.baseVal.value // + parseFloat(strokeWidth)
+                    r: Math.max(host.svg.width.baseVal.value / 2 + Math.abs(this.activeNode.x), host.svg.height.baseVal.value / 2 + Math.abs(this.activeNode.y)) * Math.SQRT2
                 }];
-                element.animate(keyframes, {
-                    duration: 600,
+                active_clone.animate(keyframes, {
+                    duration: 700,
                     fill: "both"
                 }).addEventListener("finish", () => {
-                    host.svg.removeChild(element);
-                    this.__activeClone = undefined;
-                    this.activeNode = undefined;
-                    resolve();
+                    this.classList.add("visible");
+                    const keyframes = [{
+                        opacity: 0
+                    }, {
+                        opacity: 1
+                    }];
+                    this.animate(keyframes, 300).addEventListener("finish", () => {
+                        resolve();
+                    });
                 });
             });
-        });
+        }
+    }
+    async hideDetailView() {
+        const host = await this.host;
+        if (this.activeNode) {
+            // console.log(event);
+            // hide detail view
+            const element = this.__activeClone;
+            // const {strokeWidth} = getComputedStyle(element);
+            this.classList.remove("visible");
+            // circle specific !!!
+            await new Promise(resolve => {
+                const keyframes = [{
+                    opacity: 1
+                }, {
+                    opacity: 0
+                }];
+                this.animate(keyframes, 200).addEventListener("finish", () => {
+                    const keyframes = [{
+                        r: Math.max(host.svg.width.baseVal.value / 2 + Math.abs(this.activeNode.x), host.svg.height.baseVal.value / 2 + Math.abs(this.activeNode.y)) * Math.SQRT2
+                    }, {
+                        r: element.r.baseVal.value // + parseFloat(strokeWidth)
+                    }];
+                    element.animate(keyframes, {
+                        duration: 600,
+                        fill: "both"
+                    }).addEventListener("finish", () => {
+                        element.parentElement.removeChild(element);
+                        this.__activeClone = undefined;
+                        this.activeNode = undefined;
+                        resolve();
+                    });
+                });
+            });
+        }
     }
 }
 (async () => {

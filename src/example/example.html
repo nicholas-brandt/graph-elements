@@ -11,6 +11,8 @@
     <script src="../../build/elements/graph-modifier/graph-modifier.js" type="module" async></script>
     <script src="../../build/elements/graph-contextmenu/graph-contextmenu.js" type="module" async></script>
     <script src="https://hammerjs.github.io/dist/hammer.js" async></script>
+    
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <script type="module">
         import Graph from "https://rawgit.com/mhelvens/graph.js/master/dist/graph.es6.js";
         window.Graph = Graph;
@@ -55,10 +57,18 @@
         <graph-tracker tracking-mode=""></graph-tracker>
         <graph-modifier></graph-modifier>
         <graph-contextmenu>
-            <div>
-                test div
-            </div>
-            <input type="text" value="test value">
+            <template id="node">
+                <div>
+                    ndoe div
+                </div>
+                <input type="text" value="test value">
+            </template>
+            <template id="canvas">
+                <div>
+                    canvas div
+                </div>
+                <input type="text" value="test value">
+            </template>
         </graph-contextmenu>
     </graph-display>
 </body>

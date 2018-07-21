@@ -6,26 +6,24 @@ import require from "../../helper/require.js";
 // import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-contextmenu/graph-contextmenu.css -->";
+const listener_options = {
+    capture: true
+};
 export default
 class GraphContextmenu extends GraphAddon {
     constructor() {
         super();
-        this.contextmenuElement = document.createElement("div");
-        this.contextmenuElement.classList.add("contextmenu");
-        /*this.contextmenuElement.addEventListener("contextmenu", event => {
-            event.preventDefault();
-            event.stopPropagation();
-        });*/
-        for (const child of [...this.children]) {
-            this.contextmenuElement.appendChild(child);
-        }
+        this.__foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+        this.canvasTemplate = this.querySelector("#canvas");
+        this.contextmenu = document.createElement("div");
+        this.contextmenu.classList.add("contextmenu");
+        const canvas_contextmenu = document.importNode(this.canvasTemplate.content, true);
+        this.contextmenu.appendChild(canvas_contextmenu);
+        this.nodeTemplate = this.querySelector("#node");
         // add style
         this.appendChild(style.cloneNode(true));
     }
-    async hosted() {
-        const host = await this.host;
-        this.__foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
-        this.__foreignObject.appendChild(this.contextmenuElement);
+    hosted(host) {
         host.svg.appendChild(this.__foreignObject);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
@@ -41,14 +39,14 @@ class GraphContextmenu extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
-        });
+        }, listener_options);
         host.shadowRoot.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
             } catch (error) {
                 console.error(error);
             }
-        });
+        }, listener_options);
         this.__bindNodes(host);
     }
     __bindNodes(host) {
@@ -62,7 +60,7 @@ class GraphContextmenu extends GraphAddon {
                     } catch (error) {
                         console.error(error);
                     }
-                });
+                }, listener_options);
             }
         }
     }
@@ -75,21 +73,28 @@ class GraphContextmenu extends GraphAddon {
         event.preventDefault();
         const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
         const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
-        this.showContextmenu(host, x, y);
+        this.showContextmenu(this.contextmenu, x, y);
     }
     __contextmenuNode(host, node, event) {
         console.log(node, event);
         event.preventDefault();
         event.stopPropagation();
+        if (!node.contextmenu) {
+            node.contextmenu = document.createElement("div");
+            node.contextmenu.classList.add("contextmenu");
+            const node_contextmenu = document.importNode(this.nodeTemplate.content, true);
+            node.contextmenu.appendChild(node_contextmenu);
+        }
         const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
         const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
-        this.showContextmenu(host, x, y);
+        this.showContextmenu(node.contextmenu, x, y);
     }
-    showContextmenu(host, x, y) {
+    showContextmenu(contextmenu, x, y) {
         this.__foreignObject.classList.add("visible");
-        host.svg.appendChild(this.__foreignObject);
+        this.__foreignObject.innerHTML = "";
+        this.__foreignObject.appendChild(contextmenu);
         this.__foreignObject.x.baseVal.value = x;
-        this.__foreignObject.y.baseVal.value = y; 
+        this.__foreignObject.y.baseVal.value = y;
     }
 }
 (async () => {

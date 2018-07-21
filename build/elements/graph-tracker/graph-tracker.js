@@ -54,10 +54,8 @@ export default class GraphTracker extends GraphAddon {
     this.trackingCount = 30;
     this.trackingInitialTime = 10
   }
-  async hosted() {
-    console.log("");
-    const host = await this.host;
-    host.shadowRoot.addEventListener("graph-structure-change", () => {
+  hosted(host) {
+    console.log("");host.shadowRoot.addEventListener("graph-structure-change", () => {
       try {
         this.__bindNodes(host)
       } catch (error) {

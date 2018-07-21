@@ -3,32 +3,10 @@ const style = document.createElement("style");
 style.textContent = ":host>svg>circle.node{transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>circle.node.modifying{fill:#8bc34a;stroke:#33691e;stroke-dasharray:8,2}";
 export default class GraphModifier extends GraphAddon {
   constructor() {
-    super();
-    let _tracking_mode;
-    Object.defineProperties(this, {
-      trackingMode: {
-        get() {
-          return _tracking_mode
-        },
-        set(tracking_mode) {
-          switch (tracking_mode) {
-            case "hiding":
-              _tracking_mode = "hiding";
-              break;case "normal":
-              _tracking_mode = "normal";
-              break;default:
-              _tracking_mode = "adaptive";
-          }
-        },
-        configurable: !0,
-        enumerable: !0
-      }
-    });
-    this.trackingMode = this.getAttribute("tracking-mode");this.appendChild(style.cloneNode(!0))
+    super();this.appendChild(style.cloneNode(!0))
   }
-  async hosted() {
+  hosted(host) {
     console.log("");
-    const host = await this.host;
     if (!host.svg.hammer) {
       host.svg.hammer = new Hammer(host.svg)
     }

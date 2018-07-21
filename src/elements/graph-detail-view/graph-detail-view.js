@@ -28,8 +28,7 @@ class GraphDetailView extends GraphAddon {
             this.shadowRoot.appendChild(child);
         }
     }
-    async hosted() {
-        const host = await this.host;
+    hosted(host) {
         // add tap listener to detail view
         const hammer = new Hammer(this);
         hammer.on("tap", event => {

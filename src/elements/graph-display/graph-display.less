@@ -11,27 +11,29 @@
         will-change: transform;
         transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
         transform: translateZ(0);
-        >* {
-            touch-action: none;
-        }
-        >circle.node {
-            fill: @node;
-            fill: var(--node-color, @node);
-            stroke: @node-stroke;
-            stroke-dasharray: @node-stroke-dasharray;
-            stroke-width: @node-stroke-width;
-            transition: opacity 0.5s, fill 0.5s;
-        }
-        >path.link {
-            pointer-events: none;
-            fill: @link;
-            fill: var(--link-color, @link);
-            stroke: @link;
-            stroke-width: 1px;
-            transition: opacity 0.5s;
-            &[loop] {
-                fill: none;
-                stroke-width: 2px;
+        >g {
+            >* {
+                touch-action: none;
+            }
+            >circle.node {
+                fill: @node;
+                fill: var(--node-color, @node);
+                stroke: @node-stroke;
+                stroke-dasharray: @node-stroke-dasharray;
+                stroke-width: @node-stroke-width;
+                transition: opacity 0.5s, fill 0.5s;
+            }
+            >path.link {
+                pointer-events: none;
+                fill: @link;
+                fill: var(--link-color, @link);
+                stroke: @link;
+                stroke-width: 1px;
+                transition: opacity 0.5s;
+                &[loop] {
+                    fill: none;
+                    stroke-width: 2px;
+                }
             }
         }
     }

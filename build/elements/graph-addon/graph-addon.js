@@ -22,9 +22,10 @@ export default class GraphAddon extends HTMLElement {
       })
     });
     (async() => {
-      await host_promise;try {
+      const host = await host_promise;
+      try {
         if ("function" == typeof this.hosted) {
-          this.hosted()
+          await this.hosted(host)
         }
       } catch (error) {
         console.error(error)

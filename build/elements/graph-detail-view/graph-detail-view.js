@@ -16,9 +16,8 @@ export default class GraphDetailView extends GraphAddon {
       this.shadowRoot.appendChild(child)
     }
   }
-  async hosted() {
-    const host = await this.host,
-      hammer = new Hammer(this);
+  hosted(host) {
+    const hammer = new Hammer(this);
     hammer.on("tap", event => {
       try {
         if (event.srcEvent.path[0] === this) {

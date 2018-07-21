@@ -11,35 +11,11 @@ export default
 class GraphModifier extends GraphAddon {
     constructor() {
         super();
-        let _tracking_mode;
-        Object.defineProperties(this, {
-            trackingMode: {
-                get() {
-                    return _tracking_mode;
-                },
-                set(tracking_mode) {
-                    switch (tracking_mode) {
-                        case "hiding":
-                            _tracking_mode = "hiding";
-                            break;
-                        case "normal":
-                            _tracking_mode = "normal";
-                            break;
-                        default:
-                            _tracking_mode = "adaptive";
-                    }
-                },
-                configurable: true,
-                enumerable: true
-            }
-        })
-        this.trackingMode = this.getAttribute("tracking-mode");
         // add style
         this.appendChild(style.cloneNode(true));
     }
-    async hosted() {
+    hosted(host) {
         console.log("");
-        const host = await this.host;
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
         }

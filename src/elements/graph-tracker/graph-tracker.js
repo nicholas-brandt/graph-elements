@@ -63,9 +63,8 @@ class GraphTracker extends GraphAddon {
         this.trackingCount = 30;
         this.trackingInitialTime = 10;
     }
-    async hosted() {
+    hosted(host) {
         console.log("");
-        const host = await this.host;
         host.shadowRoot.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);

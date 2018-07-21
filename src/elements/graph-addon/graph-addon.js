@@ -31,10 +31,10 @@ class GraphAddon extends HTMLElement {
             });
         });
         (async () => {
-            await host_promise;
+            const host = await host_promise;
             try {
                 if (typeof this.hosted == "function") {
-                    this.hosted();
+                    await this.hosted(host);
                 }
             } catch (error) {
                 console.error(error);

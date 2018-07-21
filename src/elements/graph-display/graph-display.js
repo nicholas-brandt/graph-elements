@@ -13,6 +13,8 @@ export class GraphDisplay extends HTMLElement {
             mode: "open"
         });
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.graphGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.svg.appendChild(this.graphGroup);
         this.__requestBroadcast = requestAnimationFunction(event_name => {
             this.__broadcast(event_name);
         });
@@ -130,10 +132,10 @@ export class GraphDisplay extends HTMLElement {
         }
         // add non-existent
         for (const link_element of valid_link_elements) {
-            this.svg.appendChild(link_element);
+            this.graphGroup.appendChild(link_element);
         }
         for (const node_element of valid_node_elements) {
-            this.svg.appendChild(node_element);
+            this.graphGroup.appendChild(node_element);
         }
     }
     __requestPaintNode(node) {

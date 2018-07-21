@@ -1,4 +1,4 @@
-import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";import requestTimeDifference from "../../helper/requestTimeDifference.js";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+"use strict";import console from "../../helper/console.js";import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";import requestTimeDifference from "../../helper/requestTimeDifference.js";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 export default class GraphTracker extends GraphAddon {
   constructor() {
     super();
@@ -55,7 +55,7 @@ export default class GraphTracker extends GraphAddon {
     this.trackingInitialTime = 10
   }
   async hosted() {
-    console.log("graph-tracker: attach link in to host");
+    console.log("");
     const host = await this.host;
     host.shadowRoot.addEventListener("graph-structure-change", () => {
       try {
@@ -66,7 +66,7 @@ export default class GraphTracker extends GraphAddon {
     });this.__bindNodes(host)
   }
   __bindNodes(host) {
-    console.log("graph-tracker: bind tracker to nodes");
+    console.log("");
     for (const [key, node] of host.nodes) {
       if (!node.hammer) {
         node.hammer = new Hammer(node.element)
@@ -80,7 +80,7 @@ export default class GraphTracker extends GraphAddon {
   }
   async __trackNode(host, node, event) {
     try {
-      console.log("graph-tracker: node track event", event);
+      console.log(event);
       node.x += event.deltaX - (node.__deltaX || 0);
       node.y += event.deltaY - (node.__deltaY || 0);
       node.__deltaX = event.isFinal ? 0 : event.deltaX;
@@ -107,7 +107,7 @@ export default class GraphTracker extends GraphAddon {
     node.tracking = !1;node.element.classList.remove("tracking");this.__unhideLinks(host, node)
   }
   __hideLinks(host, node) {
-    console.log("graph-tracker: hide links");
+    console.log("");
     node.links_hidden = !0;
     for (const [source, target, link] of host.graph.edges()) {
       if (source == node.key || target == node.key) {
@@ -125,7 +125,7 @@ export default class GraphTracker extends GraphAddon {
   }
   __unhideLinks(host, node) {
     if (node.links_hidden) {
-      node.links_hidden = !1;console.log("graph-tracker: unhiding links");
+      node.links_hidden = !1;console.log("");
       for (const [source, target, link] of host.graph.edges()) {
         if (source == node.key || target == node.key) {
           link.element.style.visibility = "";

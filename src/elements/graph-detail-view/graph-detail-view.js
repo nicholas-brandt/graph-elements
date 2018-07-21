@@ -1,6 +1,5 @@
 "use strict";
-import createConsole from "../../helper/console.js";
-const console = createConsole("graph-detail-view");
+import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
@@ -54,7 +53,7 @@ class GraphDetailView extends GraphAddon {
         this.__bindNodes(host);
     }
     __bindNodes(host) {
-        console.log("bind tracker to nodes");
+        console.log("");
         // TODO: check if node already has a tap-listener
         // add tap listener to new elements
         for (const [, node] of host.nodes) {

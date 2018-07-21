@@ -1,6 +1,4 @@
-"use strict";import createConsole from "../../helper/console.js";
-const console = createConsole("graph-contextmenu");
-import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";
+"use strict";import console from "../../helper/console.js";import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";
 const style = document.createElement("style");
 style.textContent = ":host>svg>foreignObject{display:none}:host>svg>foreignObject.visible{display:block}:host>svg>foreignObject .contextmenu{font:13px Roboto;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>svg>foreignObject .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>svg>foreignObject .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>svg>foreignObject .contextmenu>:focus{outline:0}";
 export default class GraphContextmenu extends GraphAddon {
@@ -37,7 +35,7 @@ export default class GraphContextmenu extends GraphAddon {
     });this.__bindNodes(host)
   }
   __bindNodes(host) {
-    console.log("bind tracker to nodes");
+    console.log("");
     for (const [key, node] of host.nodes) {
       if (!node.contextmenuInstalled) {
         node.contextmenuInstalled = !0;node.element.addEventListener("contextmenu", event => {
@@ -51,16 +49,16 @@ export default class GraphContextmenu extends GraphAddon {
     }
   }
   __tapCanvas() {
-    console.log("tap canvas");this.__foreignObject.classList.remove("visible")
+    console.log("");this.__foreignObject.classList.remove("visible")
   }
   __contextmenuCanvas(host, event) {
-    console.log("context menu canvas", event);event.preventDefault();
+    console.log(event);event.preventDefault();
     const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width,
       y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
     this.showContextmenu(host, x, y)
   }
   __contextmenuNode(host, node, event) {
-    console.log("context menu node", node, event);event.preventDefault();event.stopPropagation();
+    console.log(node, event);event.preventDefault();event.stopPropagation();
     const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width,
       y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
     this.showContextmenu(host, x, y)

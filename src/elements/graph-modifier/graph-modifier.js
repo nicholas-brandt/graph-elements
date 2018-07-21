@@ -1,6 +1,5 @@
 "use strict";
-import createConsole from "../../helper/console.js";
-const console = createConsole("graph-modifier");
+import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
@@ -39,7 +38,7 @@ class GraphModifier extends GraphAddon {
         this.appendChild(style.cloneNode(true));
     }
     async hosted() {
-        console.log("attach link in to host");
+        console.log("");
         const host = await this.host;
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
@@ -79,7 +78,7 @@ class GraphModifier extends GraphAddon {
         }
     }
     __bindNodes(host) {
-        console.log("bind tracker to nodes");
+        console.log("");
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
@@ -104,7 +103,7 @@ class GraphModifier extends GraphAddon {
         }
     }
     __pressCanvas(host, event) {
-        console.log("press canvas", event);
+        console.log(event);
         // @IMPORTANT: ensure new vertex key
         let i = 0;
         while (host.graph.hasVertex(i)) {
@@ -121,11 +120,11 @@ class GraphModifier extends GraphAddon {
         this.selectNode(node);
     }
     __tapCanvas(host, event) {
-        console.log("canvas", event);
+        console.log(event);
         this.unselectNode();
     }
     __tapNode(host, node, event) {
-        console.log("tap", event);
+        console.log(event);
         // @WORKAROUND: invoke usual listeners when not in modifying mode
         // @TODO: event.stopImmediatePropagation();
         event.srcEvent.stopPropagation();

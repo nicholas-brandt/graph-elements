@@ -1,6 +1,4 @@
-"use strict";import createConsole from "../../helper/console.js";
-const console = createConsole("graph-modifier");
-import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";import requestTimeDifference from "../../helper/requestTimeDifference.js";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+"use strict";import console from "../../helper/console.js";import GraphAddon from "../graph-addon/graph-addon.js";import require from "../../helper/require.js";import requestTimeDifference from "../../helper/requestTimeDifference.js";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 const style = document.createElement("style");
 style.textContent = ":host>svg>circle.node{transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>circle.node.modifying{fill:#8bc34a;stroke:#33691e;stroke-dasharray:8,2}";
 export default class GraphModifier extends GraphAddon {
@@ -29,7 +27,7 @@ export default class GraphModifier extends GraphAddon {
     this.trackingMode = this.getAttribute("tracking-mode");this.appendChild(style.cloneNode(!0))
   }
   async hosted() {
-    console.log("attach link in to host");
+    console.log("");
     const host = await this.host;
     if (!host.svg.hammer) {
       host.svg.hammer = new Hammer(host.svg)
@@ -65,7 +63,7 @@ export default class GraphModifier extends GraphAddon {
     }
   }
   __bindNodes(host) {
-    console.log("bind tracker to nodes");
+    console.log("");
     for (const [key, node] of host.nodes) {
       if (!node.hammer) {
         node.hammer = new Hammer(node.element)
@@ -85,7 +83,7 @@ export default class GraphModifier extends GraphAddon {
     }
   }
   __pressCanvas(host, event) {
-    console.log("press canvas", event);
+    console.log(event);
     let i = 0;
     while (host.graph.hasVertex(i)) {
       ++i
@@ -99,10 +97,10 @@ export default class GraphModifier extends GraphAddon {
     this.selectNode(node)
   }
   __tapCanvas(host, event) {
-    console.log("canvas", event);this.unselectNode()
+    console.log(event);this.unselectNode()
   }
   __tapNode(host, node, event) {
-    console.log("tap", event);event.srcEvent.stopPropagation();
+    console.log(event);event.srcEvent.stopPropagation();
     while (1 < node.hammer.handlers.tap.length) {
       console.log("pop");node.__tapHandlers.push(node.hammer.handlers.tap.pop())
     }

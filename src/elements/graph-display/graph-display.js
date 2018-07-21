@@ -1,6 +1,5 @@
 "use strict";
-import createConsole from "../../helper/console.js";
-const console = createConsole("graph-display");
+import console from "../../helper/console.js";
 
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 import {Node, Link} from "../../helper/GraphClasses.js";
@@ -86,7 +85,7 @@ export class GraphDisplay extends HTMLElement {
         return this.__graph;
     }
     __adoptGraph() {
-        console.log("adopt graph");
+        console.log("");
         const valid_node_elements = new Set;
         const valid_link_elements = new Set;
         this.nodes.clear();
@@ -144,7 +143,7 @@ export class GraphDisplay extends HTMLElement {
         return this.__requestPaint();
     }
     __paint() {
-        console.log("paint");
+        console.log(this.__updatedNodes.size);
         // paint affected nodes
         for (const node of this.__updatedNodes) {
             node.paint();

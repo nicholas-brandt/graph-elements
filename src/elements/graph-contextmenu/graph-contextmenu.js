@@ -1,6 +1,5 @@
 "use strict";
-import createConsole from "../../helper/console.js";
-const console = createConsole("graph-contextmenu");
+import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
@@ -53,7 +52,7 @@ class GraphContextmenu extends GraphAddon {
         this.__bindNodes(host);
     }
     __bindNodes(host) {
-        console.log("bind tracker to nodes");
+        console.log("");
         for (const [key, node] of host.nodes) {
             if (!node.contextmenuInstalled) {
                 node.contextmenuInstalled = true;
@@ -68,18 +67,18 @@ class GraphContextmenu extends GraphAddon {
         }
     }
     __tapCanvas() {
-        console.log("tap canvas");
+        console.log("");
         this.__foreignObject.classList.remove("visible");
     }
     __contextmenuCanvas(host, event) {
-        console.log("context menu canvas", event);
+        console.log(event);
         event.preventDefault();
         const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
         const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
         this.showContextmenu(host, x, y);
     }
     __contextmenuNode(host, node, event) {
-        console.log("context menu node", node, event);
+        console.log(node, event);
         event.preventDefault();
         event.stopPropagation();
         const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;

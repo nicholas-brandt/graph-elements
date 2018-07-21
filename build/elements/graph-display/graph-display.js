@@ -1,6 +1,4 @@
-"use strict";import createConsole from "../../helper/console.js";
-const console = createConsole("graph-display");
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";import { Node, Link } from "../../helper/GraphClasses.js";
+"use strict";import console from "../../helper/console.js";import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";import { Node, Link } from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
 style.textContent = ":host{display:flex;flex:1;overflow:hidden;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>*{touch-action:none}:host>svg>circle.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>path.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>path.link[loop]{fill:none;stroke-width:2px}";
 export class GraphDisplay extends HTMLElement {
@@ -57,7 +55,7 @@ export class GraphDisplay extends HTMLElement {
     return this.__graph
   }
   __adoptGraph() {
-    console.log("adopt graph");
+    console.log("");
     const valid_node_elements = new Set,
       valid_link_elements = new Set;
     this.nodes.clear();this.links.clear();
@@ -98,7 +96,7 @@ export class GraphDisplay extends HTMLElement {
     console.assert(this instanceof GraphDisplay, "invalid this", this);console.assert(node instanceof Node, "invalid node", node);this.__updatedNodes.add(node);return this.__requestPaint()
   }
   __paint() {
-    console.log("paint");
+    console.log(this.__updatedNodes.size);
     for (const node of this.__updatedNodes) {
       node.paint()
     }

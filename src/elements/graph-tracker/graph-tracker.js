@@ -1,3 +1,6 @@
+"use strict";
+import console from "../../helper/console.js";
+
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
@@ -61,7 +64,7 @@ class GraphTracker extends GraphAddon {
         this.trackingInitialTime = 10;
     }
     async hosted() {
-        console.log("graph-tracker: attach link in to host");
+        console.log("");
         const host = await this.host;
         host.shadowRoot.addEventListener("graph-structure-change", event => {
             try {
@@ -73,7 +76,7 @@ class GraphTracker extends GraphAddon {
         this.__bindNodes(host);
     }
     __bindNodes(host) {
-        console.log("graph-tracker: bind tracker to nodes");
+        console.log("");
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
@@ -90,7 +93,7 @@ class GraphTracker extends GraphAddon {
     }
     async __trackNode(host, node, event) {
         try {
-            console.log("graph-tracker: node track event", event);
+            console.log(event);
             // event.srcEvent.stopPropagation();
             node.x += event.deltaX - (node.__deltaX || 0);
             node.y += event.deltaY - (node.__deltaY || 0);
@@ -130,7 +133,7 @@ class GraphTracker extends GraphAddon {
         this.__unhideLinks(host, node);
     }
     __hideLinks(host, node) {
-        console.log("graph-tracker: hide links");
+        console.log("");
         node.links_hidden = true;
         for (const [source, target, link] of host.graph.edges()) {
             if (source == node.key || target == node.key) {
@@ -149,7 +152,7 @@ class GraphTracker extends GraphAddon {
     __unhideLinks(host, node) {
         if (node.links_hidden) {
             node.links_hidden = false;
-            console.log("graph-tracker: unhiding links");
+            console.log("");
             for (const [source, target, link] of host.graph.edges()) {
                 if (source == node.key || target == node.key) {
                     link.element.style.visibility = "";

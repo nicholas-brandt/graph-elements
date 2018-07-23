@@ -3,35 +3,34 @@
 @menu-distance: 10px;
 
 :host {
-    >svg {
-        >foreignObject {
-            display: block;
-            .contextmenu {
-                font: 13px Roboto;
-                display: none;
-                flex-direction: column;
-                overflow-x: hidden;
-                overflow-y: auto;
-                width: fit-content;
-                border-radius: 1px;
-                box-shadow: 0 1px 5px ~"hsl(0, 0%, 60%)";
-                background: white;
-                padding: @menu-distance / 2 0;
-                &.visible {
-                    display: flex;
-                }
-                >* {
-                    flex: 0 0 auto;
-                    padding: @menu-distance / 2 @menu-distance * 2;
-                    border: 0 none;
-                    margin: 0;
-                }
-                >:hover {
-                    background: ~"hsl(0, 0%, 60%, 30%)";
-                }
-                >:focus {
-                    outline: none;
-                }
+    >#contextmenus {
+        position: absolute;
+        display: block;
+        .contextmenu {
+            font: 13px Roboto;
+            display: none;
+            flex-direction: column;
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: fit-content;
+            border-radius: 1px;
+            box-shadow: 0 1px 5px ~"hsl(0, 0%, 60%)";
+            background: white;
+            padding: @menu-distance / 2 0;
+            &.visible {
+                display: flex;
+            }
+            >* {
+                flex: 0 0 auto;
+                padding: @menu-distance / 2 @menu-distance * 2;
+                border: 0 none;
+                margin: 0;
+            }
+            >:hover {
+                background: ~"hsl(0, 0%, 60%, 30%)";
+            }
+            >:focus {
+                outline: none;
             }
         }
     }

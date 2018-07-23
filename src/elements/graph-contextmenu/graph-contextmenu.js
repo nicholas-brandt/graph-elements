@@ -13,7 +13,8 @@ export default
 class GraphContextmenu extends GraphAddon {
     constructor() {
         super();
-        this.__foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
+        this.__contextmenusElement = document.createElement("div");
+        this.__contextmenusElement.id = "contextmenus";
         this.canvasTemplate = this.querySelector("#canvas");
         if (this.canvasTemplate) {
             this.canvasContextmenu = document.createElement("div");
@@ -27,7 +28,7 @@ class GraphContextmenu extends GraphAddon {
     }
     async hosted(host) {
         console.log("");
-        host.svg.appendChild(this.__foreignObject);
+        host.shadowRoot.appendChild(this.__contextmenusElement);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
         }
@@ -91,9 +92,11 @@ class GraphContextmenu extends GraphAddon {
     __contextmenuCanvas(host, event) {
         console.log(event);
         event.preventDefault();
-        const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
-        const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
-        this.showContextmenu(this.canvasContextmenu, x, y);
+        // const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
+        // const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
+        const x = event.pageX - host.offsetLeft + "px";
+        const y = event.pageY - host.offsetTop + "px";
+        return this.showContextmenu(this.canvasContextmenu, x, y);
     }
     async __contextmenuNode(node, event) {
         console.log(node, event);
@@ -110,26 +113,40 @@ class GraphContextmenu extends GraphAddon {
                 this.nodeInitializer(node);
             }
         }
-        const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
-        const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
+        // const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
+        // const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
+        const x = event.pageX - host.offsetLeft + "px";
+        const y = event.pageY - host.offsetTop + "px";
         this.showContextmenu(node.contextmenu, x, y);
     }
-    showContextmenu(contextmenu, x, y) {
+    async showContextmenu(contextmenu, x, y) {
         console.log(contextmenu, x, y);
         if (this.activeContextmenu) {
             this.activeContextmenu.classList.remove("visible");
         }
         contextmenu.classList.add("visible");
         this.activeContextmenu = contextmenu;
-        // this.__foreignObject.classList.add("visible");
-        // this.__foreignObject.innerHTML = "";
-        this.__foreignObject.appendChild(contextmenu);
-        this.__foreignObject.x.baseVal.value = x;
-        this.__foreignObject.y.baseVal.value = y;
+        // this.__contextmenusElement.classList.add("visible");
+        // this.__contextmenusElement.innerHTML = "";
+        this.__contextmenusElement.appendChild(contextmenu);
+        // this.__contextmenusElement.x.baseVal.value = x;
+        // this.__contextmenusElement.y.baseVal.value = y;
+        this.__contextmenusElement.style.left = x;
+        this.__contextmenusElement.style.top = y;
+        // prevent overlapping
+        const host = await this.host;
+        const max_x = innerWidth - contextmenu.clientWidth - host.offsetLeft;
+        if (parseFloat(x) > max_x) {
+            this.__contextmenusElement.style.left = max_x + "px";
+        }
+        const max_y = innerHeight - contextmenu.clientHeight - host.offsetTop - 1;
+        if (parseFloat(y) > max_y) {
+            this.__contextmenusElement.style.top = max_y + "px";
+        }
     }
     hideContextmenu() {
         console.log(this.activeContextmenu);
-        // this.__foreignObject.classList.remove("visible");
+        // this.__contextmenusElement.classList.remove("visible");
         if (this.activeContextmenu) {
             this.activeContextmenu.classList.remove("visible");
             this.activeContextmenu = undefined;

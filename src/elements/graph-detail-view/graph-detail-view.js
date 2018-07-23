@@ -29,6 +29,7 @@ class GraphDetailView extends GraphAddon {
         }
     }
     hosted(host) {
+        console.log("");
         // add tap listener to detail view
         const hammer = new Hammer(this);
         hammer.on("tap", async event => {

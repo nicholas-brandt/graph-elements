@@ -104,4 +104,4 @@ class Link {
         }
         this.element.setAttribute("d", path_d);
     }
-}
+};

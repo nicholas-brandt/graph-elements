@@ -129,7 +129,7 @@ class GraphTracker extends GraphAddon {
     __trackEnd(host, node) {
         node.tracking = false;
         node.element.classList.remove("tracking");
-        this.__unhideLinks(host, node);
+        this.__showLinks(host, node);
     }
     __hideLinks(host, node) {
         console.log("");
@@ -148,7 +148,7 @@ class GraphTracker extends GraphAddon {
             }
         }
     }
-    __unhideLinks(host, node) {
+    __showLinks(host, node) {
         if (node.links_hidden) {
             node.links_hidden = false;
             console.log("");

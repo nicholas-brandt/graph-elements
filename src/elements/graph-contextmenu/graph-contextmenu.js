@@ -15,15 +15,18 @@ class GraphContextmenu extends GraphAddon {
         super();
         this.__foreignObject = document.createElementNS("http://www.w3.org/2000/svg", "foreignObject");
         this.canvasTemplate = this.querySelector("#canvas");
-        this.contextmenu = document.createElement("div");
-        this.contextmenu.classList.add("contextmenu");
-        const canvas_contextmenu = document.importNode(this.canvasTemplate.content, true);
-        this.contextmenu.appendChild(canvas_contextmenu);
+        if (this.canvasTemplate) {
+            this.canvasContextmenu = document.createElement("div");
+            this.canvasContextmenu.classList.add("contextmenu");
+            const canvas_content = document.importNode(this.canvasTemplate.content, true);
+            this.canvasContextmenu.appendChild(canvas_content);
+        }
         this.nodeTemplate = this.querySelector("#node");
         // add style
         this.appendChild(style.cloneNode(true));
     }
-    hosted(host) {
+    async hosted(host) {
+        console.log("");
         host.svg.appendChild(this.__foreignObject);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
@@ -33,13 +36,15 @@ class GraphContextmenu extends GraphAddon {
                 this.__tapCanvas();
             }
         });
+        this.canvasInitializer = await this.__getInitializer(this.canvasTemplate);
         host.svg.addEventListener("contextmenu", event => {
             try {
                 this.__contextmenuCanvas(host, event);
             } catch (error) {
                 console.error(error);
             }
-        }, listener_options);
+        });
+        this.nodeInitializer = await this.__getInitializer(this.nodeTemplate);
         host.shadowRoot.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
@@ -54,15 +59,30 @@ class GraphContextmenu extends GraphAddon {
         for (const [key, node] of host.nodes) {
             if (!node.contextmenuInstalled) {
                 node.contextmenuInstalled = true;
-                node.element.addEventListener("contextmenu", event => {
+                node.element.addEventListener("contextmenu", async event => {
                     try {
-                        this.__contextmenuNode(host, node, event);
+                        await this.__contextmenuNode(node, event);
                     } catch (error) {
                         console.error(error);
                     }
-                }, listener_options);
+                });
             }
         }
+    }
+    async __getInitializer(template) {
+        let script_url = template.dataset.script;
+        // console.log("script url", script_url);
+        if (script_url) {
+            if (!/^(?:[a-z]+:)?\/\//i.test(script_url)) {
+                const path = location.pathname.match(/(.*\/).*?/i)[1];
+                script_url = location.origin + path + script_url;
+                // console.log(path, script_url);
+            }
+            const module = await import(script_url);
+            return module.default;
+        }
+        console.warn("no initializer script specified");
+        return () => {};
     }
     __tapCanvas() {
         console.log("");
@@ -73,17 +93,22 @@ class GraphContextmenu extends GraphAddon {
         event.preventDefault();
         const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
         const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
-        this.showContextmenu(this.contextmenu, x, y);
+        this.showContextmenu(this.canvasContextmenu, x, y);
     }
-    __contextmenuNode(host, node, event) {
+    async __contextmenuNode(node, event) {
         console.log(node, event);
         event.preventDefault();
         event.stopPropagation();
+        const host = await this.host;
         if (!node.contextmenu) {
-            node.contextmenu = document.createElement("div");
-            node.contextmenu.classList.add("contextmenu");
-            const node_contextmenu = document.importNode(this.nodeTemplate.content, true);
-            node.contextmenu.appendChild(node_contextmenu);
+            if (this.nodeTemplate) {
+                // create contextmenu from template
+                node.contextmenu = document.createElement("div");
+                node.contextmenu.classList.add("contextmenu");
+                const node_content = document.importNode(this.nodeTemplate.content, true);
+                node.contextmenu.appendChild(node_content);
+                this.nodeInitializer(node);
+            }
         }
         const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
         const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;

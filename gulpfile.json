@@ -4,14 +4,7 @@
             "scripts": {
                 "src": "src/**/*.js",
                 "dest": "build",
-                "chain": ["gulp-inject-file", "gulp-babel-minify", "gulp-esformatter"],
-                "dependencies": ["stylesheets", "injected-scripts"],
-                "watch": false
-            },
-            "injected-scripts": {
-                "src": "src/**/*.inject.js",
-                "dest": "build",
-                "chain": ["gulp-babel-minify", "gulp-esformatter"],
+                "chain": ["gulp-inject-file", "gulp-babel"],
                 "dependencies": ["stylesheets"],
                 "watch": false
             },
@@ -35,7 +28,7 @@
             "simplify": false
         },
         "gulp-babel": {
-            "presets": ["stage-3"]
+            "plugins": ["syntax-dynamic-import"]
         },
         "gulp-esformatter": {},
         "gulp-inject-file": {}

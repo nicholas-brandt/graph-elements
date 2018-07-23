@@ -20,12 +20,16 @@
         graph.addVertex(0);
         graph.addVertex(1);
         graph.addEdge(0, 1);
-        for (let i = 2; i < 1e2; ++i) graph.addVertex(i, {
-            x: Math.random() * 600 - 300,
-            y: Math.random() * 600 - 300
-        });
+        for (let i = 2; i < 1e2; ++i) {
+            graph.addVertex(i, {
+                x: Math.random() * 600 - 300,
+                y: Math.random() * 600 - 300
+            });
+        }
          // for(let i = 0; i < 3e2; ++i) graph.addEdge(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100));
-        for (let i = 0, a; i < 3e3; ++i) graph.addEdge(a = Math.floor(Math.random() * 1e2), (a + 1) % 1e2);
+        for (let i = 0, a; i < 3e3; ++i) {
+            graph.addEdge(a = Math.floor(Math.random() * 1e2), (a + 1) % 1e2);
+        }
         window.graph = graph;
         console.log(graph);
         (async() => {

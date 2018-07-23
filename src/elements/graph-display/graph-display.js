@@ -14,6 +14,7 @@ export class GraphDisplay extends HTMLElement {
         });
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.graphGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.graphGroup.id = "graph-group";
         this.svg.appendChild(this.graphGroup);
         this.__requestBroadcast = requestAnimationFunction(event_name => {
             this.__broadcast(event_name);
@@ -21,6 +22,7 @@ export class GraphDisplay extends HTMLElement {
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();
+            this.dispatchEvent(new Event("resize"));
         });
         new ResizeObserver(() => {
             request_resize();
@@ -124,7 +126,7 @@ export class GraphDisplay extends HTMLElement {
             }
         }
         // ensure only valid children are present
-        for (const child of [...this.svg.children]) {
+        for (const child of [...this.graphGroup.children]) {
             if (child.classList.contains("node") && !valid_node_elements.has(child)
                || child.classList.contains("link") && !valid_link_elements.has(child)) {
                 child.parentNode.removeChild(child);

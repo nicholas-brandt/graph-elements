@@ -67,6 +67,7 @@ class GraphModifier extends GraphAddon {
                 // TODO: no stopImmediatePropagation available in hammer.js
                 // e.g. detail-view tap is still triggered
                 node.__tapHandlers = node.hammer.handlers.tap || [];
+                console.log("tap handlers", node.__tapHandlers);
                 node.hammer.off("tap");
                 node.hammer.on("tap", event => {
                     try {
@@ -75,6 +76,14 @@ class GraphModifier extends GraphAddon {
                         console.error(error);
                     }
                 });
+                const _on = node.hammer.on.bind(node.hammer);
+                node.hammer.on = function(recognizer_name, callback) {
+                    if (recognizer_name == "tap") {
+                        node.__tapHandlers.push(callback);
+                    } else {
+                        _on(recognizer_name, callback);
+                    }
+                };
             }
         }
     }
@@ -93,6 +102,7 @@ class GraphModifier extends GraphAddon {
         node.y = (event.srcEvent.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
     }
     __pressNode(host, node) {
+        console.log("");
         this.selectNode(node);
     }
     __tapCanvas(host, event) {

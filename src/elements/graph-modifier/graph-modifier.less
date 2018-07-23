@@ -2,13 +2,15 @@
 
 :host {
     >svg {
-        >circle.node {
-            transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
-            &.modifying {
-                fill: @modifying-node;
-                stroke: @modifying-node-stroke;
-                // stroke-width: 5px;
-                stroke-dasharray: @modifying-node-stroke-dasharray;
+        >#graph-group {
+            >circle.node {
+                transition: opacity 0.5s, fill 0.5s, stroke-dasharray 0.5s;
+                &.modifying {
+                    fill: @modifying-node;
+                    stroke: @modifying-node-stroke;
+                    // stroke-width: 5px;
+                    stroke-dasharray: @modifying-node-stroke-dasharray;
+                }
             }
         }
     }

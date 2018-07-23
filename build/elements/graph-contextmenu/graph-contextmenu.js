@@ -28,14 +28,15 @@ export default class GraphContextmenu extends GraphAddon {
     }
     async hosted(host) {
         console.log("");
+        host.addEventListener("resize", event => {
+            this.hideContextmenu();
+        });
         host.shadowRoot.appendChild(this.__contextmenusElement);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
         }
         host.svg.hammer.on("tap", event => {
-            if (event.srcEvent.path[0] === host.svg) {
-                this.__tapCanvas();
-            }
+            this.hideContextmenu();
         });
         this.canvasInitializer = await this.__getInitializer(this.canvasTemplate);
         host.svg.addEventListener("contextmenu", event => {
@@ -84,10 +85,6 @@ export default class GraphContextmenu extends GraphAddon {
         }
         console.warn("no initializer script specified");
         return () => {};
-    }
-    __tapCanvas() {
-        console.log("");
-        this.hideContextmenu();
     }
     __contextmenuCanvas(host, event) {
         console.log(event);

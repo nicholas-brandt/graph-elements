@@ -67,7 +67,7 @@ export default class GraphModifier extends GraphAddon {
                 // TODO: no stopImmediatePropagation available in hammer.js
                 // e.g. detail-view tap is still triggered
                 node.__tapHandlers = node.hammer.handlers.tap || [];
-                console.log("tap handlers", node.__tapHandlers);
+                // console.log("tap handlers", node.__tapHandlers);
                 node.hammer.off("tap");
                 node.hammer.on("tap", event => {
                     try {

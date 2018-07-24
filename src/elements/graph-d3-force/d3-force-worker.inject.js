@@ -19,10 +19,13 @@ simulation.on("tick", () => {
     }
     // console.log(nodes.map(JSON.stringify), buffer_array);
     // dispatch draw message to main window
-    // write graph data into shared buffer
+    // write graph data into buffer
+    const buffer_length = buffer_array.buffer.length;
+    // transfer buffer for faster propagation to display
     postMessage({
         buffer: buffer_array.buffer
-    });
+    }, [buffer_array.buffer]);
+    buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
 });
 addEventListener("message", ({data}) => {
     console.log("WORKER message", data);

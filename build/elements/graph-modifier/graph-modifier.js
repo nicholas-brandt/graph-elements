@@ -33,7 +33,7 @@ export default class GraphModifier extends GraphAddon {
                 console.error(error);
             }
         });
-        host.shadowRoot.addEventListener("graph-structure-change", event => {
+        host.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
             } catch (error) {
@@ -95,7 +95,9 @@ export default class GraphModifier extends GraphAddon {
             ++i;
         }
         host.graph.addNewVertex(i);
-        host.__broadcast("graph-structure-change");
+        this.dispatchEvent(new Event("graph-structure-change", {
+            composed: true
+        }));
         // get freshly created node
         const node = host.graph.vertexValue(i);
         node.x = (event.srcEvent.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
@@ -126,7 +128,9 @@ export default class GraphModifier extends GraphAddon {
             } else {
                 host.graph.ensureEdge(this.activeNode.key, node.key);
             }
-            host.__broadcast("graph-structure-change");
+            this.dispatchEvent(new Event("graph-structure-change", {
+                composed: true
+            }));
         } else {
             for (const tap_handler of node.__tapHandlers) {
                 tap_handler(event);

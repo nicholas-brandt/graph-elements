@@ -16,13 +16,12 @@ export class GraphDisplay extends HTMLElement {
         this.graphGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.graphGroup.id = "graph-group";
         this.svg.appendChild(this.graphGroup);
-        this.__requestBroadcast = requestAnimationFunction(event_name => {
-            this.__broadcast(event_name);
-        });
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();
-            this.dispatchEvent(new Event("resize"));
+            this.dispatchEvent(new Event("resize", {
+                composed: true
+            }));
         });
         new ResizeObserver(() => {
             request_resize();
@@ -35,6 +34,7 @@ export class GraphDisplay extends HTMLElement {
         this.__updatedNodes = new Set;
         // install extension callback
         this.shadowRoot.addEventListener("addon-registry", event => {
+            // console.log("addon registrated sr cap");
             // stop the event because
             // if it would reach its target addon it would assume no host is present
             event.stopPropagation();
@@ -46,7 +46,7 @@ export class GraphDisplay extends HTMLElement {
         }, {
             capture: true
         });
-        this.shadowRoot.addEventListener("graph-structure-change", async () => {
+        this.addEventListener("graph-structure-change", async () => {
             try {
                 this.__adoptGraph();
                 await this.__requestPaint();
@@ -54,7 +54,7 @@ export class GraphDisplay extends HTMLElement {
                 console.error(error);
             }
         });
-        this.shadowRoot.addEventListener("graph-update", async event => {
+        this.addEventListener("graph-update", async event => {
             console.log("graph-update");
             try {
                 // register which node have changed
@@ -83,7 +83,9 @@ export class GraphDisplay extends HTMLElement {
     }
     set graph(graph) {
         this.__graph = graph;
-        this.__broadcast("graph-structure-change");
+        this.dispatchEvent(new Event("graph-structure-change", {
+            composed: true
+        }));
     }
     get graph() {
         return this.__graph;
@@ -168,10 +170,9 @@ export class GraphDisplay extends HTMLElement {
             width,
             height
         });
-        this.shadowRoot.dispatchEvent(new CustomEvent("resize"));
-    }
-    __broadcast(event_name) {
-        this.shadowRoot.dispatchEvent(new CustomEvent(event_name));
+        this.dispatchEvent(new Event("resize", {
+            composed: true
+        }));
     }
 };
 customElements.define("graph-display", GraphDisplay);

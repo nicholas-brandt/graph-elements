@@ -11,7 +11,8 @@ export default (async requirements => {
                             delete window[requirement];
                             window[requirement] = value;
                             resolve();
-                        }
+                        },
+                        configurable: true
                     });
                 });
                 require_set.add(requirement_promise);

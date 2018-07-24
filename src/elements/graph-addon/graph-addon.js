@@ -40,6 +40,11 @@ class GraphAddon extends HTMLElement {
                 console.error(error);
             }
         })();
-        this.dispatchEvent(new Event("addon-registry"));
+    }
+    connectedCallback() {
+        this.dispatchEvent(new Event("addon-registry", {
+            bubbles: true,
+            composed: true
+        }));
     }
 }

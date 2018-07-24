@@ -4,7 +4,7 @@ import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
-// import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+
 const style = document.createElement("style");
 style.textContent = ":host>#contextmenus{position:absolute;display:block}:host>#contextmenus .contextmenu{font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>#contextmenus .contextmenu.visible{display:flex}:host>#contextmenus .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>#contextmenus .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>#contextmenus .contextmenu>:focus{outline:0}";
 const listener_options = {
@@ -47,7 +47,7 @@ export default class GraphContextmenu extends GraphAddon {
             }
         });
         this.nodeInitializer = await this.__getInitializer(this.nodeTemplate);
-        host.shadowRoot.addEventListener("graph-structure-change", event => {
+        host.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
             } catch (error) {

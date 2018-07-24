@@ -20,7 +20,8 @@ simulation.on("tick", () => {
     // console.log(nodes.map(JSON.stringify), buffer_array);
     // dispatch draw message to main window
     // write graph data into buffer
-    const buffer_length = buffer_array.buffer.length;
+    const buffer_length = buffer_array.buffer.byteLength;
+    // console.log("WORKER: buffer length", buffer_length);
     // transfer buffer for faster propagation to display
     postMessage({
         buffer: buffer_array.buffer
@@ -28,7 +29,7 @@ simulation.on("tick", () => {
     buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
 });
 addEventListener("message", ({ data }) => {
-    console.log("WORKER message", data);
+    console.log("WORKER: get message", data);
     if (data.configuration) {
         const {
             link,

@@ -43,7 +43,7 @@ export default class GraphDetailView extends GraphAddon {
             }
         });
         // add tap listener to existing elements
-        host.shadowRoot.addEventListener("graph-structure-change", event => {
+        host.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
             } catch (error) {

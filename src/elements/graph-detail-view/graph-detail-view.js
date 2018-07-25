@@ -50,6 +50,8 @@ class GraphDetailView extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         this.__bindNodes(host);
     }
@@ -91,7 +93,7 @@ class GraphDetailView extends GraphAddon {
             const active_clone = element.cloneNode(true);
             this.__activeClone = active_clone;
             // circle specific !!!
-            host.graphGroup.appendChild(active_clone);
+            host.nodeGroup.appendChild(active_clone);
             await new Promise(resolve => {
                 const keyframes = [{
                     r: element.r.baseVal.value
@@ -110,7 +112,11 @@ class GraphDetailView extends GraphAddon {
                     }];
                     this.animate(keyframes, 300).addEventListener("finish", () => {
                         resolve();
+                    }, {
+                        passive: true
                     });
+                }, {
+                    passive: true
                 });
             });
         }
@@ -144,7 +150,11 @@ class GraphDetailView extends GraphAddon {
                         this.__activeClone = undefined;
                         this.activeNode = undefined;
                         resolve();
+                    }, {
+                        passive: true
                     });
+                }, {
+                    passive: true
                 });
             });
         }

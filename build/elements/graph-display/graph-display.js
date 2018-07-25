@@ -6,7 +6,7 @@ import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c4396
 import { Node, Link } from "../../helper/GraphClasses.js";
 
 const style = document.createElement("style");
-style.textContent = ":host{display:flex;flex:1;overflow:visible;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>#graph-group>*{touch-action:none}:host>svg>#graph-group>circle.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>#graph-group>path.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>#graph-group>path.link[loop]{fill:none;stroke-width:2px}";
+style.textContent = ":host{display:flex;flex:1;overflow:visible;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>#node-group>*{touch-action:none}:host>svg>#node-group>circle.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>#link-group>*{touch-action:none}:host>svg>#link-group>path.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px;transition:opacity .5s}:host>svg>#link-group>path.link[loop]{fill:none;stroke-width:2px}";
 export class GraphDisplay extends HTMLElement {
     constructor() {
         super();
@@ -15,9 +15,12 @@ export class GraphDisplay extends HTMLElement {
             mode: "open"
         });
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this.graphGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        this.graphGroup.id = "graph-group";
-        this.svg.appendChild(this.graphGroup);
+        this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.linkGroup.id = "link-group";
+        this.svg.appendChild(this.linkGroup);
+        this.nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.nodeGroup.id = "node-group";
+        this.svg.appendChild(this.nodeGroup);
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();
@@ -46,7 +49,8 @@ export class GraphDisplay extends HTMLElement {
                 console.error(error);
             }
         }, {
-            capture: true
+            capture: true,
+            passive: true
         });
         this.addEventListener("graph-structure-change", async () => {
             try {
@@ -55,6 +59,8 @@ export class GraphDisplay extends HTMLElement {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         this.addEventListener("graph-update", async event => {
             console.log("graph-update");
@@ -64,6 +70,8 @@ export class GraphDisplay extends HTMLElement {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         // add style
         this.shadowRoot.appendChild(style.cloneNode(true));
@@ -130,17 +138,26 @@ export class GraphDisplay extends HTMLElement {
             }
         }
         // ensure only valid children are present
-        for (const child of [...this.graphGroup.children]) {
-            if (child.classList.contains("node") && !valid_node_elements.has(child) || child.classList.contains("link") && !valid_link_elements.has(child)) {
+        for (const child of [...this.nodeGroup.children]) {
+            if (child.classList.contains("node") && !valid_node_elements.has(child)) {
+                child.parentNode.removeChild(child);
+            }
+        }
+        for (const child of [...this.linkGroup.children]) {
+            if (child.classList.contains("link") && !valid_link_elements.has(child)) {
                 child.parentNode.removeChild(child);
             }
         }
         // add non-existent
         for (const link_element of valid_link_elements) {
-            this.graphGroup.appendChild(link_element);
+            if (link_element.parentElement !== this.linkGroup) {
+                this.linkGroup.appendChild(link_element);
+            }
         }
         for (const node_element of valid_node_elements) {
-            this.graphGroup.appendChild(node_element);
+            if (node_element.parentElement !== this.nodeGroup) {
+                this.nodeGroup.appendChild(node_element);
+            }
         }
     }
     __requestPaintNode(node) {

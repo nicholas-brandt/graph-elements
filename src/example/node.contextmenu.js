@@ -7,5 +7,7 @@ export default function initNodeContextmenu(node) {
     description.value = node.description || "";
     description.addEventListener("change", event => {
         node.description = description.value;
+    }, {
+        passive: true
     });
 };

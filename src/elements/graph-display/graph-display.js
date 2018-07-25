@@ -14,9 +14,12 @@ export class GraphDisplay extends HTMLElement {
             mode: "open"
         });
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        this.graphGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        this.graphGroup.id = "graph-group";
-        this.svg.appendChild(this.graphGroup);
+        this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.linkGroup.id = "link-group";
+        this.svg.appendChild(this.linkGroup);
+        this.nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.nodeGroup.id = "node-group";
+        this.svg.appendChild(this.nodeGroup);
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();
@@ -45,7 +48,8 @@ export class GraphDisplay extends HTMLElement {
                 console.error(error);
             }
         }, {
-            capture: true
+            capture: true,
+            passive: true
         });
         this.addEventListener("graph-structure-change", async () => {
             try {
@@ -54,6 +58,8 @@ export class GraphDisplay extends HTMLElement {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         this.addEventListener("graph-update", async event => {
             console.log("graph-update");
@@ -63,6 +69,8 @@ export class GraphDisplay extends HTMLElement {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         // add style
         this.shadowRoot.appendChild(style.cloneNode(true));
@@ -129,18 +137,26 @@ export class GraphDisplay extends HTMLElement {
             }
         }
         // ensure only valid children are present
-        for (const child of [...this.graphGroup.children]) {
-            if (child.classList.contains("node") && !valid_node_elements.has(child)
-               || child.classList.contains("link") && !valid_link_elements.has(child)) {
+        for (const child of [...this.nodeGroup.children]) {
+            if (child.classList.contains("node") && !valid_node_elements.has(child)) {
+                child.parentNode.removeChild(child);
+            }
+        }
+        for (const child of [...this.linkGroup.children]) {
+            if (child.classList.contains("link") && !valid_link_elements.has(child)) {
                 child.parentNode.removeChild(child);
             }
         }
         // add non-existent
         for (const link_element of valid_link_elements) {
-            this.graphGroup.appendChild(link_element);
+            if (link_element.parentElement !== this.linkGroup) {
+                this.linkGroup.appendChild(link_element);
+            }
         }
         for (const node_element of valid_node_elements) {
-            this.graphGroup.appendChild(node_element);
+            if (node_element.parentElement !== this.nodeGroup) {
+                this.nodeGroup.appendChild(node_element);
+            }
         }
     }
     __requestPaintNode(node) {

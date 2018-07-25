@@ -6,9 +6,7 @@ import require from "../../helper/require.js";
 
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-contextmenu/graph-contextmenu.css -->";
-const listener_options = {
-    capture: true
-};
+
 export default
 class GraphContextmenu extends GraphAddon {
     constructor() {
@@ -30,6 +28,8 @@ class GraphContextmenu extends GraphAddon {
         console.log("");
         host.addEventListener("resize", event => {
             this.hideContextmenu();
+        }, {
+            passive: true
         });
         host.shadowRoot.appendChild(this.__contextmenusElement);
         if (!host.svg.hammer) {
@@ -45,6 +45,8 @@ class GraphContextmenu extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: false
         });
         this.nodeInitializer = await this.__getInitializer(this.nodeTemplate);
         host.addEventListener("graph-structure-change", event => {
@@ -53,7 +55,10 @@ class GraphContextmenu extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
-        }, listener_options);
+        }, {
+            capture: true, // ignored?
+            passive: true
+        });
         this.__bindNodes(host);
     }
     __bindNodes(host) {
@@ -67,6 +72,8 @@ class GraphContextmenu extends GraphAddon {
                     } catch (error) {
                         console.error(error);
                     }
+                }, {
+                    passive: false
                 });
             }
         }

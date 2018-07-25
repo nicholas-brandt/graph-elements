@@ -40,6 +40,8 @@ class GraphModifier extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         this.__bindNodes(host);
     }

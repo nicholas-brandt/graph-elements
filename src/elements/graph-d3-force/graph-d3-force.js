@@ -68,13 +68,17 @@ export class GraphD3Force extends GraphAddon {
                 console.error(error);
             }
         });
-        this.worker.addEventListener("message", on_worker_message);
+        this.worker.addEventListener("message", on_worker_message, {
+            passive: true
+        });
         this.configuration = _configuration || default_configuration;
         // initiate worker with preassigned graph
     }
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {
             await this.__sendGraphToWorker();
+        }, {
+            passive: true
         });
     }
     async __sendGraphToWorker(run) {
@@ -151,45 +155,33 @@ export class GraphD3Force extends GraphAddon {
         if (!this.__linksHidden) {
             console.log("");
             this.__linksHidden = true;
-            const promises = [];
             const host = await this.host;
-            for (const [source, target, link] of host.graph.edges()) {
-                if (link.element) {
-                    const promise = new Promise(resolve => {
-                        link.element.animate([{
-                            opacity: getComputedStyle(link.element).opacity
-                        }, {
-                            opacity: 0
-                        }], 250).addEventListener("finish", () => {
-                            link.element.style.visibility = "hidden";
-                        });
-                    });
-                    promises.push(promise);
-                }
-            }
-            await Promise.all(promises);
+            await new Promise(resolve => {
+                host.linkGroup.animate([{
+                    opacity: getComputedStyle(host.linkGroup).opacity
+                }, {
+                    opacity: 0
+                }], 250).addEventListener("finish", () => {
+                    host.linkGroup.style.visibility = "hidden";
+                }, {
+                    passive: true
+                });
+            });
         }
     }
     async __showLinks() {
         if (this.__linksHidden) {
             console.log("");
             this.__linksHidden = false;
-            const promises = [];
             const host = await this.host;
-            for (const [source, target, link] of host.graph.edges()) {
-                link.element.style.visibility = "";
-                if (link.element) {
-                    const promise = new Promise(resolve => {
-                        link.element.animate([{
-                            opacity: 0
-                        }, {
-                            opacity: getComputedStyle(link.element).opacity
-                        }], 500);
-                    });
-                    promises.push(promise);
-                }
-            }
-            await Promise.all(promises);
+            await new Promise(resolve => {
+                host.linkGroup.style.visibility = "";
+                host.linkGroup.animate([{
+                    opacity: 0
+                }, {
+                    opacity: getComputedStyle(host.linkGroup).opacity
+                }], 500);
+            });
         }
     }
 };

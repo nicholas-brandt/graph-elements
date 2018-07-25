@@ -72,6 +72,8 @@ export default class GraphTracker extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: true
         });
         this.__bindNodes(host);
     }
@@ -86,28 +88,28 @@ export default class GraphTracker extends GraphAddon {
                 node.hammer.get("pan").set({ direction: Hammer.DIRECTION_ALL });
                 node.hammer.on("pan", async event => {
                     try {
-                        await this.__trackNode(host, node, event);
+                        await this.__trackNode(node, event);
                     } catch (error) {
                         console.error(error);
                     }
                 });
                 node.hammer.on("panstart", async event => {
                     try {
-                        await this.__trackStart(host, node, event);
+                        await this.__trackStart(node, event);
                     } catch (error) {
                         console.error(error);
                     }
                 });
                 node.hammer.on("panend", async event => {
                     try {
-                        await this.__trackEnd(host, node, event);
+                        await this.__trackEnd(node, event);
                     } catch (error) {
                         console.error(error);
                     }
                 });
                 node.hammer.on("pancancel", async event => {
                     try {
-                        await this.__trackEnd(host, node, event);
+                        await this.__trackEnd(node, event);
                     } catch (error) {
                         console.error(error);
                     }
@@ -115,7 +117,7 @@ export default class GraphTracker extends GraphAddon {
             }
         }
     }
-    async __trackNode(host, node, event) {
+    async __trackNode(node, event) {
         try {
             console.log(event);
             // event.srcEvent.stopPropagation();
@@ -123,44 +125,39 @@ export default class GraphTracker extends GraphAddon {
             node.y += event.deltaY - (node.__deltaY || 0);
             node.__deltaX = event.isFinal ? 0 : event.deltaX;
             node.__deltaY = event.isFinal ? 0 : event.deltaY;
+            // adaptively hide links
             // notify host of change
             this.dispatchEvent(new Event("graph-update"));
-            // adaptively hide links
-            if (this.trackingMode == "adaptive" && !node.links_hidden) {
-                // console.time("timediff");
-                const time_difference = await requestTimeDifference();
-                node.trackingTime = (node.trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
-                // console.timeEnd("timediff");
-                // console.log("graph-tracker: time difference", time_difference);
-                // console.log("graph-tracker: node.trackingTime", node.trackingTime);
-                if (node.trackingTime > 17 && node.tracking) {
-                    console.log("graph-tracker: adaptively hiding links", time_difference);
-                    this.__hideLinks(host, node);
-                }
-            }
         } catch (error) {
             console.error(error);
         }
     }
-    async __trackStart(host, node) {
+    async __trackStart(node) {
         node.tracking = true;
         node.trackingTime = this.trackingInitialTime;
         node.element.classList.add("tracking");
         if (this.trackingMode == "hiding") {
             console.log("graph-tracker: normally hiding links");
-            await this.__hideLinks(host, node);
+            await this.__hideLinks(node);
         }
+        node.__on_node_paint = this.__onNodePaint.bind(this, node);
+        node.element.addEventListener("paint", node.__on_node_paint, {
+            passive: true
+        });
     }
-    __trackEnd(host, node) {
+    __trackEnd(node) {
         node.tracking = false;
         node.element.classList.remove("tracking");
-        return this.__showLinks(host, node);
+        console.assert(typeof node.__on_node_paint == "function", "invalid or missing node.__on_node_paint");
+        node.element.removeEventListener("paint", node.__on_node_paint);
+        return this.__showLinks(node);
     }
-    async __hideLinks(host, node) {
+    async __hideLinks(node) {
         console.log("");
         if (!node.links_hidden) {
             node.links_hidden = true;
             const promises = [];
+            const host = await this.host;
             for (const [source, target, link] of host.graph.edges()) {
                 if (source == node.key || target == node.key) {
                     if (link.element) {
@@ -172,6 +169,8 @@ export default class GraphTracker extends GraphAddon {
                             }], 250).addEventListener("finish", () => {
                                 link.element.style.visibility = "hidden";
                                 resolve();
+                            }, {
+                                passive: true
                             });
                         });
                         promises.push(promise);
@@ -181,11 +180,12 @@ export default class GraphTracker extends GraphAddon {
             await Promise.all(promises);
         }
     }
-    async __showLinks(host, node) {
+    async __showLinks(node) {
         if (node.links_hidden) {
             node.links_hidden = false;
             console.log("");
             const promises = [];
+            const host = await this.host;
             for (const [source, target, link] of host.graph.edges()) {
                 if (source == node.key || target == node.key) {
                     link.element.style.visibility = "";
@@ -195,13 +195,33 @@ export default class GraphTracker extends GraphAddon {
                                 opacity: 0
                             }, {
                                 opacity: getComputedStyle(link.element).opacity
-                            }], 500).addEventListener("finish", () => resolve());
+                            }], 500).addEventListener("finish", () => resolve(), {
+                                passive: true
+                            });
                         });
                         promises.push(promise);
                     }
                 }
             }
             await Promise.all(promises);
+        }
+    }
+    async __onNodePaint(node, event) {
+        try {
+            if (this.trackingMode == "adaptive" && !node.links_hidden) {
+                console.time("timediff");
+                const time_difference = await requestTimeDifference();
+                node.trackingTime = (node.trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
+                console.timeEnd("timediff");
+                console.log("time difference", time_difference);
+                // console.log("graph-tracker: node.trackingTime", node.trackingTime);
+                if (node.trackingTime > 17 && node.tracking) {
+                    console.log("adaptively hiding links", time_difference);
+                    await this.__hideLinks(node);
+                }
+            }
+        } catch (error) {
+            console.error(error);
         }
     }
 }

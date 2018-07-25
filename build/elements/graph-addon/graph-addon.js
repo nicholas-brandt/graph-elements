@@ -8,14 +8,15 @@ export default class GraphAddon extends HTMLElement {
         let resolved = false;
         const host_promise = new Promise((resolve, reject) => {
             const _reject = event => {
-                console.log(event);
+                console.assert(false, "no valid host found");
                 event.stopPropagation();
                 reject(new Error("no valid host found"));
             };
             // in case there is no valid host -> reject
             this.addEventListener("addon-registry", _reject, {
                 once: true,
-                capture: true
+                capture: true,
+                passive: true
             });
             Object.defineProperty(this, "host", {
                 get() {

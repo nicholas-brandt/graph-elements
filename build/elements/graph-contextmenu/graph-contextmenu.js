@@ -7,9 +7,7 @@ import require from "../../helper/require.js";
 
 const style = document.createElement("style");
 style.textContent = ":host>#contextmenus{position:absolute;display:block}:host>#contextmenus .contextmenu{font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>#contextmenus .contextmenu.visible{display:flex}:host>#contextmenus .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>#contextmenus .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>#contextmenus .contextmenu>:focus{outline:0}";
-const listener_options = {
-    capture: true
-};
+
 export default class GraphContextmenu extends GraphAddon {
     constructor() {
         super();
@@ -30,6 +28,8 @@ export default class GraphContextmenu extends GraphAddon {
         console.log("");
         host.addEventListener("resize", event => {
             this.hideContextmenu();
+        }, {
+            passive: true
         });
         host.shadowRoot.appendChild(this.__contextmenusElement);
         if (!host.svg.hammer) {
@@ -45,6 +45,8 @@ export default class GraphContextmenu extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
+        }, {
+            passive: false
         });
         this.nodeInitializer = await this.__getInitializer(this.nodeTemplate);
         host.addEventListener("graph-structure-change", event => {
@@ -53,7 +55,10 @@ export default class GraphContextmenu extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
-        }, listener_options);
+        }, {
+            capture: true, // ignored?
+            passive: true
+        });
         this.__bindNodes(host);
     }
     __bindNodes(host) {
@@ -67,6 +72,8 @@ export default class GraphContextmenu extends GraphAddon {
                     } catch (error) {
                         console.error(error);
                     }
+                }, {
+                    passive: false
                 });
             }
         }

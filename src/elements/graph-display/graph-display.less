@@ -11,7 +11,7 @@
         will-change: transform;
         transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
         transform: translateZ(0);
-        >#graph-group {
+        >#node-group {
             >* {
                 touch-action: none;
             }
@@ -22,6 +22,11 @@
                 stroke-dasharray: @node-stroke-dasharray;
                 stroke-width: @node-stroke-width;
                 transition: opacity 0.5s, fill 0.5s;
+            }
+        }
+        >#link-group {
+            >* {
+                touch-action: none;
             }
             >path.link {
                 pointer-events: none;

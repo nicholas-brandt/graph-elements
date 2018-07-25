@@ -18,13 +18,15 @@ class GraphContextmenu extends GraphAddon {
         this.appendChild(this.__contextmenusElement);
         this.canvasContextmenu = document.createElement("div");
         this.canvasContextmenu.classList.add("contextmenu");
-        this.canvasContextmenu.hammer = new Hammer(this.canvasContextmenu);
-        this.canvasContextmenu.hammer.on("tap", this.hideContextmenu.bind(this));
+        // this.canvasContextmenu.hammer = new Hammer(this.canvasContextmenu);
+        // this.canvasContextmenu.hammer.options.domEvents = true;
+        // this.canvasContextmenu.hammer.on("tap", this.hideContextmenu.bind(this));
         this.canvasTemplate = this.querySelector("#canvas");
         if (this.canvasTemplate) {
             const canvas_content = document.importNode(this.canvasTemplate.content, true);
             this.canvasContextmenu.appendChild(canvas_content);
         }
+        this.__contextmenusElement.appendChild(this.canvasContextmenu);
         this.nodeTemplate = this.querySelector("#node");
         // add style
         this.appendChild(style.cloneNode(true));
@@ -136,7 +138,9 @@ class GraphContextmenu extends GraphAddon {
         this.activeContextmenu = contextmenu;
         // this.__contextmenusElement.classList.add("visible");
         // this.__contextmenusElement.innerHTML = "";
-        this.__contextmenusElement.appendChild(contextmenu);
+        if (contextmenu.parentElement !== this.__contextmenusElement) {
+            this.__contextmenusElement.appendChild(contextmenu);
+        }
         // this.__contextmenusElement.x.baseVal.value = x;
         // this.__contextmenusElement.y.baseVal.value = y;
         this.__contextmenusElement.style.left = x;

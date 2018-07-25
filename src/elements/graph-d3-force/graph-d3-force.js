@@ -6,23 +6,23 @@ import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
-const default_configuration = {
-    link: {
-        distance: 300,
-        strength: 0.02
-    },
-    charge: {
-        strength: -40
-    },
-    gravitation: {
-        strength: 100
-    }
-};
 const worker_string = `<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.inject.js -->`;
 // web worker same origin policy requires host to support OPTIONS CORS
 
 export class GraphD3Force extends GraphAddon {
     static tagName = "graph-d3-force";
+    static defaultConfiguration = {
+        link: {
+            distance: 40,
+            strength: 0.5
+        },
+        charge: {
+            strength: -60
+        },
+        gravitation: {
+            strength: 100
+        }
+    };
     constructor() {
         super();
         let _configuration = this.configuration;
@@ -58,13 +58,17 @@ export class GraphD3Force extends GraphAddon {
         const on_worker_message = requestAnimationFunction(async ({data}) => {
             try {
                 console.log("receive worker update");
-                if (data.buffer) {
+                if (this.state == "running" && data.buffer) {
                     const buffer_array = new Float32Array(data.buffer);
                     await this.__applyGraphUpdate(buffer_array);
                 }
                 if (data.end) {
                     console.log("worker end");
                     await this.__showLinks();
+                    this.dispatchEvent(new Event("simulationend", {
+                        bubbles: true,
+                        composed: true
+                    }));
                 }
             } catch (error) {
                 console.error(error);
@@ -73,7 +77,7 @@ export class GraphD3Force extends GraphAddon {
         this.worker.addEventListener("message", on_worker_message, {
             passive: true
         });
-        this.configuration = _configuration || default_configuration;
+        this.configuration = _configuration || this.constructor.defaultConfiguration;
         /*
         this.interconnects = [{
             addonName: "graph-contextmenu",
@@ -123,16 +127,27 @@ export class GraphD3Force extends GraphAddon {
             case "idle":
                 await this.__sendGraphToWorker(true);
                 this.__state = "running";
+                this.dispatchEvent(new Event("simulationstart", {
+                    bubbles: true,
+                    composed: true
+                }));
                 break;
             case "running":
         }
     }
     async stop() {
         await this.host;
-        this.state = "idle";
-        this.worker.postMessage({
-            run: false
-        });
+        if (this.state == "running") {
+            this.__state = "idle";
+            this.worker.postMessage({
+                run: false
+            });
+            this.dispatchEvent(new Event("simulationstop", {
+                bubbles: true,
+                composed: true
+            }));
+            await this.__showLinks();
+        }
     }
     async __applyGraphUpdate(buffer_array) {
         console.log(buffer_array.length);
@@ -148,7 +163,7 @@ export class GraphD3Force extends GraphAddon {
         this.dispatchEvent(new Event("graph-update", {
             composed: true
         }));
-        if (!this._linksHidden) {
+        if (!this.__linksHidden) {
             // console.time("paint time");
             const time_difference = await requestTimeDifference();
             // console.timeEnd("paint time");
@@ -187,7 +202,9 @@ export class GraphD3Force extends GraphAddon {
                     opacity: 0
                 }, {
                     opacity: getComputedStyle(host.linkGroup).opacity
-                }], 500);
+                }], 500).addEventListener("finish", resolve, {
+                    passive: true
+                });
             });
         }
     }

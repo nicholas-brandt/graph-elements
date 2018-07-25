@@ -16,14 +16,48 @@ async function addContextmenuEntries(host) {
 };
 
 function addCanvasContextmenuEntries(contextmenu) {
-    const new_node_entry = document.createElement("div");
-    new_node_entry.textContent = "Start force layout";
-    new_node_entry.hammer = new Hammer(new_node_entry);
-    new_node_entry.hammer.on("tap", async event => {
+    const toggle_force_entry = document.createElement("div");
+    toggle_force_entry.textContent = "Start force layout";
+    toggle_force_entry.hammer = new Hammer(toggle_force_entry);
+    toggle_force_entry.hammer.on("tap", async event => {
         console.log("tap");
-        await this.start();
+        switch (this.state) {
+            case "running":
+                await this.stop();
+                break;
+            case "idle":
+                await this.start();
+        }
+        await this.hideContextmenu();
     });
-    contextmenu.appendChild(new_node_entry);
+    this.addEventListener("simulationstart", event => {
+        console.log("");
+        toggle_force_entry.textContent = "Stop force layout";
+    });
+    this.addEventListener("simulationstop", event => {
+        console.log("");
+        toggle_force_entry.textContent = "Start force layout";
+    });
+    this.addEventListener("simulationend", event => {
+        console.log("");
+        toggle_force_entry.textContent = "Start force layout";
+    });
+    contextmenu.appendChild(toggle_force_entry);
+
+    const force_parameter_entry = document.createElement("div");
+    force_parameter_entry.hammer = new Hammer(force_parameter_entry);
+    contextmenu.appendChild(force_parameter_entry);
+
+    const distance_entry = document.createElement("input");
+    distance_entry.type = "number";
+    distance_entry.value = this.configuration.link.distance;
+    distance_entry.addEventListener("change", async event => {
+        console.log("change", event);
+        this.configuration.link.distance = distance_entry.value;
+        this.configuration = this.configuration;
+    });
+    force_parameter_entry.appendChild(distance_entry);
+    // @TODO: add other configuration patameters (polymer?)
 }
 
 function addNodeContextmenuEntries(contextmenu) {}
@@ -42,6 +76,7 @@ export default (async () => {
             promises.push(promise);
         }
         // upgrade new instances
+        // @REMARK: elements in other documents are irrelevant
         document.documentElement.addEventListener("addon-registry", async event => {
             console.log("upgrade new host");
             const graph_display = event.target;

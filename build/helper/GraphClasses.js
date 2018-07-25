@@ -56,28 +56,18 @@ export class Node {
         this.y |= 0;
     }
     paint() {
-        let modified;
         const { x, y, radius } = this;
         // this.element.setAttribute("cx", x);
         if (x | 0 === x) {
             this.element.cx.baseVal.value = x;
-            modified = true;
         }
         // this.element.setAttribute("cy", y);
         if (y | 0 === y) {
             this.element.cy.baseVal.value = y;
-            modified = true;
         }
         // this.element.setAttribute("r", radius);
         if (radius | 0 === radius) {
             this.element.r.baseVal.value = radius;
-            modified = true;
-        }
-        if (modified) {
-            this.element.dispatchEvent(new Event("paint", {
-                bubbles: true,
-                composed: true
-            }));
         }
     }
 };

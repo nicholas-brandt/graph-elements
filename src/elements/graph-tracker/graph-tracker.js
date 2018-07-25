@@ -141,16 +141,18 @@ class GraphTracker extends GraphAddon {
             await this.__hideLinks(node);
         }
         node.__on_node_paint = this.__onNodePaint.bind(this, node);
-        node.element.addEventListener("paint", node.__on_node_paint, {
+        const host = await this.host;
+        host.addEventListener("paint", node.__on_node_paint, {
             passive: true
         });
     }
-    __trackEnd(node) {
+    async __trackEnd(node) {
         node.tracking = false;
         node.element.classList.remove("tracking");
         console.assert(typeof node.__on_node_paint == "function", "invalid or missing node.__on_node_paint");
-        node.element.removeEventListener("paint", node.__on_node_paint);
-        return this.__showLinks(node);
+        const host = await this.host;
+        host.removeEventListener("paint", node.__on_node_paint);
+        await this.__showLinks(node);
     }
     async __hideLinks(node) {
         console.log("");

@@ -178,6 +178,10 @@ export class GraphDisplay extends HTMLElement {
             }
         }
         this.__updatedNodes.clear();
+        this.dispatchEvent(new Event("paint", {
+            bubbles: true,
+            composed: true
+        }));
     }
     __resize() {
         const {width, height} = this.svg.getBoundingClientRect();

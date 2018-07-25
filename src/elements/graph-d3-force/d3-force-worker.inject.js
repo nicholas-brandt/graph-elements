@@ -28,6 +28,12 @@ simulation.on("tick", () => {
     }, [buffer_array.buffer]);
     buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
 });
+simulation.on("end", () => {
+    // end yields no new simulation step
+    postMessage({
+        end: true
+    });
+});
 addEventListener("message", ({data}) => {
     console.log("WORKER: get message", data);
     if (data.configuration) {

@@ -3,6 +3,7 @@ import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+
 const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-detail-view/graph-detail-view.css -->";
 export default

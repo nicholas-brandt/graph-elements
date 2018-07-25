@@ -4,6 +4,7 @@ import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
 const default_configuration = {
@@ -47,6 +48,12 @@ simulation.on("tick", () => {
         buffer: buffer_array.buffer
     }, [buffer_array.buffer]);
     buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
+});
+simulation.on("end", () => {
+    // end yields no new simulation step
+    postMessage({
+        end: true
+    });
 });
 addEventListener("message", ({ data }) => {
     console.log("WORKER: get message", data);
@@ -145,13 +152,27 @@ export class GraphD3Force extends GraphAddon {
                     return _configuration;
                 },
                 enumerable: true
+            },
+            state: {
+                get() {
+                    return this.__state;
+                },
+                enumerable: true,
+                configurable: true
             }
         });
+        this.__state = "idle";
         const on_worker_message = requestAnimationFunction(async ({ data }) => {
             try {
                 console.log("receive worker update");
-                const buffer_array = new Float32Array(data.buffer);
-                await this.__applyGraphUpdate(buffer_array);
+                if (data.buffer) {
+                    const buffer_array = new Float32Array(data.buffer);
+                    await this.__applyGraphUpdate(buffer_array);
+                }
+                if (data.end) {
+                    console.log("worker end");
+                    await this.__showLinks();
+                }
             } catch (error) {
                 console.error(error);
             }
@@ -160,7 +181,12 @@ export class GraphD3Force extends GraphAddon {
         this.configuration = _configuration || default_configuration;
         // initiate worker with preassigned graph
     }
-    async sendGraphToWorker() {
+    hosted(host) {
+        host.addEventListener("graph-structure-change", async () => {
+            await this.__sendGraphToWorker();
+        });
+    }
+    async __sendGraphToWorker(run) {
         console.log("");
         const host = await this.host;
         const nodes = [...host.nodes.values()];
@@ -177,22 +203,31 @@ export class GraphD3Force extends GraphAddon {
             buffer_array[i * 2] = node.x;
             buffer_array[i * 2 + 1] = node.y;
         }
-        this.worker.postMessage({
+        const message = {
             graph: {
                 nodes: d3_nodes,
                 links
             },
-            buffer
-        });
+            buffer,
+            run
+        };
+        if (run !== undefined) {
+            message.run = !!run;
+        }
+        this.worker.postMessage(message);
     }
     async start() {
-        await this.host;
-        this.worker.postMessage({
-            run: true
-        });
+        switch (this.state) {
+            case "idle":
+                await this.__sendGraphToWorker(true);
+                this.__state = "running";
+                break;
+            case "running":
+        }
     }
     async stop() {
         await this.host;
+        this.state = "idle";
         this.worker.postMessage({
             run: false
         });
@@ -211,6 +246,60 @@ export class GraphD3Force extends GraphAddon {
         this.dispatchEvent(new Event("graph-update", {
             composed: true
         }));
+        if (!this._linksHidden) {
+            // console.time("paint time");
+            const time_difference = await requestTimeDifference();
+            // console.timeEnd("paint time");
+            console.log("time difference", time_difference);
+            if (time_difference > 17) {
+                await this.__hideLinks();
+            }
+        }
+    }
+    async __hideLinks() {
+        if (!this.__linksHidden) {
+            console.log("");
+            this.__linksHidden = true;
+            const promises = [];
+            const host = await this.host;
+            for (const [source, target, link] of host.graph.edges()) {
+                if (link.element) {
+                    const promise = new Promise(resolve => {
+                        link.element.animate([{
+                            opacity: getComputedStyle(link.element).opacity
+                        }, {
+                            opacity: 0
+                        }], 250).addEventListener("finish", () => {
+                            link.element.style.visibility = "hidden";
+                        });
+                    });
+                    promises.push(promise);
+                }
+            }
+            await Promise.all(promises);
+        }
+    }
+    async __showLinks() {
+        if (this.__linksHidden) {
+            console.log("");
+            this.__linksHidden = false;
+            const promises = [];
+            const host = await this.host;
+            for (const [source, target, link] of host.graph.edges()) {
+                link.element.style.visibility = "";
+                if (link.element) {
+                    const promise = new Promise(resolve => {
+                        link.element.animate([{
+                            opacity: 0
+                        }, {
+                            opacity: getComputedStyle(link.element).opacity
+                        }], 500);
+                    });
+                    promises.push(promise);
+                }
+            }
+            await Promise.all(promises);
+        }
     }
 };
 (async () => {

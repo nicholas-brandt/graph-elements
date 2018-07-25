@@ -5,6 +5,7 @@ import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+
 export default
 class GraphTracker extends GraphAddon {
     constructor() {
@@ -83,10 +84,34 @@ class GraphTracker extends GraphAddon {
             if (!node.trackerInstalled) {
                 node.trackerInstalled = true;
                 node.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL});
-                node.hammer.on("pan", this.__trackNode.bind(this, host, node));
-                node.hammer.on("panstart", this.__trackStart.bind(this, host, node));
-                node.hammer.on("panend", this.__trackEnd.bind(this, host, node));
-                node.hammer.on("pancancel", this.__trackEnd.bind(this, host, node));
+                node.hammer.on("pan", async event => {
+                    try {
+                        await this.__trackNode(host, node, event);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+                node.hammer.on("panstart", async event => {
+                    try {
+                        await this.__trackStart(host, node, event);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+                node.hammer.on("panend", async event => {
+                    try {
+                        await this.__trackEnd(host, node, event);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
+                node.hammer.on("pancancel", async event => {
+                    try {
+                        await this.__trackEnd(host, node, event);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                });
             }
         }
     }
@@ -99,7 +124,7 @@ class GraphTracker extends GraphAddon {
             node.__deltaX = event.isFinal ? 0 : event.deltaX;
             node.__deltaY = event.isFinal ? 0 : event.deltaY;
             // notify host of change
-            await host.__requestBroadcast("graph-update");
+            this.dispatchEvent(new Event("graph-update"));
             // adaptively hide links
             if (this.trackingMode == "adaptive" && !node.links_hidden) {
                 // console.time("timediff");
@@ -117,53 +142,66 @@ class GraphTracker extends GraphAddon {
             console.error(error);
         }
     }
-    __trackStart(host, node) {
+    async __trackStart(host, node) {
         node.tracking = true;
         node.trackingTime = this.trackingInitialTime;
         node.element.classList.add("tracking");
         if (this.trackingMode == "hiding") {
             console.log("graph-tracker: normally hiding links");
-            this.__hideLinks(host, node);
+            await this.__hideLinks(host, node);
         }
     }
     __trackEnd(host, node) {
         node.tracking = false;
         node.element.classList.remove("tracking");
-        this.__showLinks(host, node);
+        return this.__showLinks(host, node);
     }
-    __hideLinks(host, node) {
+    async __hideLinks(host, node) {
         console.log("");
-        node.links_hidden = true;
-        for (const [source, target, link] of host.graph.edges()) {
-            if (source == node.key || target == node.key) {
-                if (link.element) {
-                    link.element.animate([{
-                        opacity: getComputedStyle(link.element).opacity
-                    }, {
-                        opacity: 0
-                    }], 250).addEventListener("finish", () => {
-                        link.element.style.visibility = "hidden";
-                    });
+        if (!node.links_hidden) {
+            node.links_hidden = true;
+            const promises = [];
+            for (const [source, target, link] of host.graph.edges()) {
+                if (source == node.key || target == node.key) {
+                    if (link.element) {
+                        const promise = new Promise(resolve => {
+                            link.element.animate([{
+                                opacity: getComputedStyle(link.element).opacity
+                            }, {
+                                opacity: 0
+                            }], 250).addEventListener("finish", () => {
+                                link.element.style.visibility = "hidden";
+                                resolve();
+                            });
+                        });
+                        promises.push(promise);
+                    }
                 }
             }
+            await Promise.all(promises);
         }
     }
-    __showLinks(host, node) {
+    async __showLinks(host, node) {
         if (node.links_hidden) {
             node.links_hidden = false;
             console.log("");
+            const promises = [];
             for (const [source, target, link] of host.graph.edges()) {
                 if (source == node.key || target == node.key) {
                     link.element.style.visibility = "";
                     if (link.element) {
-                        link.element.animate([{
-                            opacity: 0
-                        }, {
-                            opacity: getComputedStyle(link.element).opacity
-                        }], 500);
+                        const promise = new Promise(resolve => {
+                            link.element.animate([{
+                                opacity: 0
+                            }, {
+                                opacity: getComputedStyle(link.element).opacity
+                            }], 500).addEventListener("finish", () => resolve());
+                        });
+                        promises.push(promise);
                     }
                 }
             }
+            await Promise.all(promises);
         }
     }
 }

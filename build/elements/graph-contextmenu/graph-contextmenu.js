@@ -11,13 +11,16 @@ style.textContent = ":host>graph-contextmenu>#contextmenus{position:absolute;dis
 export default class GraphContextmenu extends GraphAddon {
     constructor() {
         super();
+        console.log("");
         this.__contextmenusElement = document.createElement("div");
         this.__contextmenusElement.id = "contextmenus";
         this.appendChild(this.__contextmenusElement);
+        this.canvasContextmenu = document.createElement("div");
+        this.canvasContextmenu.classList.add("contextmenu");
+        this.canvasContextmenu.hammer = new Hammer(this.canvasContextmenu);
+        this.canvasContextmenu.hammer.on("tap", this.hideContextmenu.bind(this));
         this.canvasTemplate = this.querySelector("#canvas");
         if (this.canvasTemplate) {
-            this.canvasContextmenu = document.createElement("div");
-            this.canvasContextmenu.classList.add("contextmenu");
             const canvas_content = document.importNode(this.canvasTemplate.content, true);
             this.canvasContextmenu.appendChild(canvas_content);
         }

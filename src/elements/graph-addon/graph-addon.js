@@ -7,15 +7,16 @@ class GraphAddon extends HTMLElement {
         super();
         let resolved = false;
         const host_promise = new Promise((resolve, reject) => {
-            const _reject = event => {
-                console.assert(false, "no valid host found");
-                event.stopPropagation();
-                reject(new Error("no valid host found"));
-            };
             // in case there is no valid host -> reject
-            this.addEventListener("addon-registry", _reject, {
+            this.addEventListener("addon-registry", event => {
+                if (!resolved) {
+                    console.assert(false, "no valid host found");
+                    // event.stopPropagation();
+                    reject(new Error("no valid host found"));
+                }
+            }, {
                 once: true,
-                capture: true,
+                capture: true, // ignored?
                 passive: true
             });
             Object.defineProperty(this, "host", {
@@ -25,7 +26,7 @@ class GraphAddon extends HTMLElement {
                 set(host) {
                     console.assert(!resolved, "host reassignment is ignored");
                     resolved = true;
-                    this.removeEventListener("addon-registry", _reject);
+                    // this.removeEventListener("addon-registry", _reject);
                     resolve(host);
                 },
                 configurable: true
@@ -43,10 +44,9 @@ class GraphAddon extends HTMLElement {
         })();
     }
     connectedCallback() {
+        console.log("");
         this.dispatchEvent(new CustomEvent("addon-registry", {
-            detail: {
-                name: this.constructor.name
-            },
+            detail: this,
             bubbles: true,
             composed: true
         }));

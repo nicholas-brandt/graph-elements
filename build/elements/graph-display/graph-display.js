@@ -38,15 +38,34 @@ export class GraphDisplay extends HTMLElement {
         this.links = new Set();
         this.__updatedNodes = new Set();
         // install extension callback
+        // this.addons = new Map;
+        const addon_promise_methods = new Map();
+        this.addonPromises = new Proxy({}, {
+            get(target, name) {
+                if (!target[name]) {
+                    target[name] = new Promise((resolve, reject) => {
+                        addon_promise_methods.set(name, { resolve, reject });
+                    });
+                }
+                return target[name];
+            }
+        });
         this.shadowRoot.addEventListener("addon-registry", event => {
             // console.log("addon registrated sr cap");
             // stop the event because
             // if it would reach its target addon it would assume no host is present
-            event.stopPropagation();
+            // event.stopPropagation();
+            const tag_name = event.target.tagName.toLowerCase();
+            // this.addons.set(tag_name, event.target);
             try {
                 event.target.host = this;
+                // addon.hosted is called
+                this.addonPromises[tag_name];
+                addon_promise_methods.get(tag_name).resolve(event.target);
             } catch (error) {
                 console.error(error);
+                this.addonPromises[tag_name];
+                addon_promise_methods.get(tag_name).reject(event.target);
             }
         }, {
             capture: true,
@@ -195,6 +214,11 @@ export class GraphDisplay extends HTMLElement {
         this.dispatchEvent(new Event("resize", {
             composed: true
         }));
+    }
+    async __callWhenAddonHosted(addon_name, callback) {
+        await this.addonPromises[addon_name];
+        console.log("addon hosted", addon_name);
+        await callback(this);
     }
 };
 customElements.define("graph-display", GraphDisplay);

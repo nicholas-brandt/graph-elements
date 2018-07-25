@@ -129,6 +129,7 @@ addEventListener("message", ({ data }) => {
     }
 });`;
 // web worker same origin policy requires host to support OPTIONS CORS
+
 export class GraphD3Force extends GraphAddon {
     constructor() {
         super();
@@ -181,7 +182,12 @@ export class GraphD3Force extends GraphAddon {
             passive: true
         });
         this.configuration = _configuration || default_configuration;
-        // initiate worker with preassigned graph
+        /*
+        this.interconnects = [{
+            addonName: "graph-contextmenu",
+            callback: this.__addContextmenuEntries
+        }];
+        */
     }
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {

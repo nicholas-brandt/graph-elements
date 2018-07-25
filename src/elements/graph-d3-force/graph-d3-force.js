@@ -20,6 +20,7 @@ const default_configuration = {
 };
 const worker_string = `<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.inject.js -->`;
 // web worker same origin policy requires host to support OPTIONS CORS
+
 export class GraphD3Force extends GraphAddon {
     static tagName = "graph-d3-force";
     constructor() {
@@ -73,7 +74,12 @@ export class GraphD3Force extends GraphAddon {
             passive: true
         });
         this.configuration = _configuration || default_configuration;
-        // initiate worker with preassigned graph
+        /*
+        this.interconnects = [{
+            addonName: "graph-contextmenu",
+            callback: this.__addContextmenuEntries
+        }];
+        */
     }
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {

@@ -6,13 +6,14 @@ import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 
 const style = document.createElement("style");
-style.textContent = ":host>#contextmenus{position:absolute;display:block}:host>#contextmenus .contextmenu{font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>#contextmenus .contextmenu.visible{display:flex}:host>#contextmenus .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>#contextmenus .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>#contextmenus .contextmenu>:focus{outline:0}";
+style.textContent = ":host>graph-contextmenu>#contextmenus{position:absolute;display:block}:host>graph-contextmenu>#contextmenus .contextmenu{font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #999;background:#fff;padding:5px 0}:host>graph-contextmenu>#contextmenus .contextmenu.visible{display:flex}:host>graph-contextmenu>#contextmenus .contextmenu>*{flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>graph-contextmenu>#contextmenus .contextmenu>:hover{background:hsl(0,0%,60%,30%)}:host>graph-contextmenu>#contextmenus .contextmenu>:focus{outline:0}";
 
 export default class GraphContextmenu extends GraphAddon {
     constructor() {
         super();
         this.__contextmenusElement = document.createElement("div");
         this.__contextmenusElement.id = "contextmenus";
+        this.appendChild(this.__contextmenusElement);
         this.canvasTemplate = this.querySelector("#canvas");
         if (this.canvasTemplate) {
             this.canvasContextmenu = document.createElement("div");
@@ -31,7 +32,6 @@ export default class GraphContextmenu extends GraphAddon {
         }, {
             passive: true
         });
-        host.shadowRoot.appendChild(this.__contextmenusElement);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
         }
@@ -157,12 +157,13 @@ export default class GraphContextmenu extends GraphAddon {
         }
     }
 }
+GraphContextmenu.tagName = "graph-contextmenu";
 (async () => {
     try {
         // ensure requirements
         await require(["Hammer"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-contextmenu", GraphContextmenu);
+        customElements.define(GraphContextmenu.tagName, GraphContextmenu);
     } catch (error) {
         console.error(error);
     }

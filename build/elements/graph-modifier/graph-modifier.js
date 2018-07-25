@@ -141,12 +141,13 @@ export default class GraphModifier extends GraphAddon {
         }
     }
 }
+GraphModifier.tagName = "graph-modifier";
 (async () => {
     try {
         // ensure requirements
         await require(["Hammer"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-modifier", GraphModifier);
+        customElements.define(GraphModifier.tagName, GraphModifier);
     } catch (error) {
         console.error(error);
     }

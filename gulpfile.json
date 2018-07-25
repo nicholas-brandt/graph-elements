@@ -34,7 +34,7 @@
             "simplify": false
         },
         "gulp-babel": {
-            "plugins": ["syntax-dynamic-import"]
+            "plugins": ["syntax-dynamic-import", "transform-class-properties"]
         },
         "gulp-esformatter": {},
         "gulp-inject-file": {}

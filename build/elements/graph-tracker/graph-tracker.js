@@ -127,37 +127,40 @@ export default class GraphTracker extends GraphAddon {
             node.__deltaY = event.isFinal ? 0 : event.deltaY;
             // adaptively hide links
             // notify host of change
-            this.dispatchEvent(new Event("graph-update"));
+            this.dispatchEvent(new Event("graph-update", {
+                bubbles: true,
+                composed: true
+            }));
         } catch (error) {
             console.error(error);
         }
     }
     async __trackStart(node) {
         node.tracking = true;
-        node.trackingTime = this.trackingInitialTime;
+        node.__trackingTime = this.trackingInitialTime;
         node.element.classList.add("tracking");
         if (this.trackingMode == "hiding") {
             console.log("graph-tracker: normally hiding links");
             await this.__hideLinks(node);
         }
-        node.__on_node_paint = this.__onNodePaint.bind(this, node);
+        node.__onNodePaint = this.__onNodePaint.bind(this, node);
         const host = await this.host;
-        host.addEventListener("paint", node.__on_node_paint, {
+        host.addEventListener("paint", node.__onNodePaint, {
             passive: true
         });
     }
     async __trackEnd(node) {
         node.tracking = false;
         node.element.classList.remove("tracking");
-        console.assert(typeof node.__on_node_paint == "function", "invalid or missing node.__on_node_paint");
+        console.assert(typeof node.__onNodePaint == "function", "invalid or missing node.__onNodePaint");
         const host = await this.host;
-        host.removeEventListener("paint", node.__on_node_paint);
+        host.removeEventListener("paint", node.__onNodePaint);
         await this.__showLinks(node);
     }
     async __hideLinks(node) {
         console.log("");
-        if (!node.links_hidden) {
-            node.links_hidden = true;
+        if (!node.__linksHidden) {
+            node.__linksHidden = true;
             const promises = [];
             const host = await this.host;
             for (const [source, target, link] of host.graph.edges()) {
@@ -183,8 +186,8 @@ export default class GraphTracker extends GraphAddon {
         }
     }
     async __showLinks(node) {
-        if (node.links_hidden) {
-            node.links_hidden = false;
+        if (node.__linksHidden) {
+            node.__linksHidden = false;
             console.log("");
             const promises = [];
             const host = await this.host;
@@ -210,14 +213,14 @@ export default class GraphTracker extends GraphAddon {
     }
     async __onNodePaint(node, event) {
         try {
-            if (this.trackingMode == "adaptive" && !node.links_hidden) {
-                console.time("timediff");
+            if (this.trackingMode == "adaptive" && !node.__linksHidden) {
+                // console.time("timediff");
                 const time_difference = await requestTimeDifference();
-                node.trackingTime = (node.trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
-                console.timeEnd("timediff");
+                node.__trackingTime = (node.__trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
+                // console.timeEnd("timediff");
                 console.log("time difference", time_difference);
-                // console.log("graph-tracker: node.trackingTime", node.trackingTime);
-                if (node.trackingTime > 17 && node.tracking) {
+                // console.log("graph-tracker: node.__trackingTime", node.__trackingTime);
+                if (node.__trackingTime > 17 && node.tracking) {
                     console.log("adaptively hiding links", time_difference);
                     await this.__hideLinks(node);
                 }
@@ -227,12 +230,13 @@ export default class GraphTracker extends GraphAddon {
         }
     }
 }
+GraphTracker.tagName = "graph-tracker";
 (async () => {
     try {
         // ensure requirements
         await require(["Hammer"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-tracker", GraphTracker);
+        customElements.define(GraphTracker.tagName, GraphTracker);
     } catch (error) {
         console.error(error);
     }

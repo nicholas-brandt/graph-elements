@@ -21,6 +21,7 @@ const default_configuration = {
 const worker_string = `<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.inject.js -->`;
 // web worker same origin policy requires host to support OPTIONS CORS
 export class GraphD3Force extends GraphAddon {
+    static tagName = "graph-d3-force";
     constructor() {
         super();
         let _configuration = this.configuration;
@@ -190,7 +191,7 @@ export class GraphD3Force extends GraphAddon {
         // ensure requirements
         await require(["d3"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-d3-force", GraphD3Force);
+        customElements.define(GraphD3Force.tagName, GraphD3Force);
     } catch (error) {
         console.error(error);
     }

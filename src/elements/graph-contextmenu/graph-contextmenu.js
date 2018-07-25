@@ -9,10 +9,12 @@ style.textContent = "<!-- inject: ../../../build/elements/graph-contextmenu/grap
 
 export default
 class GraphContextmenu extends GraphAddon {
+    static tagName = "graph-contextmenu";
     constructor() {
         super();
         this.__contextmenusElement = document.createElement("div");
         this.__contextmenusElement.id = "contextmenus";
+        this.appendChild(this.__contextmenusElement);
         this.canvasTemplate = this.querySelector("#canvas");
         if (this.canvasTemplate) {
             this.canvasContextmenu = document.createElement("div");
@@ -31,7 +33,6 @@ class GraphContextmenu extends GraphAddon {
         }, {
             passive: true
         });
-        host.shadowRoot.appendChild(this.__contextmenusElement);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
         }
@@ -162,7 +163,7 @@ class GraphContextmenu extends GraphAddon {
         // ensure requirements
         await require(["Hammer"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-contextmenu", GraphContextmenu);
+        customElements.define(GraphContextmenu.tagName, GraphContextmenu);
     } catch (error) {
         console.error(error);
     }

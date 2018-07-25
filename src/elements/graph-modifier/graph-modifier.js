@@ -10,6 +10,7 @@ const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-modifier/graph-modifier.css -->";
 export default
 class GraphModifier extends GraphAddon {
+    static tagName = "graph-modifier";
     constructor() {
         super();
         // add style
@@ -146,7 +147,7 @@ class GraphModifier extends GraphAddon {
         // ensure requirements
         await require(["Hammer"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-modifier", GraphModifier);
+        customElements.define(GraphModifier.tagName, GraphModifier);
     } catch (error) {
         console.error(error);
     }

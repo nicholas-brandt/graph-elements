@@ -8,6 +8,7 @@ const style = document.createElement("style");
 style.textContent = "<!-- inject: ../../../build/elements/graph-detail-view/graph-detail-view.css -->";
 export default
 class GraphDetailView extends GraphAddon {
+    static tagName = "graph-detail-view";
     constructor() {
         super();
         // define own properties
@@ -163,5 +164,5 @@ class GraphDetailView extends GraphAddon {
 (async () => {
     await require(["Hammer"]);
     await customElements.whenDefined("graph-display");
-    customElements.define("graph-detail-view", GraphDetailView);
+    customElements.define(GraphDetailView.tagName, GraphDetailView);
 })();

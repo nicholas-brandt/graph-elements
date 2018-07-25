@@ -160,8 +160,9 @@ export default class GraphDetailView extends GraphAddon {
         }
     }
 }
+GraphDetailView.tagName = "graph-detail-view";
 (async () => {
     await require(["Hammer"]);
     await customElements.whenDefined("graph-display");
-    customElements.define("graph-detail-view", GraphDetailView);
+    customElements.define(GraphDetailView.tagName, GraphDetailView);
 })();

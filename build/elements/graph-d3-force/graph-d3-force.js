@@ -293,13 +293,14 @@ export class GraphD3Force extends GraphAddon {
             });
         }
     }
-};
+}GraphD3Force.tagName = "graph-d3-force";
+;
 (async () => {
     try {
         // ensure requirements
         await require(["d3"]);
         await customElements.whenDefined("graph-display");
-        customElements.define("graph-d3-force", GraphD3Force);
+        customElements.define(GraphD3Force.tagName, GraphD3Force);
     } catch (error) {
         console.error(error);
     }

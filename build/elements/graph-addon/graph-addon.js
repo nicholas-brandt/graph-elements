@@ -43,7 +43,10 @@ export default class GraphAddon extends HTMLElement {
         })();
     }
     connectedCallback() {
-        this.dispatchEvent(new Event("addon-registry", {
+        this.dispatchEvent(new CustomEvent("addon-registry", {
+            detail: {
+                name: this.constructor.name
+            },
             bubbles: true,
             composed: true
         }));

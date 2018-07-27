@@ -8,13 +8,16 @@ async function addContextmenuEntries(host) {
     // contextmenu addon present
     const graph_d3_force = await host.addonPromises["graph-d3-force"];
     const graph_contextmenu = await host.addonPromises["graph-contextmenu"];
-    addCanvasContextmenuEntries.call(graph_d3_force, graph_contextmenu.canvasContextmenu);
+    const promises = [];
     for (const node of host.nodes) {
-        addNodeContextmenuEntries.call(graph_d3_force, node.contextmenu);
+        const promise = addNodeContextmenuEntries.call(graph_d3_force, node.contextmenu);
+        promises.push(promise);
     }
+    await addCanvasContextmenuEntries.call(graph_d3_force, graph_contextmenu.canvasContextmenu);
+    await Promise.all(promises);
 };
 
-function addCanvasContextmenuEntries(contextmenu) {
+async function addCanvasContextmenuEntries(contextmenu) {
     const toggle_force_entry = document.createElement("div");
     toggle_force_entry.textContent = "Start force layout";
     toggle_force_entry.hammer = new Hammer(toggle_force_entry);

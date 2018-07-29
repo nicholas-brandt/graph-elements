@@ -6,7 +6,8 @@ import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 
 const style = document.createElement("style");
-style.textContent = ":host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50);padding:10px;box-sizing:border-box}:host>*{flex:1;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}";
+style.textContent = `:host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50);padding:10px;box-sizing:border-box}:host>*{flex:1;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}`;
+
 export default class GraphDetailView extends GraphAddon {
     constructor() {
         super();
@@ -23,7 +24,8 @@ export default class GraphDetailView extends GraphAddon {
             mode: "open"
         });
         // add style
-        this.shadowRoot.appendChild(style.cloneNode(true));
+        this.styleElement = this.constructor.styleElement.cloneNode(true);
+        this.shadowRoot.appendChild(this.styleElement);
         // migrate all children
         for (const child of this.children) {
             this.shadowRoot.appendChild(child);
@@ -161,6 +163,7 @@ export default class GraphDetailView extends GraphAddon {
     }
 }
 GraphDetailView.tagName = "graph-detail-view";
+GraphDetailView.styleElement = style;
 (async () => {
     await require(["Hammer"]);
     await customElements.whenDefined("graph-display");

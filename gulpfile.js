@@ -1,21 +1,24 @@
 const exec = require("child_process").exec;
 const gulp = require("gulp");
+const gulp_debug = require("gulp-debug");
 const {
     bundles, modules
 } = require("./gulpfile.json");
 for (const bundle in bundles) {
     const tasks = bundles[bundle];
+    const task_names = [];
     for (const task_name in tasks) {
         try {
             const task = tasks[task_name];
-            gulp.task(task_name, () => {
+            // console.log(task_name);
+            const direct_task = () => {
+                return task_function(gulp.src(task.src));
+            };
+            const watch_task = () => {
                 const gulp_watch = require("gulp-watch");
-                let pipe_part;
-                if (task.watch) {
-                    pipe_part = gulp_watch(task.src, modules["gulp-watch"]);
-                } else {
-                    pipe_part = gulp.src(task.src);
-                }
+                return task_function(gulp_watch(task.src, modules["gulp-watch"]));
+            };
+            const task_function = pipe_part => {
                 for (const part of task.chain) {
                     const module_name = typeof part == "string" ? part : part.module;
                     let pipe_function = require(module_name);
@@ -30,12 +33,29 @@ for (const bundle in bundles) {
                     pipe_part = pipe_part.pipe(gulp.dest(task.dest));
                 }
                 return pipe_part;
-            });
+            };
+            const bundled_task_name = bundle + "-" + task_name;
+            task_names.push(bundled_task_name);
+            if (task.watch) {
+                task_names.push(bundled_task_name + "-watch");
+            }
+            if (Array.isArray(task.dependencies) && task.dependencies.length) {
+                const dependencies = task.dependencies.map(name => bundle + "-" + name);
+                gulp.task(bundled_task_name, gulp.series(gulp.parallel(...dependencies), direct_task));
+                if (task.watch) {
+                    gulp.task(bundled_task_name + "-watch", gulp.series(gulp.parallel(...dependencies), watch_task));
+                }
+            } else {
+                gulp.task(bundled_task_name, direct_task);
+                if (task.watch) {
+                    gulp.task(bundled_task_name + "-watch", watch_task);
+                }
+            }
         } catch (e) {
             console.error(e);
         }
     }
-    gulp.task(bundle, gulp.parallel(Object.getOwnPropertyNames(tasks)));
+    gulp.task(bundle, gulp.parallel(task_names));
     gulp.task("init-" + bundle, () => new Promise((resolve, reject) => {
         exec("npm install --save-dev gulp-watch " + Object.getOwnPropertyNames(modules).join(" "), error => {
             (error ? reject : resolve)();

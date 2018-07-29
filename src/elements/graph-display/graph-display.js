@@ -5,8 +5,11 @@ import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c4396
 import {Node, Link} from "../../helper/GraphClasses.js";
 
 const style = document.createElement("style");
-style.textContent = "<!-- inject: ../../../build/elements/graph-display/graph-display.css -->";
+style.textContent = `<!-- inject: ./graph-display.css -->`;
+
 export class GraphDisplay extends HTMLElement {
+    static tagName = "graph-display";
+    static styleElement = style;
     constructor() {
         super();
         // shadow stuff
@@ -92,7 +95,8 @@ export class GraphDisplay extends HTMLElement {
             passive: true
         });
         // add style
-        this.shadowRoot.appendChild(style.cloneNode(true));
+        const style = this.constructor.styleElement.cloneNode(true);
+        this.shadowRoot.appendChild(style);
         this.shadowRoot.appendChild(this.svg);
         // migrate all children
         // quirk - not all children get imported

@@ -8,12 +8,14 @@ import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
 const style = document.createElement("style");
-style.textContent = ":host>svg>#graph-group>circle.node{transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>#graph-group>circle.node.modifying{fill:#8bc34a;stroke:#33691e;stroke-dasharray:8,2}";
+style.textContent = `:host>svg>#graph-group>circle.node{transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>#graph-group>circle.node.modifying{fill:#8bc34a;stroke:#33691e;stroke-dasharray:8,2}`;
+
 export default class GraphModifier extends GraphAddon {
     constructor() {
         super();
         // add style
-        this.appendChild(style.cloneNode(true));
+        this.styleElement = this.constructor.styleElement.cloneNode(true);
+        this.appendChild(this.styleElement);
     }
     hosted(host) {
         console.log("");
@@ -142,6 +144,7 @@ export default class GraphModifier extends GraphAddon {
     }
 }
 GraphModifier.tagName = "graph-modifier";
+GraphModifier.styleElement = style;
 (async () => {
     try {
         // ensure requirements

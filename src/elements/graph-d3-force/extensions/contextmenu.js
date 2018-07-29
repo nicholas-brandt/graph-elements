@@ -1,14 +1,20 @@
 "use strict";
+import console from "../../../helper/console.js";
 
-import console from "../../helper/console.js";
+import require from "../../../helper/require.js";
+// import "https://unpkg.com/@polymer/paper-input@next/paper-input.js?module";
 
-import require from "../../helper/require.js";
+const canvas_contextmenu_html = `<!-- inject: ./canvas.contextmenu.html -->`;
+const style = document.createElement("style");
+style.textContent = `<!-- inject: ./contextmenu.css -->`;
 
 async function addContextmenuEntries(host) {
     console.log(this, host);
     // contextmenu addon present
-    const graph_d3_force = await host.addonPromises["graph-d3-force"];
     const graph_contextmenu = await host.addonPromises["graph-contextmenu"];
+    graph_contextmenu.styleElement.textContent += style.textContent;
+    
+    const graph_d3_force = await host.addonPromises["graph-d3-force"];
     const promises = [];
     for (const node of host.nodes) {
         const promise = addNodeContextmenuEntries.call(graph_d3_force, node.contextmenu);
@@ -19,53 +25,38 @@ async function addContextmenuEntries(host) {
 };
 
 async function addCanvasContextmenuEntries(contextmenu) {
-    const toggle_force_entry = document.createElement("div");
-    toggle_force_entry.textContent = "Start force layout";
-    toggle_force_entry.hammer = new Hammer(toggle_force_entry);
-    toggle_force_entry.hammer.on("tap", async event => {
-        console.log("tap");
-        switch (this.state) {
-            case "running":
-                await this.stop();
-                break;
-            case "idle":
-                await this.start();
-        }
+    contextmenu.insertAdjacentHTML("beforeend", canvas_contextmenu_html);
+    const force_container = contextmenu.querySelector("#force.menu-group");
+    const start_force = force_container.querySelector("#start-force");
+    start_force.hammer = new Hammer(start_force);
+    start_force.hammer.on("tap", async event => {
+        await this.start();
+        await this.hideContextmenu();
+    });
+    const stop_force = force_container.querySelector("#stop-force");
+    stop_force.hammer = new Hammer(stop_force);
+    stop_force.hammer.on("tap", async event => {
+        await this.stop();
         await this.hideContextmenu();
     });
     this.addEventListener("simulationstart", event => {
         console.log("");
-        toggle_force_entry.textContent = "Stop force layout";
+        contextmenu.parentElement.setAttribute("simulation", "running");
     });
-    this.addEventListener("simulationstop", event => {
+    function onsimulationhalt() {
         console.log("");
-        toggle_force_entry.textContent = "Start force layout";
-    });
-    this.addEventListener("simulationend", event => {
-        console.log("");
-        toggle_force_entry.textContent = "Start force layout";
-    });
-    contextmenu.appendChild(toggle_force_entry);
-
-    const force_parameter_entry = document.createElement("div");
-    force_parameter_entry.hammer = new Hammer(force_parameter_entry);
-    contextmenu.appendChild(force_parameter_entry);
-
-    const distance_entry = document.createElement("input");
-    distance_entry.type = "number";
-    distance_entry.value = this.configuration.link.distance;
-    distance_entry.addEventListener("change", async event => {
-        console.log("change", event);
-        this.configuration.link.distance = distance_entry.value;
-        this.configuration = this.configuration;
-    });
-    force_parameter_entry.appendChild(distance_entry);
-    // @TODO: add other configuration patameters (polymer?)
+        contextmenu.parentElement.setAttribute("simulation", "idle");
+    }
+    this.addEventListener("simulationstop", onsimulationhalt);
+    this.addEventListener("simulationend", onsimulationhalt);
+    
+    // @TODO: add other configuration patameters (https://github.com/unpkg/unpkg.com/issues/122)
 }
 
 function addNodeContextmenuEntries(contextmenu) {}
 
-export default (async () => {
+export default
+(async () => {
     try {
         await require(["Hammer"]);
         await customElements.whenDefined("graph-d3-force");
@@ -88,6 +79,7 @@ export default (async () => {
                 await graph_display.__callWhenAddonHosted("graph-contextmenu", addContextmenuEntries);
             }
         });
+        
         await Promise.all(promises);
     } catch (error) {
         console.error(error);

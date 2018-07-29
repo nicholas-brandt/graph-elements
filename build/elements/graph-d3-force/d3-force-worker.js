@@ -24,7 +24,8 @@ simulation.on("tick", () => {
     // console.log("WORKER: buffer length", buffer_length);
     // transfer buffer for faster propagation to display
     postMessage({
-        buffer: buffer_array.buffer
+        buffer: buffer_array.buffer,
+        alpha: simulation.alpha()
     }, [buffer_array.buffer]);
     buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
 });
@@ -34,7 +35,7 @@ simulation.on("end", () => {
         end: true
     });
 });
-addEventListener("message", ({data}) => {
+addEventListener("message", ({ data }) => {
     console.log("WORKER: get message", data);
     if (data.configuration) {
         const {
@@ -86,7 +87,7 @@ addEventListener("message", ({data}) => {
     }
     if (data.graph && data.buffer) {
         buffer_array = new Float32Array(data.buffer);
-        const {nodes, links} = data.graph;
+        const { nodes, links } = data.graph;
         simulation.nodes(nodes);
         link_force.links(links);
     }
@@ -105,5 +106,8 @@ addEventListener("message", ({data}) => {
         } else {
             simulation.stop();
         }
+    }
+    if ("getConfiguration" in data) {
+        postMessage({ configuration });
     }
 });

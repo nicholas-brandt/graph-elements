@@ -5,10 +5,12 @@ import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 
 const style = document.createElement("style");
-style.textContent = "<!-- inject: ../../../build/elements/graph-detail-view/graph-detail-view.css -->";
+style.textContent = `<!-- inject: ./graph-detail-view.css -->`;
+
 export default
 class GraphDetailView extends GraphAddon {
     static tagName = "graph-detail-view";
+    static styleElement = style;
     constructor() {
         super();
         // define own properties
@@ -24,7 +26,8 @@ class GraphDetailView extends GraphAddon {
             mode: "open"
         });
         // add style
-        this.shadowRoot.appendChild(style.cloneNode(true));
+        this.styleElement = this.constructor.styleElement.cloneNode(true);
+        this.shadowRoot.appendChild(this.styleElement);
         // migrate all children
         for (const child of this.children) {
             this.shadowRoot.appendChild(child);

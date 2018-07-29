@@ -5,11 +5,12 @@ import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 
 const style = document.createElement("style");
-style.textContent = "<!-- inject: ../../../build/elements/graph-contextmenu/graph-contextmenu.css -->";
+style.textContent = `<!-- inject: ./graph-contextmenu.css -->`;
 
 export default
 class GraphContextmenu extends GraphAddon {
     static tagName = "graph-contextmenu";
+    static styleElement = style;
     constructor() {
         super();
         console.log("");
@@ -29,7 +30,8 @@ class GraphContextmenu extends GraphAddon {
         this.__contextmenusElement.appendChild(this.canvasContextmenu);
         this.nodeTemplate = this.querySelector("#node");
         // add style
-        this.appendChild(style.cloneNode(true));
+        this.styleElement = this.constructor.styleElement.cloneNode(true);
+        this.appendChild(this.styleElement);
     }
     async hosted(host) {
         console.log("");

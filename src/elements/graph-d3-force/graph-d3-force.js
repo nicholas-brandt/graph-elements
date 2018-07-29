@@ -6,7 +6,7 @@ import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
-const worker_string = `<!-- inject: ../../../build/elements/graph-d3-force/d3-force-worker.inject.js -->`;
+const worker_string = `<!-- inject: ./d3-force-worker.js -->`;
 // web worker same origin policy requires host to support OPTIONS CORS
 
 export class GraphD3Force extends GraphAddon {
@@ -21,7 +21,9 @@ export class GraphD3Force extends GraphAddon {
         },
         gravitation: {
             strength: 100
-        }
+        },
+        alphaMin: 1e-3,
+        alpha: 1
     };
     constructor() {
         super();

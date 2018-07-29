@@ -1,11 +1,12 @@
 importScripts("https://d3js.org/d3.v4.min.js");
-// importScripts(this.origin + "/node_modules/d3/build/d3.js");
 
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
+
 let buffer_array;
+
 simulation.force("link", link_force);
 simulation.force("center", center_force);
 simulation.force("charge", charge_force);
@@ -24,7 +25,8 @@ simulation.on("tick", () => {
     // console.log("WORKER: buffer length", buffer_length);
     // transfer buffer for faster propagation to display
     postMessage({
-        buffer: buffer_array.buffer
+        buffer: buffer_array.buffer,
+        alpha: simulation.alpha()
     }, [buffer_array.buffer]);
     buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
 });
@@ -34,7 +36,8 @@ simulation.on("end", () => {
         end: true
     });
 });
-addEventListener("message", ({ data }) => {
+
+addEventListener("message", ({data}) => {
     console.log("WORKER: get message", data);
     if (data.configuration) {
         const {
@@ -86,7 +89,7 @@ addEventListener("message", ({ data }) => {
     }
     if (data.graph && data.buffer) {
         buffer_array = new Float32Array(data.buffer);
-        const { nodes, links } = data.graph;
+        const {nodes, links} = data.graph;
         simulation.nodes(nodes);
         link_force.links(links);
     }
@@ -105,5 +108,8 @@ addEventListener("message", ({ data }) => {
         } else {
             simulation.stop();
         }
+    }
+    if ("getConfiguration" in data) {
+        postMessage({configuration});
     }
 });

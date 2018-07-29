@@ -1,12 +1,14 @@
 @import (reference) "../../styles.less";
 
 @menu-distance: 10px;
+@primary-color: hsl(0, 0%, 30%);
 
 :host {
     >graph-contextmenu>#contextmenus {
         position: absolute;
         display: block;
         .contextmenu {
+            color: @primary-color;
             font: 13px Roboto;
             display: none;
             flex-direction: column;
@@ -14,23 +16,39 @@
             overflow-y: auto;
             width: fit-content;
             border-radius: 1px;
-            box-shadow: 0 1px 5px ~"hsl(0, 0%, 60%)";
+            box-shadow: 0 1px 5px @primary-color;
             background: white;
             padding: @menu-distance / 2 0;
             &.visible {
                 display: flex;
             }
-            >* {
+            &,
+            .menu-group {
+                >:not(.menu-group) {
+                    flex: 0 0 auto;
+                    padding: @menu-distance / 2 @menu-distance * 2;
+                    border: 0 none;
+                    margin: 0;
+                }
+                >:not(.menu-group) {
+                    &:focus {
+                        outline: none;
+                    }
+                    &:hover {
+                        background: fade(@primary-color, 15%);
+                    }
+                }
+            }
+            .menu-group {
+                display: flex;
+                flex-direction: column;
                 flex: 0 0 auto;
-                padding: @menu-distance / 2 @menu-distance * 2;
-                border: 0 none;
-                margin: 0;
-            }
-            >:hover {
-                background: ~"hsl(0, 0%, 60%, 30%)";
-            }
-            >:focus {
-                outline: none;
+                &:not(:first-child),
+                +* {
+                    border-top: 1px solid fade(@primary-color, 15%);
+                    margin-top: 5px;
+                    padding-top: 5px;
+                }
             }
         }
     }

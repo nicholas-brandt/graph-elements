@@ -2,6 +2,8 @@
 import console from "../../../helper/console.js";
 
 import "https://unpkg.com/@polymer/paper-progress@next/paper-progress.js?module";
+import "https://unpkg.com/@polymer/iron-input@next/iron-input.js?module";
+import "https://unpkg.com/@polymer/paper-slider@next/paper-slider.js?module";
 
 const progress_html = `<!-- inject: ./progress.html -->`;
 const custom_style = document.createElement("custom-style");
@@ -19,7 +21,13 @@ async function addProgressbar(host) {
     progressbar.value = graph_d3_force.configuration.alpha;
     graph_d3_force.worker.addEventListener("message", ({data}) => {
         if (data.alpha) {
-            progressbar.value = (1 - data.alpha) / (1 - graph_d3_force.configuration.alphaMin) * 100
+            console.log("alpha", data.alpha);
+            progressbar.classList.add("visible");
+            progressbar.value = (1 - data.alpha) / (1 - graph_d3_force.configuration.alphaMin) * 100;
+            clearTimeout(progressbar.visibilityTimeout);
+            progressbar.visibilityTimeout = setTimeout(() => {
+                progressbar.classList.remove("visible");
+            }, 4000);
         }
     }, {
         passive: true

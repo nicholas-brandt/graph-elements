@@ -1,8 +1,17 @@
+@import (reference) "../../../styles.less";
+
 paper-progress#progress {
     position: absolute;
     left: 0;
     width: 100%;
     height: 10px;
     --paper-progress-transition-duration: 0.4s;
-    --paper-progress-transition-timing-function: ease-in;
+    --paper-progress-transition-timing-function: ease;
+    --paper-progress-container-color: transparent;
+    --paper-progress-active-color: @color-toolbar-background;
+    transition: opacity .3s;
+    opacity: 0;
+    &.visible {
+        opacity: 1;
+    }
 }

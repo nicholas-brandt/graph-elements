@@ -1,16 +1,50 @@
 importScripts("https://d3js.org/d3.v4.min.js");
+// importScripts("../../helper/associate.js");
 
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
-
-let buffer_array;
-
 simulation.force("link", link_force);
 simulation.force("center", center_force);
 simulation.force("charge", charge_force);
 simulation.stop();
+
+const attributes = ["alpha", "alphaMin", "alphaTarget", "alphaDecay", "velocityDecay"];
+const link_attributes = ["distance", "strength"];
+const charge_attributes = ["strength", "distanceMax", "distanceMin"];
+
+const configuration = {};
+const link_configuration = {};
+const charge_configuration = {};
+Object.defineProperties(configuration, {
+    link: {
+        get() {
+            return link_configuration;
+        },
+        set(value) {
+            Object.assign(link_configuration, value);
+        },
+        enumerable: true,
+        configurable: true
+    },
+    charge: {
+        get() {
+            return charge_configuration;
+        },
+        set(value) {
+            Object.assign(charge_configuration, value);
+        },
+        enumerable: true,
+        configurable: true
+    }
+});
+associate(configuration, simulation, attributes);
+associate(configuration.link, link_force, link_attributes);
+associate(configuration.charge, charge_force, charge_attributes);
+
+let buffer_array;
+
 simulation.on("tick", () => {
     const nodes = simulation.nodes();
     for (let i = 0; i < nodes.length; ++i) {
@@ -40,51 +74,12 @@ simulation.on("end", () => {
 addEventListener("message", ({data}) => {
     console.log("WORKER: get message", data);
     if (data.configuration) {
-        const {
-            link,
-            charge,
-            gravitation,
-            alpha,
-            alphaTarget,
-            alphaMin,
-            alphaDecay,
-            velocityDecay
-        } = data.configuration;
-        if (link) {
-            if ("distance" in link) {
-                link_force.distance(link.distance);
-            }
-            if ("strength" in link) {
-                link_force.strength(link.strength);
-            }
+        Object.assign(configuration, data.configuration);
+        if (data.configuration.link) {
             simulation.force("link", link_force);
         }
-        if (charge) {
-            if ("strength" in charge) {
-                charge_force.strength(charge.strength);
-            }
-            if ("maxDistance" in charge) {
-                charge_force.maxDistance(charge.maxDistance);
-            }
-            if ("minDistance" in charge) {
-                charge_force.minDistance(charge.minDistance);
-            }
+        if (data.configuration.charge) {
             simulation.force("charge", charge_force);
-        }
-        if (alpha !== undefined) {
-            simulation.alpha(alpha);
-        }
-        if (alphaTarget !== undefined) {
-            simulation.alphaTarget(alphaTarget);
-        }
-        if (alphaMin !== undefined) {
-            simulation.alphaMin(alphaMin);
-        }
-        if (alphaDecay !== undefined) {
-            simulation.alpha(alphaDecay);
-        }
-        if (velocityDecay !== undefined) {
-            simulation.velocityDecay(velocityDecay);
         }
     }
     if (data.graph && data.buffer) {
@@ -109,7 +104,32 @@ addEventListener("message", ({data}) => {
             simulation.stop();
         }
     }
-    if ("getConfiguration" in data) {
-        postMessage({configuration});
+    if (false && data.getConfiguration) {
+        const data = {
+            configuration: Object.assign({}, configuration, {
+                link: Object.assign({}, configuration.link),
+                charge: Object.assign({}, configuration.charge)
+            })
+        };
+        postMessage(data);
     }
 });
+
+function associate(proxy, target, attributes) {
+    const descriptors = {};
+    for (const attribute of attributes) {
+        descriptors[attribute] = {
+            get() {
+                console.assert(typeof target[attribute] == "function", "invalid attribute", attribute);
+                return target[attribute]();
+            },
+            set(value) {
+                console.assert(typeof target[attribute] == "function", "invalid attribute", attribute);
+                target[attribute](value);
+            },
+            enumerable: true,
+            configurable: true
+        };
+    }
+    Object.defineProperties(proxy, descriptors);
+}

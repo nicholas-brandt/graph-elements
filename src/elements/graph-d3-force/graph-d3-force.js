@@ -13,17 +13,21 @@ export class GraphD3Force extends GraphAddon {
     static tagName = "graph-d3-force";
     static defaultConfiguration = {
         link: {
-            distance: 40,
-            strength: 0.5
+            distance: 20,
+            strength: .4
         },
         charge: {
-            strength: -60
+            strength: -300,
+            distanceMax: 2e2
         },
         gravitation: {
             strength: 100
         },
         alphaMin: 1e-3,
-        alpha: 1
+        alpha: .5,
+        alphaDecay: 1 - 1e-3 ** (1 / 600),
+        alphaTarget: 0,
+        velocityDecay: 0.1
     };
     constructor() {
         super();
@@ -57,10 +61,19 @@ export class GraphD3Force extends GraphAddon {
             }
         });
         this.__state = "idle";
-        const on_worker_message = requestAnimationFunction(async ({data}) => {
+        const on_worker_message = ({data}) => {
+            if (data.configuration) {
+                console.log("assign configuration from worker");
+                Object.assign(this.configuration, data.configuration);
+                Object.assign(this.configuration.link, data.configuration.link);
+                Object.assign(this.configuration.charge, data.configuration.charge);
+            }
+            this.__requestApplication(data);
+        };
+        this.__requestApplication = requestAnimationFunction(async data => {
             try {
-                console.log("receive worker update");
                 if (this.state == "running" && data.buffer) {
+                    console.log("receive worker buffer");
                     const buffer_array = new Float32Array(data.buffer);
                     await this.__applyGraphUpdate(buffer_array);
                 }
@@ -80,12 +93,9 @@ export class GraphD3Force extends GraphAddon {
             passive: true
         });
         this.configuration = _configuration || this.constructor.defaultConfiguration;
-        /*
-        this.interconnects = [{
-            addonName: "graph-contextmenu",
-            callback: this.__addContextmenuEntries
-        }];
-        */
+        this.worker.postMessage({
+            getConfiguration: true
+        });
     }
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {

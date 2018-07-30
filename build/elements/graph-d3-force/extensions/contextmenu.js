@@ -11,7 +11,7 @@ const canvas_contextmenu_html = `<div id="force" class="menu-group">
     <paper-input label="Distance"></paper-input>
 </div>`;
 const style = document.createElement("style");
-style.textContent = ``;
+style.textContent = `[simulation=running] #start-force,[simulation]:not([simulation=running]) #stop-force{color:rgba(51,51,51,.5)}`;
 
 async function addContextmenuEntries(host) {
     console.log(this, host);
@@ -22,38 +22,50 @@ async function addContextmenuEntries(host) {
     const graph_d3_force = await host.addonPromises["graph-d3-force"];
     const promises = [];
     for (const node of host.nodes) {
-        const promise = addNodeContextmenuEntries.call(graph_d3_force, node.contextmenu);
+        const promise = addNodeContextmenuEntries(graph_d3_force, graph_contextmenu, node.contextmenu);
         promises.push(promise);
     }
-    await addCanvasContextmenuEntries.call(graph_d3_force, graph_contextmenu.canvasContextmenu);
+    await addCanvasContextmenuEntries(graph_d3_force, graph_contextmenu, graph_contextmenu.canvasContextmenu);
     await Promise.all(promises);
 };
 
-async function addCanvasContextmenuEntries(contextmenu) {
+async function addCanvasContextmenuEntries(graph_d3_force, graph_contextmenu, contextmenu) {
     contextmenu.insertAdjacentHTML("beforeend", canvas_contextmenu_html);
     const force_container = contextmenu.querySelector("#force.menu-group");
     const start_force = force_container.querySelector("#start-force");
     start_force.hammer = new Hammer(start_force);
     start_force.hammer.on("tap", async event => {
-        await this.start();
-        await this.hideContextmenu();
+        if (graph_d3_force.state != "running") {
+            await graph_contextmenu.hideContextmenu();
+        }
+        await graph_d3_force.start();
     });
     const stop_force = force_container.querySelector("#stop-force");
     stop_force.hammer = new Hammer(stop_force);
     stop_force.hammer.on("tap", async event => {
-        await this.stop();
-        await this.hideContextmenu();
+        if (graph_d3_force.state == "running") {
+            await graph_contextmenu.hideContextmenu();
+        }
+        await graph_d3_force.stop();
     });
-    this.addEventListener("simulationstart", event => {
+    graph_d3_force.addEventListener("simulationstart", onsimulationrunning);
+    graph_d3_force.addEventListener("simulationstop", onsimulationhalt);
+    graph_d3_force.addEventListener("simulationend", onsimulationhalt);
+
+    if (graph_d3_force.state == "running") {
+        onsimulationrunning();
+    } else {
+        onsimulationhalt();
+    }
+
+    function onsimulationrunning() {
         console.log("");
         contextmenu.parentElement.setAttribute("simulation", "running");
-    });
+    }
     function onsimulationhalt() {
         console.log("");
         contextmenu.parentElement.setAttribute("simulation", "idle");
     }
-    this.addEventListener("simulationstop", onsimulationhalt);
-    this.addEventListener("simulationend", onsimulationhalt);
 
     // @TODO: add other configuration patameters (https://github.com/unpkg/unpkg.com/issues/122)
 }

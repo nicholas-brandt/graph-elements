@@ -3,8 +3,6 @@
 import console from "../../../helper/console.js";
 
 import "https://unpkg.com/@polymer/paper-progress@next/paper-progress.js?module";
-import "https://unpkg.com/@polymer/iron-input@next/iron-input.js?module";
-import "https://unpkg.com/@polymer/paper-slider@next/paper-slider.js?module";
 
 const progress_html = `<paper-progress id="progress" class="transiting"></paper-progress>`;
 const custom_style = document.createElement("custom-style");

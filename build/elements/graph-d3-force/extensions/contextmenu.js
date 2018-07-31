@@ -3,15 +3,22 @@
 import console from "../../../helper/console.js";
 
 import require from "../../../helper/require.js";
+
 // import "https://unpkg.com/@polymer/paper-input@next/paper-input.js?module";
+import "https://unpkg.com/@polymer/iron-input@next/iron-input.js?module";
+// import "https://unpkg.com/@polymer/paper-slider@next/paper-slider.js?module";
 
 const canvas_contextmenu_html = `<div id="force" class="menu-group">
     <div id="start-force">Start force layout</div>
     <div id="stop-force">Stop force layout</div>
+    <div>
+        <label>Alpha</label>
+        <input id="alpha" label="Alpha" type="number">
+    </div>
     <paper-input label="Distance"></paper-input>
 </div>`;
 const style = document.createElement("style");
-style.textContent = `[simulation=running] #start-force,[simulation]:not([simulation=running]) #stop-force{color:rgba(51,51,51,.5)}`;
+style.textContent = `#contextmenus[simulation=running] #start-force,#contextmenus[simulation]:not([simulation=running]) #stop-force{color:rgba(51,51,51,.5)}`;
 
 async function addContextmenuEntries(host) {
     console.log(this, host);
@@ -47,6 +54,14 @@ async function addCanvasContextmenuEntries(graph_d3_force, graph_contextmenu, co
             await graph_contextmenu.hideContextmenu();
         }
         await graph_d3_force.stop();
+    });
+    const alpha_input = force_container.querySelector("#alpha");
+    alpha_input.value = graph_d3_force.configuration.alpha;
+    alpha_input.addEventListener("change", () => {
+        console.log("alpha value", alpha_input.value);
+        const configuration = graph_d3_force.configuration;
+        configuration.alpha = alpha_input.value;
+        graph_d3_force.configuration = configuration;
     });
     graph_d3_force.addEventListener("simulationstart", onsimulationrunning);
     graph_d3_force.addEventListener("simulationstop", onsimulationhalt);

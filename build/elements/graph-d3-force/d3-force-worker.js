@@ -1,10 +1,13 @@
-importScripts("https://d3js.org/d3.v4.min.js");
+importScripts("https://unpkg.com/d3@5.5.0/dist/d3.min.js");
+// importScripts("https://d3js.org/d3.v4.min.js");
 // importScripts("../../helper/associate.js");
 
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
+const gravitation_force = d3.forceRadial(0);
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
+simulation.force("position", gravitation_force);
 simulation.force("link", link_force);
 simulation.force("center", center_force);
 simulation.force("charge", charge_force);
@@ -13,10 +16,12 @@ simulation.stop();
 const attributes = ["alpha", "alphaMin", "alphaTarget", "alphaDecay", "velocityDecay"];
 const link_attributes = ["distance", "strength"];
 const charge_attributes = ["strength", "distanceMax", "distanceMin"];
+const gravitation_attributes = ["strength"];
 
 const configuration = {};
 const link_configuration = {};
 const charge_configuration = {};
+const gravitation_configuration = {};
 Object.defineProperties(configuration, {
     link: {
         get() {
@@ -37,11 +42,22 @@ Object.defineProperties(configuration, {
         },
         enumerable: true,
         configurable: true
+    },
+    gravitation: {
+        get() {
+            return gravitation_configuration;
+        },
+        set(value) {
+            Object.assign(gravitation_configuration, value);
+        },
+        enumerable: true,
+        configurable: true
     }
 });
 associate(configuration, simulation, attributes);
 associate(configuration.link, link_force, link_attributes);
 associate(configuration.charge, charge_force, charge_attributes);
+associate(configuration.gravitation, gravitation_force, gravitation_attributes);
 
 let buffer_array;
 

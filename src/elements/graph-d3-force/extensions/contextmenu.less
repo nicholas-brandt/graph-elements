@@ -1,6 +1,8 @@
 @import (reference) "../../../styles.less";
 
-[simulation=running] #start-force,
-[simulation]:not([simulation=running]) #stop-force {
-    color: fade(@color-menu, 50%);
+#contextmenus {
+    &[simulation=running] #start-force,
+    &[simulation]:not([simulation=running]) #stop-force {
+        color: fade(@color-menu, 50%);
+    }
 }

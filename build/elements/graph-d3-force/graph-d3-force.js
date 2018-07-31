@@ -7,13 +7,16 @@ import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
-const worker_string = `importScripts("https://d3js.org/d3.v4.min.js");
+const worker_string = `importScripts("https://unpkg.com/d3@5.5.0/dist/d3.min.js");
+// importScripts("https://d3js.org/d3.v4.min.js");
 // importScripts("../../helper/associate.js");
 
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
+const gravitation_force = d3.forceRadial(0);
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
+simulation.force("position", gravitation_force);
 simulation.force("link", link_force);
 simulation.force("center", center_force);
 simulation.force("charge", charge_force);
@@ -22,10 +25,12 @@ simulation.stop();
 const attributes = ["alpha", "alphaMin", "alphaTarget", "alphaDecay", "velocityDecay"];
 const link_attributes = ["distance", "strength"];
 const charge_attributes = ["strength", "distanceMax", "distanceMin"];
+const gravitation_attributes = ["strength"];
 
 const configuration = {};
 const link_configuration = {};
 const charge_configuration = {};
+const gravitation_configuration = {};
 Object.defineProperties(configuration, {
     link: {
         get() {
@@ -46,11 +51,22 @@ Object.defineProperties(configuration, {
         },
         enumerable: true,
         configurable: true
+    },
+    gravitation: {
+        get() {
+            return gravitation_configuration;
+        },
+        set(value) {
+            Object.assign(gravitation_configuration, value);
+        },
+        enumerable: true,
+        configurable: true
     }
 });
 associate(configuration, simulation, attributes);
 associate(configuration.link, link_force, link_attributes);
 associate(configuration.charge, charge_force, charge_attributes);
+associate(configuration.gravitation, gravitation_force, gravitation_attributes);
 
 let buffer_array;
 
@@ -183,6 +199,7 @@ export class GraphD3Force extends GraphAddon {
                 Object.assign(this.configuration, data.configuration);
                 Object.assign(this.configuration.link, data.configuration.link);
                 Object.assign(this.configuration.charge, data.configuration.charge);
+                Object.assign(this.configuration.gravitation, data.configuration.gravitation);
             }
             this.__requestApplication(data);
         };
@@ -195,6 +212,7 @@ export class GraphD3Force extends GraphAddon {
                 }
                 if (data.end) {
                     console.log("worker end");
+                    this.__state = "idle";
                     await this.__showLinks();
                     this.dispatchEvent(new Event("simulationend", {
                         bubbles: true,
@@ -243,7 +261,8 @@ export class GraphD3Force extends GraphAddon {
                 links
             },
             buffer,
-            run
+            run,
+            configuration: this.configuration
         };
         if (run !== undefined) {
             message.run = !!run;
@@ -343,11 +362,12 @@ GraphD3Force.defaultConfiguration = {
         strength: .4
     },
     charge: {
-        strength: -300,
+        strength: -1e3,
         distanceMax: 2e2
     },
     gravitation: {
-        strength: 100
+        strength: .1,
+        radius: 0
     },
     alphaMin: 1e-3,
     alpha: .5,

@@ -17,11 +17,12 @@ export class GraphD3Force extends GraphAddon {
             strength: .4
         },
         charge: {
-            strength: -300,
+            strength: -1e3,
             distanceMax: 2e2
         },
         gravitation: {
-            strength: 100
+            strength: .1,
+            radius: 0
         },
         alphaMin: 1e-3,
         alpha: .5,
@@ -67,6 +68,7 @@ export class GraphD3Force extends GraphAddon {
                 Object.assign(this.configuration, data.configuration);
                 Object.assign(this.configuration.link, data.configuration.link);
                 Object.assign(this.configuration.charge, data.configuration.charge);
+                Object.assign(this.configuration.gravitation, data.configuration.gravitation);
             }
             this.__requestApplication(data);
         };
@@ -79,6 +81,7 @@ export class GraphD3Force extends GraphAddon {
                 }
                 if (data.end) {
                     console.log("worker end");
+                    this.__state = "idle";
                     await this.__showLinks();
                     this.dispatchEvent(new Event("simulationend", {
                         bubbles: true,
@@ -127,7 +130,8 @@ export class GraphD3Force extends GraphAddon {
                 links
             },
             buffer,
-            run
+            run,
+            configuration: this.configuration
         };
         if (run !== undefined) {
             message.run = !!run;

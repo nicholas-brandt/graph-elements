@@ -4,6 +4,7 @@ import console from "../../helper/console.js";
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 
+const canvas_contextmenu_html = `<!-- inject: ./canvas.contextmenu.html -->`;
 const style = document.createElement("style");
 style.textContent = `<!-- inject: ./graph-contextmenu.css -->`;
 
@@ -19,6 +20,9 @@ class GraphContextmenu extends GraphAddon {
         this.appendChild(this.__contextmenusElement);
         this.canvasContextmenu = document.createElement("div");
         this.canvasContextmenu.classList.add("contextmenu");
+        this.canvasContextmenu.innerHTML += canvas_contextmenu_html;
+        this.clearCanvas = this.canvasContextmenu.querySelector("#clear-canvas");
+        this.clearCanvas.hammer = new Hammer(this.clearCanvas);
         // this.canvasContextmenu.hammer = new Hammer(this.canvasContextmenu);
         // this.canvasContextmenu.hammer.options.domEvents = true;
         // this.canvasContextmenu.hammer.on("tap", this.hideContextmenu.bind(this));
@@ -35,6 +39,12 @@ class GraphContextmenu extends GraphAddon {
     }
     async hosted(host) {
         console.log("");
+        this.clearCanvas.hammer.on("tap", () => {
+            const graph = host.graph;
+            graph.clear();
+            host.graph = graph;
+            this.hideContextmenu();
+        });
         host.addEventListener("resize", event => {
             this.hideContextmenu();
         }, {

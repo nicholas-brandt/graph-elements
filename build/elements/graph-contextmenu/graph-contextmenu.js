@@ -5,8 +5,9 @@ import console from "../../helper/console.js";
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 
+const canvas_contextmenu_html = `<a id="clear-canvas">Clear canvas</a>`;
 const style = document.createElement("style");
-style.textContent = `:host>graph-contextmenu>#contextmenus{position:absolute;display:block}:host>graph-contextmenu>#contextmenus .contextmenu{color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host>graph-contextmenu>#contextmenus .contextmenu.visible{display:flex}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group>:not(.menu-group),:host>graph-contextmenu>#contextmenus .contextmenu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group>:not(.menu-group):focus,:host>graph-contextmenu>#contextmenus .contextmenu>:not(.menu-group):focus{outline:0}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group>:not(.menu-group):hover,:host>graph-contextmenu>#contextmenus .contextmenu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group{display:flex;flex-direction:column;flex:0 0 auto}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group+*,:host>graph-contextmenu>#contextmenus .contextmenu .menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}`;
+style.textContent = `:host>graph-contextmenu>#contextmenus{position:absolute;display:block}:host>graph-contextmenu>#contextmenus .contextmenu{color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host>graph-contextmenu>#contextmenus .contextmenu.visible{display:flex}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group>:not(.menu-group),:host>graph-contextmenu>#contextmenus .contextmenu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group>:not(.menu-group):hover,:host>graph-contextmenu>#contextmenus .contextmenu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group{display:flex;flex-direction:column;flex:0 0 auto}:host>graph-contextmenu>#contextmenus .contextmenu .menu-group+*,:host>graph-contextmenu>#contextmenus .contextmenu .menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}:host>graph-contextmenu>#contextmenus .contextmenu input{outline:0;border:none;padding:0 5px}`;
 
 export default class GraphContextmenu extends GraphAddon {
     constructor() {
@@ -17,6 +18,9 @@ export default class GraphContextmenu extends GraphAddon {
         this.appendChild(this.__contextmenusElement);
         this.canvasContextmenu = document.createElement("div");
         this.canvasContextmenu.classList.add("contextmenu");
+        this.canvasContextmenu.innerHTML += canvas_contextmenu_html;
+        this.clearCanvas = this.canvasContextmenu.querySelector("#clear-canvas");
+        this.clearCanvas.hammer = new Hammer(this.clearCanvas);
         // this.canvasContextmenu.hammer = new Hammer(this.canvasContextmenu);
         // this.canvasContextmenu.hammer.options.domEvents = true;
         // this.canvasContextmenu.hammer.on("tap", this.hideContextmenu.bind(this));
@@ -33,6 +37,12 @@ export default class GraphContextmenu extends GraphAddon {
     }
     async hosted(host) {
         console.log("");
+        this.clearCanvas.hammer.on("tap", () => {
+            const graph = host.graph;
+            graph.clear();
+            host.graph = graph;
+            this.hideContextmenu();
+        });
         host.addEventListener("resize", event => {
             this.hideContextmenu();
         }, {

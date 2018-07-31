@@ -1,1 +1,1 @@
-[simulation=running] #start-force,[simulation]:not([simulation=running]) #stop-force{color:rgba(51,51,51,.5)}
+#contextmenus[simulation=running] #start-force,#contextmenus[simulation]:not([simulation=running]) #stop-force{color:rgba(51,51,51,.5)}

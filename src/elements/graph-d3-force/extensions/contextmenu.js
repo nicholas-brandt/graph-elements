@@ -2,7 +2,10 @@
 import console from "../../../helper/console.js";
 
 import require from "../../../helper/require.js";
+
 // import "https://unpkg.com/@polymer/paper-input@next/paper-input.js?module";
+import "https://unpkg.com/@polymer/iron-input@next/iron-input.js?module";
+// import "https://unpkg.com/@polymer/paper-slider@next/paper-slider.js?module";
 
 const canvas_contextmenu_html = `<!-- inject: ./canvas.contextmenu.html -->`;
 const style = document.createElement("style");
@@ -42,6 +45,14 @@ async function addCanvasContextmenuEntries(graph_d3_force, graph_contextmenu, co
             await graph_contextmenu.hideContextmenu();
         }
         await graph_d3_force.stop();
+    });
+    const alpha_input = force_container.querySelector("#alpha");
+    alpha_input.value = graph_d3_force.configuration.alpha;
+    alpha_input.addEventListener("change", () => {
+        console.log("alpha value", alpha_input.value);
+        const configuration = graph_d3_force.configuration;
+        configuration.alpha = alpha_input.value;
+        graph_d3_force.configuration = configuration;
     });
     graph_d3_force.addEventListener("simulationstart", onsimulationrunning);
     graph_d3_force.addEventListener("simulationstop", onsimulationhalt);

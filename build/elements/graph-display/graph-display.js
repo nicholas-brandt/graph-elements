@@ -122,14 +122,14 @@ export class GraphDisplay extends HTMLElement {
         return this.__graph;
     }
     __adoptGraph() {
-        console.log("");
+        // console.log("");
         const valid_node_elements = new Set();
         const valid_link_elements = new Set();
         this.nodes.clear();
         this.links.clear();
-        if (this.__graph) {
+        if (this.graph) {
             // ensure valid formatting
-            for (let [key, value] of graph.vertices()) {
+            for (let [key, value] of this.graph.vertices()) {
                 if (!(value instanceof Node)) {
                     // console.log("new node", value);
                     value = new Node({
@@ -142,7 +142,7 @@ export class GraphDisplay extends HTMLElement {
                 valid_node_elements.add(value.element);
                 this.nodes.set(key, value);
             }
-            for (let [source_key, target_key, value] of graph.edges()) {
+            for (let [source_key, target_key, value] of this.graph.edges()) {
                 if (!(value instanceof Link)) {
                     // console.log("new link", value);
                     value = new Link({

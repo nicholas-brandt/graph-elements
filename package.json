@@ -9,16 +9,17 @@
     "author": "nicholas.brandt@mail.de",
     "license": "ISC",
     "dependencies": {
-        "gulp-debug": "^4.0.0"
+        "gulp-debug": "^4.0.0",
+        "workerize": "^0.1.7"
     },
     "devDependencies": {
-        "@babel/plugin-proposal-class-properties": "^7.0.0-beta.55",
+        "@babel/plugin-proposal-class-properties": "^7.0.0",
         "babel-plugin-syntax-dynamic-import": "^6.18.0",
         "babel-plugin-transform-class-properties": "^6.24.1",
         "gulp": "^4.0.0",
         "gulp-babel": "^7.0.1",
         "gulp-babel-minify": "^0.2.0",
-        "gulp-clean-css": "^3.9.4",
+        "gulp-clean-css": "^3.10.0",
         "gulp-esformatter": "^7.0.0",
         "gulp-htmlmin": "^4.0.0",
         "gulp-inject-file": "0.0.19",

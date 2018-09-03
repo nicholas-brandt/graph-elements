@@ -1,5 +1,5 @@
 import console from "../helper/console.js";
 
-export default function initNodeContextmenu(node) {
+export function initContextmenu(node) {
     console.log(node);
 };

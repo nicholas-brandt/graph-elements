@@ -7,6 +7,7 @@ const link_force = d3.forceLink();
 const gravitation_force = d3.forceRadial(0);
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
+let running = false;
 simulation.force("position", gravitation_force);
 simulation.force("link", link_force);
 simulation.force("center", center_force);
@@ -97,12 +98,20 @@ addEventListener("message", ({data}) => {
         if (data.configuration.charge) {
             simulation.force("charge", charge_force);
         }
+        for (const attribute of attributes) {
+            if (attribute in data.configuration) {
+                simulation[attribute](data.configuration[attribute]);
+            }
+        }   
     }
     if (data.graph && data.buffer) {
         buffer_array = new Float32Array(data.buffer);
         const {nodes, links} = data.graph;
         simulation.nodes(nodes);
         link_force.links(links);
+        if (running) {
+            simulation.restart();
+        }
     }
     if (data.updatedNode && data.updatedNode[Symbol.iterator]) {
         let i = 0;
@@ -113,11 +122,13 @@ addEventListener("message", ({data}) => {
             node.y = updated_node.y;
         }
     }
-    if ("run" in data) {
+    if ("run" in data && data.run !== undefined) {
         if (data.run) {
             simulation.restart();
+            running = true;
         } else {
             simulation.stop();
+            running = false;
         }
     }
     if (false && data.getConfiguration) {

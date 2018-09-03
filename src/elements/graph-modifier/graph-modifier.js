@@ -32,7 +32,7 @@ class GraphModifier extends GraphAddon {
         host.svg.hammer.on("press", event => {
             try {
                 if (event.srcEvent.path[0] === host.svg) {
-                    this.__pressCanvas(host, event);
+                    // this.__pressCanvas(host, event);
                 }
             } catch (error) {
                 console.error(error);

@@ -34,6 +34,7 @@ export class GraphD3Force extends GraphAddon {
         super();
         let _configuration = this.configuration;
         delete this.configuration;
+        let _adaptive_links;
         // define own properties
         Object.defineProperties(this, {
             worker: {
@@ -59,7 +60,17 @@ export class GraphD3Force extends GraphAddon {
                 },
                 enumerable: true,
                 configurable: true
-            }
+            },
+            adaptiveLinks: {
+                get() {
+                    return _adaptive_links;
+                },
+                set(adaptive_links) {
+                    _adaptive_links = !!adaptive_links;
+                },
+                configurable: true,
+                enumerable: true
+            },
         });
         this.__state = "idle";
         const on_worker_message = ({data}) => {
@@ -92,6 +103,7 @@ export class GraphD3Force extends GraphAddon {
                 console.error(error);
             }
         });
+        this.adaptiveLinks = this.getAttribute("adaptive-links") != "false";
         this.worker.addEventListener("message", on_worker_message, {
             passive: true
         });
@@ -179,7 +191,7 @@ export class GraphD3Force extends GraphAddon {
         this.dispatchEvent(new Event("graph-update", {
             composed: true
         }));
-        if (!this.__linksHidden) {
+        if (this.adaptiveLinks && !this.__linksHidden) {
             // console.time("paint time");
             const time_difference = await requestTimeDifference();
             // console.timeEnd("paint time");

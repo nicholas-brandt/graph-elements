@@ -3,7 +3,7 @@
 
 <head>
     <!-- ResizeObserver -->
-    <script src="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
+    <script src2="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
 
     <script src="../elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
     <script src="../elements/graph-tracker/graph-tracker.js" type="module" async></script>
@@ -19,7 +19,7 @@
     <script src="https://d3js.org/d3.v4.min.js" async></script>
     
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <script src="example.js" type="module"></script>
+    <script src="morph.js" type="module"></script>
     <style>
         body {
             width: 100vw;
@@ -29,18 +29,10 @@
             display: flex;
             flex-direction: column;
         }
-        #audio-chart {
-            flex: 0 0 auto;
-            height: 150px;
-        }
     </style>
-    
-    <script src="https://unpkg.com/chart.js@2.7.2/dist/Chart.js"></script>
-    <script src="audio.js" type="module" async></script>
 </head>
 
 <body>
-    <canvas id="audio-chart"></canvas>
     <graph-display>
         <graph-detail-view>
             <div>
@@ -52,16 +44,16 @@
         <graph-contextmenu>
             <template id="node" data-script="../../build/example/node.contextmenu.js">
                 <div id="key"></div>
-                <input id="description" placeholder="Description">
+                <textarea id="description" placeholder="description"></textarea>
             </template>
             <template id="canvas" data-script="../../build/example/canvas.contextmenu.js">
                 <div>
                     canvas div
                 </div>
-                <input type="text" value="test value">
+                <textarea id="description" placeholder="description"></textarea>
             </template>
         </graph-contextmenu>
-        <graph-d3-force></graph-d3-force>
+        <graph-d3-force adaptive-links="false"></graph-d3-force>
     </graph-display>
 </body>
 

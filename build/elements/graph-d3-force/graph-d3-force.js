@@ -16,6 +16,7 @@ const link_force = d3.forceLink();
 const gravitation_force = d3.forceRadial(0);
 const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
+let running = false;
 simulation.force("position", gravitation_force);
 simulation.force("link", link_force);
 simulation.force("center", center_force);
@@ -106,12 +107,20 @@ addEventListener("message", ({ data }) => {
         if (data.configuration.charge) {
             simulation.force("charge", charge_force);
         }
+        for (const attribute of attributes) {
+            if (attribute in data.configuration) {
+                simulation[attribute](data.configuration[attribute]);
+            }
+        }
     }
     if (data.graph && data.buffer) {
         buffer_array = new Float32Array(data.buffer);
         const { nodes, links } = data.graph;
         simulation.nodes(nodes);
         link_force.links(links);
+        if (running) {
+            simulation.restart();
+        }
     }
     if (data.updatedNode && data.updatedNode[Symbol.iterator]) {
         let i = 0;
@@ -122,11 +131,13 @@ addEventListener("message", ({ data }) => {
             node.y = updated_node.y;
         }
     }
-    if ("run" in data) {
+    if ("run" in data && data.run !== undefined) {
         if (data.run) {
             simulation.restart();
+            running = true;
         } else {
             simulation.stop();
+            running = false;
         }
     }
     if (false && data.getConfiguration) {
@@ -165,6 +176,7 @@ export class GraphD3Force extends GraphAddon {
         super();
         let _configuration = this.configuration;
         delete this.configuration;
+        let _adaptive_links;
         // define own properties
         Object.defineProperties(this, {
             worker: {
@@ -190,6 +202,16 @@ export class GraphD3Force extends GraphAddon {
                 },
                 enumerable: true,
                 configurable: true
+            },
+            adaptiveLinks: {
+                get() {
+                    return _adaptive_links;
+                },
+                set(adaptive_links) {
+                    _adaptive_links = !!adaptive_links;
+                },
+                configurable: true,
+                enumerable: true
             }
         });
         this.__state = "idle";
@@ -223,6 +245,7 @@ export class GraphD3Force extends GraphAddon {
                 console.error(error);
             }
         });
+        this.adaptiveLinks = this.getAttribute("adaptive-links") != "false";
         this.worker.addEventListener("message", on_worker_message, {
             passive: true
         });
@@ -310,7 +333,7 @@ export class GraphD3Force extends GraphAddon {
         this.dispatchEvent(new Event("graph-update", {
             composed: true
         }));
-        if (!this.__linksHidden) {
+        if (this.adaptiveLinks && !this.__linksHidden) {
             // console.time("paint time");
             const time_difference = await requestTimeDifference();
             // console.timeEnd("paint time");

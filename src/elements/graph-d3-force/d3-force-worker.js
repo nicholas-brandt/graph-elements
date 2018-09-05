@@ -89,7 +89,7 @@ simulation.on("end", () => {
 });
 
 addEventListener("message", ({data}) => {
-    console.log("WORKER: get message", data);
+    // console.log("WORKER: get message", data);
     if (data.configuration) {
         Object.assign(configuration, data.configuration);
         if (data.configuration.link) {

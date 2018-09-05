@@ -1,5 +1,5 @@
 const require_set = new Set();
-export default (async requirements => {
+export default (async function require(requirements) {
     for (const requirement of requirements) {
         if (!window[requirement]) {
             if (require_set.has(requirement)) {

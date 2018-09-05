@@ -17,13 +17,14 @@ const costs = {
     gain: 1
 };
 const thresholds = {
+    node: .2,
     edge: 1e-5
 };
 class MorphNode {
     constructor(energy) {
         this.energy = energy;
-        // this.output = Math.random() * (1 - costs.node) + costs.node;
         this.output = .5;
+        this.output = Math.random() * (1 - costs.node) + costs.node;
     }
 }
 
@@ -33,18 +34,47 @@ graph.addNewVertex(0, source_node);
 
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 const iterate = requestAnimationFunction(_iterate);
-iterate(0);
+(async () => {
+    try {
+        await iterate(0);
+    } catch (error) {
+        console.error(error);
+    }
+})();
 
-function _iterate(i) {
-    for (let i = 0; i < 1e4; ++i) {
+async function _iterate(i) {
+    console.log("iteration", i);
+    for (let i = 0; i < 3e3; ++i) {
         source_node.energy += costs.gain;
 
         flowEnergy();
         morphNetwork();
     }
+       
+    // measure
+    {
+        let sum = 0;
+        for (const [,,link] of graph.edges()) {
+            sum += (link.flow_coefficient - link.target.energy / link.source.energy) ** 2;
+        }
+        if (sum) {
+            console.log("energy misfit", sum);
+        }
+    }
+    {
+        const vertices = [...graph.vertices()];
+        let sum = 0;
+        for (const [key,node] of vertices) {
+            sum += node.energy;
+        }
+        const average = sum / vertices.length;
+        console.log("energy mean", average);
+    }
     // send();
-    if (i < 1e3) {
-        iterate(i + 1);
+    if (i < 1e4) {
+        setTimeout(async () => {
+            await await iterate(i + 1);
+        }, 50);
     }
 }
 
@@ -73,6 +103,7 @@ function flowEnergy() {
         }
         // console.log(links);
     }
+    // console.log("steps", i);
     if (progressing) {
         console.log("progress incomplete");
     }
@@ -87,7 +118,7 @@ function morphNetwork() {
                 if (key != target_key) {
                     if (Math.random() < thresholds.edge) {
                         if (!graph.hasEdge(key, target_key)) {
-                            console.log("create bond", key, target_key);
+                            // console.log("create bond", key, target_key);
                             graph.spanEdge(key, target_key, {
                                 source: node,
                                 target: target_node
@@ -105,21 +136,24 @@ function morphNetwork() {
         const vertices = graph.vertices();
         let added;
         for (const [key, node] of vertices) {
-            while (node.energy > node.output) {
-                let new_key = 0;
-                while (graph.hasVertex(new_key)) {
-                    ++new_key;
+            const n = (node.energy - node.output) / costs.node;
+            for (let i = 0; i < n; ++i) {
+                if (Math.random() < thresholds.node) {
+                    let new_key = 0;
+                    while (graph.hasVertex(new_key)) {
+                        ++new_key;
+                    }
+                    // console.log("create cell", new_key, key);
+                    const new_node = new MorphNode(costs.node);
+                    new_node.parent = key;
+                    graph.addNewVertex(new_key, new_node);
+                    graph.spanEdge(key, new_key, {
+                        source: node,
+                        target: new_node
+                    });
+                    node.energy -= costs.node;
+                    added = true;
                 }
-                // console.log("create cell", new_key, key);
-                const new_node = new MorphNode(costs.node);
-                new_node.parent = key;
-                graph.addNewVertex(new_key, new_node);
-                graph.spanEdge(key, new_key, {
-                    source: node,
-                    target: new_node
-                });
-                node.energy -= costs.node;
-                added = true;
             }
         }
     }

@@ -114,7 +114,9 @@ export class GraphD3Force extends GraphAddon {
     }
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {
+            this.__graphChanged = true;
             await this.__sendGraphToWorker();
+            this.__graphChanged = false;
         }, {
             passive: true
         });
@@ -178,26 +180,27 @@ export class GraphD3Force extends GraphAddon {
         }
     }
     async __applyGraphUpdate(buffer_array) {
-        console.log(buffer_array.length);
-        const host = await this.host;
-        const vertices = [...host.graph.vertices()];
-        for (let i = 0; i < vertices.length; ++i) {
-            const node = vertices[i][1];
-            const x = buffer_array[i * 2];
-            const y = buffer_array[i * 2 + 1];
-            node.x = x;
-            node.y = y;
-        }
-        this.dispatchEvent(new Event("graph-update", {
-            composed: true
-        }));
-        if (this.adaptiveLinks && !this.__linksHidden) {
-            // console.time("paint time");
-            const time_difference = await requestTimeDifference();
-            // console.timeEnd("paint time");
-            console.log("time difference", time_difference);
-            if (time_difference > 17) {
-                await this.__hideLinks();
+        if (!this.__graphChanged) {
+            const host = await this.host;
+            const vertices = [...host.graph.vertices()];
+            for (let i = 0; i < vertices.length; ++i) {
+                const node = vertices[i][1];
+                const x = buffer_array[i * 2];
+                const y = buffer_array[i * 2 + 1];
+                node.x = x;
+                node.y = y;
+            }
+            this.dispatchEvent(new Event("graph-update", {
+                composed: true
+            }));
+            if (this.adaptiveLinks && !this.__linksHidden) {
+                // console.time("paint time");
+                const time_difference = await requestTimeDifference();
+                // console.timeEnd("paint time");
+                console.log("time difference", time_difference);
+                if (time_difference > 17) {
+                    await this.__hideLinks();
+                }
             }
         }
     }

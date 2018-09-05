@@ -40,6 +40,7 @@ function intervene(..._arguments) {
 export default
 Object.assign({}, console, {
     log(..._arguments) {
+        return;
         return console.log(...intervene(..._arguments));
     },
     warn(..._arguments) {

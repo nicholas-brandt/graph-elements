@@ -15,21 +15,23 @@ const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
     window.graphDisplay = graphDisplay;
     
     const d3force = await graphDisplay.addonPromises["graph-d3-force"];
-    d3force.configuration.alpha = 1e-2;
-    d3force.configuration.alphaMin = 1e-3;
-    d3force.configuration.alphaTarget = 1e-3;
+    d3force.configuration.alpha = 1e-1;
+    d3force.configuration.alphaMin = 1e-2;
+    d3force.configuration.alphaTarget = 1e-2;
     d3force.configuration.alphaDecay = 5e-3;
     d3force.configuration.velocityDecay = 1e-2;
-    d3force.configuration.charge.strength = -2e2;
+    d3force.configuration.charge.strength = -1e2;
     d3force.configuration.charge.distanceMax = 1e5;
-    d3force.configuration.link.distance = 1e2;
+    d3force.configuration.link.distance = 1e0;
+    // d3force.configuration.link.strength(20);
     d3force.configuration = d3force.configuration;
     
+    let first = true;
     let last_graph_string;
     const receive_graph = requestAnimationFunction(async () => {
         const graph_string = await worker.getGraphString();
-        console.log("got graph string", graph_string.length);
-        if (last_graph_string == graph_string) {
+        // console.log("got graph string", graph_string.length);
+        if (last_graph_string != graph_string) {
             const graph = Graph.fromJSON(graph_string);
             if (graphDisplay.graph) {
                 const existing_graph = graphDisplay.graph;
@@ -37,6 +39,7 @@ const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
                     if (existing_graph.hasVertex(key)) {
                         const existing_vertex = existing_graph.vertexValue(key);
                         graph.setVertex(key, existing_vertex);
+                        existing_vertex.value.energy = vertex.energy;
                     } else {
                         if ("parent" in vertex) {
                             if (existing_graph.hasVertex(vertex.parent)) {
@@ -51,6 +54,7 @@ const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
             graphDisplay.graph = graph;
         // set description
             for (const [key, node] of graph.vertices()) {
+                node.radius = node.value.energy * 10;
                 node.description = `energy: ${node.value.energy}
     output: ${node.value.output}
     outdegree: ${graph.outDegree(key)}
@@ -58,6 +62,10 @@ const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
             }
         }
         last_graph_string = graph_string;
+        if (first) {
+            first = false;
+            d3force.start();
+        }
     });
     
     // loop for graph changes

@@ -19,13 +19,15 @@ export function getGraphString() {
 
 const costs = {
     node: 1e-2,
-    edge: 4e-2,
-    sustainEdge: 4e-2,
-    gain: 1
+    edge: 3e-1,
+    sustainNode: 1e-3,
+    sustainEdge: 1e-1,
+    gain: 5
 };
+self.costs = costs;
 const thresholds = {
-    node: .2,
-    edge: 1e-5
+    node: 1e-5,
+    edge: 1e-7
 };
 class MorphNode {
     constructor(energy) {
@@ -50,8 +52,8 @@ const iterate = requestAnimationFunction(_iterate);
 })();
 
 async function _iterate(i) {
-    console.log("iteration", i);
-    for (let i = 0; i < 3e3; ++i) {
+    // console.log("iteration", i);
+    for (let i = 0; i < 1e1; ++i) {
         source_node.energy += costs.gain;
 
         flowEnergy();
@@ -61,11 +63,12 @@ async function _iterate(i) {
     // measure
     {
         let sum = 0;
-        for (const [,, link] of graph.edges()) {
+        const edges = [...graph.edges()];
+        for (const [,, link] of edges) {
             sum += (link.flow_coefficient - link.target.energy / link.source.energy) ** 2;
         }
         if (sum) {
-            console.log("energy misfit", sum);
+            console.log("energy misfit", sum ** .5 / edges.length);
         }
     }
     {
@@ -75,13 +78,13 @@ async function _iterate(i) {
             sum += node.energy;
         }
         const average = sum / vertices.length;
-        console.log("energy mean", average);
+        // console.log("energy mean", average);
     }
     // send();
     if (i < 1e4) {
         setTimeout(async () => {
             await await iterate(i + 1);
-        }, 50);
+        }, 200);
     }
 }
 
@@ -94,7 +97,7 @@ function flowEnergy() {
         links.add(link);
     }
     let progressing = true;
-    for (var i = 0; i < 1e2 && progressing; ++i) {
+    for (var i = 0; i < 1e3 && progressing; ++i) {
         for (const link of links) {
             const sum = link.source.energy + link.target.energy;
             link.target.energy = sum / (1 + 1 / link.flow_coefficient);
@@ -112,14 +115,15 @@ function flowEnergy() {
     }
     // console.log("steps", i);
     if (progressing) {
-        console.log("progress incomplete");
+        console.log("progress incomplete", i);
     }
 }
 
 function morphNetwork() {
     stripNetwork();
     {
-        const vertices = graph.vertices();
+        let added;
+        const vertices = [...graph.vertices()];
         for (const [key, node] of vertices) {
             for (const [target_key, target_node] of vertices) {
                 if (key != target_key) {
@@ -131,17 +135,13 @@ function morphNetwork() {
                                 target: target_node
                             });
                             node.energy -= costs.edge;
+                            added = true;
                         }
                     }
                 }
             }
-            node.energy -= graph.outDegree(key) * costs.sustainEdge;
+            node.energy -= graph.degree(key) * costs.sustainEdge + costs.sustainNode;
         }
-    }
-    stripNetwork();
-    {
-        const vertices = graph.vertices();
-        let added;
         for (const [key, node] of vertices) {
             const n = (node.energy - node.output) / costs.node;
             for (let i = 0; i < n; ++i) {
@@ -163,19 +163,27 @@ function morphNetwork() {
                 }
             }
         }
+        if (added) {
+            // console.log("added");
+        }
     }
+    stripNetwork();
 }
 
 function stripNetwork() {
+    let stripped;
     for (const [key, node] of graph.vertices()) {
         // console.log("morph", key);
         if (key != 0) {
-            node.energy -= 1e-3;
             if (node.energy <= 0) {
                 graph.destroyExistingVertex(key);
                 // console.log("cell death", key);
+                stripped = true;
             }
         }
+    }
+    if (stripped) {
+        // console.log("stripped");
     }
 }`, {
     type: "module"
@@ -187,21 +195,23 @@ function stripNetwork() {
     window.graphDisplay = graphDisplay;
 
     const d3force = await graphDisplay.addonPromises["graph-d3-force"];
-    d3force.configuration.alpha = 1e-2;
-    d3force.configuration.alphaMin = 1e-3;
-    d3force.configuration.alphaTarget = 1e-3;
+    d3force.configuration.alpha = 1e-1;
+    d3force.configuration.alphaMin = 1e-2;
+    d3force.configuration.alphaTarget = 1e-2;
     d3force.configuration.alphaDecay = 5e-3;
     d3force.configuration.velocityDecay = 1e-2;
-    d3force.configuration.charge.strength = -2e2;
+    d3force.configuration.charge.strength = -1e2;
     d3force.configuration.charge.distanceMax = 1e5;
-    d3force.configuration.link.distance = 1e2;
+    d3force.configuration.link.distance = 1e0;
+    // d3force.configuration.link.strength(20);
     d3force.configuration = d3force.configuration;
 
+    let first = true;
     let last_graph_string;
     const receive_graph = requestAnimationFunction(async () => {
         const graph_string = await worker.getGraphString();
-        console.log("got graph string", graph_string.length);
-        if (last_graph_string == graph_string) {
+        // console.log("got graph string", graph_string.length);
+        if (last_graph_string != graph_string) {
             const graph = Graph.fromJSON(graph_string);
             if (graphDisplay.graph) {
                 const existing_graph = graphDisplay.graph;
@@ -209,6 +219,7 @@ function stripNetwork() {
                     if (existing_graph.hasVertex(key)) {
                         const existing_vertex = existing_graph.vertexValue(key);
                         graph.setVertex(key, existing_vertex);
+                        existing_vertex.value.energy = vertex.energy;
                     } else {
                         if ("parent" in vertex) {
                             if (existing_graph.hasVertex(vertex.parent)) {
@@ -223,6 +234,7 @@ function stripNetwork() {
             graphDisplay.graph = graph;
             // set description
             for (const [key, node] of graph.vertices()) {
+                node.radius = node.value.energy * 10;
                 node.description = `energy: ${node.value.energy}
     output: ${node.value.output}
     outdegree: ${graph.outDegree(key)}
@@ -230,6 +242,10 @@ function stripNetwork() {
             }
         }
         last_graph_string = graph_string;
+        if (first) {
+            first = false;
+            d3force.start();
+        }
     });
 
     // loop for graph changes

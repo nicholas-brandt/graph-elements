@@ -2,15 +2,60 @@ importScripts("https://unpkg.com/d3@5.5.0/dist/d3.min.js");
 // importScripts("https://d3js.org/d3.v4.min.js");
 // importScripts("../../helper/associate.js");
 
+let buffer_array;
+
+export function start() {
+    simulation.restart();
+}
+
+export function stop() {
+    simulation.stop();
+}
+
+export function setGraph(d3_graph) {
+    const {nodes, links} = d3_graph;
+    buffer_array = new Float32Array(nodes.length * 2);
+    for (let i = 0; i < nodes.length; ++i) {
+        const node = nodes[i];
+        buffer_array[i * 2] = node.x;
+        buffer_array[i * 2 + 1] = node.y;
+    }
+    simulation.nodes(nodes);
+    link_force.links(links);
+    reject_tick("graph replaced");
+}
+
+export function setConfiguration(_configuration) {
+    Object.assign(configuration, _configuration);
+    if (_configuration.link) {
+        simulation.force("link", link_force);
+    }
+    if (_configuration.charge) {
+        simulation.force("charge", charge_force);
+    }
+    for (const attribute of attributes) {
+        if (attribute in _configuration) {
+            simulation[attribute](_configuration[attribute]);
+        }
+    }
+}
+
+export function getTickPromise() {
+    return tick_promise;
+}
+
+export function getEndPromise() {
+    return end_promise;
+}
+
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
 const gravitation_force = d3.forceRadial(0);
-const center_force = d3.forceCenter(0, 0);
+// const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
-let running = false;
 simulation.force("position", gravitation_force);
 simulation.force("link", link_force);
-simulation.force("center", center_force);
+// simulation.force("center", center_force);
 simulation.force("charge", charge_force);
 simulation.stop();
 
@@ -60,8 +105,11 @@ associate(configuration.link, link_force, link_attributes);
 associate(configuration.charge, charge_force, charge_attributes);
 associate(configuration.gravitation, gravitation_force, gravitation_attributes);
 
-let buffer_array;
-
+let resolve_tick, reject_tick;
+let tick_promise = new Promise((resolve, reject) => {
+    resolve_tick = resolve;
+    reject_tick = reject;
+});
 simulation.on("tick", () => {
     const nodes = simulation.nodes();
     for (let i = 0; i < nodes.length; ++i) {
@@ -69,77 +117,26 @@ simulation.on("tick", () => {
         buffer_array[i * 2] = node.x;
         buffer_array[i * 2 + 1] = node.y;
     }
-    // console.log(nodes.map(JSON.stringify), buffer_array);
-    // dispatch draw message to main window
-    // write graph data into buffer
-    const buffer_length = buffer_array.buffer.byteLength;
-    // console.log("WORKER: buffer length", buffer_length);
-    // transfer buffer for faster propagation to display
-    postMessage({
-        buffer: buffer_array.buffer,
-        alpha: simulation.alpha()
-    }, [buffer_array.buffer]);
-    buffer_array = new Float32Array(new ArrayBuffer(buffer_length));
+    if (resolve_tick) {
+        // console.log("buffer", buffer_array.buffer);
+        resolve_tick(buffer_array.buffer);
+    }
+    tick_promise = new Promise(resolve => {
+        resolve_tick = resolve;
+    });
+});
+let resolve_end;
+let end_promise = new Promise(resolve => {
+    resolve_end = resolve;
 });
 simulation.on("end", () => {
     // end yields no new simulation step
-    postMessage({
-        end: true
+    if (resolve_end) {
+        resolve_end();
+    }
+    end_promise = new Promise(resolve => {
+        resolve_end = resolve;
     });
-});
-
-addEventListener("message", ({data}) => {
-    // console.log("WORKER: get message", data);
-    if (data.configuration) {
-        Object.assign(configuration, data.configuration);
-        if (data.configuration.link) {
-            simulation.force("link", link_force);
-        }
-        if (data.configuration.charge) {
-            simulation.force("charge", charge_force);
-        }
-        for (const attribute of attributes) {
-            if (attribute in data.configuration) {
-                simulation[attribute](data.configuration[attribute]);
-            }
-        }   
-    }
-    if (data.graph && data.buffer) {
-        buffer_array = new Float32Array(data.buffer);
-        const {nodes, links} = data.graph;
-        simulation.nodes(nodes);
-        link_force.links(links);
-        if (running) {
-            simulation.restart();
-        }
-    }
-    if (data.updatedNode && data.updatedNode[Symbol.iterator]) {
-        let i = 0;
-        const nodes = simulation.nodes();
-        for (const updated_node of data.updatedNode) {
-            const node = nodes[i++];
-            node.x = updated_node.x;
-            node.y = updated_node.y;
-        }
-    }
-    if ("run" in data && data.run !== undefined) {
-        if (data.run) {
-            simulation.restart();
-            running = true;
-        } else {
-            simulation.stop();
-            running = false;
-        }
-    }
-    if (false && data.getConfiguration) {
-        const data = {
-            configuration: Object.assign({}, configuration, {
-                link: Object.assign({}, configuration.link),
-                charge: Object.assign({}, configuration.charge)
-            })
-        };
-        postMessage(data);
-    }
 });
 
 function associate(proxy, target, attributes) {

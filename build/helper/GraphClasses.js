@@ -92,7 +92,7 @@ export class Link {
             const long = source.radius * 3;
             path_d = `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;
         } else {
-            path_d = `M ${source_x} ${source_y}L ${target_x} ${target_y}`;
+            path_d = `M ${source.x} ${source.y}L ${target.x} ${target.y}`;
             /*
             const x_diff = target_x - source_x;
             const y_diff = target_y - source_y;

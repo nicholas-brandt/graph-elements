@@ -147,7 +147,7 @@ export default class GraphContextmenu extends GraphAddon {
                 node.contextmenu.classList.add("contextmenu");
                 const node_content = document.importNode(this.nodeTemplate.content, true);
                 node.contextmenu.appendChild(node_content);
-                this.nodeConfiguration.initContextmenu(node);
+                this.nodeConfiguration.initContextmenu(node, this.host.graph);
             }
         }
         // const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
@@ -156,7 +156,7 @@ export default class GraphContextmenu extends GraphAddon {
         const y = event.pageY - host.offsetTop;
         this.showContextmenu(node.contextmenu, x, y);
         if (this.nodeConfiguration && this.nodeConfiguration.showContextmenu) {
-            this.nodeConfiguration.showContextmenu(node);
+            this.nodeConfiguration.showContextmenu(node, this.host.graph);
         }
     }
     async showContextmenu(contextmenu, x, y) {

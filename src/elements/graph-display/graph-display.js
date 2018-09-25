@@ -10,10 +10,10 @@ style.textContent = `<!-- inject: ./graph-display.css -->`;
 export class GraphDisplay extends HTMLElement {
     static tagName = "graph-display";
     static styleElement = style;
-    constructor(options) {
+    constructor() {
         super();
-        this.Node = options && options.Node || Node;
-        this.Link = options && options.Link || Link;
+        this.Node = Node;
+        this.Link = Link;
         // shadow stuff
         this.attachShadow({
             mode: "open"

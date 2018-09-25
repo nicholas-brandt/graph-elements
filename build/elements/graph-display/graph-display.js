@@ -9,8 +9,10 @@ const style = document.createElement("style");
 style.textContent = `:host{display:flex;flex:1;overflow:visible;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>#node-group>*{touch-action:none}:host>svg>#node-group>.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>#link-group>*{touch-action:none}:host>svg>#link-group>.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px}:host>svg>#link-group>.link[loop]{fill:none;stroke-width:2px}`;
 
 export class GraphDisplay extends HTMLElement {
-    constructor() {
+    constructor(options) {
         super();
+        this.Node = options && options.Node || Node;
+        this.Link = options && options.Link || Link;
         // shadow stuff
         this.attachShadow({
             mode: "open"
@@ -130,9 +132,9 @@ export class GraphDisplay extends HTMLElement {
         if (this.graph) {
             // ensure valid formatting
             for (let [key, value] of this.graph.vertices()) {
-                if (!(value instanceof Node)) {
+                if (!(value instanceof this.Node)) {
                     // console.log("new node", value);
-                    value = new Node({
+                    value = new this.Node({
                         value,
                         key
                     }, this.__requestPaintNode.bind(this));
@@ -143,9 +145,9 @@ export class GraphDisplay extends HTMLElement {
                 this.nodes.set(key, value);
             }
             for (let [source_key, target_key, value] of this.graph.edges()) {
-                if (!(value instanceof Link)) {
+                if (!(value instanceof this.Link)) {
                     // console.log("new link", value);
-                    value = new Link({
+                    value = new this.Link({
                         value,
                         source: this.nodes.get(source_key),
                         target: this.nodes.get(target_key)
@@ -183,7 +185,7 @@ export class GraphDisplay extends HTMLElement {
     }
     __requestPaintNode(node) {
         console.assert(this instanceof GraphDisplay, "invalid this", this);
-        console.assert(node instanceof Node, "invalid node", node);
+        console.assert(node instanceof this.Node, "invalid node", node);
         this.__updatedNodes.add(node);
         return this.__requestPaint();
     }

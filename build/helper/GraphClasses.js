@@ -1,6 +1,6 @@
 export class Node {
     constructor({ value, key }, _request_paint) {
-        this.element = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        this.element = this.createNodeElement();
         this.element.classList.add("node");
         this.element.node = this;
         let x = value && value.x || 0;
@@ -72,10 +72,13 @@ export class Node {
             this.element.r.baseVal.value = radius;
         }
     }
+    createNodeElement() {
+        return document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    }
 };
 export class Link {
     constructor({ value, source, target }) {
-        this.element = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        this.element = this.createLinkElement();
         this.element.classList.add("link");
         this.element.link = this;
         Object.assign(this, {
@@ -106,5 +109,8 @@ export class Link {
             */
         }
         this.element.setAttribute("d", path_d);
+    }
+    createLinkElement() {
+        return document.createElementNS("http://www.w3.org/2000/svg", "path");
     }
 }

@@ -10,8 +10,10 @@ style.textContent = `<!-- inject: ./graph-display.css -->`;
 export class GraphDisplay extends HTMLElement {
     static tagName = "graph-display";
     static styleElement = style;
-    constructor() {
+    constructor(options) {
         super();
+        this.Node = options && options.Node || Node;
+        this.Link = options && options.Link || Link;
         // shadow stuff
         this.attachShadow({
             mode: "open"
@@ -131,9 +133,9 @@ export class GraphDisplay extends HTMLElement {
         if (this.graph) {
             // ensure valid formatting
             for (let [key, value] of this.graph.vertices()) {
-                if (!(value instanceof Node)) {
+                if (!(value instanceof this.Node)) {
                     // console.log("new node", value);
-                    value = new Node({
+                    value = new this.Node({
                         value,
                         key
                     }, this.__requestPaintNode.bind(this));
@@ -144,9 +146,9 @@ export class GraphDisplay extends HTMLElement {
                 this.nodes.set(key, value);
             }
             for (let [source_key, target_key, value] of this.graph.edges()) {
-                if (!(value instanceof Link)) {
+                if (!(value instanceof this.Link)) {
                     // console.log("new link", value);
-                    value = new Link({
+                    value = new this.Link({
                         value,
                         source: this.nodes.get(source_key),
                         target: this.nodes.get(target_key)
@@ -184,7 +186,7 @@ export class GraphDisplay extends HTMLElement {
     }
     __requestPaintNode(node) {
         console.assert(this instanceof GraphDisplay, "invalid this", this);
-        console.assert(node instanceof Node, "invalid node", node);
+        console.assert(node instanceof this.Node, "invalid node", node);
         this.__updatedNodes.add(node);
         return this.__requestPaint();
     }

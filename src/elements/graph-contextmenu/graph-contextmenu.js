@@ -73,6 +73,7 @@ class GraphContextmenu extends GraphAddon {
             this.hideContextmenu();
         });
         this.canvasConfiguration = await this.__getConfiguration(this.canvasTemplate);
+        await this.canvasConfiguration.initContextmenu(this, host);
         host.svg.addEventListener("contextmenu", event => {
             try {
                 this.__contextmenuCanvas(host, event);
@@ -148,16 +149,16 @@ class GraphContextmenu extends GraphAddon {
                 node.contextmenu.classList.add("contextmenu", "node-menu");
                 const node_content = document.importNode(this.nodeTemplate.content, true);
                 node.contextmenu.appendChild(node_content);
-                this.nodeConfiguration.initContextmenu(node, host.graph);
+                await this.nodeConfiguration.initContextmenu(this, host, node);
             }
         }
         // const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
         // const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
         const x = event.pageX - host.offsetLeft;
         const y = event.pageY - host.offsetTop;
-        this.showContextmenu(node.contextmenu, x, y);
+        await this.showContextmenu(node.contextmenu, x, y);
         if (this.nodeConfiguration && this.nodeConfiguration.showContextmenu) {
-            this.nodeConfiguration.showContextmenu(node, host.graph);
+            await this.nodeConfiguration.showContextmenu(this, host, node);
         }
     }
     async showContextmenu(contextmenu, x, y) {

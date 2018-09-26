@@ -1,6 +1,6 @@
 import console from "../helper/console.js";
 
-export function initContextmenu(node) {
+export function initContextmenu(graph_contextmenu, host, node) {
     // console.log(node);
     node.contextmenu.querySelector("#key").textContent = "Key: " + node.key;
     const description = node.contextmenu.querySelector("#description");
@@ -11,7 +11,7 @@ export function initContextmenu(node) {
     });
 };
 
-export function showContextmenu(node) {
+export function showContextmenu(graph_contextmenu, host, node) {
     const description = node.contextmenu.querySelector("#description");
     description.value = node.description || "";
 };

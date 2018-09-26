@@ -1,5 +1,3 @@
 import console from "../helper/console.js";
 
-export function initContextmenu(node) {
-    console.log(node);
-};
+export function initContextmenu(graph_contextmenu, host) {};

@@ -19,7 +19,7 @@ class GraphContextmenu extends GraphAddon {
         this.__contextmenusElement.id = "contextmenus";
         this.appendChild(this.__contextmenusElement);
         this.canvasContextmenu = document.createElement("div");
-        this.canvasContextmenu.classList.add("contextmenu");
+        this.canvasContextmenu.classList.add("contextmenu", "canvas-menu");
         this.canvasContextmenu.innerHTML += canvas_contextmenu_html;
         this.clearCanvas = this.canvasContextmenu.querySelector("#clear-canvas");
         this.clearCanvas.hammer = new Hammer(this.clearCanvas);
@@ -145,7 +145,7 @@ class GraphContextmenu extends GraphAddon {
             if (this.nodeTemplate) {
                 // create contextmenu from template
                 node.contextmenu = document.createElement("div");
-                node.contextmenu.classList.add("contextmenu");
+                node.contextmenu.classList.add("contextmenu", "node-menu");
                 const node_content = document.importNode(this.nodeTemplate.content, true);
                 node.contextmenu.appendChild(node_content);
                 this.nodeConfiguration.initContextmenu(node, host.graph);

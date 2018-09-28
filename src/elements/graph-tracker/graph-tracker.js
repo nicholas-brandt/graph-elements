@@ -78,6 +78,9 @@ class GraphTracker extends GraphAddon {
                     if (track_canvas == !_track_canvas) {
                         (async () => {
                             const host = await this.host;
+                            if (!host.svg.hammer) {
+                                host.svg.hammer = new Hammer(host.svg);
+                            }
                             if (_track_canvas) {
                                 host.svg.hammer.on("pan", track_callback);
                             } else {
@@ -88,7 +91,7 @@ class GraphTracker extends GraphAddon {
                     track_canvas = !!_track_canvas;
                 }
             }
-        })
+        });
         this.trackingMode = this.getAttribute("tracking-mode");
         this.trackCanvas = ["true", ""].indexOf(this.getAttribute("track-canvas")) != -1;
         this.trackingCount = 30;

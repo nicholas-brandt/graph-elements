@@ -77,6 +77,9 @@ export default class GraphTracker extends GraphAddon {
                     if (track_canvas == !_track_canvas) {
                         (async () => {
                             const host = await this.host;
+                            if (!host.svg.hammer) {
+                                host.svg.hammer = new Hammer(host.svg);
+                            }
                             if (_track_canvas) {
                                 host.svg.hammer.on("pan", track_callback);
                             } else {
@@ -148,36 +151,32 @@ export default class GraphTracker extends GraphAddon {
         }
     }
     async __trackNode(node, event) {
-        try {
-            console.log(event);
-            // event.srcEvent.stopPropagation();
-            node.x += event.deltaX - (node.__deltaX || 0);
-            node.y += event.deltaY - (node.__deltaY || 0);
-            node.__deltaX = event.isFinal ? 0 : event.deltaX;
-            node.__deltaY = event.isFinal ? 0 : event.deltaY;
-            // adaptively hide links
-            // notify host of change
-            this.dispatchEvent(new Event("graph-update", {
-                bubbles: true,
-                composed: true
-            }));
-        } catch (error) {
-            console.error(error);
-        }
+        console.log(event);
+        // event.srcEvent.stopPropagation();
+        node.x += event.deltaX - (node.__deltaX || 0);
+        node.y += event.deltaY - (node.__deltaY || 0);
+        node.__deltaX = event.isFinal ? 0 : event.deltaX;
+        node.__deltaY = event.isFinal ? 0 : event.deltaY;
+        // adaptively hide links
+        // notify host of change
+        this.dispatchEvent(new Event("graph-update", {
+            bubbles: true,
+            composed: true
+        }));
     }
     async __trackCanvas(event) {
-        try {
-            console.log(event);
-            // event.srcEvent.stopPropagation();
-            const host = await this.host;
-            const { baseVal } = host.svg.viewBox;
-            baseVal.x -= event.deltaX - (this.__deltaX || 0);
-            baseVal.y -= event.deltaY - (this.__deltaY || 0);
-            this.__deltaX = event.isFinal ? 0 : event.deltaX;
-            this.__deltaY = event.isFinal ? 0 : event.deltaY;
-        } catch (error) {
-            console.error(error);
-        }
+        console.log(event);
+        // event.srcEvent.stopPropagation();
+        const host = await this.host;
+        const { baseVal } = host.svg.viewBox;
+        baseVal.x -= event.deltaX - (this.__deltaX || 0);
+        baseVal.y -= event.deltaY - (this.__deltaY || 0);
+        this.__deltaX = event.isFinal ? 0 : event.deltaX;
+        this.__deltaY = event.isFinal ? 0 : event.deltaY;
+        this.dispatchEvent(new Event("viewbox-update", {
+            bubbles: true,
+            composed: true
+        }));
     }
     async __trackNodeStart(node) {
         node.tracking = true;

@@ -1,5 +1,6 @@
 "use strict";
-// import console from "../../helper/console.js";
+
+import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";

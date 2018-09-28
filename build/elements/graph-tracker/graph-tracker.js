@@ -88,7 +88,7 @@ export default class GraphTracker extends GraphAddon {
             }
         });
         this.trackingMode = this.getAttribute("tracking-mode");
-        this.trackCanvas = ["true", ""].indexOf(this.getAttribute("tracking-canvas")) != -1;
+        this.trackCanvas = ["true", ""].indexOf(this.getAttribute("track-canvas")) != -1;
         this.trackingCount = 30;
         this.trackingInitialTime = 10;
     }

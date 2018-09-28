@@ -1,6 +1,5 @@
 "use strict";
-
-import console from "../../helper/console.js";
+// import console from "../../helper/console.js";
 
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
@@ -10,24 +9,34 @@ import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c4396
 export default class GraphTracker extends GraphAddon {
     constructor() {
         super();
-        let _tracking_mode;
-        let _tracking_count;
-        let _tracking_initial_time;
+        this.__deltaX = 0;
+        this.__deltaY = 0;
+        let tracking_mode;
+        let track_canvas = false;
+        let tracking_count;
+        let tracking_initial_time;
+        const track_callback = async event => {
+            try {
+                await this.__trackCanvas(event);
+            } catch (error) {
+                console.error(error);
+            }
+        };
         Object.defineProperties(this, {
             trackingMode: {
                 get() {
-                    return _tracking_mode;
+                    return tracking_mode;
                 },
-                set(tracking_mode) {
-                    switch (tracking_mode) {
+                set(_tracking_mode) {
+                    switch (_tracking_mode) {
                         case "hiding":
-                            _tracking_mode = "hiding";
+                            tracking_mode = "hiding";
                             break;
                         case "normal":
-                            _tracking_mode = "normal";
+                            tracking_mode = "normal";
                             break;
                         default:
-                            _tracking_mode = "adaptive";
+                            tracking_mode = "adaptive";
                     }
                 },
                 configurable: true,
@@ -35,12 +44,12 @@ export default class GraphTracker extends GraphAddon {
             },
             trackingCount: {
                 get() {
-                    return _tracking_count;
+                    return tracking_count;
                 },
-                set(tracking_count) {
-                    const parsed = parseFloat(tracking_count);
+                set(_tracking_count) {
+                    const parsed = parseFloat(_tracking_count);
                     if (!isNaN(parsed)) {
-                        _tracking_count = parsed;
+                        tracking_count = parsed;
                     }
                 },
                 configurable: true,
@@ -48,19 +57,38 @@ export default class GraphTracker extends GraphAddon {
             },
             trackingInitialTime: {
                 get() {
-                    return _tracking_initial_time;
+                    return tracking_initial_time;
                 },
-                set(tracking_initial_time) {
-                    const parsed = parseFloat(tracking_initial_time);
+                set(_tracking_initial_time) {
+                    const parsed = parseFloat(_tracking_initial_time);
                     if (!isNaN(parsed)) {
-                        _tracking_initial_time = parsed;
+                        tracking_initial_time = parsed;
                     }
                 },
                 configurable: true,
                 enumerable: true
+            },
+            trackCanvas: {
+                get() {
+                    return track_canvas;
+                },
+                set(_track_canvas) {
+                    if (track_canvas == !_track_canvas) {
+                        (async () => {
+                            const host = await this.host;
+                            if (_track_canvas) {
+                                host.svg.hammer.on("pan", track_callback);
+                            } else {
+                                host.svg.hammer.off("pan", track_callback);
+                            }
+                        })();
+                    }
+                    track_canvas = !!_track_canvas;
+                }
             }
         });
         this.trackingMode = this.getAttribute("tracking-mode");
+        this.trackCanvas = ["true", ""].indexOf(this.getAttribute("tracking-canvas")) != -1;
         this.trackingCount = 30;
         this.trackingInitialTime = 10;
     }
@@ -75,6 +103,7 @@ export default class GraphTracker extends GraphAddon {
         }, {
             passive: true
         });
+        host.svg.hammer.get("pan").set({ direction: Hammer.DIRECTION_ALL });
         this.__bindNodes(host);
     }
     __bindNodes(host) {
@@ -95,21 +124,21 @@ export default class GraphTracker extends GraphAddon {
                 });
                 node.hammer.on("panstart", async event => {
                     try {
-                        await this.__trackStart(node, event);
+                        await this.__trackNodeStart(node, event);
                     } catch (error) {
                         console.error(error);
                     }
                 });
                 node.hammer.on("panend", async event => {
                     try {
-                        await this.__trackEnd(node, event);
+                        await this.__trackNodeEnd(node, event);
                     } catch (error) {
                         console.error(error);
                     }
                 });
                 node.hammer.on("pancancel", async event => {
                     try {
-                        await this.__trackEnd(node, event);
+                        await this.__trackNodeEnd(node, event);
                     } catch (error) {
                         console.error(error);
                     }
@@ -135,7 +164,21 @@ export default class GraphTracker extends GraphAddon {
             console.error(error);
         }
     }
-    async __trackStart(node) {
+    async __trackCanvas(event) {
+        try {
+            console.log(event);
+            // event.srcEvent.stopPropagation();
+            const host = await this.host;
+            const { baseVal } = host.svg.viewBox;
+            baseVal.x -= event.deltaX - (this.__deltaX || 0);
+            baseVal.y -= event.deltaY - (this.__deltaY || 0);
+            this.__deltaX = event.isFinal ? 0 : event.deltaX;
+            this.__deltaY = event.isFinal ? 0 : event.deltaY;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    async __trackNodeStart(node) {
         node.tracking = true;
         node.__trackingTime = this.trackingInitialTime;
         node.element.classList.add("tracking");
@@ -149,7 +192,7 @@ export default class GraphTracker extends GraphAddon {
             passive: true
         });
     }
-    async __trackEnd(node) {
+    async __trackNodeEnd(node) {
         node.tracking = false;
         node.element.classList.remove("tracking");
         console.assert(typeof node.__onNodePaint == "function", "invalid or missing node.__onNodePaint");

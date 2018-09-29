@@ -80,9 +80,6 @@ class GraphTracker extends GraphAddon {
                     if (track_canvas == !_track_canvas) {
                         (async () => {
                             const host = await this.host;
-                            if (!host.svg.hammer) {
-                                host.svg.hammer = new Hammer(host.svg);
-                            }
                             if (_track_canvas) {
                                 host.svg.hammer.on("pan", track_callback);
                             } else {
@@ -117,6 +114,9 @@ class GraphTracker extends GraphAddon {
                 console.error(error);
             }
         }, passive);
+        if (!host.svg.hammer) {
+            host.svg.hammer = new Hammer(host.svg);
+        }
         host.svg.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL});
         this.__bindNodes(host);
     }

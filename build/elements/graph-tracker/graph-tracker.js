@@ -12,6 +12,8 @@ export default class GraphTracker extends GraphAddon {
         super();
         this.__deltaX = 0;
         this.__deltaY = 0;
+        this.__canvasX = 0;
+        this.__canvasY = 0;
         let tracking_mode;
         let track_canvas = false;
         let tracking_count;
@@ -104,9 +106,16 @@ export default class GraphTracker extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
-        }, {
-            passive: true
-        });
+        }, passive);
+        host.addEventListener("resize", event => {
+            try {
+                const { baseVal } = host.svg.viewBox;
+                baseVal.x -= this.__canvasX / 2;
+                baseVal.y -= this.__canvasY / 2;
+            } catch (error) {
+                console.error(error);
+            }
+        }, passive);
         host.svg.hammer.get("pan").set({ direction: Hammer.DIRECTION_ALL });
         this.__bindNodes(host);
     }
@@ -167,12 +176,16 @@ export default class GraphTracker extends GraphAddon {
     async __trackCanvas(event) {
         console.log(event);
         // event.srcEvent.stopPropagation();
-        const host = await this.host;
-        const { baseVal } = host.svg.viewBox;
-        baseVal.x -= event.deltaX - (this.__deltaX || 0);
-        baseVal.y -= event.deltaY - (this.__deltaY || 0);
+        const dx = event.deltaX - (this.__deltaX || 0);
+        const dy = event.deltaY - (this.__deltaY || 0);
+        this.__canvasX += dx;
+        this.__canvasY += dy;
         this.__deltaX = event.isFinal ? 0 : event.deltaX;
         this.__deltaY = event.isFinal ? 0 : event.deltaY;
+        const host = await this.host;
+        const { baseVal } = host.svg.viewBox;
+        baseVal.x -= dx;
+        baseVal.y -= dy;
         this.dispatchEvent(new Event("viewbox-update", {
             bubbles: true,
             composed: true
@@ -188,9 +201,7 @@ export default class GraphTracker extends GraphAddon {
         }
         node.__onNodePaint = this.__onNodePaint.bind(this, node);
         const host = await this.host;
-        host.addEventListener("paint", node.__onNodePaint, {
-            passive: true
-        });
+        host.addEventListener("paint", node.__onNodePaint, passive);
     }
     async __trackNodeEnd(node) {
         node.tracking = false;
@@ -217,9 +228,7 @@ export default class GraphTracker extends GraphAddon {
                             }], 250).addEventListener("finish", () => {
                                 link.element.style.visibility = "hidden";
                                 resolve();
-                            }, {
-                                passive: true
-                            });
+                            }, passive);
                         });
                         promises.push(promise);
                     }
@@ -243,9 +252,7 @@ export default class GraphTracker extends GraphAddon {
                                 opacity: 0
                             }, {
                                 opacity: getComputedStyle(link.element).opacity
-                            }], 500).addEventListener("finish", () => resolve(), {
-                                passive: true
-                            });
+                            }], 500).addEventListener("finish", () => resolve(), passive);
                         });
                         promises.push(promise);
                     }
@@ -274,6 +281,9 @@ export default class GraphTracker extends GraphAddon {
     }
 }
 GraphTracker.tagName = "graph-tracker";
+const passive = {
+    passive: true
+};
 (async () => {
     try {
         // ensure requirements

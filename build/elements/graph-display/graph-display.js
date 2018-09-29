@@ -207,9 +207,11 @@ export class GraphDisplay extends HTMLElement {
             composed: true
         }));
     }
-    __resize() {
+    __resize(event) {
+        console.log(event);
         const { width, height } = this.svg.getBoundingClientRect();
-        Object.assign(this.svg.viewBox.baseVal, {
+        const { baseVal } = this.svg.viewBox;
+        Object.assign(baseVal, {
             x: -width / 2,
             y: -height / 2,
             width,

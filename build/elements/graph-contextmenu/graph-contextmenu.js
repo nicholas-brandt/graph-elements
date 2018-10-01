@@ -115,7 +115,7 @@ export default class GraphContextmenu extends GraphAddon {
             }
         }
     }
-    __contextmenuCanvas(host, event) {
+    async __contextmenuCanvas(host, event) {
         console.log(event);
         this.__event = event;
         event.preventDefault();
@@ -123,7 +123,11 @@ export default class GraphContextmenu extends GraphAddon {
         // const y = (event.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
         const x = event.pageX - host.offsetLeft;
         const y = event.pageY - host.offsetTop;
-        return this.showContextmenu(this.canvasContextmenu, x, y);
+        await this.showContextmenu(this.canvasContextmenu, x, y);
+        const canvas_configuration = await this.canvasConfigurationPromise;
+        if (canvas_configuration && canvas_configuration.showContextmenu) {
+            await canvas_configuration.showContextmenu(this, host, node);
+        }
     }
     async __contextmenuNode(node, event) {
         console.log(node, event);

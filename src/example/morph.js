@@ -54,11 +54,11 @@ const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
             graphDisplay.graph = graph;
         // set description
             for (const [key, node] of graph.vertices()) {
-                node.radius = node.value.energy * 10;
+                node.radius = Math.log2(node.value.energy * 10 + 1);
                 node.description = `energy: ${node.value.energy}
-    output: ${node.value.output}
-    outdegree: ${graph.outDegree(key)}
-    indegree: ${graph.inDegree(key)}`;
+output: ${node.value.output}
+outdegree: ${graph.outDegree(key)}
+indegree: ${graph.inDegree(key)}`;
             }
         }
         last_graph_string = graph_string;

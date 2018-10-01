@@ -22,12 +22,12 @@ const costs = {
     edge: 3e-1,
     sustainNode: 1e-3,
     sustainEdge: 1e-1,
-    gain: 5
+    gain: 50
 };
 self.costs = costs;
 const thresholds = {
-    node: 1e-5,
-    edge: 1e-7
+    node: 1e-6,
+    edge: 1e-20
 };
 class MorphNode {
     constructor(energy) {
@@ -234,11 +234,11 @@ function stripNetwork() {
             graphDisplay.graph = graph;
             // set description
             for (const [key, node] of graph.vertices()) {
-                node.radius = node.value.energy * 10;
+                node.radius = Math.log2(node.value.energy * 10 + 1);
                 node.description = `energy: ${node.value.energy}
-    output: ${node.value.output}
-    outdegree: ${graph.outDegree(key)}
-    indegree: ${graph.inDegree(key)}`;
+output: ${node.value.output}
+outdegree: ${graph.outDegree(key)}
+indegree: ${graph.inDegree(key)}`;
             }
         }
         last_graph_string = graph_string;

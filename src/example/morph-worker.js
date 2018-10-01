@@ -15,12 +15,12 @@ const costs = {
     edge: 3e-1,
     sustainNode: 1e-3,
     sustainEdge: 1e-1,
-    gain: 5
+    gain: 50
 };
 self.costs = costs;
 const thresholds = {
-    node: 1e-5,
-    edge: 1e-7
+    node: 1e-6,
+    edge: 1e-20
 };
 class MorphNode {
     constructor(energy) {

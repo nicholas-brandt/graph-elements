@@ -28,7 +28,7 @@ export default class GraphContextmenu extends GraphAddon {
         // this.canvasContextmenu.hammer.options.domEvents = true;
         // this.canvasContextmenu.hammer.on("tap", this.hideContextmenu.bind(this));
         this.canvasTemplate = this.querySelector("#canvas");
-        if (this.canvasTemplate) {
+        if (this.canvasTemplate instanceof HTMLTemplateElement) {
             const canvas_content = document.importNode(this.canvasTemplate.content, true);
             this.canvasContextmenu.appendChild(canvas_content);
         }
@@ -71,8 +71,11 @@ export default class GraphContextmenu extends GraphAddon {
         host.svg.hammer.on("tap", event => {
             this.hideContextmenu();
         });
-        this.canvasConfiguration = await this.__getConfiguration(this.canvasTemplate);
-        await this.canvasConfiguration.initContextmenu(this, host);
+        this.canvasConfigurationPromise = getConfiguration(this.canvasTemplate);
+        const canvas_configuration = await this.canvasConfigurationPromise;
+        if (canvas_configuration && canvas_configuration.initContextmenu) {
+            await canvas_configuration.initContextmenu(this, host);
+        }
         host.svg.addEventListener("contextmenu", event => {
             try {
                 this.__contextmenuCanvas(host, event);
@@ -82,7 +85,7 @@ export default class GraphContextmenu extends GraphAddon {
         }, {
             passive: false
         });
-        this.nodeConfiguration = await this.__getConfiguration(this.nodeTemplate);
+        this.nodeConfigurationPromise = getConfiguration(this.nodeTemplate);
         host.addEventListener("graph-structure-change", event => {
             try {
                 this.__bindNodes(host);
@@ -112,20 +115,6 @@ export default class GraphContextmenu extends GraphAddon {
             }
         }
     }
-    async __getConfiguration(template) {
-        let script_url = template.dataset.script;
-        // console.log("script url", script_url);
-        if (script_url) {
-            if (!/^(?:[a-z]+:)?\/\//i.test(script_url)) {
-                const path = location.pathname.match(/(.*\/).*?/i)[1];
-                script_url = location.origin + path + script_url;
-                // console.log(path, script_url);
-            }
-            return await import(script_url);
-        }
-        console.warn("no Configuration script specified");
-        return () => {};
-    }
     __contextmenuCanvas(host, event) {
         console.log(event);
         this.__event = event;
@@ -141,14 +130,17 @@ export default class GraphContextmenu extends GraphAddon {
         event.preventDefault();
         event.stopPropagation();
         const host = await this.host;
+        const node_configuration = await this.nodeConfigurationPromise;
         if (!node.contextmenu) {
-            if (this.nodeTemplate) {
+            if (this.nodeTemplate instanceof HTMLTemplateElement) {
                 // create contextmenu from template
                 node.contextmenu = document.createElement("div");
                 node.contextmenu.classList.add("contextmenu", "node-menu");
                 const node_content = document.importNode(this.nodeTemplate.content, true);
                 node.contextmenu.appendChild(node_content);
-                await this.nodeConfiguration.initContextmenu(this, host, node);
+                if (node_configuration && node_configuration.initContextmenu) {
+                    await node_configuration.initContextmenu(this, host, node);
+                }
             }
         }
         // const x = (event.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
@@ -156,8 +148,8 @@ export default class GraphContextmenu extends GraphAddon {
         const x = event.pageX - host.offsetLeft;
         const y = event.pageY - host.offsetTop;
         await this.showContextmenu(node.contextmenu, x, y);
-        if (this.nodeConfiguration && this.nodeConfiguration.showContextmenu) {
-            await this.nodeConfiguration.showContextmenu(this, host, node);
+        if (node_configuration && node_configuration.showContextmenu) {
+            await node_configuration.showContextmenu(this, host, node);
         }
     }
     async showContextmenu(contextmenu, x, y) {
@@ -218,3 +210,19 @@ GraphContextmenu.styleElement = style;
         console.error(error);
     }
 })();
+
+function getConfiguration(template) {
+    if (template instanceof HTMLElement) {
+        let script_url = template.dataset.script;
+        // console.log("script url", script_url);
+        if (script_url) {
+            if (!/^(?:[a-z]+:)?\/\//i.test(script_url)) {
+                const path = location.pathname.match(/(.*\/).*?/i)[1];
+                script_url = location.origin + path + script_url;
+                // console.log(path, script_url);
+            }
+            return import(script_url);
+        }
+        console.warn("no Configuration script specified");
+    }
+}

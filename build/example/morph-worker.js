@@ -61,7 +61,7 @@ async function _iterate(i) {
             sum += (link.flow_coefficient - link.target.energy / link.source.energy) ** 2;
         }
         if (sum) {
-            console.log("energy misfit", sum ** .5 / edges.length);
+            // console.log("energy misfit", (sum ** .5) / edges.length);
         }
     }
     {
@@ -74,7 +74,7 @@ async function _iterate(i) {
         // console.log("energy mean", average);
     }
     // send();
-    if (i < 1e4) {
+    if (i < 50) {
         setTimeout(async () => {
             await await iterate(i + 1);
         }, 200);

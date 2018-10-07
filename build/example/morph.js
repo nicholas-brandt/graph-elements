@@ -68,7 +68,7 @@ async function _iterate(i) {
             sum += (link.flow_coefficient - link.target.energy / link.source.energy) ** 2;
         }
         if (sum) {
-            console.log("energy misfit", sum ** .5 / edges.length);
+            // console.log("energy misfit", (sum ** .5) / edges.length);
         }
     }
     {
@@ -81,7 +81,7 @@ async function _iterate(i) {
         // console.log("energy mean", average);
     }
     // send();
-    if (i < 1e4) {
+    if (i < 50) {
         setTimeout(async () => {
             await await iterate(i + 1);
         }, 200);
@@ -193,6 +193,9 @@ function stripNetwork() {
     await customElements.whenDefined("graph-display");
     const graphDisplay = document.querySelector("graph-display");
     window.graphDisplay = graphDisplay;
+    setTimeout(() => {
+        graphDisplay.shadowRoot.querySelector("graph-d3-force").stop();
+    }, 1e4);
 
     const d3force = await graphDisplay.addonPromises["graph-d3-force"];
     d3force.configuration.alpha = 1e-1;
@@ -249,7 +252,7 @@ indegree: ${graph.inDegree(key)}`;
     });
 
     // loop for graph changes
-    for (let i = 0; i < Infinity; ++i) {
+    for (let i = 0; i < 100; ++i) {
         const receive_promise = await receive_graph();
         await receive_promise;
     }

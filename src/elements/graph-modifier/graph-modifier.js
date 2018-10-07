@@ -1,8 +1,10 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import GraphAddon from "../graph-addon/graph-addon.js";
+import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import __try from "../../helper/__try.js";
+import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
@@ -23,6 +25,9 @@ class GraphModifier extends GraphAddon {
         console.log("");
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
+            __setHammerEnabled(host.svg.hammer, false, "pinch", "pan", "rotate", "swipe");
+        } else {
+            __setHammerEnabled(host.svg.hammer, true, "tap", "press");
         }
         host.svg.hammer.on("tap", event => {
             if (event.srcEvent.path[0] === host.svg) {
@@ -44,9 +49,7 @@ class GraphModifier extends GraphAddon {
             } catch (error) {
                 console.error(error);
             }
-        }, {
-            passive: true
-        });
+        }, passive);
         this.__bindNodes(host);
     }
     selectNode(node) {
@@ -65,24 +68,21 @@ class GraphModifier extends GraphAddon {
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
+                __setHammerEnabled(host.svg.hammer, false, "pinch", "pan", "rotate", "swipe");
+            } else {
+                __setHammerEnabled(host.svg.hammer, true, "tap", "press");
             }
             if (!node.modifierInstalled) {
                 node.modifierInstalled = true;
                 // node.hammer.options.domEvents = true;
-                node.hammer.get("press").set({time: 300});
+                node.hammer.get("press").set({time: 600});
                 node.hammer.on("press", this.__pressNode.bind(this, host, node));
                 // TODO: no stopImmediatePropagation available in hammer.js
                 // e.g. detail-view tap is still triggered
                 node.__tapHandlers = node.hammer.handlers.tap || [];
                 // console.log("tap handlers", node.__tapHandlers);
                 node.hammer.off("tap");
-                node.hammer.on("tap", event => {
-                    try {
-                        this.__tapNode(host, node, event);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
+                node.hammer.on("tap", this.__tapNode.bind(this, host, node), passive);
                 const _on = node.hammer.on.bind(node.hammer);
                 node.hammer.on = function(recognizer_name, callback) {
                     if (recognizer_name == "tap") {
@@ -145,13 +145,12 @@ class GraphModifier extends GraphAddon {
         }
     }
 }
-(async () => {
-    try {
-        // ensure requirements
-        await require(["Hammer"]);
-        await customElements.whenDefined("graph-display");
-        customElements.define(GraphModifier.tagName, GraphModifier);
-    } catch (error) {
-        console.error(error);
-    }
+const passive = {
+    passive: true
+};
+__try(async () => {
+    // ensure requirements
+    await require(["Hammer"]);
+    await customElements.whenDefined("graph-display");
+    customElements.define(GraphModifier.tagName, GraphModifier);
 })();

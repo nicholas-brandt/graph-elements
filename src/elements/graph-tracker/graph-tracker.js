@@ -1,31 +1,26 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import GraphAddon from "../graph-addon/graph-addon.js";
+import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import __try from "../../helper/__try.js";
+import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
 export default
 class GraphTracker extends GraphAddon {
     static tagName = "graph-tracker";
-    constructor() {
-        super();
+    constructor(...args) {
+        super(...args);
         this.__deltaX = 0;
         this.__deltaY = 0;
         this.__canvasX = 0;
         this.__canvasY = 0;
         let tracking_mode;
-        let track_canvas = false;
+        let is_tracking_canvas = false;
         let tracking_count;
         let tracking_initial_time;
-        const track_callback = async event => {
-            try {
-                await this.__trackCanvas(event);
-            } catch (error) {
-                console.error(error);
-            }
-        };
         Object.defineProperties(this, {
             trackingMode: {
                 get() {
@@ -72,97 +67,73 @@ class GraphTracker extends GraphAddon {
                 configurable: true,
                 enumerable: true
             },
-            trackCanvas: {
+            isTrackingCanvas: {
                 get() {
-                    return track_canvas;
+                    return is_tracking_canvas;
                 },
-                set(_track_canvas) {
-                    if (track_canvas == !_track_canvas) {
-                        (async () => {
-                            const host = await this.host;
-                            if (_track_canvas) {
-                                host.svg.hammer.on("pan", track_callback);
-                            } else {
-                                host.svg.hammer.off("pan", track_callback);
-                            }
-                        })();
-                    }
-                    track_canvas = !!_track_canvas;
+                set(_is_tracking_canvas) {
+                    is_tracking_canvas = !!_is_tracking_canvas;
                 }
             }
         });
         this.trackingMode = this.getAttribute("tracking-mode");
-        this.trackCanvas = ["true", ""].indexOf(this.getAttribute("track-canvas")) != -1;
+        this.isTrackingCanvas = /^(|true)$/.test(this.getAttribute("track-canvas"));
         this.trackingCount = 30;
         this.trackingInitialTime = 10;
     }
     hosted(host) {
         console.log("");
-        host.addEventListener("graph-structure-change", event => {
-            try {
-                this.__bindNodes(host);
-            } catch (error) {
-                console.error(error);
-            }
-        }, passive);
-        host.addEventListener("resize", event => {
-            try {
-                const {baseVal} = host.svg.viewBox;
-                baseVal.x -= this.__canvasX / 2;
-                baseVal.y -= this.__canvasY / 2;
-            } catch (error) {
-                console.error(error);
-            }
-        }, passive);
+        host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
+        host.addEventListener("resize", __try(event => {
+            const {baseVal} = host.svg.viewBox;
+            baseVal.x -= this.__canvasX / 2;
+            baseVal.y -= this.__canvasY / 2;
+        }), passive);
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
+            __setHammerEnabled(host.svg.hammer, false, "pinch", "press", "tap", "rotate", "swipe");
+        } else {
+            __setHammerEnabled(host.svg.hammer, true, "pan");
         }
         host.svg.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL});
+        host.svg.hammer.on("pan", this.__trackCanvas.bind(this));
         this.__bindNodes(host);
     }
     __bindNodes(host) {
         console.log("");
+        let has_new_node;
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
+                __setHammerEnabled(node.hammer, false, "pinch", "press", "tap", "rotate", "swipe");
+            } else {
+                __setHammerEnabled(node.hammer, true, "pan");
             }
             if (!node.trackerInstalled) {
                 node.trackerInstalled = true;
                 node.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL});
-                node.hammer.on("pan", async event => {
-                    try {
-                        await this.__trackNode(node, event);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
-                node.hammer.on("panstart", async event => {
-                    try {
-                        await this.__trackNodeStart(node, event);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
-                node.hammer.on("panend", async event => {
-                    try {
-                        await this.__trackNodeEnd(node, event);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
-                node.hammer.on("pancancel", async event => {
-                    try {
-                        await this.__trackNodeEnd(node, event);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
+                node.hammer.on("pan", __try(this.__trackNode.bind(this, node)));
+                node.hammer.on("panstart", __try(this.__trackNodeStart.bind(this, node)));
+                node.hammer.on("panend", __try(this.__trackNodeEnd.bind(this, node)));
+                node.hammer.on("pancancel", __try(this.__trackNodeEnd.bind(this, node)));
+                has_new_node = true;
             }
+        }
+        if (has_new_node) {
+            // @PROBLEM: https://stackoverflow.com/questions/37688640/hammerjs-events-order-for-nested-elements/52682659#52682659
+            // reassign manager to delay recognition of the "pan"-event for the canvas (until after the node event)
+            host.svg.hammer.input.destroy();
+            host.svg.hammer.input.init();
         }
     }
     async __trackNode(node, event) {
         console.log(event);
-        // event.srcEvent.stopPropagation();
+        // console.time("trackNode");
+        // console.timeEnd("trackNode");
+        if (this.isTrackingCanvas) {
+            this.__isNodeSession = true
+            // event.srcEvent.stopImmediatePropagation();
+        }
         node.x += event.deltaX - (node.__deltaX || 0);
         node.y += event.deltaY - (node.__deltaY || 0);
         node.__deltaX = event.isFinal ? 0 : event.deltaX;
@@ -174,23 +145,25 @@ class GraphTracker extends GraphAddon {
             composed: true
         }));
     }
-    async __trackCanvas(event) {
-        console.log(event);
-        // event.srcEvent.stopPropagation();
-        const dx = event.deltaX - (this.__deltaX || 0);
-        const dy = event.deltaY - (this.__deltaY || 0);
-        this.__canvasX += dx;
-        this.__canvasY += dy;
-        this.__deltaX = event.isFinal ? 0 : event.deltaX;
-        this.__deltaY = event.isFinal ? 0 : event.deltaY;
-        const host = await this.host;
-        const {baseVal} = host.svg.viewBox;
-        baseVal.x -= dx;
-        baseVal.y -= dy;
-        this.dispatchEvent(new Event("viewbox-update", {
-            bubbles: true,
-            composed: true
-        }));
+    __trackCanvas(event) {
+        if (this.isTrackingCanvas && !this.__isNodeSession) {
+            console.log(event);
+            const dx = event.deltaX - (this.__deltaX || 0);
+            const dy = event.deltaY - (this.__deltaY || 0);
+            this.__canvasX += dx;
+            this.__canvasY += dy;
+            this.__deltaX = event.isFinal ? 0 : event.deltaX;
+            this.__deltaY = event.isFinal ? 0 : event.deltaY;
+            const {baseVal} = event.target.viewBox;
+            baseVal.x -= dx;
+            baseVal.y -= dy;
+            this.dispatchEvent(new Event("viewbox-update", {
+                bubbles: true,
+                composed: true
+            }));
+        } else {
+            this.__isNodeSession = false;
+        }
     }
     async __trackNodeStart(node) {
         node.tracking = true;
@@ -263,34 +236,26 @@ class GraphTracker extends GraphAddon {
         }
     }
     async __onNodePaint(node, event) {
-        try {
-            if (this.trackingMode == "adaptive" && !node.__linksHidden) {
-                // console.time("timediff");
-                const time_difference = await requestTimeDifference();
-                node.__trackingTime = (node.__trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
-                // console.timeEnd("timediff");
-                console.log("time difference", time_difference);
-                // console.log("graph-tracker: node.__trackingTime", node.__trackingTime);
-                if (node.__trackingTime > 17 && node.tracking) {
-                    console.log("adaptively hiding links", time_difference);
-                    await this.__hideLinks(node);
-                }
+        if (this.trackingMode == "adaptive" && !node.__linksHidden) {
+            // console.time("timediff");
+            const time_difference = await requestTimeDifference();
+            node.__trackingTime = (node.__trackingTime * (this.trackingCount - 1) + time_difference) / this.trackingCount;
+            // console.timeEnd("timediff");
+            console.log("time difference", time_difference);
+            // console.log("graph-tracker: node.__trackingTime", node.__trackingTime);
+            if (node.__trackingTime > 17 && node.tracking) {
+                console.log("adaptively hiding links", time_difference);
+                await this.__hideLinks(node);
             }
-        } catch (error) {
-            console.error(error);
         }
     }
 }
 const passive = {
     passive: true
 };
-(async () => {
-    try {
-        // ensure requirements
-        await require(["Hammer"]);
-        await customElements.whenDefined("graph-display");
-        customElements.define(GraphTracker.tagName, GraphTracker);
-    } catch (error) {
-        console.error(error);
-    }
+__try(async () => {
+    // ensure requirements
+    await require(["Hammer"]);
+    await customElements.whenDefined("graph-display");
+    customElements.define(GraphTracker.tagName, GraphTracker);
 })();

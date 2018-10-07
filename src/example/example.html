@@ -42,14 +42,12 @@
         <graph-tracker tracking-mode=""></graph-tracker>
         <graph-modifier></graph-modifier>
         <graph-contextmenu>
-            <template id="node" data-script="../../build/example/node.contextmenu.js">
-                <div id="key"></div>
-                <textarea id="description" placeholder="description"></textarea>
+            <template id="node">
+                <div>Key: [[node.key]] [[index]]</div>
+                <textarea id="description" placeholder="description">{{node.description}}</textarea>
             </template>
-            <template id="canvas" data-script="../../build/example/canvas.contextmenu.js">
-                <div>
-                    canvas div
-                </div>
+            <template id="canvas">
+                <div>[[test]] [[test2]]</div>
                 <textarea id="description" placeholder="description"></textarea>
             </template>
         </graph-contextmenu>

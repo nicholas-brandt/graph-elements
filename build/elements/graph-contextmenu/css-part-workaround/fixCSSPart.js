@@ -1,0 +1,3 @@
+export default function fixCSSPart(graph_contextmenu) {
+    graph_contextmenu.insertAdjacentHTML("beforeend", `<style>.menu .menu-group>:not(.menu-group),.menu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}.menu .menu-group>:not(.menu-group):hover,.menu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}.menu .menu-group{display:flex;flex-direction:column;flex:0 0 auto}.menu .menu-group+*,.menu .menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}.menu input{outline:0;border:none;padding:1px 5px}.menu input[type=number]{padding:1px 0 1px 5px}</style>`);
+}

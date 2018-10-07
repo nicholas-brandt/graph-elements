@@ -2,8 +2,10 @@
 
 import console from "../../helper/console.js";
 
-import GraphAddon from "../graph-addon/graph-addon.js";
+import { GraphAddon } from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import __try from "../../helper/__try.js";
+import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 
 const style = document.createElement("style");
 style.textContent = `:host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50);padding:10px;box-sizing:border-box}:host>*{flex:1;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}`;
@@ -35,26 +37,15 @@ export default class GraphDetailView extends GraphAddon {
         console.log("");
         // add tap listener to detail view
         const hammer = new Hammer(this);
-        hammer.on("tap", async event => {
-            try {
-                // only accept event if it originates from the graph-detail-view not from its children
-                if (event.srcEvent.path[0] === this) {
-                    await this.__tapDetailView(host);
-                }
-            } catch (error) {
-                console.error(error);
+        __setHammerEnabled(hammer, false, "pinch", "press", "pan", "rotate", "swipe");
+        hammer.on("tap", __try(async event => {
+            // only accept event if it originates from the graph-detail-view not from its children
+            if (event.srcEvent.path[0] === this) {
+                await this.__tapDetailView(host);
             }
-        });
+        }));
         // add tap listener to existing elements
-        host.addEventListener("graph-structure-change", event => {
-            try {
-                this.__bindNodes(host);
-            } catch (error) {
-                console.error(error);
-            }
-        }, {
-            passive: true
-        });
+        host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
         this.__bindNodes(host);
     }
     __bindNodes(host) {
@@ -65,16 +56,13 @@ export default class GraphDetailView extends GraphAddon {
             // console.log(element);
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
+                __setHammerEnabled(node.hammer, false, "pinch", "press", "pan", "rotate", "swipe");
+            } else {
+                __setHammerEnabled(node.hammer, true, "tap");
             }
             if (!node.detailViewInstalled) {
                 node.detailViewInstalled = true;
-                node.hammer.on("tap", async () => {
-                    try {
-                        this.__tapNode(node);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
+                node.hammer.on("tap", __try(this.__tapNode.bind(this, node)));
             }
         }
     }
@@ -112,14 +100,8 @@ export default class GraphDetailView extends GraphAddon {
                     }, {
                         opacity: 1
                     }];
-                    this.animate(keyframes, 300).addEventListener("finish", () => {
-                        resolve();
-                    }, {
-                        passive: true
-                    });
-                }, {
-                    passive: true
-                });
+                    this.animate(keyframes, 300).addEventListener("finish", resolve.bind(undefined, undefined), passive);
+                }, passive);
             });
         }
     }
@@ -152,18 +134,17 @@ export default class GraphDetailView extends GraphAddon {
                         this.__activeClone = undefined;
                         this.activeNode = undefined;
                         resolve();
-                    }, {
-                        passive: true
-                    });
-                }, {
-                    passive: true
-                });
+                    }, passive);
+                }, passive);
             });
         }
     }
 }
 GraphDetailView.tagName = "graph-detail-view";
 GraphDetailView.styleElement = style;
+const passive = {
+    passive: true
+};
 (async () => {
     await require(["Hammer"]);
     await customElements.whenDefined("graph-display");

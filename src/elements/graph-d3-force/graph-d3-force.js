@@ -2,7 +2,7 @@
 import console from "../../helper/console.js";
 
 import workerize from "https://rawgit.com/Jamtis/workerize/patch-1/src/index.js";
-import GraphAddon from "../graph-addon/graph-addon.js";
+import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";

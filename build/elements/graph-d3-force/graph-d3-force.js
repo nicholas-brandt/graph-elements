@@ -5,14 +5,15 @@ import console from "../../helper/console.js";
 import workerize from "https://rawgit.com/Jamtis/workerize/patch-1/src/index.js";
 import { GraphAddon } from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import __try from "../../helper/__try.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 
 // web worker same origin policy requires host to support OPTIONS CORS
 
-export class GraphD3Force extends GraphAddon {
-    constructor() {
-        super();
+export default class GraphD3Force extends GraphAddon {
+    constructor(...args) {
+        super(...args);
         let _configuration = this.configuration;
         delete this.configuration;
         let _adaptive_links;
@@ -388,13 +389,9 @@ GraphD3Force.defaultConfiguration = {
     velocityDecay: 0.1
 };
 ;
-(async () => {
-    try {
-        // ensure requirements
-        await require(["d3"]);
-        await customElements.whenDefined("graph-display");
-        customElements.define(GraphD3Force.tagName, GraphD3Force);
-    } catch (error) {
-        console.error(error);
-    }
+__try(async () => {
+    // ensure requirements
+    await require(["d3"]);
+    await customElements.whenDefined("graph-display");
+    customElements.define(GraphD3Force.tagName, GraphD3Force);
 })();

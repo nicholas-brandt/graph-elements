@@ -1,13 +1,15 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+import Extendable from "./extendable.js";
+import requestAnimationFunction from "//rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
 import {Node, Link} from "../../helper/GraphClasses.js";
 
 const style = document.createElement("style");
 style.textContent = `<!-- inject: ./graph-display.css -->`;
 
-export class GraphDisplay extends HTMLElement {
+export default
+class GraphDisplay extends Extendable {
     static tagName = "graph-display";
     static styleElement = style;
     constructor() {
@@ -225,7 +227,7 @@ export class GraphDisplay extends HTMLElement {
     async __callWhenAddonHosted(addon_name, callback) {
         await this.addonPromises[addon_name];
         console.log("addon hosted", addon_name);
-        await callback(this);
+        return await callback(this);
     }
 };
-customElements.define("graph-display", GraphDisplay);
+customElements.define(GraphDisplay.tagName, GraphDisplay);

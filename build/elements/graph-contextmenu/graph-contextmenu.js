@@ -1,6 +1,5 @@
 "use strict";
-
-import console from "../../helper/console.js";
+// import console from "../../helper/console.js";
 
 import { PolymerElement } from "//unpkg.com/@polymer/polymer/polymer-element.js?module";
 import { templatize } from "//unpkg.com/@polymer/polymer/lib/utils/templatize.js?module";
@@ -11,27 +10,32 @@ import require from "../../helper/require.js";
 import __try from "../../helper/__try.js";
 import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 
-import fixCSSPart from "./css-part-workaround/fixCSSPart.js";
-
 export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
     static get template() {
         return html([this.styleString + this.templateString]);
     }
+
     ready() {
         super.ready();
-        fixCSSPart(this);
+        // fix CSS part
+        this.insertAdjacentHTML("beforeend", `<style>*>:not(.menu-group),.menu-group>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}*>:not(.menu-group):hover,.menu-group>:not(.menu-group):hover{background:rgba(51,51,51,.15)}.menu-group{display:flex;flex-direction:column;flex:0 0 auto}.menu-group+*,.menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}input{outline:0;border:none;padding:1px 5px}input[type=number]{padding:1px 0 1px 5px}</style>`);
+
+        this.canvasMenu = this.shadowRoot.querySelector(".menu.canvas");
         this.canvasTemplate = this.querySelector("template#canvas");
         if (this.canvasTemplate) {
-            // TODO: stamp new template for the canvas menu
-            const menu_container = stampMenu(this.canvasTemplate, "canvas", {}, {
-                forwardHostProp(property, value) {
-                    console.log(property, value);
-                }
-            });
-            this.appendChild(menu_container);
-            this.canvasContextmenu = menu_container;
+            const instance = this.__stampMenu(this.canvasTemplate, "canvas", {}, {});
+            this.appendChild(instance.root);
+            this.__canvasTemplateInstance = instance;
         }
+        this.nodeMenu = this.shadowRoot.querySelector(".menu.node");
         this.nodeTemplate = this.querySelector("template#node");
+        if (this.nodeTemplate) {
+            const instance = this.__stampMenu(this.nodeTemplate, "node", {
+                node: true
+            }, {});
+            this.appendChild(instance.root);
+            this.__nodeTemplateInstance = instance;
+        }
     }
     async hosted(host) {
         host.addEventListener("resize", event => {
@@ -56,7 +60,9 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
         for (const [key, node] of host.nodes) {
             if (!node.contextmenuInstalled) {
                 node.contextmenuInstalled = true;
-                node.element.addEventListener("contextmenu", this.__prepareContextmenu.bind(this, host, node), { passive: false });
+                node.element.addEventListener("contextmenu", this.__prepareContextmenu.bind(this, host, node), {
+                    passive: false
+                });
             }
         }
     }
@@ -66,13 +72,8 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
         event.stopPropagation();
         const x = event.pageX - host.offsetLeft;
         const y = event.pageY - host.offsetTop;
-        if (node && !node.contextmenu && this.nodeTemplate) {
-            // TODO: stamp new template for the node
-            const menu_container = stampMenu(this.nodeTemplate, "node", { node });
-            this.appendChild(menu_container);
-            node.contextmenu = menu_container;
-        }
-        const contextmenu = node ? node.contextmenu : this.canvasContextmenu;
+        this.activeNode = node;
+        const contextmenu = node ? this.nodeMenu : this.canvasMenu;
         if (contextmenu) {
             this.__showContextmenu(host, contextmenu, x, y);
         }
@@ -125,11 +126,51 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
             this.y = undefined;
         }
     }
+    __stampMenu(template, name, instance_properties, model) {
+        const options = {
+            mutableData: this.mutableData,
+            parentModel: true,
+            instanceProps: instance_properties,
+            // @REMARK: never called but neccessary (_enqueueClient missing)
+            forwardHostProp(property, value) {
+                console.log("forward", property, value);
+            },
+            notifyInstanceProp: function (inst, prop, value) {
+                // @TODO: propagate to instance property to the host
+                // set value on this
+                // this.notifyPath
+            }
+        };
+        const TemplateClass = templatize(template, this, options);
+        const instance = new TemplateClass(model);
+        for (const child of instance.root.children) {
+            child.slot = name;
+        }
+        return instance;
+    }
+    __activeNodeChanged(new_node) {
+        if (this.nodeMenu) {
+            const { __nodeTemplateInstance } = this;
+            __nodeTemplateInstance.forwardHostProp("node", new_node);
+            __nodeTemplateInstance._flushProperties();
+        }
+    }
 }
 GraphContextmenu.tagName = "graph-contextmenu";
-GraphContextmenu.styleString = `<style>:host ::slotted(.menu){position:absolute;color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host ::slotted(.menu) .menu-group>:not(.menu-group),:host ::slotted(.menu)>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host ::slotted(.menu) .menu-group>:not(.menu-group):hover,:host ::slotted(.menu)>:not(.menu-group):hover{background:rgba(51,51,51,.15)}:host ::slotted(.menu) .menu-group{display:flex;flex-direction:column;flex:0 0 auto}:host ::slotted(.menu) .menu-group+*,:host ::slotted(.menu) .menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}:host ::slotted(.menu) input{outline:0;border:none;padding:1px 5px}:host ::slotted(.menu) input[type=number]{padding:1px 0 1px 5px}:host ::slotted(.menu.visible){display:flex}</style>`;
-GraphContextmenu.templateString = `<slot name="canvas"></slot>
-<slot name="node"></slot>`;
+GraphContextmenu.styleString = `<style>:host .menu{position:absolute;color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host .menu ::slotted(.menu-group)>:not(.menu-group),:host .menu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host .menu ::slotted(.menu-group)>:not(.menu-group):hover,:host .menu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}:host .menu ::slotted(.menu-group){display:flex;flex-direction:column;flex:0 0 auto}:host .menu ::slotted(.menu-group)+*,:host .menu ::slotted(.menu-group):not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}:host .menu ::slotted(input){outline:0;border:none;padding:1px 5px}:host .menu ::slotted(input)[type=number]{padding:1px 0 1px 5px}:host .menu.visible{display:flex}</style>`;
+GraphContextmenu.templateString = `<div class="menu canvas">
+    <slot name="canvas"></slot>
+</div>
+<div class="menu node">
+    <slot name="node"></slot>
+</div>`;
+GraphContextmenu.properties = {
+    activeNode: {
+        type: Object,
+        value: null
+    }
+};
+GraphContextmenu.observers = ["__activeNodeChanged(activeNode)"];
 const passive = {
     passive: true
 };
@@ -139,13 +180,3 @@ __try(async () => {
     await customElements.whenDefined("graph-display");
     customElements.define(GraphContextmenu.tagName, GraphContextmenu);
 })();
-
-function stampMenu(template, name, instance_props, options) {
-    const TemplateClass = templatize(template, undefined, options);
-    const instance = new TemplateClass(instance_props);
-    const menu_container = document.createElement("div");
-    menu_container.classList.add("menu", name);
-    menu_container.slot = name;
-    menu_container.appendChild(instance.root);
-    return menu_container;
-}

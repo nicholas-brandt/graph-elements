@@ -3,7 +3,7 @@
 @menu-distance: 10px;
 
 :host {
-    ::slotted(.menu) {
+    .menu {
         position: absolute;
         color: @color-menu;
         font: 13px Roboto;
@@ -18,7 +18,7 @@
         padding: @menu-distance / 2 0;
         // not working; waiting for css part ...
         &,
-        .menu-group {
+        ::slotted(.menu-group) {
             >:not(.menu-group) {
                 flex: 0 0 auto;
                 padding: @menu-distance / 2 @menu-distance * 2;
@@ -31,7 +31,7 @@
                 }
             }
         }
-        .menu-group {
+        ::slotted(.menu-group) {
             display: flex;
             flex-direction: column;
             flex: 0 0 auto;
@@ -42,7 +42,7 @@
                 padding-top: 5px;
             }
         }
-        input {
+        ::slotted(input) {
             outline: none;
             border: none;
             padding: 1px @menu-distance / 2;
@@ -51,7 +51,7 @@
             }
         }
     }
-    ::slotted(.menu.visible) {
+    .menu.visible {
         display: flex;
     }
 }

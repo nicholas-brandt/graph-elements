@@ -1,8 +1,8 @@
 @import (reference) "../../../styles.less";
 
-#contextmenus {
-    &[simulation=running] #start-force,
-    &[simulation]:not([simulation=running]) #stop-force {
+:host {
+    .menu[simulation=running] ::slotted(#start-force),
+    .menu[simulation]:not([simulation=running]) ::slotted(#stop-force) {
         color: fade(@color-menu, 50%);
     }
 }

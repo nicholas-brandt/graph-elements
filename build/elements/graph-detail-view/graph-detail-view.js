@@ -1,18 +1,23 @@
+// data binding to the template does not work yet
 "use strict";
 
 import console from "../../helper/console.js";
 
-import { GraphAddon } from "../graph-addon/graph-addon.js";
+import { PolymerElement } from "//unpkg.com/@polymer/polymer/polymer-element.js?module";
+import { templatize } from "//unpkg.com/@polymer/polymer/lib/utils/templatize.js?module";
+import { html } from "//unpkg.com/@polymer/polymer/lib/utils/html-tag.js?module";
+
+import { createGraphAddon } from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import __try from "../../helper/__try.js";
 import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 
-const style = document.createElement("style");
-style.textContent = `:host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50);padding:10px;box-sizing:border-box}:host>*{flex:1;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}`;
-
-export default class GraphDetailView extends GraphAddon {
-    constructor() {
-        super();
+export default class GraphDetailView extends createGraphAddon(PolymerElement) {
+    static get template() {
+        return html([this.styleString + this.templateString]);
+    }
+    constructor(...args) {
+        super(...args);
         // define own properties
         Object.defineProperties(this, {
             __activeClone: {
@@ -21,16 +26,22 @@ export default class GraphDetailView extends GraphAddon {
                 configurable: true
             }
         });
-        // attach shadow
-        this.attachShadow({
-            mode: "open"
-        });
-        // add style
-        this.styleElement = this.constructor.styleElement.cloneNode(true);
-        this.shadowRoot.appendChild(this.styleElement);
-        // migrate all children
-        for (const child of this.children) {
-            this.shadowRoot.appendChild(child);
+    }
+    ready() {
+        super.ready();
+        // fix CSS part
+        this.insertAdjacentHTML("beforeend", `<style></style>`);
+
+        this.template = this.querySelector("template#view");
+        if (this.template) {
+            // TODO: stamp new template for the detail view
+            const view_container = stampView(this.template, "view", {}, {
+                forwardHostProp(property, value) {
+                    console.log(property, value);
+                }
+            });
+            this.appendChild(view_container);
+            this.viewElement = view_container;
         }
     }
     hosted(host) {
@@ -38,12 +49,7 @@ export default class GraphDetailView extends GraphAddon {
         // add tap listener to detail view
         const hammer = new Hammer(this);
         __setHammerEnabled(hammer, false, "pinch", "press", "pan", "rotate", "swipe");
-        hammer.on("tap", __try(async event => {
-            // only accept event if it originates from the graph-detail-view not from its children
-            if (event.srcEvent.path[0] === this) {
-                await this.__tapDetailView(host);
-            }
-        }));
+        hammer.on("tap", __try(this.hideDetailView.bind(this)));
         // add tap listener to existing elements
         host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
         this.__bindNodes(host);
@@ -62,21 +68,14 @@ export default class GraphDetailView extends GraphAddon {
             }
             if (!node.detailViewInstalled) {
                 node.detailViewInstalled = true;
-                node.hammer.on("tap", __try(this.__tapNode.bind(this, node)));
+                node.hammer.on("tap", __try(this.showDetailView.bind(this, node)));
             }
         }
-    }
-    __tapNode(node) {
-        // console.log("tap");
-        return this.showDetailView(node);
-    }
-    __tapDetailView(host) {
-        return this.hideDetailView();
     }
     async showDetailView(node) {
         const host = await this.host;
         if (this.activeNode && this.activeNode !== node) {
-            await this.hideDetailView(host);
+            this.__hideDetailView(host);
         } else {
             this.activeNode = node;
             const element = node.element;
@@ -106,13 +105,13 @@ export default class GraphDetailView extends GraphAddon {
         }
     }
     async hideDetailView() {
-        const host = await this.host;
         if (this.activeNode) {
             // console.log(event);
             // hide detail view
             const element = this.__activeClone;
             // const {strokeWidth} = getComputedStyle(element);
             this.classList.remove("visible");
+            const host = await this.host;
             // circle specific !!!
             await new Promise(resolve => {
                 const keyframes = [{
@@ -141,12 +140,22 @@ export default class GraphDetailView extends GraphAddon {
     }
 }
 GraphDetailView.tagName = "graph-detail-view";
-GraphDetailView.styleElement = style;
+GraphDetailView.styleString = `<style>:host{display:none;position:absolute;width:100%;height:100%;background:#4caf50;background:var(--node-color,#4caf50);padding:10px;box-sizing:border-box}:host>*{flex:1;opacity:0}:host(.visible){display:flex}:host(.visible)>*{opacity:1}</style>`;
+GraphDetailView.templateString = `<slot></slot>`;
 const passive = {
     passive: true
 };
-(async () => {
+__try(async () => {
     await require(["Hammer"]);
     await customElements.whenDefined("graph-display");
     customElements.define(GraphDetailView.tagName, GraphDetailView);
 })();
+
+function stampView(template, name, instance_props, options) {
+    const TemplateClass = templatize(template, undefined, options);
+    const instance = new TemplateClass(instance_props);
+    const view_container = document.createElement("div");
+    view_container.classList.add(name);
+    view_container.appendChild(instance.root);
+    return view_container;
+}

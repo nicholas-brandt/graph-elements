@@ -10,6 +10,7 @@
     <script src="../elements/graph-display/graph-display.js" type="module" async></script>
     <script src="../elements/graph-modifier/graph-modifier.js" type="module" async></script>
     <script src="../elements/graph-d3-force/graph-d3-force.js" type="module" async></script>
+    <script src="../elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
     <script src="../elements/graph-contextmenu/graph-contextmenu.js" type="module" async></script>
     
     <script src="../elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
@@ -35,19 +36,20 @@
 <body>
     <graph-display>
         <graph-detail-view>
-            <div>
-                test detail view
-            </div>
+            <template id="view">
+                <div>test detail view</div>
+                <textarea>textarea</textarea>
+            </template>
         </graph-detail-view>
         <graph-tracker tracking-mode=""></graph-tracker>
         <graph-modifier></graph-modifier>
         <graph-contextmenu>
             <template id="node">
-                <div>Key: [[node.key]] [[index]]</div>
+                <div>Key: [[node.key]]</div>
                 <textarea id="description" placeholder="description">{{node.description}}</textarea>
             </template>
             <template id="canvas">
-                <div>[[test]] [[test2]]</div>
+                <div>Test: [[prop]]</div>
                 <textarea id="description" placeholder="description"></textarea>
             </template>
         </graph-contextmenu>

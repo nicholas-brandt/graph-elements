@@ -30,26 +30,20 @@ class GraphModifier extends GraphAddon {
             __setHammerEnabled(host.svg.hammer, true, "tap", "press");
         }
         host.svg.hammer.on("tap", event => {
-            if (event.srcEvent.path[0] === host.svg) {
+            if (event.target === host.svg) {
                 this.__tapCanvas(host, event);
             }
         });
         host.svg.hammer.on("press", event => {
             try {
-                if (event.srcEvent.path[0] === host.svg) {
+                if (event.target === host.svg) {
                     // this.__pressCanvas(host, event);
                 }
             } catch (error) {
                 console.error(error);
             }
         });
-        host.addEventListener("graph-structure-change", event => {
-            try {
-                this.__bindNodes(host);
-            } catch (error) {
-                console.error(error);
-            }
-        }, passive);
+        host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
         this.__bindNodes(host);
     }
     selectNode(node) {

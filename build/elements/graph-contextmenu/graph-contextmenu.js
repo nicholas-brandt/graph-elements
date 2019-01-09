@@ -78,6 +78,7 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
         if (contextmenu) {
             this.__showContextmenu(host, contextmenu, x, y);
         }
+        return contextmenu;
     }
     async showContextmenu(contextmenu, x, y) {
         const host = await this.host;

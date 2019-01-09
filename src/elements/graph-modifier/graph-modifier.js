@@ -104,8 +104,8 @@ class GraphModifier extends GraphAddon {
         host.graph = host.graph;
         // get freshly created node
         const node = host.graph.vertexValue(i);
-        node.x = (event.srcEvent.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
-        node.y = (event.srcEvent.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
+        node.x = ((event.srcEvent.offsetX - host.svg.offsetX) / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
+        node.y = ((event.srcEvent.offsetY - host.svg.offsetY) / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
     }
     __pressNode(host, node) {
         console.log("");

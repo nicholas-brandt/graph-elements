@@ -57,7 +57,7 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
         this.__bindNodes(host);
     }
     __bindNodes(host) {
-        console.log("");
+        // console.log("");
         for (const [key, node] of host.nodes) {
             if (!node.contextmenuInstalled) {
                 node.contextmenuInstalled = true;

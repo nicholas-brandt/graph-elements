@@ -4,6 +4,7 @@ import console from "../../helper/console.js";
 import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import __try from "../../helper/__try.js";
+import {Node} from "../../helper/GraphClasses.js";
 import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
@@ -19,9 +20,9 @@ class GraphModifier extends GraphAddon {
         super();
         // add style
         this.styleElement = this.constructor.styleElement.cloneNode(true);
-        this.appendChild(this.styleElement);
     }
     hosted(host) {
+        host.shadowRoot.appendChild(this.styleElement);
         console.log("");
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
@@ -37,7 +38,7 @@ class GraphModifier extends GraphAddon {
         host.svg.hammer.on("press", event => {
             try {
                 if (event.target === host.svg) {
-                    // this.__pressCanvas(host, event);
+                    this.__pressCanvas(host, event);
                 }
             } catch (error) {
                 console.error(error);
@@ -58,7 +59,7 @@ class GraphModifier extends GraphAddon {
         }
     }
     __bindNodes(host) {
-        console.log("");
+        // console.log("");
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
@@ -95,10 +96,12 @@ class GraphModifier extends GraphAddon {
         while (host.graph.hasVertex(i)) {
             ++i;
         }
-        host.graph.addNewVertex(i);
-        this.dispatchEvent(new Event("graph-structure-change", {
-            composed: true
-        }));
+        host.graph.addNewVertex(i, new host.Node({
+            value: {},
+            key: i
+        },  host.__requestPaintNode.bind(host)));
+        // this.dispatchEvent(new Event("graph-structure-change", {}));
+        host.graph = host.graph;
         // get freshly created node
         const node = host.graph.vertexValue(i);
         node.x = (event.srcEvent.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
@@ -129,9 +132,10 @@ class GraphModifier extends GraphAddon {
             } else {
                 host.graph.ensureEdge(this.activeNode.key, node.key);
             }
-            this.dispatchEvent(new Event("graph-structure-change", {
+            host.graph = host.graph;
+            /*this.dispatchEvent(new Event("graph-structure-change", {
                 composed: true
-            }));
+            }));*/
         } else {
             for (const tap_handler of node.__tapHandlers) {
                 tap_handler(event);

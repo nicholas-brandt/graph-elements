@@ -31,7 +31,7 @@ class GraphModifier extends GraphAddon {
             __setHammerEnabled(host.svg.hammer, true, "tap", "press");
         }
         host.svg.hammer.on("tap", event => {
-            if (event.target === host.svg) {
+            if (event.srcEvent.path[0] === host.svg) {
                 this.__tapCanvas(host, event);
             }
         });
@@ -90,26 +90,28 @@ class GraphModifier extends GraphAddon {
         }
     }
     __pressCanvas(host, event) {
-        console.log(event);
-        // @IMPORTANT: ensure new vertex key
-        let i = 0;
-        while (host.graph.hasVertex(i)) {
-            ++i;
+        if (event.srcEvent.path[0] === host.svg) {
+            console.log(event);
+            // @IMPORTANT: ensure new vertex key
+            let i = 0;
+            while (host.graph.hasVertex(i)) {
+                ++i;
+            }
+            host.graph.addNewVertex(i, new host.Node({
+                value: {},
+                key: i
+            },  host.__requestPaintNode.bind(host)));
+            // this.dispatchEvent(new Event("graph-structure-change", {}));
+            host.graph = host.graph;
+            // get freshly created node
+            const node = host.graph.vertexValue(i);
+            const {
+                top,
+                left
+            } = host.svg.getBoundingClientRect();
+            node.x = ((event.srcEvent.pageX - left) / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
+            node.y = ((event.srcEvent.pageY - top) / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
         }
-        host.graph.addNewVertex(i, new host.Node({
-            value: {},
-            key: i
-        },  host.__requestPaintNode.bind(host)));
-        // this.dispatchEvent(new Event("graph-structure-change", {}));
-        host.graph = host.graph;
-        // get freshly created node
-        const node = host.graph.vertexValue(i);
-        const {
-            top,
-            left
-        } = host.svg.getBoundingClientRect();
-        node.x = ((event.srcEvent.pageX - left) / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
-        node.y = ((event.srcEvent.pageY - top) / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
     }
     __pressNode(host, node) {
         console.log("");

@@ -194,7 +194,7 @@ function stripNetwork() {
     const graphDisplay = document.querySelector("graph-display");
     window.graphDisplay = graphDisplay;
     setTimeout(() => {
-        graphDisplay.shadowRoot.querySelector("graph-d3-force").stop();
+        graphDisplay.querySelector("graph-d3-force").stop();
     }, 1e4);
 
     const d3force = await graphDisplay.addonPromises["graph-d3-force"];

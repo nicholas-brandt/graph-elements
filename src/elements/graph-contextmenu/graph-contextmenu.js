@@ -27,6 +27,7 @@ class GraphContextmenu extends createGraphAddon(PolymerElement) {
     static observers = ["__activeNodeChanged(activeNode)"];
     ready() {
         super.ready();
+        
         // fix CSS part
         this.insertAdjacentHTML("beforeend", `<style><!-- inject: ./fixCSSPart.css --></style>`);
         

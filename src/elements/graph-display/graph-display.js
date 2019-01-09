@@ -56,7 +56,7 @@ class GraphDisplay extends Extendable {
                 return target[name];
             }
         });
-        this.shadowRoot.addEventListener("addon-registry", event => {
+        this.addEventListener("addon-registry", event => {
             // console.log("addon registrated sr cap");
             // stop the event because
             // if it would reach its target addon it would assume no host is present
@@ -104,9 +104,11 @@ class GraphDisplay extends Extendable {
         this.shadowRoot.appendChild(this.svg);
         // migrate all children
         // quirk - not all children get imported
-        for (const child of [...this.children]) {
+        /*for (const child of [...this.children]) {
             this.shadowRoot.appendChild(child);
-        }
+        }*/
+        const slot = document.createElement("slot");
+        this.shadowRoot.appendChild(slot);
         // set configuration
         this.configuration = {};
         // trigger init resize

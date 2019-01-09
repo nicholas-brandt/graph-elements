@@ -17,8 +17,9 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
 
     ready() {
         super.ready();
+
         // fix CSS part
-        this.insertAdjacentHTML("beforeend", `<style>*>:not(.menu-group),.menu-group>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}*>:not(.menu-group):hover,.menu-group>:not(.menu-group):hover{background:rgba(51,51,51,.15)}.menu-group{display:flex;flex-direction:column;flex:0 0 auto}.menu-group+*,.menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}input{outline:0;border:none;padding:1px 5px}input[type=number]{padding:1px 0 1px 5px}</style>`);
+        this.insertAdjacentHTML("beforeend", `<style>graph-contextmenu .menu-group>:not(.menu-group),graph-contextmenu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}graph-contextmenu .menu-group>:not(.menu-group):hover,graph-contextmenu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}graph-contextmenu .menu-group{display:flex;flex-direction:column;flex:0 0 auto}graph-contextmenu .menu-group+*,graph-contextmenu .menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}graph-contextmenu input{outline:0;border:none;padding:1px 5px}graph-contextmenu input[type=number]{padding:1px 0 1px 5px}</style>`);
 
         this.canvasMenu = this.shadowRoot.querySelector(".menu.canvas");
         this.canvasTemplate = this.querySelector("template#canvas");
@@ -158,7 +159,8 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
 }
 GraphContextmenu.tagName = "graph-contextmenu";
 GraphContextmenu.styleString = `<style>:host .menu{position:absolute;color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host .menu ::slotted(.menu-group)>:not(.menu-group),:host .menu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host .menu ::slotted(.menu-group)>:not(.menu-group):hover,:host .menu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}:host .menu ::slotted(.menu-group){display:flex;flex-direction:column;flex:0 0 auto}:host .menu ::slotted(.menu-group)+*,:host .menu ::slotted(.menu-group):not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}:host .menu ::slotted(input){outline:0;border:none;padding:1px 5px}:host .menu ::slotted(input)[type=number]{padding:1px 0 1px 5px}:host .menu.visible{display:flex}</style>`;
-GraphContextmenu.templateString = `<div class="menu canvas">
+GraphContextmenu.templateString = `<slot></slot>
+<div class="menu canvas">
     <slot name="canvas"></slot>
 </div>
 <div class="menu node">

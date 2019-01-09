@@ -1,60 +1,51 @@
 <!DOCTYPE html>
-<html>
+<!-- ResizeObserver -->
+<script src2="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
 
-<head>
-    <!-- ResizeObserver -->
-    <script src2="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
+<script src="../elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
+<script src="../elements/graph-tracker/graph-tracker.js" type="module" async></script>
+<script src="../elements/graph-display/graph-display.js" type="module" async></script>
+<script src="../elements/graph-modifier/graph-modifier.js" type="module" async></script>
+<script src="../elements/graph-d3-force/graph-d3-force.js" type="module" async></script>
+<script src="../elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
+<script src="../elements/graph-contextmenu/graph-contextmenu.js" type="module" async></script>
 
-    <script src="../elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
-    <script src="../elements/graph-tracker/graph-tracker.js" type="module" async></script>
-    <script src="../elements/graph-display/graph-display.js" type="module" async></script>
-    <script src="../elements/graph-modifier/graph-modifier.js" type="module" async></script>
-    <script src="../elements/graph-d3-force/graph-d3-force.js" type="module" async></script>
-    <script src="../elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
-    <script src="../elements/graph-contextmenu/graph-contextmenu.js" type="module" async></script>
-    
-    <script src="../elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
-    <script src="../elements/graph-d3-force/extensions/progress.js" type="module" async></script>
-    
-    <script src="https://hammerjs.github.io/dist/hammer.js" async></script>
-    <script src="https://d3js.org/d3.v4.min.js" async></script>
-    
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <script src="morph.js" type="module"></script>
-    <style>
-        body {
-            width: 100vw;
-            height: 100vh;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-    </style>
-</head>
+<script src="../elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
+<script src="../elements/graph-d3-force/extensions/progress.js" type="module" async></script>
 
-<body>
-    <graph-display>
-        <graph-detail-view>
-            <template id="view">
-                <div>test detail view</div>
-                <textarea>textarea</textarea>
-            </template>
-        </graph-detail-view>
-        <graph-tracker tracking-mode=""></graph-tracker>
-        <graph-modifier></graph-modifier>
-        <graph-contextmenu>
-            <template id="node">
-                <div>Key: [[node.key]]</div>
-                <textarea id="description" placeholder="description">{{node.description}}</textarea>
-            </template>
-            <template id="canvas">
-                <div>Test: [[prop]]</div>
-                <textarea id="description" placeholder="description"></textarea>
-            </template>
-        </graph-contextmenu>
-        <graph-d3-force adaptive-links="false"></graph-d3-force>
-    </graph-display>
-</body>
+<script src="https://hammerjs.github.io/dist/hammer.js" async></script>
+<script src="https://d3js.org/d3.v4.min.js" async></script>
 
-</html>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+<script src="morph.js" type="module"></script>
+<style>
+    body {
+        width: 100vw;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+<graph-display>
+    <graph-detail-view>
+        <template id="view">
+            <div>test detail view</div>
+            <textarea>textarea</textarea>
+        </template>
+    </graph-detail-view>
+    <graph-tracker tracking-mode=""></graph-tracker>
+    <graph-modifier></graph-modifier>
+    <graph-contextmenu>
+        <template id="node">
+            <div>Key: [[node.key]]</div>
+            <textarea id="description" placeholder="description">{{node.description}}</textarea>
+        </template>
+        <template id="canvas">
+            <div>Test: [[prop]]</div>
+            <textarea id="description" placeholder="description"></textarea>
+        </template>
+    </graph-contextmenu>
+    <graph-d3-force adaptive-links="false"></graph-d3-force>
+</graph-display>

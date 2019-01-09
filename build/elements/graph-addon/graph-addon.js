@@ -52,8 +52,8 @@ export function createGraphAddon(superClass = HTMLElement) {
             console.log("");
             this.dispatchEvent(new CustomEvent("addon-registry", {
                 detail: this,
-                bubbles: true,
-                composed: true
+                bubbles: true
+                // composed: true
             }));
         }
     };

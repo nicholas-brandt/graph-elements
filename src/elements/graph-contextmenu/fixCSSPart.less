@@ -2,36 +2,38 @@
 
 @menu-distance: 10px;
 
-*,
-.menu-group {
-    >:not(.menu-group) {
-        flex: 0 0 auto;
-        padding: @menu-distance / 2 @menu-distance * 2;
-        border: 0 none;
-        margin: 0;
-    }
-    >:not(.menu-group) {
-        &:hover {
-            background: fade(@color-menu, 15%);
+graph-contextmenu {
+    &,
+    .menu-group {
+        >:not(.menu-group) {
+            flex: 0 0 auto;
+            padding: @menu-distance / 2 @menu-distance * 2;
+            border: 0 none;
+            margin: 0;
+        }
+        >:not(.menu-group) {
+            &:hover {
+                background: fade(@color-menu, 15%);
+            }
         }
     }
-}
-.menu-group {
-    display: flex;
-    flex-direction: column;
-    flex: 0 0 auto;
-    &:not(:first-child),
-    +* {
-        border-top: 1px solid fade(@color-menu, 15%);
-        margin-top: 5px;
-        padding-top: 5px;
+    .menu-group {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 auto;
+        &:not(:first-child),
+        +* {
+            border-top: 1px solid fade(@color-menu, 15%);
+            margin-top: 5px;
+            padding-top: 5px;
+        }
     }
-}
-input {
-    outline: none;
-    border: none;
-    padding: 1px @menu-distance / 2;
-    &[type=number] {
-        padding: 1px 0 1px @menu-distance / 2;
+    input {
+        outline: none;
+        border: none;
+        padding: 1px @menu-distance / 2;
+        &[type=number] {
+            padding: 1px 0 1px @menu-distance / 2;
+        }
     }
 }

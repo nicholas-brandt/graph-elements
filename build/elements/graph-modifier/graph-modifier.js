@@ -107,8 +107,14 @@ export default class GraphModifier extends GraphAddon {
                 top,
                 left
             } = host.svg.getBoundingClientRect();
-            node.x = ((event.srcEvent.pageX - left) / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
-            node.y = ((event.srcEvent.pageY - top) / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
+            const {
+                x,
+                y,
+                width,
+                height
+            } = host.svg.viewBox.baseVal;
+            node.x = (event.srcEvent.pageX - left) / host.svg.clientWidth * width + x;
+            node.y = (event.srcEvent.pageY - top) / host.svg.clientHeight * height + y;
         }
     }
     __pressNode(host, node) {

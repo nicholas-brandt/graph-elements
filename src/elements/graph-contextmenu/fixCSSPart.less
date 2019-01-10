@@ -2,7 +2,9 @@
 
 @menu-distance: 10px;
 
-graph-contextmenu {
+
+#canvas~[slot="canvas"],
+#node~[slot="node"] {
     &,
     .menu-group {
         >:not(.menu-group) {
@@ -17,6 +19,18 @@ graph-contextmenu {
             }
         }
     }
+    &:not(.menu-group) {
+        flex: 0 0 auto;
+        padding: @menu-distance / 2 @menu-distance * 2;
+        border: 0 none;
+        margin: 0;
+    }
+    &:not(.menu-group) {
+        &:hover {
+            background: fade(@color-menu, 15%);
+        }
+    }
+    &.menu-group,
     .menu-group {
         display: flex;
         flex-direction: column;
@@ -35,5 +49,15 @@ graph-contextmenu {
         &[type=number] {
             padding: 1px 0 1px @menu-distance / 2;
         }
+    }
+}
+
+#canvas~input[slot="canvas"],
+#node~input[slot="node"] {
+    outline: none;
+    border: none;
+    padding: 1px @menu-distance / 2;
+    &[type=number] {
+        padding: 1px 0 1px @menu-distance / 2;
     }
 }

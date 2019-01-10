@@ -12,8 +12,6 @@ style.textContent = `:host{display:flex;flex:1;overflow:visible;position:relativ
 export default class GraphDisplay extends Extendable {
     constructor() {
         super();
-        this.Node = Node;
-        this.Link = Link;
         // shadow stuff
         this.attachShadow({
             mode: "open"
@@ -232,4 +230,6 @@ export default class GraphDisplay extends Extendable {
 }GraphDisplay.tagName = "graph-display";
 GraphDisplay.styleElement = style;
 ;
+GraphDisplay.prototype.Node = Node;
+GraphDisplay.prototype.Link = Link;
 customElements.define(GraphDisplay.tagName, GraphDisplay);

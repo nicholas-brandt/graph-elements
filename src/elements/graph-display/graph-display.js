@@ -14,8 +14,6 @@ class GraphDisplay extends Extendable {
     static styleElement = style;
     constructor() {
         super();
-        this.Node = Node;
-        this.Link = Link;
         // shadow stuff
         this.attachShadow({
             mode: "open"
@@ -232,4 +230,6 @@ class GraphDisplay extends Extendable {
         return await callback(this);
     }
 };
+GraphDisplay.prototype.Node = Node;
+GraphDisplay.prototype.Link = Link;
 customElements.define(GraphDisplay.tagName, GraphDisplay);

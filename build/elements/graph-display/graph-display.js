@@ -17,6 +17,7 @@ export default class GraphDisplay extends Extendable {
             mode: "open"
         });
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.svg.setAttribute("part", "canvas");
         this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.linkGroup.id = "link-group";
         this.svg.appendChild(this.linkGroup);

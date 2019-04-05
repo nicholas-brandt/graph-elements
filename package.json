@@ -1,6 +1,6 @@
 {
     "name": "graph-elements",
-    "version": "5.0.10",
+    "version": "5.0.11",
     "description": "GraphJS =======",
     "main": "gulpfile.js",
     "scripts": {

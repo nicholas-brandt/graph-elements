@@ -16,40 +16,6 @@
         box-shadow: 0 1px 5px @color-menu;
         background: @color-background;
         padding: @menu-distance / 2 0;
-        // not working; waiting for css part ...
-        &,
-        ::slotted(.menu-group) {
-            >:not(.menu-group) {
-                flex: 0 0 auto;
-                padding: @menu-distance / 2 @menu-distance * 2;
-                border: 0 none;
-                margin: 0;
-            }
-            >:not(.menu-group) {
-                &:hover {
-                    background: fade(@color-menu, 15%);
-                }
-            }
-        }
-        ::slotted(.menu-group) {
-            display: flex;
-            flex-direction: column;
-            flex: 0 0 auto;
-            &:not(:first-child),
-            +* {
-                border-top: 1px solid fade(@color-menu, 15%);
-                margin-top: 5px;
-                padding-top: 5px;
-            }
-        }
-        ::slotted(input) {
-            outline: none;
-            border: none;
-            padding: 1px @menu-distance / 2;
-            &[type=number] {
-                padding: 1px 0 1px @menu-distance / 2;
-            }
-        }
     }
     .menu.visible {
         display: flex;

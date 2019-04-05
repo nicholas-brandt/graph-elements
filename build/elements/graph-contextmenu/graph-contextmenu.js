@@ -159,7 +159,7 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
     }
 }
 GraphContextmenu.tagName = "graph-contextmenu";
-GraphContextmenu.styleString = `<style>:host .menu{position:absolute;color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host .menu ::slotted(.menu-group)>:not(.menu-group),:host .menu>:not(.menu-group){flex:0 0 auto;padding:5px 20px;border:0 none;margin:0}:host .menu ::slotted(.menu-group)>:not(.menu-group):hover,:host .menu>:not(.menu-group):hover{background:rgba(51,51,51,.15)}:host .menu ::slotted(.menu-group){display:flex;flex-direction:column;flex:0 0 auto}:host .menu ::slotted(.menu-group)+*,:host .menu ::slotted(.menu-group):not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}:host .menu ::slotted(input){outline:0;border:none;padding:1px 5px}:host .menu ::slotted(input)[type=number]{padding:1px 0 1px 5px}:host .menu.visible{display:flex}</style>`;
+GraphContextmenu.styleString = `<style>:host .menu{position:absolute;color:#333;font:13px Roboto;display:none;flex-direction:column;overflow-x:hidden;overflow-y:auto;width:fit-content;border-radius:1px;box-shadow:0 1px 5px #333;background:#fff;padding:5px 0}:host .menu.visible{display:flex}</style>`;
 GraphContextmenu.templateString = `<slot></slot>
 <div class="menu canvas" part="canvas-menu">
     <slot name="canvas"></slot>

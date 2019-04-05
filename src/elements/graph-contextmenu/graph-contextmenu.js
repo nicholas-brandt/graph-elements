@@ -29,7 +29,7 @@ class GraphContextmenu extends createGraphAddon(PolymerElement) {
         super.ready();
         
         // fix CSS part
-        this.insertAdjacentHTML("beforeend", `<style><!-- inject: ./fixCSSPart.css --></style>`);
+        // this.insertAdjacentHTML("beforeend", `<style><!-- inject: ./fixCSSPart.css --></style>`);
         
         this.canvasMenu = this.shadowRoot.querySelector(".menu.canvas");
         this.canvasTemplate = this.querySelector("template#canvas");

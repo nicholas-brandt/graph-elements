@@ -18,6 +18,7 @@ export default class GraphModifier extends GraphAddon {
         super();
         // add style
         this.styleElement = this.constructor.styleElement.cloneNode(true);
+        this.touchPress = this.getAttribute("touch-press") != "false";
     }
     hosted(host) {
         host.shadowRoot.appendChild(this.styleElement);
@@ -88,7 +89,7 @@ export default class GraphModifier extends GraphAddon {
         }
     }
     __pressCanvas(host, event) {
-        if (event.srcEvent.path[0] === host.svg) {
+        if ((event.pointerType == "mouse" || this.touchPress) && event.srcEvent.path[0] === host.svg) {
             console.log(event);
             // @IMPORTANT: ensure new vertex key
             let i = 0;

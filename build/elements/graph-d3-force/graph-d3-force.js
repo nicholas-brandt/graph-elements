@@ -218,7 +218,11 @@ export default class GraphD3Force extends GraphAddon {
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {
             this.__graphChanged = true;
-            await this.__sendGraphToWorker();
+            try {
+                await this.__sendGraphToWorker();
+            } catch (error) {
+                console.warn(error);
+            }
             this.__graphChanged = false;
         }, {
             passive: true

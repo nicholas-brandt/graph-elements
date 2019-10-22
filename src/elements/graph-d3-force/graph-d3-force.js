@@ -52,7 +52,7 @@ class GraphD3Force extends GraphAddon {
                 get() {
                     return _configuration;
                 },
-                enumerable: true
+                enumerable: true	
             },
             state: {
                 get() {
@@ -80,7 +80,11 @@ class GraphD3Force extends GraphAddon {
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {
             this.__graphChanged = true;
-            await this.__sendGraphToWorker();
+            try {
+                await this.__sendGraphToWorker();
+            } catch (error) {
+                console.warn(error);
+            }
             this.__graphChanged = false;
         }, {
             passive: true

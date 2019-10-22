@@ -10,7 +10,7 @@ import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c4396
 
 // web worker same origin policy requires host to support OPTIONS CORS
 
-const worker_url = new URL(import.meta.url + "/../d3-force-worker.js").href;
+const worker_url = new URL(import.meta.url + "/../d3-force-worker.js?module").href;
 
 export default
 class GraphD3Force extends GraphAddon {

@@ -1,1 +1,1 @@
-:host .menu[simulation=running] ::slotted(#start-force),:host .menu[simulation]:not([simulation=running]) ::slotted(#stop-force){color:rgba(51,51,51,.5)}
+:host .menu[simulation=running] ::slotted(#start-force),:host .menu[simulation]:not([simulation=running]) ::slotted(#stop-force){color:hsla(0,0%,20%,.5)}

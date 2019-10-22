@@ -27,7 +27,6 @@ function _setGraph(d3_graph) {
   simulation.nodes(nodes);
   link_force.links(links);
   reject_tick("graph replaced");
-  createNewTickPromise();
 }
 
 function _setConfiguration(_configuration) {
@@ -117,19 +116,11 @@ associate(configuration.link, link_force, link_attributes);
 associate(configuration.charge, charge_force, charge_attributes);
 associate(configuration.gravitation, gravitation_force, gravitation_attributes);
 let resolve_tick, reject_tick;
-let tick_promise;
-createNewTickPromise();
-
-function createNewTickPromise() {
-  tick_promise = new Promise((resolve, reject) => {
-    resolve_tick = resolve;
-    reject_tick = reject;
-  });
-} // let k = 0;
-
-
+let tick_promise = new Promise((resolve, reject) => {
+  resolve_tick = resolve;
+  reject_tick = reject;
+});
 simulation.on("tick", () => {
-  // if (k++>1e2) {k=0; simulation.stop();return;}
   const nodes = simulation.nodes();
 
   for (let i = 0; i < nodes.length; ++i) {
@@ -143,7 +134,9 @@ simulation.on("tick", () => {
     resolve_tick(buffer_array.buffer);
   }
 
-  createNewTickPromise();
+  tick_promise = new Promise(resolve => {
+    resolve_tick = resolve;
+  });
 });
 let resolve_end;
 let end_promise = new Promise(resolve => {

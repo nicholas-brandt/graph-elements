@@ -23,23 +23,25 @@
         graph.addVertex(0);
         graph.addVertex(1);
         graph.addEdge(0, 1);
-        for(let i = 2; i < 1e2; ++i) graph.addVertex(i);
+        const _nodes = 1e2;
+        const _edges = 3e2;
+        for(let i = 2; i < _nodes; ++i) graph.addVertex(i, {x:Math.random()*100,y:Math.random()*100});
         // for(let i = 0; i < 3e2; ++i) graph.addEdge(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100));
-        for(let i = 0, a; i < 3e3; ++i) graph.addEdge(a = Math.floor(Math.random() * 1e2), (a + 1) % 1e2);
+        for(let i = 0, a; i < _edges; ++i) graph.addEdge(a = Math.floor(Math.random() * _nodes), (a + 1) % _nodes);
         
         window.graph = graph;
         window.graphForce = (graph.shadowRoot || document).querySelector("graph-d3-force");
         const configuration = {
             alpha: 1,
             link: {
-                distance: 300,
+                distance: 30,
                 strength: 0.2
             },
             charge: {
-                strength: -40
+                strength: -400
             },
             gravitation: {
-                strength: 100
+                strength: .1
             }
         };
         graphForce.configuration = configuration;
@@ -50,7 +52,7 @@
             graphDisplay.graph = graph;
             window.graphDisplay = graphDisplay;
             await customElements.whenDefined("graph-d3-force");
-            graphForce.start();
+            // graphForce.start();
         })();
     </script>
     <style>

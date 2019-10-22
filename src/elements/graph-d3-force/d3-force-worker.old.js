@@ -4,15 +4,15 @@ importScripts("https://unpkg.com/d3@5.5.0/dist/d3.min.js");
 
 let buffer_array;
 
-function _start() {
+export function start() {
     simulation.restart();
 }
 
-function _stop() {
+export function stop() {
     simulation.stop();
 }
 
-function _setGraph(d3_graph) {
+export function setGraph(d3_graph) {
     const {nodes, links} = d3_graph;
     buffer_array = new Float32Array(nodes.length * 2);
     for (let i = 0; i < nodes.length; ++i) {
@@ -23,10 +23,9 @@ function _setGraph(d3_graph) {
     simulation.nodes(nodes);
     link_force.links(links);
     reject_tick("graph replaced");
-    createNewTickPromise();
 }
 
-function _setConfiguration(_configuration) {
+export function setConfiguration(_configuration) {
     Object.assign(configuration, _configuration);
     if (_configuration.link) {
         simulation.force("link", link_force);
@@ -41,11 +40,11 @@ function _setConfiguration(_configuration) {
     }
 }
 
-function _getTickPromise() {
+export function getTickPromise() {
     return tick_promise;
 }
 
-function _getEndPromise() {
+export function getEndPromise() {
     return end_promise;
 }
 
@@ -107,19 +106,11 @@ associate(configuration.charge, charge_force, charge_attributes);
 associate(configuration.gravitation, gravitation_force, gravitation_attributes);
 
 let resolve_tick, reject_tick;
-let tick_promise;
-createNewTickPromise();
-
-function createNewTickPromise() {
-    tick_promise = new Promise((resolve, reject) => {
-        resolve_tick = resolve;
-        reject_tick = reject;
-    });
-}
-
-// let k = 0;
+let tick_promise = new Promise((resolve, reject) => {
+    resolve_tick = resolve;
+    reject_tick = reject;
+});
 simulation.on("tick", () => {
-    // if (k++>1e2) {k=0; simulation.stop();return;}
     const nodes = simulation.nodes();
     for (let i = 0; i < nodes.length; ++i) {
         const node = nodes[i];
@@ -130,7 +121,9 @@ simulation.on("tick", () => {
         // console.log("buffer", buffer_array.buffer);
         resolve_tick(buffer_array.buffer);
     }
-    createNewTickPromise();
+    tick_promise = new Promise(resolve => {
+        resolve_tick = resolve;
+    });
 });
 let resolve_end;
 let end_promise = new Promise(resolve => {

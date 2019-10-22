@@ -56,8 +56,12 @@ class Node {
             value,
             key,
         });
-        this.x |= 0;
-        this.y |= 0;
+        if (isNaN(this.x)) {
+            this.x = 0;
+        }
+        if (isNaN(this.y)) {
+            this.y = 0;
+        }
     }
     paint() {
         const {x, y, radius} = this;

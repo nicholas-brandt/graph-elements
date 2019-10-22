@@ -10,6 +10,8 @@ import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c4396
 
 // web worker same origin policy requires host to support OPTIONS CORS
 
+const worker_url = new URL(import.meta.url + "/../d3-force-worker.js").href;
+
 export default
 class GraphD3Force extends GraphAddon {
     static tagName = "graph-d3-force";
@@ -40,7 +42,7 @@ class GraphD3Force extends GraphAddon {
         // define own properties
         Object.defineProperties(this, {
             worker: {
-                value: workerize(`<!-- inject: ./d3-force-worker.js -->`, {
+                value: workerize(`const worker_url="${worker_url}";<!-- inject: ./dummy.js -->`, {
                     type: "classic"
                 }),
                 enumerable: true
@@ -118,9 +120,8 @@ class GraphD3Force extends GraphAddon {
                     const buffer = await this.worker.getTickPromise();
                     await this.__applyGraphUpdate(buffer);
                 } catch (error) {
-                    console.error(error);
                     if (error.message != "graph replaced") {
-                        throw new Error("potenial looping error");
+                        throw new Error("looping error: " + error.message);
                     }
                 }
             }

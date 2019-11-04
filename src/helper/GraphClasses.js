@@ -66,15 +66,15 @@ class Node {
     paint() {
         const {x, y, radius} = this;
         // this.element.setAttribute("cx", x);
-        if (x | 0 === x) {
+        if (x + 0 === x) {
             this.element.cx.baseVal.value = x;
         }
         // this.element.setAttribute("cy", y);
-        if (y | 0 === y) {
+        if (y + 0 === y) {
             this.element.cy.baseVal.value = y;
         }
         // this.element.setAttribute("r", radius);
-        if (radius | 0 === radius) {
+        if (radius + 0 === radius) {
             this.element.r.baseVal.value = radius;
         }
     }

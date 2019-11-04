@@ -2,9 +2,9 @@
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-import { PolymerElement } from "//unpkg.com/@polymer/polymer/polymer-element.js?module";
-import { templatize } from "//unpkg.com/@polymer/polymer/lib/utils/templatize.js?module";
-import { html } from "//unpkg.com/@polymer/polymer/lib/utils/html-tag.js?module";
+import { PolymerElement } from "//cdn.jsdelivr.net/npm/@polymer/polymer/polymer-element.js?module";
+import { templatize } from "//cdn.jsdelivr.net/npm/@polymer/polymer/lib/utils/templatize.js?module";
+import { html } from "//cdn.jsdelivr.net/npm/@polymer/polymer/lib/utils/html-tag.js?module";
 import { createGraphAddon } from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import __try from "../../helper/__try.js";

@@ -27,18 +27,10 @@ function _setGraph(d3_graph) {
   simulation.nodes(nodes);
   link_force.links(links);
 
-  if (!tick_promise.has_catch) {
-    // install a catch
-    (async () => {
-      try {
-        await tick_promise;
-      } catch (error) {
-        console.error(error);
-      }
-    })();
+  if (tick_promise.has_catch) {
+    reject_tick("graph replaced");
   }
 
-  reject_tick("graph replaced");
   createNewTickPromise();
 }
 

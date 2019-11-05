@@ -22,6 +22,16 @@ function _setGraph(d3_graph) {
     }
     simulation.nodes(nodes);
     link_force.links(links);
+    if (!tick_promise.has_catch) {
+        // install a catch
+        (async () => {
+            try {
+                await tick_promise;
+            } catch (error) {
+                console.error(error);
+            }
+        })();
+    }
     reject_tick("graph replaced");
     createNewTickPromise();
 }
@@ -41,7 +51,9 @@ function _setConfiguration(_configuration) {
     }
 }
 
+let tick_promise_caught = false;
 function _getTickPromise() {
+    tick_promise.has_catch = true;
     return tick_promise;
 }
 

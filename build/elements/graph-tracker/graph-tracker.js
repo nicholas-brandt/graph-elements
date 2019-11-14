@@ -16,10 +16,13 @@ export default class GraphTracker extends GraphAddon {
     this.__deltaY = 0;
     this.__canvasX = 0;
     this.__canvasY = 0;
+    this.__scaleFactor = 1;
     let tracking_mode;
     let is_tracking_canvas = false;
     let tracking_count;
     let tracking_initial_time;
+    let is_scaling = false;
+    let has_scaling_listener = false;
     Object.defineProperties(this, {
       trackingMode: {
         get() {
@@ -85,8 +88,30 @@ export default class GraphTracker extends GraphAddon {
           is_tracking_canvas = !!_is_tracking_canvas;
         }
 
+      },
+      isScaling: {
+        get() {
+          return is_scaling;
+        },
+
+        set(_is_scaling) {
+          const previously_scaling = is_scaling;
+          is_scaling = !!_is_scaling;
+
+          if (this.__boundScaling) {
+            if (is_scaling && !has_scaling_listener) {
+              this.host_svg.addEventListener("wheel", this.__boundScaling);
+              has_scaling_listener = true;
+            } else if (!is_scaling && has_scaling_listener) {
+              this.host_svg.removeEventListener("wheel", this.__boundScaling);
+              has_scaling_listener = false;
+            }
+          }
+        }
+
       }
     });
+    this.isScaling = this.getAttribute("scaling");
     this.trackingMode = this.getAttribute("tracking-mode");
     this.isTrackingCanvas = /^(|true)$/.test(this.getAttribute("track-canvas"));
     this.trackingCount = 30;
@@ -94,6 +119,9 @@ export default class GraphTracker extends GraphAddon {
   }
 
   hosted(host) {
+    this.host_svg = host.svg;
+    this.__boundScaling = requestAnimationFunction(__try(this.__scale.bind(this, host)));
+    this.isScaling = this.isScaling;
     console.log("");
     host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
     host.addEventListener("resize", __try(event => {
@@ -154,6 +182,21 @@ export default class GraphTracker extends GraphAddon {
     }
   }
 
+  __scale(host, event) {
+    if (event.wheelDelta < 0) {
+      this.__scaleFactor *= 1 + event.wheelDelta * 5e-4;
+    } else {
+      this.__scaleFactor *= 10 ** (event.wheelDelta * 5e-4);
+    }
+
+    const transform = "scale(" + this.__scaleFactor + ")";
+    host.nodeGroup.style.transform = transform;
+    host.linkGroup.style.transform = transform;
+    /*const {baseVal} = host.svg.viewBox;
+    baseVal.x += (1 - 1 / this.__scaleFactor) * (event.offsetX - this.__canvasX * this.__scaleFactor);
+    baseVal.y += (1 - 1 / this.__scaleFactor) * (event.offsetY - this.__canvasY * this.__scaleFactor);*/
+  }
+
   async __trackNode(node, event) {
     console.log(event); // console.time("trackNode");
     // console.timeEnd("trackNode");
@@ -162,10 +205,12 @@ export default class GraphTracker extends GraphAddon {
       this.__isNodeSession = true; // event.srcEvent.stopImmediatePropagation();
     }
 
-    node.x += event.deltaX - (node.__deltaX || 0);
-    node.y += event.deltaY - (node.__deltaY || 0);
-    node.__deltaX = event.isFinal ? 0 : event.deltaX;
-    node.__deltaY = event.isFinal ? 0 : event.deltaY; // adaptively hide links
+    const scaled_delta_x = event.deltaX / this.__scaleFactor;
+    const scaled_delta_y = event.deltaY / this.__scaleFactor;
+    node.x += scaled_delta_x - (node.__deltaX || 0);
+    node.y += scaled_delta_y - (node.__deltaY || 0);
+    node.__deltaX = event.isFinal ? 0 : scaled_delta_x;
+    node.__deltaY = event.isFinal ? 0 : scaled_delta_y; // adaptively hide links
     // notify host of change
 
     this.dispatchEvent(new Event("graph-update", {

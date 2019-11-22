@@ -2,9 +2,9 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import {PolymerElement} from "//cdn.jsdelivr.net/npm/@polymer/polymer/polymer-element.js";
-import {templatize} from "//cdn.jsdelivr.net/npm/@polymer/polymer/lib/utils/templatize.js";
-import {html} from "//cdn.jsdelivr.net/npm/@polymer/polymer/lib/utils/html-tag.js";
+import {PolymerElement} from "//dev.jspm.io/@polymer/polymer/polymer-element.js";
+import {templatize} from "//dev.jspm.io/@polymer/polymer/lib/utils/templatize.js";
+import {html} from "//dev.jspm.io/@polymer/polymer/lib/utils/html-tag.js";
 
 import {createGraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";

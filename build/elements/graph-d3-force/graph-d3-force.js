@@ -250,6 +250,7 @@ export default class GraphD3Force extends GraphAddon {
           opacity: 0
         }], 250).addEventListener("finish", () => {
           host.linkGroup.style.visibility = "hidden";
+          resolve();
         }, {
           passive: true
         });

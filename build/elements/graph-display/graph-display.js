@@ -275,6 +275,8 @@ _defineProperty(GraphDisplay, "styleElement", style);
 GraphDisplay.prototype.Node = Node;
 GraphDisplay.prototype.Link = Link;
 
-__try(async () => {
-  await customElements.define(GraphDisplay.tagName, GraphDisplay);
-})();
+try {
+  customElements.define(GraphDisplay.tagName, GraphDisplay);
+} catch (error) {
+  console.error(error);
+}

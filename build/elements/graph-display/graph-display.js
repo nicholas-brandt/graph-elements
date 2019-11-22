@@ -274,4 +274,7 @@ _defineProperty(GraphDisplay, "styleElement", style);
 ;
 GraphDisplay.prototype.Node = Node;
 GraphDisplay.prototype.Link = Link;
-customElements.define(GraphDisplay.tagName, GraphDisplay);
+
+__try(async () => {
+  await customElements.define(GraphDisplay.tagName, GraphDisplay);
+})();

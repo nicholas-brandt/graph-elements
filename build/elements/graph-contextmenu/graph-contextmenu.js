@@ -1,10 +1,11 @@
-"use strict"; // import console from "../../helper/console.js";
+"use strict";
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-import { PolymerElement } from "//cdn.jsdelivr.net/npm/@polymer/polymer/polymer-element.js?module";
-import { templatize } from "//cdn.jsdelivr.net/npm/@polymer/polymer/lib/utils/templatize.js?module";
-import { html } from "//cdn.jsdelivr.net/npm/@polymer/polymer/lib/utils/html-tag.js?module";
+import console from "../../helper/console.js";
+import { PolymerElement } from "//dev.jspm.io/@polymer/polymer/polymer-element.js";
+import { templatize } from "//dev.jspm.io/@polymer/polymer/lib/utils/templatize.js";
+import { html } from "//dev.jspm.io/@polymer/polymer/lib/utils/html-tag.js";
 import { createGraphAddon } from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
 import __try from "../../helper/__try.js";
@@ -16,7 +17,7 @@ export default class GraphContextmenu extends createGraphAddon(PolymerElement) {
 
   ready() {
     super.ready(); // fix CSS part
-    // this.insertAdjacentHTML("beforeend", `<style>#canvas~[slot=canvas] .menu-group>:not(.menu-group),#canvas~[slot=canvas]>:not(.menu-group),#node~[slot=node] .menu-group>:not(.menu-group),#node~[slot=node]>:not(.menu-group){flex:0 0 auto;border:0 none;margin:0}#canvas~[slot=canvas] .menu-group>:not(.menu-group):hover,#canvas~[slot=canvas]>:not(.menu-group):hover,#node~[slot=node] .menu-group>:not(.menu-group):hover,#node~[slot=node]>:not(.menu-group):hover{background:rgba(51,51,51,.15)}#canvas~[slot=canvas]:not(.menu-group),#node~[slot=node]:not(.menu-group){flex:0 0 auto;border:0 none;margin:0}#canvas~[slot=canvas]:not(.menu-group):hover,#node~[slot=node]:not(.menu-group):hover{background:rgba(51,51,51,.15)}#canvas~[slot=canvas] .menu-group,#canvas~[slot=canvas].menu-group,#node~[slot=node] .menu-group,#node~[slot=node].menu-group{display:flex;flex-direction:column;flex:0 0 auto}#canvas~[slot=canvas] .menu-group+*,#canvas~[slot=canvas] .menu-group:not(:first-child),#canvas~[slot=canvas].menu-group+*,#canvas~[slot=canvas].menu-group:not(:first-child),#node~[slot=node] .menu-group+*,#node~[slot=node] .menu-group:not(:first-child),#node~[slot=node].menu-group+*,#node~[slot=node].menu-group:not(:first-child){border-top:1px solid rgba(51,51,51,.15);margin-top:5px;padding-top:5px}#canvas~[slot=canvas] input,#node~[slot=node] input{outline:0;border:none;padding:1px 5px}#canvas~[slot=canvas] input[type=number],#node~[slot=node] input[type=number]{padding:1px 0 1px 5px}#canvas~input[slot=canvas],#node~input[slot=node]{outline:0;border:none;padding:1px 5px}#canvas~input[slot=canvas][type=number],#node~input[slot=node][type=number]{padding:1px 0 1px 5px}</style>`);
+    // this.insertAdjacentHTML("beforeend", `<style></style>`);
 
     this.canvasMenu = this.shadowRoot.querySelector(".menu.canvas");
     this.canvasTemplate = this.querySelector("template#canvas");

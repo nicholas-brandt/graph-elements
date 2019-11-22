@@ -1,5 +1,5 @@
 "use strict";
-// import console from "../../../helper/console.js";
+import console from "../../../helper/console.js";
 
 import GraphDisplay from "../../graph-display/graph-display.js";
 import GraphD3Force from "../../graph-d3-force/graph-d3-force.js";
@@ -7,6 +7,8 @@ import GraphContextmenu from "../../graph-contextmenu/graph-contextmenu.js";
 
 import require from "../../../helper/require.js";
 import __try from "../../../helper/__try.js";
+
+import "//dev.jspm.io/@polymer/paper-input/paper-input.js";
 
 const style_html = `<style><!-- inject: ./contextmenu.css --></style>`;
 const contextmenu_html = `<!-- inject: ./contextmenu.html -->`;
@@ -23,7 +25,7 @@ async function extend_contextmenu(graph_display) {
     
     graph_contextmenu.insertAdjacentHTML("beforeend", contextmenu_html);
     const contextmenu = graph_contextmenu.canvasMenu;
-    contextmenu.insertAdjacentHTML("beforeend", style_html);
+    graph_d3_force.insertAdjacentHTML("beforeend", style_html);
     const force_container = graph_contextmenu.querySelector("#force.menu-group");
     const start_force = force_container.querySelector("#start-force");
     start_force.hammer = new Hammer(start_force);
@@ -59,12 +61,14 @@ async function extend_contextmenu(graph_display) {
         onsimulationhalt();
     }
     
+    await customElements.get("paper-input");
+    
     function onsimulationrunning() {
         console.log("");
-        contextmenu.setAttribute("simulation", "running");
+        graph_contextmenu.classList.toggle("simulation-running", true);
     }
     function onsimulationhalt() {
         console.log("");
-        contextmenu.setAttribute("simulation", "idle");
+        graph_contextmenu.classList.toggle("simulation-running", false);
     }
 }

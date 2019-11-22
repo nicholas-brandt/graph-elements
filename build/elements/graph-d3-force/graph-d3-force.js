@@ -11,7 +11,7 @@ import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js"; // web worker same origin policy requires host to support OPTIONS CORS
 
 const module_url = new URL(import.meta.url);
-const worker_url = module_url.origin + module_url.pathname + "/../d3-force-worker.js?module";
+const worker_url = module_url.origin + module_url.pathname + "/../d3-force-worker.js";
 export default class GraphD3Force extends GraphAddon {
   constructor(...args) {
     super(...args);

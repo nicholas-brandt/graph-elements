@@ -2,7 +2,7 @@
 
 import Graph from "https://rawgit.com/mhelvens/graph.js/master/dist/graph.es6.js";
 import workerize from "https://rawgit.com/Jamtis/workerize/patch-1/src/index.js";
-import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js"; // import workerize from "https://unpkg.com/workerize@0.1.7/dist/workerize.m.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js"; // import workerize from "https://cdn.jsdelivr.net/npm/workerize@0.1.7/dist/workerize.m.js";
 
 const worker = workerize(`import Graph from "https://rawgit.com/mhelvens/graph.js/master/dist/graph.es6.js";
 self.Graph = Graph;

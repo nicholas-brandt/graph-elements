@@ -1,10 +1,6 @@
 <div id="force" class="menu-group" slot="canvas">
     <div id="start-force">Start force layout</div>
     <div id="stop-force">Stop force layout</div>
-    <div>
-        <label>Alpha</label>
-        <input id="alpha" label="Alpha" type="number">
-    </div>
-    <paper-input label="Distance"></paper-input>
-    <script src="//unpkg.com/@polymer/paper-input/paper-input.js?module" type="module" async></script>
+    <paper-input id="alpha" label="Alpha" type="number" min="0" max="1"></paper-input>
+    <paper-input id="distance" label="Distance" type="number" min="0"></paper-input>
 </div>

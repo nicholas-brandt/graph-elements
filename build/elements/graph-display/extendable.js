@@ -1,7 +1,8 @@
-"use strict"; // import console from "../../helper/console.js";
+"use strict";
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+import console from "../../helper/console.js";
 import __try from "../../helper/__try.js";
 export default class Extendable extends HTMLElement {
   constructor(...args) {

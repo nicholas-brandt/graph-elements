@@ -1,5 +1,5 @@
 "use strict";
-// import console from "../../helper/console.js";
+import console from "../../helper/console.js";
 
 import __try from "../../helper/__try.js";
 

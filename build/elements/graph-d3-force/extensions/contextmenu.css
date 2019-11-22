@@ -1,1 +1,1 @@
-:host .menu[simulation=running] ::slotted(#start-force),:host .menu[simulation]:not([simulation=running]) ::slotted(#stop-force){color:hsla(0,0%,20%,.5)}
+graph-contextmenu.simulation-running #start-force,graph-contextmenu:not(.simulation-running) #stop-force{color:hsla(0,0%,20%,.5)}graph-contextmenu .menu-group>*{padding:5px}

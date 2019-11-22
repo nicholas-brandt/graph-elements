@@ -8,7 +8,7 @@ import require from "../../helper/require.js";
 import __try from "../../helper/__try.js";
 import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 export default class GraphTracker extends GraphAddon {
   constructor(...args) {
     super(...args);
@@ -23,6 +23,8 @@ export default class GraphTracker extends GraphAddon {
     let tracking_initial_time;
     let is_scaling = false;
     let has_scaling_listener = false;
+    this.__translateX = 0;
+    this.__translateY = 0;
     Object.defineProperties(this, {
       trackingMode: {
         get() {
@@ -189,7 +191,9 @@ export default class GraphTracker extends GraphAddon {
       this.__scaleFactor *= 10 ** (event.wheelDelta * 5e-4);
     }
 
-    const transform = "scale(" + this.__scaleFactor + ")";
+    this.__translateX -= (event.offsetX - host.svg.clientWidth / 2) / 2 * Math.sign(event.wheelDelta) / this.__scaleFactor;
+    this.__translateY -= (event.offsetY - host.svg.clientHeight / 2) / 2 * Math.sign(event.wheelDelta) / this.__scaleFactor;
+    const transform = `scale(${this.__scaleFactor}) translate(${this.__translateX}px, ${this.__translateY}px)`;
     host.nodeGroup.style.transform = transform;
     host.linkGroup.style.transform = transform;
     /*const {baseVal} = host.svg.viewBox;

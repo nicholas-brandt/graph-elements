@@ -7,16 +7,19 @@ import Extendable from "./extendable.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 import { Node, Link } from "../../helper/GraphClasses.js";
 const style = document.createElement("style");
-style.textContent = `:host{display:flex;flex:1;overflow:visible;position:relative}:host>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}:host>svg>#node-group{transition:transform .5s}:host>svg>#node-group>*{touch-action:none}:host>svg>#node-group>.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}:host>svg>#link-group{transition:transform .5s}:host>svg>#link-group>*{touch-action:none}:host>svg>#link-group>.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px}:host>svg>#link-group>.link[loop]{fill:none;stroke-width:2px}`;
+style.textContent = `.graph-display{display:flex;flex:1;overflow:visible;position:relative}.graph-display>svg{touch-action:none;flex:1;will-change:transform;transition:transform .5s cubic-bezier(.86,0,.07,1);transform:translateZ(0)}.graph-display>svg>#node-group{transition:transform .5s}.graph-display>svg>#node-group>*{touch-action:none}.graph-display>svg>#node-group>.node{fill:#4caf50;fill:var(--node-color,#4caf50);stroke:#1b5e20;stroke-dasharray:9,0;stroke-width:3px;transition:opacity .5s,fill .5s}.graph-display>svg>#link-group{transition:transform .5s}.graph-display>svg>#link-group>*{touch-action:none}.graph-display>svg>#link-group>.link{pointer-events:none;fill:#ffc107;fill:var(--link-color,#ffc107);stroke:#ffc107;stroke-width:1px}.graph-display>svg>#link-group>.link[loop]{fill:none;stroke-width:2px}`;
 export default class GraphDisplay extends Extendable {
   constructor() {
-    super(); // shadow stuff
+    super();
+    this.classList.add("graph-display"); // shadow stuff
 
     this.attachShadow({
       mode: "open"
     });
+    this.shadowRoot.innerHTML = `<slot name="canvas"></slot><slot></slot>`;
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.part.add("canvas");
+    this.svg.slot = "canvas";
     this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.linkGroup.id = "link-group";
     this.svg.appendChild(this.linkGroup);
@@ -104,16 +107,12 @@ export default class GraphDisplay extends Extendable {
     }); // add style
 
     const style = this.constructor.styleElement.cloneNode(true);
-    this.shadowRoot.appendChild(style);
-    this.shadowRoot.appendChild(this.svg); // migrate all children
-    // quirk - not all children get imported
-
-    /*for (const child of [...this.children]) {
-        this.shadowRoot.appendChild(child);
-    }*/
-
-    const slot = document.createElement("slot");
-    this.shadowRoot.appendChild(slot); // set configuration
+    this.insertAdjacentElement("afterbegin", style);
+    this.appendChild(this.svg); // this.shadowRoot.appendChild(style);
+    // this.shadowRoot.appendChild(this.svg);
+    // const slot = document.createElement("slot");
+    // this.shadowRoot.appendChild(slot);
+    // set configuration
 
     this.configuration = {}; // trigger init resize
 

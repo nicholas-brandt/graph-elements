@@ -20,10 +20,10 @@ class GraphModifier extends GraphAddon {
         super();
         // add style
         this.styleElement = this.constructor.styleElement.cloneNode(true);
+        this.appendChild(this.styleElement);
         this.touchPress = this.getAttribute("touch-press") != "false";
     }
     hosted(host) {
-        host.shadowRoot.appendChild(this.styleElement);
         console.log("");
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);

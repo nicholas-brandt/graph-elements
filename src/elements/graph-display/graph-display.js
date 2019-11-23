@@ -14,12 +14,15 @@ class GraphDisplay extends Extendable {
     static styleElement = style;
     constructor() {
         super();
+        this.classList.add("graph-display");
         // shadow stuff
         this.attachShadow({
             mode: "open"
         });
+        this.shadowRoot.innerHTML = `<slot name="canvas"></slot><slot></slot>`;
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         this.svg.part.add("canvas");
+        this.svg.slot = "canvas";
         this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.linkGroup.id = "link-group";
         this.svg.appendChild(this.linkGroup);
@@ -99,15 +102,13 @@ class GraphDisplay extends Extendable {
         });
         // add style
         const style = this.constructor.styleElement.cloneNode(true);
-        this.shadowRoot.appendChild(style);
-        this.shadowRoot.appendChild(this.svg);
-        // migrate all children
-        // quirk - not all children get imported
-        /*for (const child of [...this.children]) {
-            this.shadowRoot.appendChild(child);
-        }*/
-        const slot = document.createElement("slot");
-        this.shadowRoot.appendChild(slot);
+        this.insertAdjacentElement("afterbegin", style);
+        this.appendChild(this.svg);
+        // this.shadowRoot.appendChild(style);
+        // this.shadowRoot.appendChild(this.svg);
+        // const slot = document.createElement("slot");
+        // this.shadowRoot.appendChild(slot);
+        
         // set configuration
         this.configuration = {};
         // trigger init resize

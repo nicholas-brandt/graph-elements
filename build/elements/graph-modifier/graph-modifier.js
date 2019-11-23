@@ -11,17 +11,17 @@ import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 const style = document.createElement("style");
-style.textContent = `:host>svg>#node-group>.node{transition:opacity .5s,fill .5s,stroke-dasharray .5s}:host>svg>#node-group>.node.modifying{fill:#8bc34a;stroke:#33691e;stroke-dasharray:8,2}`;
+style.textContent = `.graph-display>svg>#node-group>.node{transition:opacity .5s,fill .5s,stroke-dasharray .5s}.graph-display>svg>#node-group>.node.modifying{fill:#8bc34a;stroke:#33691e;stroke-dasharray:8,2}`;
 export default class GraphModifier extends GraphAddon {
   constructor() {
     super(); // add style
 
     this.styleElement = this.constructor.styleElement.cloneNode(true);
+    this.appendChild(this.styleElement);
     this.touchPress = this.getAttribute("touch-press") != "false";
   }
 
   hosted(host) {
-    host.shadowRoot.appendChild(this.styleElement);
     console.log("");
 
     if (!host.svg.hammer) {

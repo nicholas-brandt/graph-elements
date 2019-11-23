@@ -49,6 +49,10 @@ export default class GraphD3Force extends GraphAddon {
       configuration: {
         set(configuration) {
           _configuration = configuration;
+          this.dispatchEvent(new Event("configuration-change", {
+            composed: true,
+            bubbles: true
+          }));
         },
 
         get() {
@@ -83,7 +87,7 @@ export default class GraphD3Force extends GraphAddon {
     this.__loopEnds();
 
     this.adaptiveLinks = this.getAttribute("adaptive-links") != "false";
-    this.configuration = _configuration || this.constructor.defaultConfiguration;
+    this.configuration = Object.assign({}, this.constructor.defaultConfiguration, _configuration);
   }
 
   hosted(host) {
@@ -174,7 +178,7 @@ export default class GraphD3Force extends GraphAddon {
   async start() {
     switch (this.state) {
       case "idle":
-        await this.worker.setConfiguration(this.configuration);
+        await this.applyConfiguration();
         await this.__sendGraphToWorker();
         this.__state = "running";
 
@@ -203,6 +207,10 @@ export default class GraphD3Force extends GraphAddon {
       }));
       await this.__showLinks();
     }
+  }
+
+  applyConfiguration() {
+    return this.worker.setConfiguration(this.configuration);
   }
 
   async __applyGraphUpdate(buffer) {

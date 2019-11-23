@@ -7,12 +7,24 @@ import GraphContextmenu from "../../graph-contextmenu/graph-contextmenu.js";
 import require from "../../../helper/require.js";
 import __try from "../../../helper/__try.js";
 import "//dev.jspm.io/@polymer/paper-input/paper-input.js";
-const style_html = `<style>graph-contextmenu.simulation-running #start-force,graph-contextmenu:not(.simulation-running) #stop-force{color:hsla(0,0%,20%,.5)}graph-contextmenu .menu-group>*{padding:5px}</style>`;
+const style_html = `<style>graph-contextmenu.simulation-running #start-force,graph-contextmenu:not(.simulation-running) #stop-force{color:hsla(0,0%,20%,.5)}graph-contextmenu .menu-group>*{padding:5px}graph-contextmenu #start-force,graph-contextmenu #stop-force{cursor:pointer}</style>`;
 const contextmenu_html = `<div id="force" class="menu-group" slot="canvas">
     <div id="start-force">Start force layout</div>
     <div id="stop-force">Stop force layout</div>
-    <paper-input id="alpha" label="Alpha" type="number" min="0" max="1"></paper-input>
-    <paper-input id="distance" label="Distance" type="number" min="0"></paper-input>
+    
+    <div id="config">
+        <paper-input id="alpha" label="Alpha" type="number" min="0" max="1" value="0"></paper-input>
+        <paper-input id="alphaMin" label="Alpha Min" type="number" min="0" max="1"></paper-input>
+        <paper-input id="alpha" label="Alpha" type="number" min="0" max="1" value="0"></paper-input>
+        <paper-input id="alphaMin" label="Alpha Min" type="number" min="0" max="1"></paper-input>
+        <paper-input id="alphaDecay" label="Alpha Decay" type="number" min="0" max="1"></paper-input>
+        <paper-input id="alphaTarget" label="Alpha Target" type="number" min="0" max="1"></paper-input>
+        <paper-input id="velocityDecay" label="Velocity Decay" type="number" min="0" max="1"></paper-input>
+        <paper-input id="link-distance" label="Link Distance" type="number" min="0"></paper-input>
+        <paper-input id="link-strength" label="Link Strength" type="number" min="0"></paper-input>
+        <paper-input id="charge-strength" label="Charge Strength" type="number" min="0"></paper-input>
+        <paper-input id="gravitation-strength" label="Gravitation Strength" type="number" min="0"></paper-input>
+    </div>
 </div>`;
 export default __try(async () => {
   await require(["Hammer"]);
@@ -44,14 +56,52 @@ async function extend_contextmenu(graph_display) {
 
     await graph_d3_force.stop();
   }));
-  const alpha_input = force_container.querySelector("#alpha");
-  alpha_input.value = graph_d3_force.configuration.alpha;
-  alpha_input.addEventListener("change", () => {
-    console.log("alpha value", alpha_input.value);
+  const configuration = graph_d3_force.configuration;
+
+  for (const paper_input of force_container.querySelectorAll("#config>paper-input")) {
+    const {
+      id
+    } = paper_input;
+    const property_chain = id.split("-");
+    const target_property = property_chain.pop();
+    paper_input.addEventListener("change", async () => {
+      try {
+        const configuration = graph_d3_force.configuration; // console.log("alpha value", alpha_input.value);
+
+        let current_config_object = configuration;
+
+        for (const property of property_chain) {
+          current_config_object = current_config_object[property];
+        }
+
+        current_config_object[target_property] = paper_input.value;
+        graph_d3_force.configuration = configuration;
+        await graph_d3_force.applyConfiguration();
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+
+  graph_d3_force.addEventListener("configuration-change", () => {
     const configuration = graph_d3_force.configuration;
-    configuration.alpha = alpha_input.value;
-    graph_d3_force.configuration = configuration;
+
+    for (const paper_input of force_container.querySelectorAll("#config>paper-input")) {
+      const {
+        id
+      } = paper_input;
+      const property_chain = id.split("-");
+      const target_property = property_chain.pop();
+      let current_config_object = configuration;
+
+      for (const property of property_chain) {
+        current_config_object = current_config_object[property];
+      }
+
+      paper_input.value = current_config_object[target_property];
+    }
   });
+  graph_d3_force.configuration = graph_d3_force.configuration;
   graph_d3_force.addEventListener("simulationstart", onsimulationrunning);
   graph_d3_force.addEventListener("simulationstop", onsimulationhalt);
   graph_d3_force.addEventListener("simulationend", onsimulationhalt);

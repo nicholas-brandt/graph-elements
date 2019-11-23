@@ -43,14 +43,43 @@ async function extend_contextmenu(graph_display) {
         }
         await graph_d3_force.stop();
     }));
-    const alpha_input = force_container.querySelector("#alpha");
-    alpha_input.value = graph_d3_force.configuration.alpha;
-    alpha_input.addEventListener("change", () => {
-        console.log("alpha value", alpha_input.value);
+    
+    const configuration = graph_d3_force.configuration;
+    for (const paper_input of force_container.querySelectorAll("#config>paper-input")) {
+        const {id} = paper_input;
+        const property_chain = id.split("-");
+        const target_property = property_chain.pop();
+        paper_input.addEventListener("change", async () => {
+            try {
+                const configuration = graph_d3_force.configuration;
+                // console.log("alpha value", alpha_input.value);
+                let current_config_object = configuration;
+                for (const property of property_chain) {
+                    current_config_object = current_config_object[property];
+                }
+                current_config_object[target_property] = paper_input.value;
+                graph_d3_force.configuration = configuration;
+                await graph_d3_force.applyConfiguration();
+            } catch (error) {
+                console.error(error);
+            }
+        });
+    }
+    graph_d3_force.addEventListener("configuration-change", () => {
         const configuration = graph_d3_force.configuration;
-        configuration.alpha = alpha_input.value;
-        graph_d3_force.configuration = configuration;
+        for (const paper_input of force_container.querySelectorAll("#config>paper-input")) {
+            const {id} = paper_input;
+            const property_chain = id.split("-");
+            const target_property = property_chain.pop();
+            let current_config_object = configuration;
+            for (const property of property_chain) {
+                current_config_object = current_config_object[property];
+            }
+            paper_input.value = current_config_object[target_property];
+        }
     });
+    graph_d3_force.configuration = graph_d3_force.configuration;
+    
     graph_d3_force.addEventListener("simulationstart", onsimulationrunning);
     graph_d3_force.addEventListener("simulationstop", onsimulationhalt);
     graph_d3_force.addEventListener("simulationend", onsimulationhalt);

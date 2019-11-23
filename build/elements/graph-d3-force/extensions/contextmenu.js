@@ -15,8 +15,6 @@ const contextmenu_html = `<div id="force" class="menu-group" slot="canvas">
     <div id="config">
         <paper-input id="alpha" label="Alpha" type="number" min="0" max="1" value="0"></paper-input>
         <paper-input id="alphaMin" label="Alpha Min" type="number" min="0" max="1"></paper-input>
-        <paper-input id="alpha" label="Alpha" type="number" min="0" max="1" value="0"></paper-input>
-        <paper-input id="alphaMin" label="Alpha Min" type="number" min="0" max="1"></paper-input>
         <paper-input id="alphaDecay" label="Alpha Decay" type="number" min="0" max="1"></paper-input>
         <paper-input id="alphaTarget" label="Alpha Target" type="number" min="0" max="1"></paper-input>
         <paper-input id="velocityDecay" label="Velocity Decay" type="number" min="0" max="1"></paper-input>

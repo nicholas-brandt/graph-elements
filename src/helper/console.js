@@ -5,12 +5,12 @@ function intervene() {
         throw new Error();
     } catch (error) {
         try {
-            script_name = error.stack.split("\n")[3].match(/\((?:.*\/)?(.+):.+:.+\)/)[1];
+            script_name = error.stack.split("\n")[3].match(/(?:at\s(?:.+?)\s\(|@).*\/(.+?):.*\)?/)[1];
         } catch (error) {
             script_name = "";
         }
         try {
-            method_name = error.stack.split("\n")[3].match(/at\s(?:.+?\.)?(.+?)\s/)[1];
+            method_name = error.stack.split("\n")[3].match(/at\s(?:.+?\.)?(.+?)\s\(/)[1];
         } catch (error) {
             method_name = "";
         }

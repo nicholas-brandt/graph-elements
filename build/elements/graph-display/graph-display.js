@@ -18,7 +18,8 @@ export default class GraphDisplay extends Extendable {
     });
     this.shadowRoot.innerHTML = `<slot name="canvas"></slot><slot></slot>`;
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.part.add("canvas");
+    this.svg.setAttributeNS(null, "viewBox", "0 0 1 1"); // this.svg.part.add("canvas");
+
     this.svg.slot = "canvas";
     this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.linkGroup.id = "link-group";

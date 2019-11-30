@@ -4,8 +4,8 @@ export class Node {
     key
   }, _request_paint) {
     this.element = this.createElement();
-    this.element.classList.add("node");
-    this.element.part.add("node-circle");
+    this.element.classList.add("node"); // this.element.part.add("node-circle");
+
     this.element.node = this;
     let x = value && value.x || 0;
     let y = value && value.y || 0;
@@ -111,8 +111,8 @@ export class Link {
     target
   }) {
     this.element = this.createElement();
-    this.element.classList.add("link");
-    this.element.part.add("link-path");
+    this.element.classList.add("link"); // this.element.part.add("link-path");
+
     this.element.link = this;
     Object.assign(this, {
       value,

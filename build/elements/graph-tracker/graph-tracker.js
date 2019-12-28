@@ -82,41 +82,25 @@ export default class GraphTracker extends GraphAddon {
         configurable: true,
         enumerable: true
       },
-      isTrackingCanvas: {
+      isPanZooming: {
         get() {
           return is_tracking_canvas;
         },
 
         set(_is_tracking_canvas) {
           is_tracking_canvas = !!_is_tracking_canvas;
-        }
 
-      },
-      isScaling: {
-        get() {
-          return is_scaling;
-        },
-
-        set(_is_scaling) {
-          const previously_scaling = is_scaling;
-          is_scaling = !!_is_scaling;
-
-          if (this.__boundScaling) {
-            if (is_scaling && !has_scaling_listener) {
-              this.host_svg.addEventListener("wheel", this.__boundScaling);
-              has_scaling_listener = true;
-            } else if (!is_scaling && has_scaling_listener) {
-              this.host_svg.removeEventListener("wheel", this.__boundScaling);
-              has_scaling_listener = false;
-            }
+          if (is_tracking_canvas) {
+            this.panHandler.resume();
+          } else {
+            this.panHandler.pause();
           }
         }
 
       }
     });
-    this.isScaling = /^(|true)$/.test(this.getAttribute("scaling"));
     this.trackingMode = this.getAttribute("tracking-mode");
-    this.isTrackingCanvas = /^(|true)$/.test(this.getAttribute("track-canvas"));
+    this.isTrackingCanvas = /^(|true)$/.test(this.getAttribute("pan-zooming"));
     this.trackingCount = 30;
     this.trackingInitialTime = 10;
   }
@@ -133,19 +117,6 @@ export default class GraphTracker extends GraphAddon {
       baseVal.x -= this.__canvasX / 2;
       baseVal.y -= this.__canvasY / 2;
     }), passive);
-
-    if (!host.svg.hammer) {
-      host.svg.hammer = new Hammer(host.svg);
-
-      __setHammerEnabled(host.svg.hammer, false, "pinch", "press", "tap", "rotate", "swipe");
-    } else {
-      __setHammerEnabled(host.svg.hammer, true, "pan");
-    }
-
-    host.svg.hammer.get("pan").set({
-      direction: Hammer.DIRECTION_ALL
-    });
-    host.svg.hammer.on("pan", this.__trackCanvas.bind(this));
     this.panHandler = panzoom(host.mainGroup, {
       smoothScroll: true
     });
@@ -163,7 +134,6 @@ export default class GraphTracker extends GraphAddon {
 
   __bindNodes(host) {
     console.log("");
-    let has_new_node;
 
     for (const [key, node] of host.nodes) {
       if (!node.hammer) {
@@ -183,7 +153,6 @@ export default class GraphTracker extends GraphAddon {
         node.hammer.on("panstart", __try(this.__trackNodeStart.bind(this, node)));
         node.hammer.on("panend", __try(this.__trackNodeEnd.bind(this, node)));
         node.hammer.on("pancancel", __try(this.__trackNodeEnd.bind(this, node)));
-        has_new_node = true;
         node.element.addEventListener("pointerdown", () => {
           console.log("pointerdown pause");
           this.panHandler.pause();
@@ -193,13 +162,6 @@ export default class GraphTracker extends GraphAddon {
           this.panHandler.resume();
         });
       }
-    }
-
-    if (has_new_node) {
-      // @PROBLEM: https://stackoverflow.com/questions/37688640/hammerjs-events-order-for-nested-elements/52682659#52682659
-      // reassign manager to delay recognition of the "pan"-event for the canvas (until after the node event)
-      host.svg.hammer.input.destroy();
-      host.svg.hammer.input.init();
     }
   }
 
@@ -225,29 +187,6 @@ export default class GraphTracker extends GraphAddon {
       bubbles: true,
       composed: true
     }));
-  }
-
-  __trackCanvas(event) {
-    if (this.isTrackingCanvas && !this.__isNodeSession) {
-      console.log(event);
-      const dx = event.deltaX - (this.__deltaX || 0);
-      const dy = event.deltaY - (this.__deltaY || 0);
-      this.__canvasX += dx;
-      this.__canvasY += dy;
-      this.__deltaX = event.isFinal ? 0 : event.deltaX;
-      this.__deltaY = event.isFinal ? 0 : event.deltaY;
-      const {
-        baseVal
-      } = event.target.viewBox;
-      baseVal.x -= dx;
-      baseVal.y -= dy;
-      this.dispatchEvent(new Event("viewbox-update", {
-        bubbles: true,
-        composed: true
-      }));
-    } else {
-      this.__isNodeSession = false;
-    }
   }
 
   async __trackNodeStart(node) {

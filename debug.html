@@ -4,7 +4,7 @@
 <head>
 <script>window.__graphElementsLogging = true;</script>
     <!-- ResizeObserver -->
-    <script src="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>
+    <!--<script src="https://rawgit.com/que-etc/resize-observer-polyfill/master/dist/ResizeObserver.global.js"></script>-->
     <script src="https://d3js.org/d3-collection.v1.min.js" async></script>
     <script src="https://d3js.org/d3-dispatch.v1.min.js" async></script>
     <script src="https://d3js.org/d3-quadtree.v1.min.js" async></script>
@@ -56,6 +56,8 @@
             window.graphDisplay = graphDisplay;
             await customElements.whenDefined("graph-d3-force");
             // graphForce.start();
+            
+            // window.svg = SVG().addTo(graphDisplay.svg);
         })();
     </script>
     <style>
@@ -72,7 +74,7 @@
 <body>
     <graph-display>
         <graph-d3-force></graph-d3-force>
-        <graph-tracker scaling="true" track-canvas="true"></graph-tracker>
+        <graph-tracker scaling="true" track-canvas="false"></graph-tracker>
         <graph-modifier></graph-modifier>
         <graph-contextmenu></graph-contextmenu>
         <!--<graph-detail-view>

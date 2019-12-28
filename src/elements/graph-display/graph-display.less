@@ -9,10 +9,13 @@
         touch-action: none;
         flex: 1;
         will-change: transform;
-        transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
+        transition: transform .5s cubic-bezier(.86, 0, .07, 1);
         transform: translateZ(0);
-        >#node-group {
-            transition: transform 0.5s;
+        #main-group {
+            // transition: transform .1s;
+        }
+        #node-group {
+            transition: transform .5s;
             >* {
                 touch-action: none;
             }
@@ -22,11 +25,11 @@
                 stroke: @node-stroke;
                 stroke-dasharray: @node-stroke-dasharray;
                 stroke-width: @node-stroke-width;
-                transition: opacity 0.5s, fill 0.5s;
+                transition: opacity .5s, fill .5s;
             }
         }
-        >#link-group {
-            transition: transform 0.5s;
+        #link-group {
+            transition: transform .5s;
             >* {
                 touch-action: none;
             }
@@ -36,7 +39,7 @@
                 fill: var(--link-color, @link);
                 stroke: @link;
                 stroke-width: 1px;
-                // transition: opacity 0.5s;
+                // transition: opacity .5s;
                 &[loop] {
                     fill: none;
                     stroke-width: 2px;

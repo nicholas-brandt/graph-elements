@@ -9,6 +9,7 @@ import __try from "../../helper/__try.js";
 import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
+import "//cdn.jsdelivr.net/npm/panzoom@8.7.3/dist/panzoom.min.js";
 export default class GraphTracker extends GraphAddon {
   constructor(...args) {
     super(...args);
@@ -113,7 +114,7 @@ export default class GraphTracker extends GraphAddon {
 
       }
     });
-    this.isScaling = this.getAttribute("scaling");
+    this.isScaling = /^(|true)$/.test(this.getAttribute("scaling"));
     this.trackingMode = this.getAttribute("tracking-mode");
     this.isTrackingCanvas = /^(|true)$/.test(this.getAttribute("track-canvas"));
     this.trackingCount = 30;
@@ -122,7 +123,6 @@ export default class GraphTracker extends GraphAddon {
 
   hosted(host) {
     this.host_svg = host.svg;
-    this.__boundScaling = requestAnimationFunction(__try(this.__scale.bind(this, host)));
     this.isScaling = this.isScaling;
     console.log("");
     host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
@@ -146,8 +146,19 @@ export default class GraphTracker extends GraphAddon {
       direction: Hammer.DIRECTION_ALL
     });
     host.svg.hammer.on("pan", this.__trackCanvas.bind(this));
+    this.panHandler = panzoom(host.mainGroup, {
+      smoothScroll: true
+    });
+    const pan_promise = new Promise(resolve => {
+      requestAnimationFrame(() => {
+        this.panHandler.zoomAbs(host.svg.clientWidth / 2, host.svg.clientHeight / 2, 1);
+        resolve();
+      });
+    });
 
     this.__bindNodes(host);
+
+    return pan_promise;
   }
 
   __bindNodes(host) {
@@ -173,6 +184,14 @@ export default class GraphTracker extends GraphAddon {
         node.hammer.on("panend", __try(this.__trackNodeEnd.bind(this, node)));
         node.hammer.on("pancancel", __try(this.__trackNodeEnd.bind(this, node)));
         has_new_node = true;
+        node.element.addEventListener("pointerdown", () => {
+          console.log("pointerdown pause");
+          this.panHandler.pause();
+        });
+        node.element.addEventListener("pointerup", () => {
+          console.log("pointerup resume");
+          this.panHandler.resume();
+        });
       }
     }
 
@@ -184,24 +203,8 @@ export default class GraphTracker extends GraphAddon {
     }
   }
 
-  __scale(host, event) {
-    if (event.wheelDelta < 0) {
-      this.__scaleFactor *= 1 + event.wheelDelta * 5e-4;
-    } else {
-      this.__scaleFactor *= 10 ** (event.wheelDelta * 5e-4);
-    }
-
-    this.__translateX -= (event.offsetX - host.svg.clientWidth / 2) / 2 * Math.sign(event.wheelDelta) / this.__scaleFactor;
-    this.__translateY -= (event.offsetY - host.svg.clientHeight / 2) / 2 * Math.sign(event.wheelDelta) / this.__scaleFactor;
-    const transform = `scale(${this.__scaleFactor}) translate(${this.__translateX}px, ${this.__translateY}px)`;
-    host.nodeGroup.style.transform = transform;
-    host.linkGroup.style.transform = transform;
-    /*const {baseVal} = host.svg.viewBox;
-    baseVal.x += (1 - 1 / this.__scaleFactor) * (event.offsetX - this.__canvasX * this.__scaleFactor);
-    baseVal.y += (1 - 1 / this.__scaleFactor) * (event.offsetY - this.__canvasY * this.__scaleFactor);*/
-  }
-
   async __trackNode(node, event) {
+    event.srcEvent.stopPropagation();
     console.log(event); // console.time("trackNode");
     // console.timeEnd("trackNode");
 
@@ -209,8 +212,9 @@ export default class GraphTracker extends GraphAddon {
       this.__isNodeSession = true; // event.srcEvent.stopImmediatePropagation();
     }
 
-    const scaled_delta_x = event.deltaX / this.__scaleFactor;
-    const scaled_delta_y = event.deltaY / this.__scaleFactor;
+    const scale_factor = this.panHandler.getTransform().scale;
+    const scaled_delta_x = event.deltaX / scale_factor;
+    const scaled_delta_y = event.deltaY / scale_factor;
     node.x += scaled_delta_x - (node.__deltaX || 0);
     node.y += scaled_delta_y - (node.__deltaY || 0);
     node.__deltaX = event.isFinal ? 0 : scaled_delta_x;

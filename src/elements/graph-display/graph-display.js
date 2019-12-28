@@ -24,12 +24,15 @@ class GraphDisplay extends Extendable {
         this.svg.setAttributeNS(null, "viewBox", "0 0 1 1");
         // this.svg.part.add("canvas");
         this.svg.slot = "canvas";
+        this.mainGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.mainGroup.id = "main-group";
+        this.svg.appendChild(this.mainGroup);
         this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.linkGroup.id = "link-group";
-        this.svg.appendChild(this.linkGroup);
+        this.mainGroup.appendChild(this.linkGroup);
         this.nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.nodeGroup.id = "node-group";
-        this.svg.appendChild(this.nodeGroup);
+        this.mainGroup.appendChild(this.nodeGroup);
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();

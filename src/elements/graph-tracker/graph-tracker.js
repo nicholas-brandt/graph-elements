@@ -110,7 +110,10 @@ class GraphTracker extends GraphAddon {
         });
         const pan_promise = new Promise(resolve => {
             requestAnimationFrame(() => {
-                this.panHandler.zoomAbs(host.svg.clientWidth / 2, host.svg.clientHeight / 2, 1);
+                this.panHandler.zoomAbs(0, 0, 1);
+                this.panHandler.moveTo(0, 0);
+                host.svg.setAttributeNS(null, "viewBox", "0 0 1 1");
+                host.__resize();
                 resolve();
             });
         });

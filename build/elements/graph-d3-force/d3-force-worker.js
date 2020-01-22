@@ -63,8 +63,8 @@ function _getEndPromise() {
 
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
-const gravitation_force = d3.forceRadial(0); // const center_force = d3.forceCenter(0, 0);
-
+const gravitation_force = d3.forceRadial(0);
+const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
 simulation.force("position", gravitation_force);
 simulation.force("link", link_force); // simulation.force("center", center_force);

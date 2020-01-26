@@ -23,6 +23,7 @@ const contextmenu_html = `<div id="force" class="menu-group" slot="canvas">
         <paper-input id="charge-strength" label="Charge Strength" type="number" min="0"></paper-input>
         <paper-input id="charge-distanceMax" label="Charge Max Distance" type="number" min="0"></paper-input>
         <paper-input id="charge-distanceMin" label="Charge Min Distance" type="number" min="0"></paper-input>
+        <paper-input id="charge-theta" label="Charge Approximation" type="number" min="0" max="1" value=".9"></paper-input>
         <paper-input id="gravitation-strength" label="Gravitation Strength" type="number" min="0"></paper-input>
     </div>
 </div>`;

@@ -1,5 +1,4 @@
 import Graph from "https://cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
-
 self.Graph = Graph;
 const graph = new Graph();
 self.graph = graph;

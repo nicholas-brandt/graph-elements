@@ -2,8 +2,7 @@
 
 import Graph from "https://cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
 import workerize from "https://cdn.jsdelivr.net/gh/Jamtis/workerize@patch-1/src/index.js";
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
-// import workerize from "https://unpkg.com/workerize@0.1.7/dist/workerize.m.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 
 const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
     type: "module"
@@ -13,6 +12,9 @@ const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
     await customElements.whenDefined("graph-display");
     const graphDisplay = document.querySelector("graph-display");
     window.graphDisplay = graphDisplay;
+    setTimeout(() => {
+        graphDisplay.querySelector("graph-d3-force").stop();
+    }, 1e4);
     
     const d3force = await graphDisplay.addonPromises["graph-d3-force"];
     d3force.configuration.alpha = 1e-1;
@@ -69,7 +71,7 @@ indegree: ${graph.inDegree(key)}`;
     });
     
     // loop for graph changes
-    for (let i = 0; i < Infinity; ++i) {
+    for (let i = 0; i < 100; ++i) {
         const receive_promise = await receive_graph();
         await receive_promise;
     }

@@ -1,8 +1,17 @@
 @import (reference) "../../../styles.less";
 
-#contextmenus {
-    &[simulation=running] #start-force,
-    &[simulation]:not([simulation=running]) #stop-force {
+graph-contextmenu {
+    &.simulation-running #start-force,
+    &:not(.simulation-running) #stop-force {
         color: fade(@color-menu, 50%);
+    }
+    
+    .menu-group>* {
+        padding: 5px;
+    }
+    
+    #start-force,
+    #stop-force {
+        cursor: pointer;
     }
 }

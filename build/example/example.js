@@ -19,11 +19,13 @@ for (let i = 0, a; i < 2 * n; ++i) {
     // graph.addEdge(i % n, (i + 1) % n);
 }
 */
+
 window.graph = graph;
 console.log(graph);
+
 (async () => {
-    await customElements.whenDefined("graph-display");
-    const graphDisplay = document.querySelector("graph-display");
-    graphDisplay.graph = graph;
-    window.graphDisplay = graphDisplay;
+  await customElements.whenDefined("graph-display");
+  const graphDisplay = document.querySelector("graph-display");
+  graphDisplay.graph = graph;
+  window.graphDisplay = graphDisplay;
 })();

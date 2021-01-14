@@ -34,7 +34,7 @@ const source_node = new MorphNode(1);
 source_node.output = 1;
 graph.addNewVertex(0, source_node);
 
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 const iterate = requestAnimationFunction(_iterate);
 (async () => {
     try {
@@ -61,7 +61,7 @@ async function _iterate(i) {
             sum += (link.flow_coefficient - link.target.energy / link.source.energy) ** 2;
         }
         if (sum) {
-            console.log("energy misfit", (sum ** .5) / edges.length);
+            // console.log("energy misfit", (sum ** .5) / edges.length);
         }
     }
     {
@@ -74,7 +74,7 @@ async function _iterate(i) {
         // console.log("energy mean", average);
     }
     // send();
-    if (i < 1e4) {
+    if (i < 50) {
         setTimeout(async () => {
             await await iterate(i + 1);
         }, 200);

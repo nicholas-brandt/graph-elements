@@ -1,18 +1,16 @@
-importScripts("https://unpkg.com/d3@5.5.0/dist/d3.min.js");
-// importScripts("https://d3js.org/d3.v4.min.js");
-// importScripts("../../helper/associate.js");
+importScripts("https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js");
 
 let buffer_array;
 
-export function start() {
+function _start() {
     simulation.restart();
 }
 
-export function stop() {
+function _stop() {
     simulation.stop();
 }
 
-export function setGraph(d3_graph) {
+function _setGraph(d3_graph) {
     const {nodes, links} = d3_graph;
     buffer_array = new Float32Array(nodes.length * 2);
     for (let i = 0; i < nodes.length; ++i) {
@@ -22,10 +20,13 @@ export function setGraph(d3_graph) {
     }
     simulation.nodes(nodes);
     link_force.links(links);
-    reject_tick("graph replaced");
+    if (tick_promise.has_catch) {
+        reject_tick("graph replaced");
+    }
+    createNewTickPromise();
 }
 
-export function setConfiguration(_configuration) {
+function _setConfiguration(_configuration) {
     Object.assign(configuration, _configuration);
     if (_configuration.link) {
         simulation.force("link", link_force);
@@ -40,18 +41,20 @@ export function setConfiguration(_configuration) {
     }
 }
 
-export function getTickPromise() {
+let tick_promise_caught = false;
+function _getTickPromise() {
+    tick_promise.has_catch = true;
     return tick_promise;
 }
 
-export function getEndPromise() {
+function _getEndPromise() {
     return end_promise;
 }
 
 const simulation = d3.forceSimulation();
 const link_force = d3.forceLink();
 const gravitation_force = d3.forceRadial(0);
-// const center_force = d3.forceCenter(0, 0);
+const center_force = d3.forceCenter(0, 0);
 const charge_force = d3.forceManyBody();
 simulation.force("position", gravitation_force);
 simulation.force("link", link_force);
@@ -106,11 +109,19 @@ associate(configuration.charge, charge_force, charge_attributes);
 associate(configuration.gravitation, gravitation_force, gravitation_attributes);
 
 let resolve_tick, reject_tick;
-let tick_promise = new Promise((resolve, reject) => {
-    resolve_tick = resolve;
-    reject_tick = reject;
-});
+let tick_promise;
+createNewTickPromise();
+
+function createNewTickPromise() {
+    tick_promise = new Promise((resolve, reject) => {
+        resolve_tick = resolve;
+        reject_tick = reject;
+    });
+}
+
+// let k = 0;
 simulation.on("tick", () => {
+    // if (k++>1e2) {k=0; simulation.stop();return;}
     const nodes = simulation.nodes();
     for (let i = 0; i < nodes.length; ++i) {
         const node = nodes[i];
@@ -121,9 +132,7 @@ simulation.on("tick", () => {
         // console.log("buffer", buffer_array.buffer);
         resolve_tick(buffer_array.buffer);
     }
-    tick_promise = new Promise(resolve => {
-        resolve_tick = resolve;
-    });
+    createNewTickPromise();
 });
 let resolve_end;
 let end_promise = new Promise(resolve => {

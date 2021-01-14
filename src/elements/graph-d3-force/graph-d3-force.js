@@ -4,12 +4,17 @@ import console from "../../helper/console.js";
 import workerize from "https://cdn.jsdelivr.net/gh/Jamtis/workerize@patch-1/src/index.js";
 import GraphAddon from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import __try from "../../helper/__try.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 
 // web worker same origin policy requires host to support OPTIONS CORS
 
-export class GraphD3Force extends GraphAddon {
+const module_url = new URL(import.meta.url);
+const worker_url = module_url.origin + module_url.pathname + "/../d3-force-worker.js";
+
+export default
+class GraphD3Force extends GraphAddon {
     static tagName = "graph-d3-force";
     static defaultConfiguration = {
         link: {
@@ -30,15 +35,15 @@ export class GraphD3Force extends GraphAddon {
         alphaTarget: 0,
         velocityDecay: 0.1
     };
-    constructor() {
-        super();
+    constructor(...args) {
+        super(...args);
         let _configuration = this.configuration;
         delete this.configuration;
         let _adaptive_links;
         // define own properties
         Object.defineProperties(this, {
             worker: {
-                value: workerize(`<!-- inject: ./d3-force-worker.js -->`, {
+                value: workerize(`const worker_url="${worker_url}";<!-- inject: ./dummy.js -->`, {
                     type: "classic"
                 }),
                 enumerable: true
@@ -46,11 +51,15 @@ export class GraphD3Force extends GraphAddon {
             configuration: {
                 set (configuration) {
                     _configuration = configuration;
+                    this.dispatchEvent(new Event("configuration-change", {
+                        composed: true,
+                        bubbles: true
+                    }));
                 },
                 get() {
                     return _configuration;
                 },
-                enumerable: true
+                enumerable: true	
             },
             state: {
                 get() {
@@ -73,12 +82,16 @@ export class GraphD3Force extends GraphAddon {
         this.__state = "idle";
         this.__loopEnds();
         this.adaptiveLinks = this.getAttribute("adaptive-links") != "false";
-        this.configuration = _configuration || this.constructor.defaultConfiguration;
+        this.configuration = Object.assign({}, this.constructor.defaultConfiguration, _configuration);
     }
     hosted(host) {
         host.addEventListener("graph-structure-change", async () => {
             this.__graphChanged = true;
-            await this.__sendGraphToWorker();
+            try {
+                await this.__sendGraphToWorker();
+            } catch (error) {
+                console.warn(error);
+            }
             this.__graphChanged = false;
         }, {
             passive: true
@@ -112,9 +125,8 @@ export class GraphD3Force extends GraphAddon {
                     const buffer = await this.worker.getTickPromise();
                     await this.__applyGraphUpdate(buffer);
                 } catch (error) {
-                    console.error(error);
                     if (error.message != "graph replaced") {
-                        throw new Error("potenial looping error");
+                        throw new Error("looping error: " + error.message);
                     }
                 }
             }
@@ -140,7 +152,7 @@ export class GraphD3Force extends GraphAddon {
     async start() {
         switch (this.state) {
             case "idle":
-                await this.worker.setConfiguration(this.configuration);
+                await this.applyConfiguration();
                 await this.__sendGraphToWorker();
                 this.__state = "running";
                 this.__loopTicks();
@@ -164,6 +176,9 @@ export class GraphD3Force extends GraphAddon {
             }));
             await this.__showLinks();
         }
+    }
+    applyConfiguration() {
+        return this.worker.setConfiguration(this.configuration);
     }
     async __applyGraphUpdate(buffer) {
         if (!this.__graphChanged) {
@@ -205,6 +220,7 @@ export class GraphD3Force extends GraphAddon {
                     opacity: 0
                 }], 250).addEventListener("finish", () => {
                     host.linkGroup.style.visibility = "hidden";
+                    resolve();
                 }, {
                     passive: true
                 });
@@ -229,13 +245,9 @@ export class GraphD3Force extends GraphAddon {
         }
     }
 };
-(async () => {
-    try {
-        // ensure requirements
-        await require(["d3"]);
-        await customElements.whenDefined("graph-display");
-        customElements.define(GraphD3Force.tagName, GraphD3Force);
-    } catch (error) {
-        console.error(error);
-    }
+__try(async () => {
+    // ensure requirements
+    await require(["d3"]);
+    await customElements.whenDefined("graph-display");
+    customElements.define(GraphD3Force.tagName, GraphD3Force);
 })();

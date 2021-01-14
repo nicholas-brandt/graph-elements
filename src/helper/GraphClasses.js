@@ -3,6 +3,7 @@ class Node {
     constructor({value, key}, _request_paint) {
         this.element = this.createElement();
         this.element.classList.add("node");
+        // this.element.part.add("node-circle");
         this.element.node = this;
         let x = value && value.x || 0;
         let y = value && value.y || 0;
@@ -55,21 +56,25 @@ class Node {
             value,
             key,
         });
-        this.x |= 0;
-        this.y |= 0;
+        if (isNaN(this.x)) {
+            this.x = 0;
+        }
+        if (isNaN(this.y)) {
+            this.y = 0;
+        }
     }
     paint() {
         const {x, y, radius} = this;
         // this.element.setAttribute("cx", x);
-        if (x | 0 === x) {
+        if (x + 0 === x) {
             this.element.cx.baseVal.value = x;
         }
         // this.element.setAttribute("cy", y);
-        if (y | 0 === y) {
+        if (y + 0 === y) {
             this.element.cy.baseVal.value = y;
         }
         // this.element.setAttribute("r", radius);
-        if (radius | 0 === radius) {
+        if (radius + 0 === radius) {
             this.element.r.baseVal.value = radius;
         }
     }
@@ -82,6 +87,7 @@ class Link {
     constructor({value, source, target}) {
         this.element = this.createElement();
         this.element.classList.add("link");
+        // this.element.part.add("link-path");
         this.element.link = this;
         Object.assign(this, {
             value,

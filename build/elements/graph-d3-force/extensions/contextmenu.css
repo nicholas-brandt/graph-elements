@@ -1,1 +1,1 @@
-#contextmenus[simulation=running] #start-force,#contextmenus[simulation]:not([simulation=running]) #stop-force{color:rgba(51,51,51,.5)}
+graph-contextmenu.simulation-running #start-force,graph-contextmenu:not(.simulation-running) #stop-force{color:hsla(0,0%,20%,.5)}graph-contextmenu .menu-group>*{padding:5px}graph-contextmenu #start-force,graph-contextmenu #stop-force{cursor:pointer}

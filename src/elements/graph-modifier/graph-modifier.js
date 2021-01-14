@@ -1,10 +1,13 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import GraphAddon from "../graph-addon/graph-addon.js";
+import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
+import __try from "../../helper/__try.js";
+import {Node} from "../../helper/GraphClasses.js";
+import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 
 const style = document.createElement("style");
 style.textContent = `<!-- inject: ./graph-modifier.css -->`;
@@ -18,11 +21,15 @@ class GraphModifier extends GraphAddon {
         // add style
         this.styleElement = this.constructor.styleElement.cloneNode(true);
         this.appendChild(this.styleElement);
+        this.touchPress = this.getAttribute("touch-press") != "false";
     }
     hosted(host) {
         console.log("");
         if (!host.svg.hammer) {
             host.svg.hammer = new Hammer(host.svg);
+            __setHammerEnabled(host.svg.hammer, false, "pinch", "pan", "rotate", "swipe");
+        } else {
+            __setHammerEnabled(host.svg.hammer, true, "tap", "press");
         }
         host.svg.hammer.on("tap", event => {
             if (event.srcEvent.path[0] === host.svg) {
@@ -31,22 +38,14 @@ class GraphModifier extends GraphAddon {
         });
         host.svg.hammer.on("press", event => {
             try {
-                if (event.srcEvent.path[0] === host.svg) {
-                    // this.__pressCanvas(host, event);
+                if (event.target === host.svg) {
+                    this.__pressCanvas(host, event);
                 }
             } catch (error) {
                 console.error(error);
             }
         });
-        host.addEventListener("graph-structure-change", event => {
-            try {
-                this.__bindNodes(host);
-            } catch (error) {
-                console.error(error);
-            }
-        }, {
-            passive: true
-        });
+        host.addEventListener("graph-structure-change", this.__bindNodes.bind(this, host), passive);
         this.__bindNodes(host);
     }
     selectNode(node) {
@@ -61,28 +60,25 @@ class GraphModifier extends GraphAddon {
         }
     }
     __bindNodes(host) {
-        console.log("");
+        // console.log("");
         for (const [key, node] of host.nodes) {
             if (!node.hammer) {
                 node.hammer = new Hammer(node.element);
+                __setHammerEnabled(host.svg.hammer, false, "pinch", "pan", "rotate", "swipe");
+            } else {
+                __setHammerEnabled(host.svg.hammer, true, "tap", "press");
             }
             if (!node.modifierInstalled) {
                 node.modifierInstalled = true;
                 // node.hammer.options.domEvents = true;
-                node.hammer.get("press").set({time: 300});
+                node.hammer.get("press").set({time: 600});
                 node.hammer.on("press", this.__pressNode.bind(this, host, node));
                 // TODO: no stopImmediatePropagation available in hammer.js
                 // e.g. detail-view tap is still triggered
                 node.__tapHandlers = node.hammer.handlers.tap || [];
                 // console.log("tap handlers", node.__tapHandlers);
                 node.hammer.off("tap");
-                node.hammer.on("tap", event => {
-                    try {
-                        this.__tapNode(host, node, event);
-                    } catch (error) {
-                        console.error(error);
-                    }
-                });
+                node.hammer.on("tap", this.__tapNode.bind(this, host, node), passive);
                 const _on = node.hammer.on.bind(node.hammer);
                 node.hammer.on = function(recognizer_name, callback) {
                     if (recognizer_name == "tap") {
@@ -95,20 +91,34 @@ class GraphModifier extends GraphAddon {
         }
     }
     __pressCanvas(host, event) {
-        console.log(event);
-        // @IMPORTANT: ensure new vertex key
-        let i = 0;
-        while (host.graph.hasVertex(i)) {
-            ++i;
+        if ((event.pointerType == "mouse" || this.touchPress) && event.srcEvent.path[0] === host.svg) {
+            console.log(event);
+            // @IMPORTANT: ensure new vertex key
+            let i = 0;
+            while (host.graph.hasVertex(i)) {
+                ++i;
+            }
+            host.graph.addNewVertex(i, new host.Node({
+                value: {},
+                key: i
+            },  host.__requestPaintNode.bind(host)));
+            // this.dispatchEvent(new Event("graph-structure-change", {}));
+            host.graph = host.graph;
+            // get freshly created node
+            const node = host.graph.vertexValue(i);
+            const {
+                top,
+                left
+            } = host.svg.getBoundingClientRect();
+            const {
+                x,
+                y,
+                width,
+                height
+            } = host.svg.viewBox.baseVal;
+            node.x = ((event.srcEvent.pageX - left) / host.svg.clientWidth) * width + x;
+            node.y = ((event.srcEvent.pageY - top) / host.svg.clientHeight) * height + y;
         }
-        host.graph.addNewVertex(i);
-        this.dispatchEvent(new Event("graph-structure-change", {
-            composed: true
-        }));
-        // get freshly created node
-        const node = host.graph.vertexValue(i);
-        node.x = (event.srcEvent.layerX / host.svg.clientWidth - .5) * host.svg.viewBox.baseVal.width;
-        node.y = (event.srcEvent.layerY / host.svg.clientHeight - .5) * host.svg.viewBox.baseVal.height;
     }
     __pressNode(host, node) {
         console.log("");
@@ -135,9 +145,10 @@ class GraphModifier extends GraphAddon {
             } else {
                 host.graph.ensureEdge(this.activeNode.key, node.key);
             }
-            this.dispatchEvent(new Event("graph-structure-change", {
+            host.graph = host.graph;
+            /*this.dispatchEvent(new Event("graph-structure-change", {
                 composed: true
-            }));
+            }));*/
         } else {
             for (const tap_handler of node.__tapHandlers) {
                 tap_handler(event);
@@ -145,13 +156,12 @@ class GraphModifier extends GraphAddon {
         }
     }
 }
-(async () => {
-    try {
-        // ensure requirements
-        await require(["Hammer"]);
-        await customElements.whenDefined("graph-display");
-        customElements.define(GraphModifier.tagName, GraphModifier);
-    } catch (error) {
-        console.error(error);
-    }
+const passive = {
+    passive: true
+};
+__try(async () => {
+    // ensure requirements
+    await require(["Hammer"]);
+    await customElements.whenDefined("graph-display");
+    customElements.define(GraphModifier.tagName, GraphModifier);
 })();

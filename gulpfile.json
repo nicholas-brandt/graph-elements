@@ -5,26 +5,26 @@
                 "src": "src/**/*.js",
                 "dest": "build",
                 "chain": ["gulp-babel"],
-                "watch": true
+                "watch": false
             },
             "stylesheets": {
                 "src": "src/**/*.less",
                 "dest": "build",
                 "chain": ["gulp-less", "gulp-clean-css"],
-                "watch": true
+                "watch": false
             },
             "html": {
                 "src": "src/**/*.html",
                 "dest": "build",
                 "chain": ["gulp-htmlmin"],
-                "watch": true
+                "watch": false
             },
             "inject": {
                 "src": "build/**/*.js",
                 "dest": "build",
                 "chain": ["gulp-inject-file"],
                 "dependencies": ["html", "stylesheets", "scripts"],
-                "watch": true
+                "watch": false
             }
         }
     },
@@ -40,7 +40,7 @@
             "simplify": false
         },
         "gulp-babel": {
-            "plugins": ["syntax-dynamic-import", "transform-class-properties"]
+            "plugins": ["@babel/syntax-dynamic-import", "@babel/plugin-syntax-import-meta", "@babel/plugin-proposal-class-properties"]
         },
         "gulp-esformatter": {},
         "gulp-inject-file": {},

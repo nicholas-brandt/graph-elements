@@ -2,6 +2,7 @@
 <html>
 
 <head>
+<script>window.__graphElementsLogging = true;</script>
     <!-- ResizeObserver -->
     <script src="https://cdn.jsdelivr.net/gh/que-etc/resize-observer-polyfill/dist/ResizeObserver.global.js"></script>
     <script src="https://d3js.org/d3-collection.v1.min.js" async></script>
@@ -10,11 +11,12 @@
     <script src="https://d3js.org/d3-timer.v1.min.js" async></script>
     <script src="https://d3js.org/d3-force.v1.min.js" async></script>
     
-    <!--<script src="build/elements/graph-detail-view/graph-detail-view.js" type="module" async></script>-->
+    <script src="build/elements/graph-detail-view/graph-detail-view.js" type="module" async></script>
     <script src="build/elements/graph-tracker/graph-tracker.js" type="module" async></script>
-    <script src="build/elements/graph-d3-force/graph-d3-force.js" type="module" async></script>
+    <script src="build/elements/graph-modifier/graph-modifier.js" type="module" async></script>
+    <script src="build/elements/graph-contextmenu/graph-contextmenu.js" type="module" async></script>
+    <script src="build/elements/graph-d3-force/extensions/contextmenu.js" type="module" async></script>
     <script src="build/elements/graph-display/graph-display.js" type="module" async></script>
-    <link href="https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/7fb050585c4cb20e5e64a5ebf4639dc698aa6f02/requestAnimationFunction.js" rel="preload" as="script">
     <script src="https://hammerjs.github.io/dist/hammer.min.js" async></script>
     <script type="module">
         import Graph from "https://cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
@@ -23,23 +25,25 @@
         graph.addVertex(0);
         graph.addVertex(1);
         graph.addEdge(0, 1);
-        for(let i = 2; i < 1e2; ++i) graph.addVertex(i);
+        const _nodes = 1e2;
+        const _edges = 3e2;
+        for(let i = 2; i < _nodes; ++i) graph.addVertex(i, {x:Math.random()*100,y:Math.random()*100});
         // for(let i = 0; i < 3e2; ++i) graph.addEdge(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100));
-        for(let i = 0, a; i < 3e3; ++i) graph.addEdge(a = Math.floor(Math.random() * 1e2), (a + 1) % 1e2);
+        for(let i = 0, a; i < _edges; ++i) graph.addEdge(a = Math.floor(Math.random() * _nodes), (a + 1) % _nodes);
         
         window.graph = graph;
         window.graphForce = (graph.shadowRoot || document).querySelector("graph-d3-force");
         const configuration = {
             alpha: 1,
             link: {
-                distance: 300,
+                distance: 30,
                 strength: 0.2
             },
             charge: {
-                strength: -40
+                strength: -400
             },
             gravitation: {
-                strength: 100
+                strength: .1
             }
         };
         graphForce.configuration = configuration;
@@ -50,7 +54,9 @@
             graphDisplay.graph = graph;
             window.graphDisplay = graphDisplay;
             await customElements.whenDefined("graph-d3-force");
-            graphForce.start();
+            // graphForce.start();
+            
+            // window.svg = SVG().addTo(graphDisplay.svg);
         })();
     </script>
     <style>
@@ -67,7 +73,14 @@
 <body>
     <graph-display>
         <graph-d3-force></graph-d3-force>
-        <graph-tracker></graph-tracker>
+        <graph-tracker pan-zooming="true"></graph-tracker>
+        <graph-modifier></graph-modifier>
+        <graph-contextmenu></graph-contextmenu>
+        <!--<graph-detail-view>
+            <div>
+                test
+            </div>
+        </graph-detail-view>-->
     </graph-display>
 </body>
 

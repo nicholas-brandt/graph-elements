@@ -1,30 +1,38 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import requestAnimationFunction from "https://rawgit.com/Jamtis/7ea0bb0d2d5c43968c4a/raw/910d7332a10b2549088dc34f386fbcfa9cdd8387/requestAnimationFunction.js";
+import Extendable from "./extendable.js";
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 import {Node, Link} from "../../helper/GraphClasses.js";
 
 const style = document.createElement("style");
 style.textContent = `<!-- inject: ./graph-display.css -->`;
 
-export class GraphDisplay extends HTMLElement {
+export default
+class GraphDisplay extends Extendable {
     static tagName = "graph-display";
     static styleElement = style;
     constructor() {
         super();
-        this.Node = Node;
-        this.Link = Link;
+        this.classList.add("graph-display");
         // shadow stuff
         this.attachShadow({
             mode: "open"
         });
+        this.shadowRoot.innerHTML = `<slot name="canvas"></slot><slot></slot>`;
         this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        this.svg.setAttributeNS(null, "viewBox", "0 0 1 1");
+        // this.svg.part.add("canvas");
+        this.svg.slot = "canvas";
+        this.mainGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        this.mainGroup.id = "main-group";
+        this.svg.appendChild(this.mainGroup);
         this.linkGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.linkGroup.id = "link-group";
-        this.svg.appendChild(this.linkGroup);
+        this.mainGroup.appendChild(this.linkGroup);
         this.nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
         this.nodeGroup.id = "node-group";
-        this.svg.appendChild(this.nodeGroup);
+        this.mainGroup.appendChild(this.nodeGroup);
         // resize handler
         const request_resize = requestAnimationFunction(() => {
             this.__resize();
@@ -54,7 +62,7 @@ export class GraphDisplay extends HTMLElement {
                 return target[name];
             }
         });
-        this.shadowRoot.addEventListener("addon-registry", event => {
+        this.addEventListener("addon-registry", event => {
             // console.log("addon registrated sr cap");
             // stop the event because
             // if it would reach its target addon it would assume no host is present
@@ -98,13 +106,13 @@ export class GraphDisplay extends HTMLElement {
         });
         // add style
         const style = this.constructor.styleElement.cloneNode(true);
-        this.shadowRoot.appendChild(style);
-        this.shadowRoot.appendChild(this.svg);
-        // migrate all children
-        // quirk - not all children get imported
-        for (const child of [...this.children]) {
-            this.shadowRoot.appendChild(child);
-        }
+        this.insertAdjacentElement("afterbegin", style);
+        this.appendChild(this.svg);
+        // this.shadowRoot.appendChild(style);
+        // this.shadowRoot.appendChild(this.svg);
+        // const slot = document.createElement("slot");
+        // this.shadowRoot.appendChild(slot);
+        
         // set configuration
         this.configuration = {};
         // trigger init resize
@@ -225,7 +233,13 @@ export class GraphDisplay extends HTMLElement {
     async __callWhenAddonHosted(addon_name, callback) {
         await this.addonPromises[addon_name];
         console.log("addon hosted", addon_name);
-        await callback(this);
+        return await callback(this);
     }
 };
-customElements.define("graph-display", GraphDisplay);
+GraphDisplay.prototype.Node = Node;
+GraphDisplay.prototype.Link = Link;
+try {
+    customElements.define(GraphDisplay.tagName, GraphDisplay);
+} catch (error) {
+    console.error(error); 
+}

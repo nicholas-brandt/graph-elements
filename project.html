@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<graph-display id="display">
+    <graph-tracker tracking-mode="normal" track-canvas scaling="true"></graph-tracker>
+    <graph-modifier touch-press="false"></graph-modifier>
+    <graph-d3-force adaptive-links="true"></graph-d3-force>
+    <graph-contextmenu></graph-contextmenu>
+    <vaadin-progress-bar id="progress-bar" value="0"></vaadin-progress-bar>
+</graph-display>
+<div id="sidebar">
+    <paper-spinner id="force-indicator" class="thin"></paper-spinner>
+</div>
+<paper-dialog id="doi-search" opened>
+    <paper-input id="initial-doi" label="Initial DOI" value="10.1145/62212.62213"></paper-input>
+    <paper-input id="citation-level" label="Citation Level" value="1" type="number"></paper-input>
+    <paper-button dialog-confirm>Display</paper-button>
+</paper-dialog>
+
+<script src="//d3js.org/d3-collection.v1.min.js" async></script>
+<script src="//d3js.org/d3-dispatch.v1.min.js" async></script>
+<script src="//d3js.org/d3-quadtree.v1.min.js" async></script>
+<script src="//d3js.org/d3-timer.v1.min.js" async></script>
+<script src="//d3js.org/d3-force.v1.min.js" async></script>
+
+<script src="//hammerjs.github.io/dist/hammer.js" async></script>
+
+<script src="setup.js" type="module" async></script>
+
+<link rel="stylesheet" type="text/css" href="project.css">

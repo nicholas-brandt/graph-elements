@@ -1,9 +1,8 @@
 "use strict";
 
-import Graph from "https://rawgit.com/mhelvens/graph.js/master/dist/graph.es6.js";
-import workerize from "https://rawgit.com/Jamtis/workerize/patch-1/src/index.js";
+import Graph from "https://cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
+import workerize from "https://cdn.jsdelivr.net/gh/Jamtis/workerize@patch-1/src/index.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
-// import workerize from "https://cdn.jsdelivr.net/npm/workerize@0.1.7/dist/workerize.m.js";
 
 const worker = workerize(`<!-- inject: ./morph-worker.js -->`, {
     type: "module"

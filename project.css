@@ -1,0 +1,61 @@
+body {
+    margin: 0;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+graph-display {
+    flex: 1 1 0;
+}
+
+.link {
+    fill: none;
+    stroke: rgba(255, 193, 7, 0.4);
+}
+
+.node > circle {
+    stroke: none;
+    fill: rgba(27, 94, 32, .7);
+}
+.node > foreignObject {
+    visibility: hidden;
+    font-family: Roboto;
+    overflow: visible;
+}
+.node > foreignObject > div {
+    font-family: Roboto;
+    transform: translate(-50%, 10px);
+    padding: 15px;
+    background: radial-gradient(farthest-corner, white 75%, transparent);
+    display: block;
+    width: max-content;
+    max-width: 400px;
+    text-align: center;
+}
+.node > circle:hover + foreignObject {
+    visibility: visible;
+}
+.node:not(.metadata) {
+    opacity: .5;
+}
+
+vaadin-progress-bar {
+    position: absolute;
+    margin: 5px;
+    opacity: .6;
+}
+
+#sidebar {
+    display: flex;
+    flex: 0 1 auto;
+    min-width: 100px;
+    justify-content: center;
+}
+
+#sidebar > paper-spinner {
+}
+
+paper-spinner-lite.thin {
+    --paper-spinner-stroke-width: 1px;
+}

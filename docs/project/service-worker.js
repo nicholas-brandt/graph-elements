@@ -28,7 +28,7 @@ workbox.routing.registerRoute(/^https:\/\/geneva-avenue\.codio\.io/,
   }),
 );
 
-workbox.routing.registerRoute(/^https:\/\/jamtis\\.github\.io/,
+workbox.routing.registerRoute(/^https:\/\/jamtis\.\.github\.io/,
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: 'codio',
   }),

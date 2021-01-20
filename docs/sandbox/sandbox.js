@@ -23,7 +23,7 @@ import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfun
 
 const display = document.querySelector("#display");
 window.display = display;
-import {DOINode} from "./DOI_node.js";
+import {DOINode} from "../project/DOI_node.js";
 display.Node = DOINode;
 project.on("vertex-added", event => {
     display.dispatchEvent(new CustomEvent("graph-structure-change"));

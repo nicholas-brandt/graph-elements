@@ -25,18 +25,18 @@ const display = document.querySelector("#display");
 window.display = display;
 import {DOINode} from "../project/DOI_node.js";
 display.Node = DOINode;
-project.on("vertex-added", event => {
+display.graph.on("vertex-added", event => {
     display.dispatchEvent(new CustomEvent("graph-structure-change"));
 });
-project.on("vertex-removed", event => {
+display.graph.on("vertex-removed", event => {
     display.dispatchEvent(new CustomEvent("graph-structure-change"));
 });
 
 function __updateRadii() {
-    const vertices = project.vertices();
+    const vertices = display.graph.vertices();
     for (const [key, vertex] of vertices) {
-        vertex.radius = (Math.floor(Math.log2(project.degree(key))) | 0) + 2;
-        // console.log("d", project.degree(key), vertex.radius);
+        vertex.radius = (Math.floor(Math.log2(display.graph.degree(key))) | 0) + 2;
+        // console.log("d", display.graph.degree(key), vertex.radius);
     }
 }
 const request__updateRadii = requestAnimationFunction(__updateRadii);

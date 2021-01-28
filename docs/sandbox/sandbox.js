@@ -88,7 +88,6 @@ async function setup() {
     }
 
     force.configuration = configuration;
-    display.graph = project;
 
     const tracker = await display.addonPromises["graph-tracker"];
     tracker.panHandler.zoomAbs(0, 0, .05);

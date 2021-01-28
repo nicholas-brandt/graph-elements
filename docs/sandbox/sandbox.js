@@ -25,6 +25,7 @@ const display = document.querySelector("#display");
 window.display = display;
 import {DOINode} from "../project/DOI_node.js";
 display.Node = DOINode;
+display.graph = new Graph;
 display.graph.on("vertex-added", event => {
     display.dispatchEvent(new CustomEvent("graph-structure-change"));
 });

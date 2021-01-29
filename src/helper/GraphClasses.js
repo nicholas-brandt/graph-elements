@@ -103,20 +103,31 @@ class Link {
             const long = source.radius * 3;
             path_d = `M ${source.x} ${source.y}c ${short} ${long} ${long} ${short} 0 0`;
         } else {
-            path_d = `M ${source.x} ${source.y}L ${target.x} ${target.y}`;
-            /*
-            const x_diff = target_x - source_x;
-            const y_diff = target_y - source_y;
-            const r_diff = Math.hypot(x_diff, y_diff) / target.radius;
-            const xr_diff = x_diff / r_diff;
-            const yr_diff = y_diff / r_diff;
-            const offset = 2;
-            const m_x = target_x - xr_diff * offset;
-            const m_y = target_y - yr_diff * offset;
-            path_d = `M ${source_x} ${source_y}L ${m_x} ${m_y}L ${target_x + yr_diff} ${target_y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m_x} ${m_y}`;
-            */
+            if (this.isArrowShown) {
+                const x_diff = target_x - source_x;
+                const y_diff = target_y - source_y;
+                const r_diff = Math.hypot(x_diff, y_diff) / target.radius;
+                const xr_diff = x_diff / r_diff;
+                const yr_diff = y_diff / r_diff;
+                const offset = 2;
+                const m_x = target_x - xr_diff * offset;
+                const m_y = target_y - yr_diff * offset;
+                path_d = `M ${source_x} ${source_y}L ${m_x} ${m_y}L ${target_x + yr_diff} ${target_y - xr_diff}l ${-2 * yr_diff} ${2 * xr_diff}L ${m_x} ${m_y}`;
+            } else {
+                path_d = `M ${source.x} ${source.y}L ${target.x} ${target.y}`;
+            }
         }
         this.element.setAttribute("d", path_d);
+    }
+    get isArrowShown() {
+        return this.value.isArrowShown;
+    }
+    set isArrowShown(value) {
+        this.element.classList.toggle("show-arrow", value);
+        if (!this.value) {
+            this.value = {};
+        }
+        this.value.isArrowShown = value;
     }
     createElement() {
         return document.createElementNS("http://www.w3.org/2000/svg", "path");

@@ -120,7 +120,7 @@ class Link {
         this.element.setAttribute("d", path_d);
     }
     get isArrowShown() {
-        return this.value.isArrowShown;
+        return this.value && this.value.isArrowShown;
     }
     set isArrowShown(value) {
         this.element.classList.toggle("show-arrow", value);

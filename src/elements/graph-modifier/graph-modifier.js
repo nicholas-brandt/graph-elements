@@ -3,9 +3,9 @@ import console from "../../helper/console.js";
 
 import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
-import __try from "../../helper/__try.js";
+import __try from "../../helper/try.js";
 import {Node} from "../../helper/GraphClasses.js";
-import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
+import __setHammerEnabled from "../../helper/setHammerEnabled.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 

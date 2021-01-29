@@ -6,7 +6,7 @@ import GraphD3Force from "../../graph-d3-force/graph-d3-force.js";
 import GraphContextmenu from "../../graph-contextmenu/graph-contextmenu.js";
 
 import require from "../../../helper/require.js";
-import __try from "../../../helper/__try.js";
+import __try from "../../../helper/try.js";
 
 import "//dev.jspm.io/@polymer/paper-input/paper-input.js";
 

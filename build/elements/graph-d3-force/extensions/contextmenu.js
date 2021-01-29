@@ -5,7 +5,7 @@ import GraphDisplay from "../../graph-display/graph-display.js";
 import GraphD3Force from "../../graph-d3-force/graph-d3-force.js";
 import GraphContextmenu from "../../graph-contextmenu/graph-contextmenu.js";
 import require from "../../../helper/require.js";
-import __try from "../../../helper/__try.js";
+import __try from "../../../helper/try.js";
 import "//dev.jspm.io/@polymer/paper-input/paper-input.js";
 const style_html = `<style>graph-contextmenu.simulation-running #start-force,graph-contextmenu:not(.simulation-running) #stop-force{color:hsla(0,0%,20%,.5)}graph-contextmenu .menu-group>*{padding:5px}graph-contextmenu #start-force,graph-contextmenu #stop-force{cursor:pointer}</style>`;
 const contextmenu_html = `<div id="force" class="menu-group" slot="canvas">

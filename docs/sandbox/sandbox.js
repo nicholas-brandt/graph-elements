@@ -13,8 +13,8 @@ import "//dev.jspm.io/@polymer/polymer/lib/elements/dom-repeat.js";
 
 import GraphDetailView from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-detail-view/graph-detail-view.js";
 import GraphModifier from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-modifier/graph-modifier.js";
-import GraphTracker from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/build/elements/graph-tracker/graph-tracker.js";
-import GraphD3Force from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/build/elements/graph-d3-force/graph-d3-force.js";
+import GraphTracker from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-tracker/graph-tracker.js";
+import GraphD3Force from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-d3-force/graph-d3-force.js";
 import "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-d3-force/extensions/contextmenu.js";
 import GraphContextmenu from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-contextmenu/graph-contextmenu.js";
 import GraphDisplay from "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements/graph-display/graph-display.js";

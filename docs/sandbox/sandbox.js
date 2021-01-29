@@ -15,7 +15,7 @@ import GraphDetailView from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/
 import GraphModifier from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/elements/graph-modifier/graph-modifier.js";
 import GraphTracker from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/elements/graph-tracker/graph-tracker.js";
 import GraphD3Force from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/elements/graph-d3-force/graph-d3-force.js";
-import "//cdn.jsdelivr.net/gh/jamtis/graph-elements/build/elements@master/graph-d3-force/extensions/contextmenu.js";
+import "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/elements/graph-d3-force/extensions/contextmenu.js";
 import GraphContextmenu from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/elements/graph-contextmenu/graph-contextmenu.js";
 import GraphDisplay from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/elements/graph-display/graph-display.js";
 

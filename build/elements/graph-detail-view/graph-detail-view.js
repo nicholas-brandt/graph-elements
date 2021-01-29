@@ -9,8 +9,8 @@ import { templatize } from "//dev.jspm.io/@polymer/polymer/lib/utils/templatize.
 import { html } from "//dev.jspm.io/@polymer/polymer/lib/utils/html-tag.js";
 import { createGraphAddon } from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
-import __try from "../../helper/__try.js";
-import __setHammerEnabled from "../../helper/__setHammerEnabled.js";
+import __try from "../../helper/try.js";
+import __setHammerEnabled from "../../helper/setHammerEnabled.js";
 export default class GraphDetailView extends createGraphAddon(PolymerElement) {
   static get template() {
     return html([this.styleString + this.templateString]);

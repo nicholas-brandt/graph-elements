@@ -1,4 +1,4 @@
-import {Node} from "//cdn.jsdelivr.net/gh/jamtis/graph-elements@master/build/helper/GraphClasses.js";
+import {Node} from "../../build/helper/GraphClasses.js";
 
 export class DOINode extends Node {
     radius = 3;

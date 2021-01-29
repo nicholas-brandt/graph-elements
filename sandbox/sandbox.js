@@ -81,9 +81,9 @@ async function setup() {
         const log_updateGraph = requestAnimationFunction(time_diff => {
             console.log("graph update", time_diff);
         });
-        force.addEventListener("graph-update", event => {
+        /*force.addEventListener("graph-update", event => {
             log_updateGraph();
-        });
+        });*/
         console.log("display", display);
     }
 

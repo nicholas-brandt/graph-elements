@@ -152,7 +152,7 @@ export class Link {
   }
 
   get isArrowShown() {
-    return this.value.isArrowShown;
+    return this.value && this.value.isArrowShown;
   }
 
   set isArrowShown(value) {

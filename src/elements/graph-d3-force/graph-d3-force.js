@@ -4,7 +4,7 @@ import console from "../../helper/console.js";
 import workerize from "https://cdn.jsdelivr.net/gh/Jamtis/workerize@patch-1/src/index.js";
 import {GraphAddon} from "../graph-addon/graph-addon.js";
 import require from "../../helper/require.js";
-import __try from "../../helper/__try.js";
+import __try from "../../helper/try.js";
 import requestTimeDifference from "../../helper/requestTimeDifference.js";
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
 

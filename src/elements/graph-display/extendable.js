@@ -1,7 +1,7 @@
 "use strict";
 import console from "../../helper/console.js";
 
-import __try from "../../helper/__try.js";
+import __try from "../../helper/try.js";
 
 export default
 class Extendable extends HTMLElement {

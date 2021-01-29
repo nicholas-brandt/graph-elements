@@ -70,11 +70,11 @@ async function setup() {
 
     force.addEventListener("simulationstart", event => {
         console.log("sim start");
-        force_indicator.active = true;
+        // force_indicator.active = true;
     });
     force.addEventListener("simulationend", event => {
         console.log("sim end");
-        force_indicator.active = false;
+        // force_indicator.active = false;
     });
     // debugging
     {

@@ -51,7 +51,7 @@ const configuration = {
         strength: 0.3
     },
     charge: {
-        strength: -60,
+        strength: -600,
         distanceMax: 1e5,
         theta: 1
     },

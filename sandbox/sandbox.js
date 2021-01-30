@@ -90,7 +90,7 @@ async function setup() {
     force.configuration = configuration;
 
     const tracker = await display.addonPromises["graph-tracker"];
-    tracker.panHandler.zoomAbs(0, 0, .05);
+    tracker.panHandler.zoomAbs(0, 0, 1);
     tracker.panHandler.moveTo(0, 0);
 }
 

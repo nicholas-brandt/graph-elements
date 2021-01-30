@@ -36,7 +36,7 @@ display.graph.on("vertex-removed", event => {
 function __updateRadii() {
     const vertices = display.graph.vertices();
     for (const [key, vertex] of vertices) {
-        vertex.radius = (Math.floor(Math.log2(display.graph.degree(key))) | 0) + 2;
+        vertex.radius = (Math.floor(Math.log2(display.graph.degree(key))) | 0) + 4;
         // console.log("d", display.graph.degree(key), vertex.radius);
     }
 }

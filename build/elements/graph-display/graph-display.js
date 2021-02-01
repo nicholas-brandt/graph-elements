@@ -46,7 +46,25 @@ export default class GraphDisplay extends Extendable {
 
     this.nodes = new Map();
     this.links = new Set();
-    this.__updatedNodes = new Set(); // install extension callback
+    this.__updatedNodes = new Set();
+    let max_time_adaptive_painting;
+    this.__max_updatable = 1;
+    this.__last_paint = 0;
+    Object.defineProperties(this, {
+      maxTimeAdaptivePainting: {
+        get() {
+          return max_time_adaptive_painting;
+        },
+
+        set(value) {
+          max_time_adaptive_painting = Math.max(0, value) || 0;
+        },
+
+        configurable: true,
+        enumerable: true
+      }
+    });
+    this.maxTimeAdaptivePainting = 0; // install extension callback
     // this.addons = new Map;
 
     const addon_promise_methods = new Map();
@@ -220,22 +238,72 @@ export default class GraphDisplay extends Extendable {
     return this.__requestPaint();
   }
 
-  __paint() {
-    console.log(this.__updatedNodes.size); // paint affected nodes
+  __paint(time_stamp) {
+    // console.log(this.__updatedNodes.size);
+    if (this.maxTimeAdaptivePainting == 0) {
+      // repaint all updated nodes
+      for (const node of this.__updatedNodes) {
+        node.paint();
+      } // find updatable links
 
-    for (const node of this.__updatedNodes) {
-      node.paint();
-    } // find updatable links
+
+      for (const link of this.links) {
+        if (this.__updatedNodes.has(link.source) || this.__updatedNodes.has(link.target)) {
+          link.paint();
+        }
+      }
+
+      this.__updatedNodes.clear();
+    } else {
+      // adaptive resizing of currently repaintable nodes
+      const diff = time_stamp - this.__last_paint;
+
+      if (diff < this.maxTimeAdaptivePainting) {
+        this.__max_updatable += Math.ceil(this.__max_updatable ** .5);
+      } else if (diff > this.maxTimeAdaptivePainting * 1.2) {
+        this.__max_updatable = Math.floor(this.__max_updatable * .8);
+      }
+
+      this.__max_updatable = Math.min(this.graph.vertexCount(), Math.max(1, this.__max_updatable));
+      console.rawlog("max_up " + this.__max_updatable);
+      console.rawlog("diff " + (time_stamp - this.__last_paint));
+      const current_nodes = new Set();
+
+      outer: for (const node of this.__updatedNodes) {
+        this.__updatedNodes.delete(node);
+
+        current_nodes.add(node);
+        const neighbors = [...this.graph.verticesFrom(node.key), ...this.graph.verticesTo(node.key)].map(([key, node]) => node);
+
+        for (const neighbor of neighbors) {
+          this.__updatedNodes.delete(neighbor);
+
+          current_nodes.add(neighbor);
+
+          if (current_nodes.size >= this.__max_updatable) {
+            break outer;
+          }
+        }
+      }
+
+      for (const current_node of current_nodes) {
+        // paint affected nodes
+        current_node.paint();
+      } // find updatable links
 
 
-    for (const link of this.links) {
-      if (this.__updatedNodes.has(link.source) || this.__updatedNodes.has(link.target)) {
-        link.paint();
+      for (const link of this.links) {
+        if (current_nodes.has(link.source) || current_nodes.has(link.target)) {
+          link.paint();
+        }
+      } // this.__updatedNodes.clear();
+
+
+      if (this.__updatedNodes.size > 0) {// this.__requestPaint();
       }
     }
 
-    this.__updatedNodes.clear();
-
+    this.__last_paint = time_stamp;
     this.dispatchEvent(new Event("paint", {
       bubbles: true,
       composed: true

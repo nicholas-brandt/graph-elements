@@ -47,6 +47,10 @@ export default Object.assign({}, console, {
     console.groupCollapsed(...intervene());
     console.warn(..._arguments);
     console.groupEnd();
+  },
+
+  rawlog(..._arguments) {
+    console.log(..._arguments);
   }
 
 });

@@ -5,11 +5,11 @@ window.Graph = Graph;
 
 // window.__graphElementsLogging = true;
 // import "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-display/graph-display.js";
-import "//dev.jspm.io/@polymer/paper-spinner/paper-spinner.js";
-import "//dev.jspm.io/@polymer/paper-dialog/paper-dialog.js";
-import "//dev.jspm.io/@polymer/paper-button/paper-button.js";
-import "//dev.jspm.io/@polymer/paper-listbox/paper-listbox.js";
-import "//dev.jspm.io/@polymer/polymer/lib/elements/dom-repeat.js";
+import "//jspm.dev/@polymer/paper-spinner/paper-spinner.js";
+import "//jspm.dev/@polymer/paper-dialog/paper-dialog.js";
+import "//jspm.dev/@polymer/paper-button/paper-button.js";
+import "//jspm.dev/@polymer/paper-listbox/paper-listbox.js";
+import "//jspm.dev/@polymer/polymer/lib/elements/dom-repeat.js";
 
 import GraphDetailView from "../build/elements/graph-detail-view/graph-detail-view.js";
 import GraphModifier from "../build/elements/graph-modifier/graph-modifier.js";

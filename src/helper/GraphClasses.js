@@ -1,3 +1,5 @@
+import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
+
 export
 class Node {
     constructor({value, key}, _request_paint) {
@@ -94,6 +96,7 @@ class Link {
             source,
             target
         });
+        this.requestPaint = requestAnimationFunction(this.paint.bind(this));
     }
     paint() {
         const {source, target} = this;

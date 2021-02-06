@@ -8,7 +8,7 @@ import GraphContextmenu from "../../graph-contextmenu/graph-contextmenu.js";
 import require from "../../../helper/require.js";
 import __try from "../../../helper/try.js";
 
-import "//dev.jspm.io/@polymer/paper-input/paper-input.js";
+import "//jspm.dev/@polymer/paper-input/paper-input.js";
 
 const style_html = `<style><!-- inject: ./contextmenu.css --></style>`;
 const contextmenu_html = `<!-- inject: ./contextmenu.html -->`;

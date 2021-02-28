@@ -39,12 +39,12 @@ window.project = project;
 const display = document.querySelector("#display");
 window.display = display;
 display.Node = DOINode;
-project.on("vertex-added", event => {
+project.on("vertex-added", requestAnimationFunction(event => {
     display.dispatchEvent(new CustomEvent("graph-structure-change"));
-});
-project.on("vertex-removed", event => {
+}));
+project.on("vertex-removed", requestAnimationFunction(event => {
     display.dispatchEvent(new CustomEvent("graph-structure-change"));
-});
+}));
 
 function __updateRadii() {
     const vertices = project.vertices();

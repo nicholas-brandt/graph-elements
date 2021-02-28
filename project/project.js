@@ -172,7 +172,7 @@ class Project extends Graph {
 
 class Requests {
     static requests = [];
-    static maxRate = 10 / 1;
+    static maxRate = Infinity;
     static counter = 0;
     static waiting = false;
     static wait(priority = false) {

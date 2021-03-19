@@ -149,7 +149,7 @@ async function getInitialConfig() {
             citation_level: levels
         } = await getInitialConfig();
         
-        const dois = new Map;
+        const dois = new Map([[doi, []]]);
         const citation_generator = await project_worker.loadCitations({doi, levels});
         for await (const {citationDOI, parentDOIs} of citation_generator) {
             // console.log("doi loaded", parentDOIs && parentDOIs.length);

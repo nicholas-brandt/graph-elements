@@ -23,6 +23,7 @@ class Requests {
         const promise = new Promise(resolve => {
             if (this.#counter < this.maxRate) {
                 resolve();
+                ++this.#counter;
             } else {
                 if (priority == false) {
                     this.#requests.push(resolve);
@@ -31,17 +32,21 @@ class Requests {
                 }
             }
         });
-        ++this.#counter;
         // console.log("counter", this.#counter);
         return promise;
     }
     static free() {
         --this.#counter;
-        // console.log("counter", this.#counter);
-        if (this.#requests.length) {
+        console.log("free", this.#counter, this.maxRate, this.#requests.length);
+        while (this.#counter < this.maxRate && this.#requests.length) {
+            ++this.#counter;
+            
             const resolve = this.#requests.shift();
             resolve();
         }
+    }
+    static get queue_length() {
+        return this.#requests.length;
     }
 }
 globalThis.Requests = Requests;
@@ -60,7 +65,7 @@ async function fetchCitations(doi) {
             Requests.free();
         }
         ++Requests.maxRate;
-        console.log("maxRate", Requests.maxRate);
+        console.log("maxRate", Requests.maxRate, Requests.queue_length);
     }
     const json = await response.json();
     return json;
@@ -74,7 +79,7 @@ export async function fetchMetadata(doi) {
             mode: "cors", // no-cors, *cors, same-origin
         });
         ++Requests.maxRate;
-        console.log("maxRate", Requests.maxRate);
+        console.log("maxRate", Requests.maxRate, Requests.queue_length);
         const json = await response.json();
         return json;
     } finally {

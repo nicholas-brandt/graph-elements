@@ -2,6 +2,8 @@ import Graph from "//cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
 
 window.Graph = Graph;
 
+import "graph.extension.js";
+
 
 // window.__graphElementsLogging = true;
 // import "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-display/graph-display.js";

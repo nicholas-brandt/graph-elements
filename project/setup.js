@@ -1,5 +1,7 @@
 // window.__graphElementsLogging = true;
 
+import Graph from "//cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
+
 import "//dev.jspm.io/@vaadin/vaadin-progress-bar/vaadin-progress-bar.js";
 
 // import "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-display/graph-display.js";
@@ -9,18 +11,19 @@ import "//dev.jspm.io/@polymer/paper-button/paper-button.js";
 import "//dev.jspm.io/@polymer/paper-listbox/paper-listbox.js";
 import "//dev.jspm.io/@polymer/polymer/lib/elements/dom-repeat.js";
 
-import Project from "./project.js";
 import {DOINode} from "./DOI_node.js";
 
-import GraphDetailView from "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-detail-view/graph-detail-view.js";
-import GraphModifier from "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-modifier/graph-modifier.js";
-import GraphTracker from "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-tracker/graph-tracker.js";
-import GraphD3Force from "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-d3-force/graph-d3-force.js";
-import "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-d3-force/extensions/contextmenu.js";
-import GraphContextmenu from "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-contextmenu/graph-contextmenu.js";
-import GraphDisplay from "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-display/graph-display.js";
+import GraphDetailView from "../build/elements/graph-detail-view/graph-detail-view.js";
+import GraphModifier from "../build/elements/graph-modifier/graph-modifier.js";
+import GraphTracker from "../build/elements/graph-tracker/graph-tracker.js";
+import GraphD3Force from "../build/elements/graph-d3-force/graph-d3-force.js";
+import "../build/elements/graph-d3-force/extensions/contextmenu.js";
+import GraphContextmenu from "../build/elements/graph-contextmenu/graph-contextmenu.js";
+import GraphDisplay from "../build/elements/graph-display/graph-display.js";
 
 import requestAnimationFunction from "//cdn.jsdelivr.net/npm/requestanimationfunction/requestAnimationFunction.js";
+
+import workerize from "../src/helper/workerize.js";
 
 const initial_dois = [// "10.1007/978-3-662-44381-1_21", // IOZ14
                       // "10.1007/978-3-540-85174-5_32", // Kilian88
@@ -33,18 +36,12 @@ const initial_dois = [// "10.1007/978-3-662-44381-1_21", // IOZ14
                       // "10.1007/978-3-540-85174-5_32" // IPS08
                       ];
 
-const project = new Project(initial_dois);
+const project = new Graph;
 window.project = project;
 
 const display = document.querySelector("#display");
 window.display = display;
 display.Node = DOINode;
-project.on("vertex-added", requestAnimationFunction(event => {
-    display.dispatchEvent(new CustomEvent("graph-structure-change"));
-}));
-project.on("vertex-removed", requestAnimationFunction(event => {
-    display.dispatchEvent(new CustomEvent("graph-structure-change"));
-}));
 
 function __updateRadii() {
     const vertices = project.vertices();
@@ -91,9 +88,8 @@ async function setup() {
         console.error(error);
     }
     
-    project.meta.addEventListener("meta-change", event => {
-        progress_bar.value = project.metaCount / project.citations.size;
-    });
+    const project_code = await (await fetch("project.js")).text();
+    globalThis.project_worker = workerize(project_code);
     
     display.addEventListener("graph-structure-change", request__updateRadii);
 
@@ -101,7 +97,7 @@ async function setup() {
     
     const force = await display.addonPromises["graph-d3-force"];
     window.force = force;
-
+ 
     force.addEventListener("simulationstart", event => {
         console.log("sim start");
         force_indicator.active = true;
@@ -111,7 +107,7 @@ async function setup() {
         force_indicator.active = false;
     });
     // debugging
-    {
+    function _() {
         const log_updateGraph = requestAnimationFunction(time_diff => {
             console.log("graph update", time_diff);
         });
@@ -122,7 +118,7 @@ async function setup() {
     }
 
     force.configuration = configuration;
-    display.graph = project;
+    // display.graph = project;
 
     const tracker = await display.addonPromises["graph-tracker"];
     tracker.panHandler.zoomAbs(0, 0, .05);
@@ -135,7 +131,7 @@ async function getInitialConfig() {
             if (!doi_search.opened && initial_doi_input.value) {
                 resolve({
                     doi: initial_doi_input.value,
-                    citation_level: citation_level_input.value
+                    citation_level: parseInt(citation_level_input.value)
                 });
             } else {
                 doi_search.open();
@@ -147,21 +143,77 @@ async function getInitialConfig() {
 (async () => {
     try {
         await setup();
-    } catch (error) {
-        console.error(error);
-    }
-    try {
+        
         const {
             doi,
-            citation_level
+            citation_level: levels
         } = await getInitialConfig();
-        project.__addRootDOI(doi);
-        display.graph = project;
-        const citations_promise = project.loadCitations(citation_level);
-        const references_promise = project.loadReferences(0);
         
-        await citations_promise;
-        await references_promise;
+        const dois = new Map;
+        const citation_generator = await project_worker.loadCitations({doi, levels});
+        for await (const {citationDOI, parentDOIs} of citation_generator) {
+            // console.log("doi loaded", parentDOIs && parentDOIs.length);
+            dois.set(citationDOI, undefined);
+            // console.log(citationDOI, parentDOIs);
+            if (parentDOIs && parentDOIs.length) {
+                const reference = parentDOIs[parentDOIs.length-1];
+                project.ensureEdge(reference, citationDOI, {});
+            } else {
+                project.ensureVertex(citationDOI);
+            }
+        }
+        for (const [key, vertex] of project.vertices()) {
+            console.log("set vertex");
+            project.setVertex(key, vertex || {});
+        }
+        
+        // display
+        display.graph = project;
+        
+        for (const [doi] of dois) {
+            dois.set(doi, project_worker.fetchMetadata(doi));
+        }
+        for (const [doi, promise] of dois) {
+            dois.set(doi, (await promise)[0]);
+        }
+        for (const [doi, meta_data] of dois) {
+            if (!meta_data) {
+                // throw new Error("empty metadata received");
+                console.warn("empty metadata received");
+            }
+            console.log(doi);
+
+            const vertex = project.vertexValue(doi);
+            // vertex.title = meta_data.title;
+            vertex.text = meta_data ? meta_data.title : "[no metadata]";
+            vertex.element.classList.add("metadata");
+            const r = vertex.circleElement.r.baseVal.value;
+            vertex.circleElement.animate([{
+                r
+            }, {
+                r: r * 4
+            }, {
+                r
+            }], {
+               duration: 5e2 
+            });
+        }
+        
+        display.addEventListener("graph-structure-change", requestAnimationFunction(event => {
+            // update radii
+            const vertices = project.vertices();
+            for (const [key, vertex] of vertices) {
+                vertex.radius = (Math.floor(Math.log2(project.degree(key))) | 0) + 2;
+                // console.log("d", project.degree(key), vertex.radius);
+            }
+        }));
+        project.on("vertex-added", requestAnimationFunction(event => {
+            display.dispatchEvent(new CustomEvent("graph-structure-change"));
+        }));
+        project.on("vertex-removed", requestAnimationFunction(event => {
+            display.dispatchEvent(new CustomEvent("graph-structure-change"));
+        }));
+        console.log("finalized");
     } catch (error) {
         console.error(error);
     }

@@ -319,7 +319,7 @@ export default class GraphDisplay extends Extendable {
     const {
       baseVal
     } = this.svg.viewBox;
-    Object.assign(baseVal, {
+    Object.assign(baseVal || {}, {
       x: -width / 2,
       y: -height / 2,
       width,

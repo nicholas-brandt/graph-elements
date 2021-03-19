@@ -1,4 +1,5 @@
-importScripts("https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js");
+importScripts("https://cdn.jsdelivr.net/npm/d3/dist/d3.min.js");
+// importScripts("https://cdn.jsdelivr.net/npm/d3@5.5.0/dist/d3.min.js");
 
 let buffer_array;
 

@@ -2,8 +2,6 @@ import Graph from "//cdn.jsdelivr.net/gh/mhelvens/graph.js/dist/graph.es6.js";
 
 window.Graph = Graph;
 
-import "./graph.extension.js";
-
 
 // window.__graphElementsLogging = true;
 // import "//cdn.jsdelivr.net/npm/graph-elements@5.8.1/build/elements/graph-display/graph-display.js";
@@ -62,7 +60,13 @@ const configuration = {
     }
 };
 
-async function setup() {    
+async function setup() {
+    try {
+        await import("./graph.extension.js");
+    } catch (error) {
+        console.error(error);
+    }
+    
     display.addEventListener("graph-structure-change", request__updateRadii);
 
     await customElements.whenDefined("graph-display");

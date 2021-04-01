@@ -51,7 +51,7 @@ Graph.prototype.disrupt = function disrupt(set = new Set, disruptors = new Set) 
 
 Graph.create = function create(n) {
     const g = new Graph;
-    for (let i=0; i<n; ++i) {
+    for (let i = 0; i < n; ++i) {
         g.addVertex(i);
     }
     return g;
@@ -63,7 +63,7 @@ Array.prototype.iterateSubsets = function*(filter = () => true) {
     for (const key of this) {
         for (const _class of classes) {
             if (_class.size <= n && !_class.has(key)) {
-                const new_class = new Set([key, ...class]);
+                const new_class = new Set([key, ..._class]);
                 classes.add(new_class);
             }
         }

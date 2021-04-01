@@ -43,7 +43,7 @@ Graph.prototype.disrupt = function disrupt(set = new Set, disruptors = new Set) 
     for (const disruptor of disruptors) {
         for (const party of set) {
             if (!disruptors.has(party)) {
-                this.spanEdge(party, disruptor);
+                this.addBiEdge(party, disruptor);
             }
         }
     }

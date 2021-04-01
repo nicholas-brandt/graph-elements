@@ -122,9 +122,12 @@ Graph.prototype.deduceCG = function(t) {
                 _g.destroyVertex(neighbor);
             }
             const X = _g.getSettledSet(t);
-            for (const vertex of X) {
-                this.addBiEdge(vertex, i);
-                changed = true;
+            try {
+                for (const vertex of X) {
+                    this.addBiEdge(vertex, i);
+                    changed = true;
+                }
+            } catch (error) {
             }
         }
     }

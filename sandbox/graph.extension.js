@@ -49,13 +49,30 @@ Graph.prototype.disrupt = function disrupt(set = new Set, disruptors = new Set) 
     }
 };
 
+Graph.prototype.canonicalize = function canonicalize() {
+    const json = [];
+    const n = this.vertexCount();
+    for (let i = 0; i < n; ++i) {
+        json.push([i]);
+    }
+    for (let i = 0; i < n; ++i) {
+        for (let j = i + 1; j < n; ++j) {
+            if (this.hasEdge(i, j)) {
+                json.push([i,j]);
+                json.push([j,i]);
+            }
+        }
+    }
+    return JSON.stringify(json);
+};
+
 Graph.create = function create(n) {
     const g = new Graph;
     for (let i = 0; i < n; ++i) {
         g.addVertex(i);
     }
     return g;
-}
+};
 
 // Array extension
 Array.prototype.iterateSubsets = function*(filter = () => true) {

@@ -66,6 +66,69 @@ Graph.prototype.canonicalize = function canonicalize() {
     return JSON.stringify(json);
 };
 
+Graph.prototype.getSettledSet = function(t) {
+    const n = this.vertexCount();
+    if (this.vertexCount() == 0) {
+        return false;
+    }
+
+    const t_classes = [[]];
+    const vertices = new Set;
+    for (let i = 0; i < n; ++i) {
+        vertices.add(i);
+        for (const _class of t_classes) {
+            if (_class.length < t && _class.indexOf(i) == -1) {
+                const new_class = [..._class, i];
+                t_classes.push(new_class);
+            }
+        }
+    }
+    let has_t_vc = false;
+    for (const _class of t_classes) {
+        if (_class.length == t && this.isVC(_class)) {
+            has_t_vc = true;
+            for (const i of vertices) {
+                if (_class.indexOf(i) == -1) {
+                    vertices.delete(i);
+                }
+            }
+        }
+    }
+    if (!has_t_vc) {
+        return new Set;
+    }
+    return vertices;
+};
+
+Graph.prototype.isVC = function(_subset) {
+    const _g = this.clone();
+    for (const vertex of _subset) {
+        _g.destroyVertex(vertex);
+    }
+    return _g.edgeCount() == 0;
+};
+
+Graph.prototype.deduceCG = function(t) {
+    const n = this.vertexCount();
+
+    let changed = true;
+    while (changed) {
+        changed = false;
+        for (let i = 0; i < n; ++i) {
+            const _g = this.clone();
+            const neighbors = [...this.verticesFrom(i)];
+            _g.destroyVertex(i);
+            for (const [neighbor] of neighbors) {
+                this.destroyVertex(neighbor);
+            }
+            const X = _g.getSettledSet(t);
+            for (const vertex of X) {
+                
+            }
+        }
+    }
+};
+
 Graph.create = function create(n) {
     const g = new Graph;
     for (let i = 0; i < n; ++i) {

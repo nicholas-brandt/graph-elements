@@ -102,3 +102,6 @@ Set.prototype.intersect = function intersect(set) {
     }
     return intersection;
 };
+
+// dispatch event
+dispatchEvent(new CustomEvent("graph-extension"));

@@ -108,6 +108,12 @@ Graph.prototype.isVC = function(_subset) {
     return _g.edgeCount() == 0;
 };
 
+Graph.prototype.intersect = function(graph) {
+    for (const [i,j] of graph.edges()) {
+        this.removeEdge(i,j);
+    }
+};
+
 Graph.prototype.deduceCG = function(t) {
     const n = this.vertexCount();
 

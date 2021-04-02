@@ -73,7 +73,7 @@ Graph.prototype.getSettledSet = function(t) {
     }
 
     const t_classes = [[]];
-    const vertices = new Set(this.vertices());
+    const vertices = [...this.vertices()].map((k,v) => k);
     const settled_set = new Set(vertices);
     for (const [i] of vertices) {
         for (const _class of t_classes) {

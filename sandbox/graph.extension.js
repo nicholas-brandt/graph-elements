@@ -88,7 +88,7 @@ Graph.prototype.getSettledSet = function(t) {
         if (_class.length == t && this.isVC(_class)) {
             has_t_vc = true;
             for (const i of vertices) {
-                if (_class.indexOf(i) == -1) {
+                if (!_class.includes(i)) {
                     vertices.delete(i);
                 }
             }

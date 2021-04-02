@@ -112,8 +112,8 @@ Graph.prototype.intersect = function(graph) {
     const n = Math.max(this.vertexCount(), graph.vertexCount());
     for (let i = 0; i < n; ++i) {
         for (let j = i + 1; j < n; ++j) {
-            if (!graph.hasEdge(i,j)) {
-               this.removeEdge(i,j);
+            if (!graph.hasEdge(i,j) || !graph.hasEdge(j,i)) {
+               this.removeBiEdge(i,j);
             }
         }
     }

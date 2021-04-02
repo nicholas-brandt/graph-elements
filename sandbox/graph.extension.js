@@ -132,7 +132,7 @@ Graph.prototype.deduceCG = function(t) {
             for (const [neighbor] of neighbors) {
                 _g.destroyVertex(neighbor);
             }
-            const X = _g.getSettledSet(t - neighbors.length - 1);
+            const X = _g.getSettledSet(t - neighbors.length);
             try {
                 for (const vertex of X) {
                     this.addBiEdge(vertex, i);

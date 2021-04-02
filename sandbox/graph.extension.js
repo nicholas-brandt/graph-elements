@@ -87,7 +87,7 @@ Graph.prototype.getSettledSet = function(t) {
     for (const _class of t_classes) {
         if (_class.length == t && this.isVC(_class)) {
             has_t_vc = true;
-            for (let i = 0; i < n; ++i) ) {
+            for (let i = 0; i < n; ++i) {
                 if (!_class.includes(i)) {
                     settled_set.delete(i);
                 }

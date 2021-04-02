@@ -15,7 +15,7 @@ Graph.prototype.complement = function() {
     for (let i = 0; i < vc; ++i) {
         g.addVertex(i);
         for (let j = i + 1; j < vc; ++j) {
-            if (!this.hasEdge(i, j)) {
+            if (!this.hasEdge(i, j) && !this.hasEdge(j, i)) {
                 g.addBiEdge(i, j);
             }
         }

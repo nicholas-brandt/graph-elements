@@ -77,7 +77,7 @@ Graph.prototype.getSettledSet = function(t) {
     for (let i = 0; i < n; ++i) {
         vertices.add(i);
         for (const _class of t_classes) {
-            if (_class.length < t && _class.indexOf(i) == -1) {
+            if (_class.length < t && !_class.includes(i)) {
                 const new_class = [..._class, i];
                 t_classes.push(new_class);
             }
@@ -132,7 +132,7 @@ Graph.prototype.deduceCG = function(t) {
             for (const [neighbor] of neighbors) {
                 _g.destroyVertex(neighbor);
             }
-            const X = _g.getSettledSet(t - neighbors.length);
+            const X = _g.getSettledSet(t - neighbors.length - 1);
             try {
                 for (const vertex of X) {
                     this.addBiEdge(vertex, i);

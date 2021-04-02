@@ -98,6 +98,8 @@ async function setup() {
     const tracker = await display.addonPromises["graph-tracker"];
     tracker.panHandler.zoomAbs(0, 0, 1);
     tracker.panHandler.moveTo(0, 0);
+    
+    dispatchEvent(new CustomEvent("setup"));
 }
 
 (async () => {

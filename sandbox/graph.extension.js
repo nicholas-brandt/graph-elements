@@ -109,8 +109,13 @@ Graph.prototype.isVC = function(_subset) {
 };
 
 Graph.prototype.intersect = function(graph) {
-    for (const [i,j] of graph.edges()) {
-        this.removeEdge(i,j);
+    const n = Math.max(this.vertexCount(), graph.vertexCount());
+    for (let i = 0; i < n; ++i) {
+        for (let j = i + 1; j < n; ++j) {
+            if (!graph.hasEdge(i,j)) {
+               this.removeEdge(i,j);
+            }
+        }
     }
 };
 

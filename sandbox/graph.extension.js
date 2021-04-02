@@ -68,7 +68,7 @@ Graph.prototype.canonicalize = function canonicalize() {
 
 Graph.prototype.getSettledSet = function(t) {
     const n = this.vertexCount();
-    if (this.vertexCount() == 0) {
+    if (this.vertexCount() == 0 || t <= 0) {
         return false;
     }
 

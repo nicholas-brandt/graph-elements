@@ -73,9 +73,9 @@ Graph.prototype.getSettledSet = function(t) {
     }
 
     const t_classes = [[]];
-    const vertices = new Set;
+    const settled_set = new Set;
     for (let i = 0; i < n; ++i) {
-        vertices.add(i);
+        settled_set.add(i);
         for (const _class of t_classes) {
             if (_class.length < t && !_class.includes(i)) {
                 const new_class = [..._class, i];
@@ -87,9 +87,9 @@ Graph.prototype.getSettledSet = function(t) {
     for (const _class of t_classes) {
         if (_class.length == t && this.isVC(_class)) {
             has_t_vc = true;
-            for (const i of vertices) {
+            for (let i = 0; i < n; ++i) ) {
                 if (!_class.includes(i)) {
-                    vertices.delete(i);
+                    settled_set.delete(i);
                 }
             }
         }
@@ -97,7 +97,7 @@ Graph.prototype.getSettledSet = function(t) {
     if (!has_t_vc) {
         return new Set;
     }
-    return vertices;
+    return settled_set;
 };
 
 Graph.prototype.isVC = function(_subset) {

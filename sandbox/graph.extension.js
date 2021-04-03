@@ -142,6 +142,7 @@ Graph.prototype.deduceCG = function(t) {
             }
         }
     }
+    return this;
 };
 
 Graph.create = function create(n) {

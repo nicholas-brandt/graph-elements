@@ -47,6 +47,7 @@ Graph.prototype.disrupt = function disrupt(set = new Set, disruptors = new Set) 
             }
         }
     }
+    return this;
 };
 
 Graph.prototype.canonicalize = function canonicalize() {

@@ -1,0 +1,168 @@
+{
+    "editor.minimap.enabled": false,
+    "editor.renderControlCharacters": true,
+    "editor.renderWhitespace": "boundary",
+    "editor.suggestSelection": "first",
+    "editor.wordWrap": "on",
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "explorer.sortOrderLexicographicOptions": "unicode",
+    "extensions.ignoreRecommendations": true,
+    "files.eol": "\n",
+    "files.exclude": {
+        "**/.hg": false,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.svn": false,
+        "**/*.aux": true,
+        "**/*.bbl": true,
+        "**/*.bcf": true,
+        "**/*.blg": true,
+        "**/*.fdb_latexmk": true,
+        "**/*.fls": true,
+        "**/*.nav": true,
+        "**/*.out": true,
+        "**/*.run.xml": true,
+        "**/*.settings": true,
+        "**/*.snm": true,
+        "**/*.synctex.gz": true,
+        "**/*.synctex(busy)": true,
+        "**/*.toc": true,
+        "**/*.upa": true,
+        "**/*.upb": true,
+        "**/CVS": false
+    },
+    "git.ignoreLimitWarning": true,
+    "git.ignoreMissingGitWarning": true,
+    "github.copilot.advanced": {},
+    "latex-workshop.bibtex.maxFileSize": 50,
+    "latex-workshop.latex.clean.command": "lualatexmk",
+    "latex-workshop.latex.clean.subfolder.enabled": true,
+    "latex-workshop.latex.recipe.default": "lastUsed",
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "latexmk",
+            "tools": [
+                "latexmk"
+            ]
+        },
+        {
+            "name": "latexmk ➞ lin",
+            "tools": [
+                "latexmk",
+                "qpdf"
+            ]
+        },
+        {
+            "name": "lualatexmk",
+            "tools": [
+                "lualatexmk"
+            ]
+        }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "command": "latexmk",
+            "env": {},
+            "name": "latexmk"
+        },
+        {
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "command": "lualatex",
+            "name": "lualatex"
+        },
+        {
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-lualatex",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "command": "latexmk",
+            "env": {},
+            "name": "lualatexmk"
+        },
+        {
+            "args": [
+                "--linearize",
+                "%DOC%.pdf",
+                "%DOC%.lin.pdf"
+            ],
+            "command": "qpdf",
+            "env": {},
+            "name": "qpdf"
+        },
+        {
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "command": "pdflatex",
+            "env": {},
+            "name": "pdflatex"
+        },
+        {
+            "args": [
+                "%DOCFILE%"
+            ],
+            "command": "bibtex",
+            "env": {},
+            "name": "bibtex"
+        }
+    ],
+    "latex-workshop.linting.chktex.exec.args": [
+        "-wall",
+        "-n22",
+        "-n30",
+        "-e16",
+        "-q",
+        "-n1",
+        "-n11",
+        "-n27",
+        "-n41",
+        "-n43",
+        "-n9",
+        "-n21",
+        "-n8",
+        "-n26",
+        "-n14"
+    ],
+    "latex-workshop.view.pdf.internal.synctex.keybinding": "double-click",
+    "latex-workshop.view.pdf.trim": 0,
+    "latex-workshop.view.pdf.zoom": "page-width",
+    "security.workspace.trust.startupPrompt": "never",
+    "telemetry.telemetryLevel": "off",
+    "terminal.integrated.defaultLocation": "editor",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.enableMultiLinePasteWarning": "never",
+    "terminal.integrated.fontFamily": "Inconsolata",
+    "terminal.integrated.tabs.enabled": true,
+    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.editorAssociations": {
+        "*.pdf": "latex-workshop-pdf-hook"
+    },
+    "workbench.startupEditor": "none",
+    "latex-workshop.linting.chktex.enabled": true,
+    "latex-workshop.synctex.afterBuild.enabled": true,
+    "latex-workshop.formatting.latex": "latexindent",
+    "latex-workshop.view.pdf.viewer": "browser",
+    "editor.detectIndentation": false
+}

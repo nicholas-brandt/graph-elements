@@ -1,6 +1,6 @@
-// import cytoscape from './cytoscape.patch.js';
-import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.esm.min.js';
-import cyto_euler from './cyto-euler.js';
+import cytoscape from './cytoscape.js';
+// import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.esm.min.js';
+import cyto_euler from './cytoscape.js-euler/cytoscape-euler.js';
 console.log(cyto_euler);
 cytoscape.use(cyto_euler);
 

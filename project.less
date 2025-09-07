@@ -1,0 +1,28 @@
+@import (reference) "./styles.less";
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+}
+graph-display,
+#graph-container {
+    display: flex;
+    flex: 1;
+}
+@menu-distance: 10px;
+ul[is="graph-context-menu"] {
+    position: absolute;
+        font: 13px Roboto;
+        display: none;
+        flex-direction: column;
+        overflow-x: hidden;
+        overflow-y: auto;
+        width: fit-content;
+        border-radius: 1px;
+        box-shadow: 0 1px 5px @color-menu;
+        background: @color-background;
+        padding: @menu-distance / 2 0;
+        max-height: 100vh;
+}

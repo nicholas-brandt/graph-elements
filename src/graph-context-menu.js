@@ -7,33 +7,32 @@ class GraphContextMenu extends HTMLUListElement {
             <li id="action-delete-node">Delete Node</li>
         `);
     }
-    showContextmenu(x, y) {
+    show(x, y) {
         console.log("show", x, y);
-        const { classList, style } = this;
-        if (classList.contains("visible")) {
-            classList.remove("visible");
-        } else {
-            classList.add("visible");
-        }
+        const { classList, style, parentElement } = this;
+        classList.add("visible");
         style.left = x + "px";
         style.top = y + "px";
         // prevent overlapping
-        const max_x = innerWidth - contextmenu.clientWidth - host.offsetLeft;
+        const max_x = parentElement.clientWidth - this.offsetLeft;
         if (parseFloat(x) > max_x) {
-            contextmenu.style.left = max_x + "px";
+            style.left = max_x + "px";
             this.boundX = max_x;
         } else {
             this.boundX = x;
         }
         this.x = x;
-        const max_y = innerHeight - contextmenu.clientHeight - host.offsetTop - 1;
+        const max_y = parentElement.clientHeight - this.offsetTop;
         if (parseFloat(y) > max_y) {
-            contextmenu.style.top = max_y + "px";
+            style.top = max_y + "px";
             this.boundY = max_y;
         } else {
             this.boundY = y;
         }
         this.y = y;
+    }
+    hide() {
+        this.classList.remove("visible");
     }
 }
 customElements.define('graph-context-menu', GraphContextMenu, { extends: "ul" });

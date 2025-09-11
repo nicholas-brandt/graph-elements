@@ -20,10 +20,3 @@ for await (const citation of citation_generator) {
 // add layout / responsible for positioning the nodes
 globalThis.layout = display.cytoscape.layout(display.constructor.layoutOptions);
 layout.run();
-
-display.cytoscape.on('cxttap', function (event) {
-    if (event.target === display.cytoscape) {
-        console.log('Right-clicked on the background');
-        // You can add a background context menu or something similar
-    }
-});

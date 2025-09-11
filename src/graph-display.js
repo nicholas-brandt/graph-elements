@@ -11,6 +11,7 @@ import './graph-context-menu.js';
 class GraphDisplay extends HTMLElement {
     #cytoscape;
     #container;
+    #contextmenu;
     #layout;
     static layoutOptions = {
         name: 'euler',
@@ -96,6 +97,7 @@ class GraphDisplay extends HTMLElement {
             <ul is="graph-context-menu" slot="features"></ul>
             `);
         this.#container = this.querySelector('#graph-container');
+        this.#contextmenu = this.querySelector('ul[is="graph-context-menu"]');
 
         // initalize cytoscape
         this.#cytoscape = cytoscape({
@@ -126,6 +128,16 @@ class GraphDisplay extends HTMLElement {
             motionBlurOpacity: 0.2,
             wheelSensitivity: 1,
             pixelRatio: 'auto'
+        });
+
+        // add cytoscape gestures
+        this.#cytoscape.on('cxttap', event => {
+            if (event.target === display.cytoscape) {
+                console.log('Right-clicked on the background', event);
+                // You can add a background context menu or something similar
+                const {x,y} = event.renderedPosition;
+                this.#contextmenu.show(x, y);
+            }
         });
     }
     get cytoscape() {

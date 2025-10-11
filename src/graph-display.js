@@ -18,19 +18,19 @@ class GraphDisplay extends HTMLElement {
         // The ideal length of a spring
         // - This acts as a hint for the edge length
         // - The edge length can be longer or shorter if the forces are set to extreme values
-        springLength: edge => 80,
+        springLength: edge => 500,
         // Hooke's law coefficient
         // - The value ranges on [0, 1]
         // - Lower values give looser springs
         // - Higher values give tighter springs
-        springCoeff: edge => 0.0008,
+        springCoeff: edge => 0.000008,
         // The mass of the node in the physics simulation
         // - The mass affects the gravity node repulsion/attraction
         mass: node => 4,
         // Coulomb's law coefficient
         // - Makes the nodes repel each other for negative values
         // - Makes the nodes attract each other for positive values
-        gravity: -1.2,
+        gravity: -500,
         // A force that pulls nodes towards the origin (0, 0)
         // Higher values keep the components less spread out
         pull: 0.001,
@@ -40,9 +40,9 @@ class GraphDisplay extends HTMLElement {
         // - Very small values may not create enough force to give a good result
         theta: 0.666,
         // Friction / drag coefficient to make the system stabilise over time
-        dragCoeff: 0.02,
+        dragCoeff: 0.01,
         // When the total of the squared position deltas is less than this value, the simulation ends
-        movementThreshold: 1,
+        movementThreshold: .5,
         // The amount of time passed per tick
         // - Larger values result in faster runtimes but might spread things out too far
         // - Smaller values produce more accurate results
@@ -50,7 +50,7 @@ class GraphDisplay extends HTMLElement {
         // The number of ticks per frame for animate:true
         // - A larger value reduces rendering cost but can be jerky
         // - A smaller value increases rendering cost but is smoother
-        refresh: 10,
+        refresh: 20,
         // Whether to animate the layout
         // - true : Animate while the layout is running
         // - false : Just show the end result
@@ -64,8 +64,8 @@ class GraphDisplay extends HTMLElement {
         // - A large value may allow for a better result
         // - A small value may make the layout end prematurely
         // - The layout may stop before this if it has settled
-        maxIterations: 1000,
-        maxSimulationTime: 4000,
+        maxIterations: 10000,
+        maxSimulationTime: 40000,
         // Prevent the user grabbing nodes during the layout (usually with animate:true)
         ungrabifyWhileSimulating: false,
         // Whether to fit the viewport to the repositioned graph
@@ -97,7 +97,6 @@ class GraphDisplay extends HTMLElement {
             <ul is="graph-context-menu" slot="features"></ul>
             `);
         this.#container = this.querySelector('#graph-container');
-        this.#contextmenu = this.querySelector('ul[is="graph-context-menu"]');
 
         // initalize cytoscape
         this.#cytoscape = cytoscape({
@@ -130,15 +129,9 @@ class GraphDisplay extends HTMLElement {
             pixelRatio: 'auto'
         });
 
-        // add cytoscape gestures
-        this.#cytoscape.on('cxttap', event => {
-            if (event.target === display.cytoscape) {
-                console.log('Right-clicked on the background', event);
-                // You can add a background context menu or something similar
-                const {x,y} = event.renderedPosition;
-                this.#contextmenu.show(x, y);
-            }
-        });
+        // initialize contextmenu
+        this.#contextmenu = this.querySelector('ul[is="graph-context-menu"]');
+        this.#contextmenu.display = this;
     }
     get cytoscape() {
         return this.#cytoscape;

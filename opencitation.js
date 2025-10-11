@@ -53,7 +53,7 @@ globalThis.Requests = Requests;
 
 
 async function fetchCitations(doi) {
-    const url = "https://opencitations.net/index/api/v1/citations/" + doi;
+    const url = "https://api.opencitations.net/index/v1/citations/" + doi;
     let response = await queryCache(url);
     if (!response) {
         try {
@@ -115,7 +115,7 @@ export async function* loadCitations(args) {
         for (const { promise, parentDOIs } of promises) {
             try {
                 const citation_results = await promise;
-                const citation_dois = citation_results;//.map(({ citing }) => citing.match(doi_filter)[1]);
+                const citation_dois = citation_results.map(({ citing }) => citing).filter(doi => doi);
                 for (const citation_doi of citation_dois) {
                     if (!dois.has(citation_doi)) {
                         new_dois.add(citation_doi);

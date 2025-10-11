@@ -32,6 +32,7 @@ ul[is="graph-context-menu"] {
     width: fit-content;
     max-height: 100vh;
     padding: 4px 0;
+    margin: 0;
     flex-direction: column;
     overflow: hidden;
     background-color: var(--menu-background);
@@ -40,13 +41,26 @@ ul[is="graph-context-menu"] {
     &.visible {
         display: block;
     }
+
     &>li {
-        display: flex;
-        margin: 0 4px 0 calc(4px + 2em);
-        padding: 0;
+        display: none;
+        margin: 0 4px;
+        padding: 0 0 0 calc(4px + 2em);
         border-radius: 4px;
         overflow: visible;
         height: 2em;
         align-items: center;
+        cursor: pointer;
+        &:hover {
+            background-color: var(--menu-border);
+        }
+    }
+
+    &[data-target="background"]>li.background {
+        display: flex;
+    }
+
+    &[data-target="node"]>li.node {
+        display: flex;
     }
 }

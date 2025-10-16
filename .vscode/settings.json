@@ -30,125 +30,17 @@
         "**/*.toc": true,
         "**/*.upa": true,
         "**/*.upb": true,
-        "**/CVS": false
+        "**/CVS": false,
+        "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
+    "search.exclude": {
+        "out": true
+    },
+    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
+    "typescript.tsc.autoDetect": "off",
     "git.ignoreLimitWarning": true,
     "git.ignoreMissingGitWarning": true,
     "github.copilot.advanced": {},
-    "latex-workshop.bibtex.maxFileSize": 50,
-    "latex-workshop.latex.clean.command": "lualatexmk",
-    "latex-workshop.latex.clean.subfolder.enabled": true,
-    "latex-workshop.latex.recipe.default": "lastUsed",
-    "latex-workshop.latex.recipes": [
-        {
-            "name": "latexmk",
-            "tools": [
-                "latexmk"
-            ]
-        },
-        {
-            "name": "latexmk ➞ lin",
-            "tools": [
-                "latexmk",
-                "qpdf"
-            ]
-        },
-        {
-            "name": "lualatexmk",
-            "tools": [
-                "lualatexmk"
-            ]
-        }
-    ],
-    "latex-workshop.latex.tools": [
-        {
-            "args": [
-                "-synctex=1",
-                "-interaction=nonstopmode",
-                "-file-line-error",
-                "-pdf",
-                "-outdir=%OUTDIR%",
-                "%DOC%"
-            ],
-            "command": "latexmk",
-            "env": {},
-            "name": "latexmk"
-        },
-        {
-            "args": [
-                "-synctex=1",
-                "-interaction=nonstopmode",
-                "-file-line-error",
-                "%DOC%"
-            ],
-            "command": "lualatex",
-            "name": "lualatex"
-        },
-        {
-            "args": [
-                "-synctex=1",
-                "-interaction=nonstopmode",
-                "-file-line-error",
-                "-lualatex",
-                "-outdir=%OUTDIR%",
-                "%DOC%"
-            ],
-            "command": "latexmk",
-            "env": {},
-            "name": "lualatexmk"
-        },
-        {
-            "args": [
-                "--linearize",
-                "%DOC%.pdf",
-                "%DOC%.lin.pdf"
-            ],
-            "command": "qpdf",
-            "env": {},
-            "name": "qpdf"
-        },
-        {
-            "args": [
-                "-synctex=1",
-                "-interaction=nonstopmode",
-                "-file-line-error",
-                "%DOC%"
-            ],
-            "command": "pdflatex",
-            "env": {},
-            "name": "pdflatex"
-        },
-        {
-            "args": [
-                "%DOCFILE%"
-            ],
-            "command": "bibtex",
-            "env": {},
-            "name": "bibtex"
-        }
-    ],
-    "latex-workshop.linting.chktex.exec.args": [
-        "-wall",
-        "-n22",
-        "-n30",
-        "-e16",
-        "-q",
-        "-n1",
-        "-n11",
-        "-n27",
-        "-n41",
-        "-n43",
-        "-n9",
-        "-n21",
-        "-n8",
-        "-n26",
-        "-n14"
-    ],
-    "latex-workshop.view.pdf.internal.synctex.keybinding": "double-click",
-    "latex-workshop.view.pdf.trim": 0,
-    "latex-workshop.view.pdf.zoom": "page-width",
-    "security.workspace.trust.startupPrompt": "never",
-    "telemetry.telemetryLevel": "off",
     "terminal.integrated.defaultLocation": "editor",
     "terminal.integrated.defaultProfile.linux": "bash",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
@@ -160,9 +52,5 @@
         "*.pdf": "latex-workshop-pdf-hook"
     },
     "workbench.startupEditor": "none",
-    "latex-workshop.linting.chktex.enabled": true,
-    "latex-workshop.synctex.afterBuild.enabled": true,
-    "latex-workshop.formatting.latex": "latexindent",
-    "latex-workshop.view.pdf.viewer": "browser",
     "editor.detectIndentation": false
 }

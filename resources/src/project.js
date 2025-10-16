@@ -3,7 +3,7 @@ import { loadCitations } from './opencitation.js';
 console.log('init');
 
 // set up display
-import './src/graph-display.js';
+import './graph-display.js';
 const display = document.querySelector('graph-display');
 globalThis.display = display;
 

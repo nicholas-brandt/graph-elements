@@ -56,12 +56,11 @@
         "babel-core": "^6.26.3",
         "babel-loader": "^10.0.0",
         "eslint": "^9.36.0",
-        "html-webpack-injector": "^1.1.4",
+        "inliner": "^1.13.1",
         "less": "^4.4.2",
         "less-loader": "^12.3.0",
-        "parcel-bundler": "^1.12.5",
-        "parcel-plugin-inliner": "^1.0.16",
         "typescript": "^5.9.3",
+        "vite": "^7.1.11",
         "webpack": "^5.102.1",
         "webpack-cli": "^6.0.1"
     }

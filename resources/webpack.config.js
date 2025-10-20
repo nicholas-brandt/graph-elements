@@ -5,7 +5,7 @@ module.exports = {
     entry: path.resolve(__dirname, 'src', 'project.js'),
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'project.packed.js',
+        filename: 'project.js',
     },
     module: {
         rules: [
@@ -27,5 +27,5 @@ module.exports = {
     resolve: {
         extensions: ['.js']
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
 };

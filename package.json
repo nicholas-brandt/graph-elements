@@ -1,6 +1,6 @@
 {
-    "name": "graph-elements",
-    "displayName": "graph-elements",
+    "name": "graph-editor",
+    "displayName": "graph-editor",
     "description": "",
     "version": "0.0.1",
     "engines": {
@@ -14,13 +14,17 @@
     "contributes": {
         "commands": [
             {
-                "command": "graph-elements.openEditorPage",
-                "title": "Open Editor Page"
+                "command": "graph-editor.addNode",
+                "title": "Add Node"
+            },
+            {
+                "command": "graph-editor.deleteNode",
+                "title": "Delete Node"
             }
         ],
         "customEditors": [
             {
-                "viewType": "graph-elements.graph-editor",
+                "viewType": "graph-editor",
                 "displayName": "Graph Editor",
                 "selector": [
                     {
@@ -29,7 +33,21 @@
                 ],
                 "priority": "default"
             }
-        ]
+        ],
+        "menus": {
+            "webview/context": [
+                {
+                    "group": "7_modification",
+                    "when": "!graph-editor.node-selected",
+                    "command": "graph-editor.addNode"
+                },
+                {
+                    "group": "7_modification",
+                    "when": "graph-editor.node-selected",
+                    "command": "graph-editor.deleteNode"
+                }
+            ]
+        }
     },
     "files": [
         "out/**/*",
@@ -56,11 +74,10 @@
         "babel-core": "^6.26.3",
         "babel-loader": "^10.0.0",
         "eslint": "^9.36.0",
-        "inliner": "^1.13.1",
-        "less": "^4.4.2",
-        "less-loader": "^12.3.0",
+        "inline-source": "^8.0.3",
+        "inline-source-cli": "^2.0.0",
         "typescript": "^5.9.3",
-        "vite": "^7.1.11",
+        "typescript-cli": "^0.1.0",
         "webpack": "^5.102.1",
         "webpack-cli": "^6.0.1"
     }

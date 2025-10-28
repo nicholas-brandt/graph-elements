@@ -1,18 +1,21 @@
 import cytoscape from './cytoscape.js';
 // import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.esm.min.js';
 import cyto_euler from '../cytoscape.js-euler/cytoscape-euler.js';
+import { getAllKeysInPrototypeChain } from './utils.js';
 
 // add euler to cytoscape
 cytoscape.use(cyto_euler);
 
-import './graph-context-menu.js';
+const vscode = acquireVsCodeApi();
 
 // define the display element
-class GraphDisplay extends HTMLElement {
+export class GraphDisplay extends HTMLElement {
     #cytoscape;
     #container;
-    #contextmenu;
     #layout;
+    #ignore_next_tap = false;
+    #selected_node = false;
+    #current_position;
     static layoutOptions = {
         name: 'euler',
         // The ideal length of a spring
@@ -130,8 +133,97 @@ class GraphDisplay extends HTMLElement {
         });
 
         // initialize contextmenu
-        this.#contextmenu = this.querySelector('ul[is="graph-context-menu"]');
-        this.#contextmenu.display = this;
+        // add cytoscape gestures
+        this.#cytoscape.on('cxttap', this._oncontextmenu.bind(this));
+        this.#cytoscape.on('onetap', this._ontap.bind(this));
+        this.#cytoscape.on('taphold', this._onhold.bind(this));
+        // redispatch contextmenu events to escape shadow DOM to be picked up by vscode
+        this.shadowRoot.addEventListener('contextmenu', event => {
+            if (!event.redispatched) {
+                const new_event = new Event(event.type, {
+                    bubbles: true,
+                    composed: true
+                });
+                for (const key of getAllKeysInPrototypeChain(event)) {
+                    try {
+                        new_event[key] = event[key];
+                    } catch (error) { }
+                }
+                new_event.redispatched = true;
+                // console.log(event, new_event);
+                this.dispatchEvent(new_event);
+            }
+        });
+    }
+    addNode() {
+        console.log("add-node");
+        this.#cytoscape.add({
+            group: 'nodes',
+            position: this.#current_position
+        });
+    }
+    deleteNode() {
+        console.log("delete-node");
+        this.#cytoscape.remove(this.#selected_node);
+    }
+    _ontap(event) {
+        if (this.#ignore_next_tap) {
+            this.#ignore_next_tap = false;
+            return;
+        }
+        if (event.target === this.#cytoscape) {
+            console.log('Tapped on the background', event);
+            this.selectedNode = null;
+        } else {
+            const target_node = event.target;
+            console.log('Tapped on a node or edge', target_node.data());
+            if (this.selectedNode) {
+                // add edge from selectedNode to tapped node or move edge that already exists
+                const edges = this.#cytoscape.remove(`edge[source="${this.selectedNode.id()}"][target="${target_node.id()}"]`);
+                if (edges.length == 0) {
+                    this.#cytoscape.add({
+                        group: 'edges',
+                        data: {
+                            source: this.selectedNode.id(),
+                            target: event.target.id()
+                        }
+                    });
+                }
+            }
+        }
+        this.selectedNode = null;
+    }
+    _oncontextmenu(event) {
+        console.log('cxttap', event);
+        this.event = event;
+        if (event.target === this.#cytoscape) {
+            console.log('Right-clicked on the background', event);
+            // You can add a background context menu or something similar
+            this.dataset.target = "background";
+            this.selectedNode = null;
+        } else {
+            console.log('Right-clicked on a node or edge', event.target.data());
+            this.dataset.target = "node";
+            this.selectedNode = event.target;
+        }
+        this.#current_position = event.position;
+    }
+    _onhold(event) {
+        console.log('taphold', event);
+        if (event.target === this.#cytoscape) {
+            console.log('Long-pressed on the background', event);
+        } else {
+            console.log('Long-pressed on a node or edge', event.target.data());
+            this.selectedNode = event.target;
+            this.#ignore_next_tap = true;
+        }
+    }
+    get selectedNode() {
+        return this.#selected_node;
+    }
+    set selectedNode(node) {
+        this.#selected_node = node;
+        vscode.postMessage({ state: 'node-selected', value: !!node });
     }
     get cytoscape() {
         return this.#cytoscape;
@@ -145,3 +237,15 @@ class GraphDisplay extends HTMLElement {
 }
 
 customElements.define('graph-display', GraphDisplay);
+
+addEventListener('message', event => {
+    const { command } = event.data;
+    switch (command) {
+        case 'addNode':
+            globalThis.display.addNode();
+            break;
+        case 'deleteNode':
+            globalThis.display.deleteNode();
+            break;
+    }
+});

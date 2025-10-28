@@ -2,6 +2,7 @@ import cytoscape from './cytoscape.js';
 // import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.esm.min.js';
 import cyto_euler from '../cytoscape.js-euler/cytoscape-euler.js';
 import { getAllKeysInPrototypeChain } from './utils.js';
+import requestAnimationFunction from './requestAnimationFunction.js';
 
 // add euler to cytoscape
 cytoscape.use(cyto_euler);
@@ -154,6 +155,18 @@ export class GraphDisplay extends HTMLElement {
                 this.dispatchEvent(new_event);
             }
         });
+
+        const post_change = requestAnimationFunction(() => {
+            // console.log('animation graph-changed');
+            vscode.postMessage({
+                command: 'graph-changed',
+                value: this.serialize()
+            });
+        });
+        this.#cytoscape.on('add remove data position lock unlock', event => {
+            // console.log('graph-changed', event);
+            post_change();
+        });
     }
     addNode() {
         console.log("add-node");
@@ -223,7 +236,11 @@ export class GraphDisplay extends HTMLElement {
     }
     set selectedNode(node) {
         this.#selected_node = node;
-        vscode.postMessage({ state: 'node-selected', value: !!node });
+        vscode.postMessage({
+            command: 'selected-node-changed',
+            state: 'node-selected',
+            value: !!node
+        });
     }
     get cytoscape() {
         return this.#cytoscape;
@@ -233,6 +250,9 @@ export class GraphDisplay extends HTMLElement {
     }
     get layout() {
         return this.#layout;
+    }
+    serialize() {
+        return JSON.stringify(this.#cytoscape.json());
     }
 }
 

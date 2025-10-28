@@ -36,8 +36,17 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
         const html = fs.readFileSync(path.join(this.context.extensionPath, 'resources/dist/project.html'), 'utf-8');
         webviewPanel.webview.html = html;
 
-        webviewPanel.webview.onDidReceiveMessage(({ state, value }) => {
-            vscode.commands.executeCommand('setContext', `graph-editor.${state}`, value);
+        webviewPanel.webview.onDidReceiveMessage(({ command, state, value }) => {
+            console.log({ command, state, value });
+            switch (command) {
+                case 'selected-node-changed':
+                    vscode.commands.executeCommand('setContext', `graph-editor.${state}`, value);
+                    break;
+                case 'graph-changed':
+                    // write value to the document file
+                    fs.writeFileSync(document.uri.fsPath, value, 'utf-8');
+                    break;
+            }
         });
 
         this.webview = webviewPanel.webview;

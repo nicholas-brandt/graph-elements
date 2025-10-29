@@ -1,8 +1,8 @@
 import cytoscape from './cytoscape.js';
 // import cytoscape from 'https://cdn.jsdelivr.net/npm/cytoscape/dist/cytoscape.esm.min.js';
 import cyto_euler from '../cytoscape.js-euler/cytoscape-euler.js';
-import { getAllKeysInPrototypeChain } from './utils.js';
-import vscodePostMessage from './vscodePostMessage.js';
+import { getAllKeysInPrototypeChain, vscodePostMessage } from './utils.js';
+import cytoscape_styles from "./cytoscape-styles.js";
 
 // add euler to cytoscape
 cytoscape.use(cyto_euler);
@@ -13,6 +13,7 @@ export class GraphDisplay extends HTMLElement {
     #container;
     #layout;
     #context_event;
+    #modifier_mode_active = false;
     static layoutOptions = {
         name: 'euler',
         // The ideal length of a spring
@@ -120,6 +121,7 @@ export class GraphDisplay extends HTMLElement {
             multiClickDebounceTime: 250,
             // rendering options:
             headless: false,
+            style: cytoscape_styles,
             styleEnabled: true,
             hideEdgesOnViewport: false,
             textureOnViewport: false,
@@ -161,8 +163,7 @@ export class GraphDisplay extends HTMLElement {
 
         // add listener for node selection
         this.#cytoscape.on('select', this._onselectnode.bind(this));
-        this.#cytoscape.on('tap', 'node', this._ontap.bind(this));
-        this.#cytoscape.on('tap', this._ontapbackground.bind(this));
+        this.#cytoscape.on('tap', this._ontap.bind(this));
         this.#cytoscape.on('taphold', 'node', this._ontaphold.bind(this));
     }
     addNode() {
@@ -191,15 +192,18 @@ export class GraphDisplay extends HTMLElement {
     }
     _ontap(event) {
         console.debug('tap', event);
-    }
-    _ontapbackground(event) {
-        console.debug('tapbackground', event);
-        this.#cytoscape.nodes().removeClass('modified');
+        if (event.target === this.#cytoscape) {
+            console.debug('Tapped on the background', event);
+            this.#modifier_mode_active = false;
+        } else {
+            console.debug('Tapped on a node or edge', event.target.data());
+        }
     }
     _ontaphold(event) {
         console.debug('taphold', event);
         const node = event.target;
         node.addClass('modified');
+        this.#modifier_mode_active = true;
     }
     get cytoscape() {
         return this.#cytoscape;

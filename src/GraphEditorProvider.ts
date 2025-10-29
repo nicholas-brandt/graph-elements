@@ -1,5 +1,5 @@
 import fs from 'fs';
-import path from 'path';
+import path, { resolve } from 'path';
 import * as vscode from 'vscode';
 
 export class GraphEditorProvider implements vscode.CustomEditorProvider {
@@ -30,13 +30,19 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
     }
     resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): Thenable<void> | void {
         console.log("resolveCustomEditor called");
-        webviewPanel.webview.options = {
+
+        // store webview reference for commands
+        this.webview = webviewPanel.webview;
+
+        // set webview options
+        this.webview.options = {
             enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'resources'))]
         };
-        // const html = fs.readFileSync(path.join(this.context.extensionPath, 'resources/dist/project.html'), 'utf-8');
-        const scriptUri = webviewPanel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'resources/dist/project.js'));
-        const cssUri = webviewPanel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'resources/src/project.css'));
+
+        // prepare HTML content for the webview
+        const scriptUri = this.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'resources/dist/project.js'));
+        const cssUri = this.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'resources/src/project.css'));
         const html = `<!DOCTYPE html>
 <html data-vscode-context='{"preventDefaultContextMenuItems": true}'>
 
@@ -52,9 +58,18 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
 </body>
 
 </html>`;
-        webviewPanel.webview.html = html;
+        this.webview.html = html;
 
-        webviewPanel.webview.onDidReceiveMessage(async ({ command, state, value }) => {
+        // set up a promise that resolves when the webview signals its readiness
+        const webview_promise = new Promise<void>(resolve => {
+            this.webview.onDidReceiveMessage(() => {
+                console.debug("webview ready");
+                resolve();
+            });
+        });
+
+        // handle messages from the webview
+        this.webview.onDidReceiveMessage(({ command, state, value }) => {
             console.log({ command, state, value });
             switch (command) {
                 case 'selected-node-changed':
@@ -69,11 +84,13 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
             }
         });
 
-        // store webview reference for commands
-        this.webview = webviewPanel.webview;
-
-        // Load the graph data from the document and send it to the webview
+        // load the graph data from the document and send it to the webview
+        console.debug("loading graph data from document");
         const serialized_graph = fs.readFileSync(document.uri.fsPath, 'utf-8');
-        this.webview.postMessage({ command: 'loadGraph', serialized_graph });
+        // wait for the webview to be ready
+        webview_promise.then(() => {
+            console.debug("sending graph data to webview");
+            this.webview.postMessage({ command: 'loadGraph', serialized_graph });
+        });
     }
 }

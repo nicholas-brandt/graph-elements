@@ -33,7 +33,7 @@ async function loadCitationData() {
         }
     }
 }
-    */
+*/
 
 // add layout / responsible for positioning the nodes
 globalThis.layout = display.cytoscape.layout(display.constructor.layoutOptions);
@@ -55,3 +55,6 @@ addEventListener('message', event => {
             display.setSerializedGraph(serialized_graph);
     }
 });
+
+import { vscodePostMessage } from './utils.js';
+vscodePostMessage({ command: 'ready' });

@@ -1,3 +1,9 @@
+import requestAnimationFunction from './requestAnimationFunction.js';
+
+export const vscodePostMessage = requestAnimationFunction(data => {
+    globalThis.vscode.postMessage(data);
+});
+
 export function getAllKeysInPrototypeChain(obj) {
     const keys = new Set;
     // Traverse prototype chain

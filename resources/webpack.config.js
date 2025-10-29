@@ -2,6 +2,9 @@ const path = require('path');
 
 module.exports = {
     mode: 'production',
+    optimization: {
+        minimize: false
+    },
     entry: path.resolve(__dirname, 'src', 'project.js'),
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -17,7 +20,11 @@ module.exports = {
                     options: {
                         cacheDirectory: true,
                         presets: [
-                            '@babel/preset-env'
+                            ['@babel/preset-env', { modules: 'commonjs',
+                                "targets": {
+                                    "node": "current"
+                                }
+                             }]
                         ]
                     }
                 }

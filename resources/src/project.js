@@ -1,13 +1,13 @@
-import { loadCitations } from './opencitation.js';
-
-console.debug('init');
+console.debug('init graph-editor');
 
 // set up display
 import './graph-display.js';
 const display = document.querySelector('graph-display');
 globalThis.display = display;
 
+/*
 // load citation data
+import { loadCitations } from './opencitation.js';
 async function loadCitationData() {
     const origin_doi = '10.1109/SCT.1995.514853'
     display.cytoscape.add({ data: { id: origin_doi } });
@@ -33,6 +33,7 @@ async function loadCitationData() {
         }
     }
 }
+    */
 
 // add layout / responsible for positioning the nodes
 globalThis.layout = display.cytoscape.layout(display.constructor.layoutOptions);
@@ -40,6 +41,7 @@ layout.run();
 
 // handle messages from extension
 addEventListener('message', event => {
+    console.debug('message', event.data);
     const { command, serialized_graph } = event.data;
     switch (command) {
         case 'addNode':

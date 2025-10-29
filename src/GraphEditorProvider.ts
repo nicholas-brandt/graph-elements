@@ -32,11 +32,29 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
         console.log("resolveCustomEditor called");
         webviewPanel.webview.options = {
             enableScripts: true,
+            localResourceRoots: [vscode.Uri.file(path.join(this.context.extensionPath, 'resources'))]
         };
-        const html = fs.readFileSync(path.join(this.context.extensionPath, 'resources/dist/project.html'), 'utf-8');
+        // const html = fs.readFileSync(path.join(this.context.extensionPath, 'resources/dist/project.html'), 'utf-8');
+        const scriptUri = webviewPanel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'resources/dist/project.js'));
+        const cssUri = webviewPanel.webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'resources/src/project.css'));
+        const html = `<!DOCTYPE html>
+<html data-vscode-context='{"preventDefaultContextMenuItems": true}'>
+
+<head>
+    <!-- need to call acquireVsCodeApi() to protect it from getting lost in js packaging -->
+    <script>globalThis.vscode = acquireVsCodeApi();</script>
+    <link rel="stylesheet" href="${cssUri}" />
+</head>
+
+<body>
+    <graph-display><!-- firefox bug ?!--></graph-display>
+    <script src='${scriptUri}'> </script>
+</body>
+
+</html>`;
         webviewPanel.webview.html = html;
 
-        webviewPanel.webview.onDidReceiveMessage(({ command, state, value }) => {
+        webviewPanel.webview.onDidReceiveMessage(async ({ command, state, value }) => {
             console.log({ command, state, value });
             switch (command) {
                 case 'selected-node-changed':
@@ -46,6 +64,7 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
                 case 'graph-changed':
                     // write value to the document file
                     fs.writeFileSync(document.uri.fsPath, value, 'utf-8');
+                    // await vscode.commands.executeCommand('editor.action.formatDocument');
                     break;
             }
         });

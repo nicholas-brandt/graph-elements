@@ -45,6 +45,36 @@
                     "group": "7_modification",
                     "when": "graph-editor.node-selected",
                     "command": "graph-editor.deleteNode"
+                },
+                {
+                    "command": "editor.action.clipboardCutAction",
+                    "group": "5_cutcopypaste",
+                    "when": "false"
+                },
+                {
+                    "command": "editor.action.clipboardCopyAction",
+                    "group": "5_cutcopypaste",
+                    "when": "false"
+                },
+                {
+                    "command": "editor.action.clipboardCutAction",
+                    "when": "false"
+                },
+                {
+                    "command": "editor.action.clipboardCopyAction",
+                    "when": "false"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "editor.action.clipboardCutAction",
+                    "group": "5_cutcopypaste",
+                    "when": "false"
+                },
+                {
+                    "command": "editor.action.clipboardCopyAction",
+                    "group": "5_cutcopypaste",
+                    "when": "false"
                 }
             ]
         }
@@ -56,7 +86,7 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "sh compile.sh",
-        "watch": "tsc -watch -p ./",
+        "watch": "tsc -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src",
         "test": "vscode-test"

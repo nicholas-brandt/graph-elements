@@ -1,6 +1,6 @@
 import { loadCitations } from './opencitation.js';
 
-console.log('init');
+console.debug('init');
 
 // set up display
 import './graph-display.js';
@@ -13,7 +13,7 @@ async function loadCitationData() {
     display.cytoscape.add({ data: { id: origin_doi } });
     const citation_generator = loadCitations({ doi: origin_doi, levels: 1 });
     for await (const citation of citation_generator) {
-        // console.log(citation);
+        // console.debug(citation);
         if (!display.cytoscape.hasElementWithId(citation.citationDOI)) {
             display.cytoscape.add({
                 group: 'nodes',
@@ -37,3 +37,19 @@ async function loadCitationData() {
 // add layout / responsible for positioning the nodes
 globalThis.layout = display.cytoscape.layout(display.constructor.layoutOptions);
 layout.run();
+
+// handle messages from extension
+addEventListener('message', event => {
+    const { command, serialized_graph } = event.data;
+    switch (command) {
+        case 'addNode':
+            display.addNode();
+            break;
+        case 'deleteNode':
+            display.deleteNode();
+            break;
+        case 'loadGraph':
+            console.debug('loadGraph');
+            display.setSerializedGraph(serialized_graph);
+    }
+});

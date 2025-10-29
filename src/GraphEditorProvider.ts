@@ -40,6 +40,7 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
             console.log({ command, state, value });
             switch (command) {
                 case 'selected-node-changed':
+                    // set context variable for selected node
                     vscode.commands.executeCommand('setContext', `graph-editor.${state}`, value);
                     break;
                 case 'graph-changed':
@@ -49,6 +50,11 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
             }
         });
 
+        // store webview reference for commands
         this.webview = webviewPanel.webview;
+
+        // Load the graph data from the document and send it to the webview
+        const serialized_graph = fs.readFileSync(document.uri.fsPath, 'utf-8');
+        this.webview.postMessage({ command: 'loadGraph', serialized_graph });
     }
 }

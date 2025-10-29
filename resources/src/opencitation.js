@@ -32,12 +32,12 @@ class Requests {
                 }
             }
         });
-        // console.log("counter", this.#counter);
+        // console.debug("counter", this.#counter);
         return promise;
     }
     static free() {
         --this.#counter;
-        // console.log("free", this.#counter, this.maxRate, this.#requests.length);
+        // console.debug("free", this.#counter, this.maxRate, this.#requests.length);
         while (this.#counter < this.maxRate && this.#requests.length) {
             ++this.#counter;
 
@@ -65,7 +65,7 @@ async function fetchCitations(doi) {
             Requests.free();
         }
         ++Requests.maxRate;
-        // console.log("maxRate", Requests.maxRate, Requests.queue_length);
+        // console.debug("maxRate", Requests.maxRate, Requests.queue_length);
     }
     const json = await response.json();
     return json;
@@ -79,7 +79,7 @@ export async function fetchMetadata(doi) {
             mode: "cors", // no-cors, *cors, same-origin
         });
         ++Requests.maxRate;
-        // console.log("maxRate", Requests.maxRate, Requests.queue_length);
+        // console.debug("maxRate", Requests.maxRate, Requests.queue_length);
         const json = await response.json();
         return json;
     } finally {
@@ -88,7 +88,7 @@ export async function fetchMetadata(doi) {
 }
 
 export async function* loadCitations(args) {
-    // console.log("loadCitations", args);
+    // console.debug("loadCitations", args);
     const {
         doi: initial_doi,
         levels = 1
@@ -131,7 +131,7 @@ export async function* loadCitations(args) {
                 }
             } catch (error) {
                 Requests.maxRate = 1;
-                console.log("maxRate", Requests.maxRate);
+                console.debug("maxRate", Requests.maxRate);
             }
         }
     }

@@ -151,32 +151,32 @@ export class GraphDisplay extends HTMLElement {
                     } catch (error) { }
                 }
                 new_event.redispatched = true;
-                // console.log(event, new_event);
+                // console.debug(event, new_event);
                 this.dispatchEvent(new_event);
             }
         });
 
         const post_change = requestAnimationFunction(() => {
-            // console.log('animation graph-changed');
+            console.debug('animation graph-changed');
             vscode.postMessage({
                 command: 'graph-changed',
-                value: this.serialize()
+                value: this.getSerializedGraph()
             });
         });
         this.#cytoscape.on('add remove data position lock unlock', event => {
-            // console.log('graph-changed', event);
+            // console.debug('graph-changed', event);
             post_change();
         });
     }
     addNode() {
-        console.log("add-node");
+        console.debug("add-node");
         this.#cytoscape.add({
             group: 'nodes',
             position: this.#current_position
         });
     }
     deleteNode() {
-        console.log("delete-node");
+        console.debug("delete-node");
         this.#cytoscape.remove(this.#selected_node);
     }
     _ontap(event) {
@@ -185,11 +185,11 @@ export class GraphDisplay extends HTMLElement {
             return;
         }
         if (event.target === this.#cytoscape) {
-            console.log('Tapped on the background', event);
+            console.debug('Tapped on the background', event);
             this.selectedNode = null;
         } else {
             const target_node = event.target;
-            console.log('Tapped on a node or edge', target_node.data());
+            console.debug('Tapped on a node or edge', target_node.data());
             if (this.selectedNode) {
                 // add edge from selectedNode to tapped node or move edge that already exists
                 const edges = this.#cytoscape.remove(`edge[source="${this.selectedNode.id()}"][target="${target_node.id()}"]`);
@@ -207,26 +207,26 @@ export class GraphDisplay extends HTMLElement {
         this.selectedNode = null;
     }
     _oncontextmenu(event) {
-        console.log('cxttap', event);
+        console.debug('cxttap', event);
         this.event = event;
         if (event.target === this.#cytoscape) {
-            console.log('Right-clicked on the background', event);
+            console.debug('Right-clicked on the background', event);
             // You can add a background context menu or something similar
             this.dataset.target = "background";
             this.selectedNode = null;
         } else {
-            console.log('Right-clicked on a node or edge', event.target.data());
+            console.debug('Right-clicked on a node or edge', event.target.data());
             this.dataset.target = "node";
             this.selectedNode = event.target;
         }
         this.#current_position = event.position;
     }
     _onhold(event) {
-        console.log('taphold', event);
+        console.debug('taphold', event);
         if (event.target === this.#cytoscape) {
-            console.log('Long-pressed on the background', event);
+            console.debug('Long-pressed on the background', event);
         } else {
-            console.log('Long-pressed on a node or edge', event.target.data());
+            console.debug('Long-pressed on a node or edge', event.target.data());
             this.selectedNode = event.target;
             this.#ignore_next_tap = true;
         }
@@ -251,21 +251,12 @@ export class GraphDisplay extends HTMLElement {
     get layout() {
         return this.#layout;
     }
-    serialize() {
+    getSerializedGraph() {
         return JSON.stringify(this.#cytoscape.json());
+    }
+    setSerializedGraph(serialized_graph) {
+        this.#cytoscape.json(JSON.parse(serialized_graph));
     }
 }
 
 customElements.define('graph-display', GraphDisplay);
-
-addEventListener('message', event => {
-    const { command } = event.data;
-    switch (command) {
-        case 'addNode':
-            globalThis.display.addNode();
-            break;
-        case 'deleteNode':
-            globalThis.display.deleteNode();
-            break;
-    }
-});

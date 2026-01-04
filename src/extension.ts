@@ -18,6 +18,11 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.commands.registerCommand('graph-editor.deleteNode', () => {
         console.log("Delete Node command triggered");
     }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('graph-editor.startLayout', () => {
+        console.log("Start Layout command triggered");
+        editor_provider.webview.postMessage({ command: 'startLayout' });
+    }));
 }
 
 export function deactivate() { }

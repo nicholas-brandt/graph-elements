@@ -20,6 +20,10 @@
             {
                 "command": "graph-editor.deleteNode",
                 "title": "Delete Node"
+            },
+            {
+                "command": "graph-editor.startLayout",
+                "title": "Start Layout"
             }
         ],
         "customEditors": [
@@ -45,6 +49,11 @@
                     "group": "7_modification",
                     "when": "graph-editor.node-selected",
                     "command": "graph-editor.deleteNode"
+                },
+                {
+                    "group": "7_modification",
+                    "when": "!graph-editor.node-selected",
+                    "command": "graph-editor.startLayout"
                 }
             ]
         }

@@ -131,6 +131,9 @@ export class GraphDisplay extends HTMLElement {
             pixelRatio: 'auto'
         });
 
+        // initialize layout
+        this.#layout = this.#cytoscape.layout(GraphDisplay.layoutOptions);
+
         // initialize contextmenu
         // add cytoscape gestures
         this.#cytoscape.on('cxttap', this._oncontextmenu.bind(this));

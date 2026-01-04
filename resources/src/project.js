@@ -36,8 +36,7 @@ async function loadCitationData() {
 */
 
 // add layout / responsible for positioning the nodes
-globalThis.layout = display.cytoscape.layout(display.constructor.layoutOptions);
-layout.run();
+display.layout.run();
 
 // handle messages from extension
 addEventListener('message', event => {
@@ -53,6 +52,11 @@ addEventListener('message', event => {
         case 'loadGraph':
             console.debug('loadGraph');
             display.setSerializedGraph(serialized_graph);
+            break;
+        case 'startLayout':
+            console.debug('startLayout');
+            display.layout.run();
+            break;
     }
 });
 

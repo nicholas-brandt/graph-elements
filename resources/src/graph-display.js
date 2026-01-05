@@ -167,7 +167,7 @@ export class GraphDisplay extends HTMLElement {
         // add listener for node selection
         this.#cytoscape.on('select', this._onselectnode.bind(this));
         this.#cytoscape.on('tap', this._ontap.bind(this));
-        this.#cytoscape.on('taphold', 'node', this._ontaphold.bind(this));
+        // this.#cytoscape.on('taphold', 'node', this._ontaphold.bind(this));
     }
     addNode() {
         console.debug("add-node");
@@ -179,6 +179,23 @@ export class GraphDisplay extends HTMLElement {
     deleteNode() {
         console.debug("delete-node");
         this.#cytoscape.remove(this.#context_event.target);
+    }
+    toggleEdge(source, target) {
+        console.debug("toggle-edge", source, target);
+        const existing_edge = this.#cytoscape.edges().filter(edge => {
+            return edge.data('source') === source && edge.data('target') === target;
+        });
+        if (existing_edge.length > 0) {
+            this.#cytoscape.remove(existing_edge);
+        } else {
+            this.#cytoscape.add({
+                group: 'edges',
+                data: {
+                    source,
+                    target
+                }
+            });
+        }
     }
     _oncontextmenu(event) {
         console.debug('cxttap', event);
@@ -192,6 +209,10 @@ export class GraphDisplay extends HTMLElement {
     }
     _onselectnode(event) {
         console.debug('selectnode', event);
+        if (event.originalEvent?.ctrlKey) {
+            event.originalEvent?.preventDefault();
+            event.originalEvent?.stopPropagation();
+        }
     }
     _ontap(event) {
         console.debug('tap', event);
@@ -199,15 +220,24 @@ export class GraphDisplay extends HTMLElement {
             console.debug('Tapped on the background', event);
             this.#modifier_mode_active = false;
         } else {
-            console.debug('Tapped on a node or edge', event.target.data());
+            const event_node = event.target;
+            const event_node_id = event_node.data().id;
+            console.debug('Tapped on a node or edge', event_node);
+            if (event.originalEvent.ctrlKey) {
+                for (const node of this.selectedNodes) {
+                    this.toggleEdge(node.data().id, event_node_id);
+                    event.originalEvent.preventDefault();
+                    event.originalEvent.stopPropagation();
+                }
+            }
         }
     }
-    _ontaphold(event) {
+    /*_ontaphold(event) {
         console.debug('taphold', event);
         const node = event.target;
         node.addClass('modified');
         this.#modifier_mode_active = true;
-    }
+    }*/
     get cytoscape() {
         return this.#cytoscape;
     }

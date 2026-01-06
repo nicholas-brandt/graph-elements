@@ -13,7 +13,6 @@ export class GraphDisplay extends HTMLElement {
     #container;
     #layout;
     #context_event;
-    #modifier_mode_active = false;
     static layoutOptions = {
         name: 'euler',
         // The ideal length of a spring
@@ -87,6 +86,35 @@ export class GraphDisplay extends HTMLElement {
         // false : Use the current node positions as the initial positions
         randomize: false
     };
+    static cytoscapeConfig = {
+        zoom: 1,
+        pan: { x: 0, y: 0 },
+        // interaction options:
+        minZoom: 1e-50,
+        maxZoom: 1e50,
+        zoomingEnabled: true,
+        userZoomingEnabled: true,
+        panningEnabled: true,
+        userPanningEnabled: true,
+        boxSelectionEnabled: true,
+        selectionType: 'single',
+        touchTapThreshold: 8,
+        desktopTapThreshold: 4,
+        autolock: false,
+        autoungrabify: false,
+        autounselectify: false,
+        multiClickDebounceTime: 250,
+        // rendering options:
+        headless: false,
+        style: cytoscape_styles,
+        styleEnabled: true,
+        hideEdgesOnViewport: false,
+        textureOnViewport: false,
+        motionBlur: false,
+        motionBlurOpacity: 0.2,
+        wheelSensitivity: 1,
+        pixelRatio: 'auto'
+    }
     constructor() {
         super();
         this.attachShadow({
@@ -102,33 +130,7 @@ export class GraphDisplay extends HTMLElement {
         // initalize cytoscape
         this.#cytoscape = cytoscape({
             container: this.#container,
-            zoom: 1,
-            pan: { x: 0, y: 0 },
-            // interaction options:
-            minZoom: 1e-50,
-            maxZoom: 1e50,
-            zoomingEnabled: true,
-            userZoomingEnabled: true,
-            panningEnabled: true,
-            userPanningEnabled: true,
-            boxSelectionEnabled: true,
-            selectionType: 'single',
-            touchTapThreshold: 8,
-            desktopTapThreshold: 4,
-            autolock: false,
-            autoungrabify: false,
-            autounselectify: false,
-            multiClickDebounceTime: 250,
-            // rendering options:
-            headless: false,
-            style: cytoscape_styles,
-            styleEnabled: true,
-            hideEdgesOnViewport: false,
-            textureOnViewport: false,
-            motionBlur: false,
-            motionBlurOpacity: 0.2,
-            wheelSensitivity: 1,
-            pixelRatio: 'auto'
+            ...GraphDisplay.cytoscapeConfig
         });
 
         // initialize layout
@@ -156,13 +158,7 @@ export class GraphDisplay extends HTMLElement {
         });
 
         // listen for graph changes and notify vscode
-        this.#cytoscape.on('add remove data position lock unlock', event => {
-            console.debug('graph-changed', event);
-            vscodePostMessage({
-                command: 'graph-changed',
-                value: this.getSerializedGraph()
-            });
-        });
+        this.#cytoscape.on('add remove data position lock unlock', this._ongraphchanged.bind(this));
 
         // add listener for node selection
         this.#cytoscape.on('select', this._onselectnode.bind(this));
@@ -209,28 +205,53 @@ export class GraphDisplay extends HTMLElement {
     }
     _onselectnode(event) {
         console.debug('selectnode', event);
-        if (event.originalEvent?.ctrlKey) {
-            event.originalEvent?.preventDefault();
-            event.originalEvent?.stopPropagation();
-        }
     }
     _ontap(event) {
-        console.debug('tap', event);
-        if (event.target === this.#cytoscape) {
-            console.debug('Tapped on the background', event);
-            this.#modifier_mode_active = false;
-        } else {
-            const event_node = event.target;
-            const event_node_id = event_node.data().id;
-            console.debug('Tapped on a node or edge', event_node);
-            if (event.originalEvent.ctrlKey) {
-                for (const node of this.selectedNodes) {
-                    this.toggleEdge(node.data().id, event_node_id);
-                    event.originalEvent.preventDefault();
-                    event.originalEvent.stopPropagation();
+        try {
+            console.debug('tap', event);
+            this.cytoscape.autounselectify(false);
+
+            if (event.target === this.#cytoscape) {
+                console.debug('Tapped on the background', event);
+                // unselect all selected nodes
+                this.#cytoscape.nodes().unselect();
+            } else {
+                const event_node = event.target;
+                const event_node_id = event_node.data().id;
+                console.debug('Tapped on a node or edge', event_node);
+                // if ctrl key is down then toggle edge between tapped node and all selected nodes
+                if (event.originalEvent.ctrlKey) {
+                    for (const node of this.#cytoscape.nodes(':selected')) {
+                        // toggle selection of tapped node
+                        this.toggleEdge(node.data().id, event_node_id);
+                    }
+                } else if (event.originalEvent.shiftKey) {
+                    // toggle selection of tapped node
+                    if (event_node.selected()) {
+                        event_node.unselect();
+                    } else {
+                        event_node.select();
+                    }
+                } else {
+                    // unselect all selected nodes except tapped node
+                    for (const node of this.#cytoscape.nodes()) {
+                        if (node.data().id !== event_node_id) {
+                            node.unselect();
+                        }
+                    }
+                    event_node.select();
                 }
             }
+        } finally {
+            this.cytoscape.autounselectify(true);
         }
+    }
+    _ongraphchanged(event) {
+        console.debug('graph-changed', event);
+        vscodePostMessage({
+            command: 'graph-changed',
+            value: this.getSerializedGraph()
+        });
     }
     /*_ontaphold(event) {
         console.debug('taphold', event);
@@ -248,10 +269,16 @@ export class GraphDisplay extends HTMLElement {
         return this.#layout;
     }
     getSerializedGraph() {
-        return JSON.stringify(this.#cytoscape.json());
+        return JSON.stringify({
+            elements: this.#cytoscape.json().elements
+        });
     }
     setSerializedGraph(serialized_graph) {
-        this.#cytoscape.json(JSON.parse(serialized_graph));
+        const { elements } = JSON.parse(serialized_graph);
+        this.#cytoscape.json({
+            elements,
+            ...GraphDisplay.cytoscapeConfig
+        });
     }
     get selectedNodes() {
         return this.#cytoscape.nodes(':selected');

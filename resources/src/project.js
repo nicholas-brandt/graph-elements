@@ -36,7 +36,7 @@ async function loadCitationData() {
 */
 
 // add layout / responsible for positioning the nodes
-display.layout.run();
+// display.layout.run();
 
 // handle messages from extension
 addEventListener('message', event => {

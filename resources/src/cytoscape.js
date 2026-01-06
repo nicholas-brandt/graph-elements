@@ -271,7 +271,7 @@ const rgb2tuple = rgb => {
       return;
     } // must all be percent values if one is
 
-    let alpha = m[4];
+    const alpha = m[4];
     if (alpha !== undefined) {
       alpha = parseFloat(alpha);
       if (alpha < 0 || alpha > 1) {
@@ -446,7 +446,7 @@ const colors = {
 
 // sets the value in a map (map may not be built)
 const setMap = options => {
-  let obj = options.map;
+  const obj = options.map;
   const keys = options.keys;
   const l = keys.length;
   for (let i = 0; i < l; i++) {
@@ -469,7 +469,7 @@ const setMap = options => {
 
 // gets the value in a map even if it's not built in places
 const getMap = options => {
-  let obj = options.map;
+  const obj = options.map;
   const keys = options.keys;
   const l = keys.length;
   for (let i = 0; i < l; i++) {
@@ -1183,7 +1183,7 @@ const K = 65599; // 37 also works pretty well
 const DEFAULT_HASH_SEED_ALT = 5381;
 const hashIterableInts = function (iterator, seed = DEFAULT_HASH_SEED) {
   // sdbm/string-hash
-  let hash = seed;
+  const hash = seed;
   let entry;
   for (;;) {
     entry = iterator.next();
@@ -1216,7 +1216,7 @@ const hashIntsArray = function (ints, seed) {
     value: 0,
     done: false
   };
-  let i = 0;
+  const i = 0;
   const length = ints.length;
   const iterator = {
     next() {
@@ -1235,7 +1235,7 @@ const hashString = function (str, seed) {
     value: 0,
     done: false
   };
-  let i = 0;
+  const i = 0;
   const length = str.length;
   const iterator = {
     next() {
@@ -1292,7 +1292,7 @@ function rotatePosAndSkewByBox(pos, box, angleDegrees) {
   };
 }
 
-let warningsEnabled = true;
+const warningsEnabled = true;
 const warnSupported = console.warn != null;
 const traceSupported = console.trace != null;
 const MAX_INT$1 = Number.MAX_SAFE_INTEGER || 9007199254740991;
@@ -1489,7 +1489,7 @@ const Element = function (cy, params, restore = true) {
     error("An element must have a core reference and parameters set");
     return;
   }
-  let group = params.group;
+  const group = params.group;
 
   // try to automatically infer the group if unspecified
   if (group == null) {
@@ -1620,7 +1620,7 @@ const Element = function (cy, params, restore = true) {
       y: (rpos.y - pan.y) / zoom
     };
   }
-  let classes = [];
+  const classes = [];
   if (array(params.classes)) {
     classes = params.classes;
   } else if (string(params.classes)) {
@@ -1668,7 +1668,7 @@ const defineSearch = function (params) {
     const connectedBy = {};
     const id2depth = {};
     const V = {};
-    let j = 0;
+    const j = 0;
     let found;
     let {
       nodes,
@@ -1715,7 +1715,7 @@ const defineSearch = function (params) {
       const vwEdges = v.connectedEdges().filter(e => (!directed || e.source().same(v)) && edges.has(e));
       for (let i = 0; i < vwEdges.length; i++) {
         const e = vwEdges[i];
-        let w = e.connectedNodes().filter(n => !n.same(v) && nodes.has(n));
+        const w = e.connectedNodes().filter(n => !n.same(v) && nodes.has(n));
         const wId = w.id();
         if (w.length !== 0 && !V[wId]) {
           w = w[0];
@@ -2201,7 +2201,7 @@ const elesfn$u = {
     }
     const distBetween = (u, v) => {
       const uvs = (directed ? u.edgesTo(v) : u.edgesWith(v)).intersect(edges);
-      let smallestDistance = Infinity;
+      const smallestDistance = Infinity;
       let smallestEdge;
       for (let i = 0; i < uvs.length; i++) {
         const edge = uvs[i];
@@ -2248,8 +2248,8 @@ const elesfn$u = {
       pathTo: function (node) {
         const target = string(node) ? nodes.filter(node)[0] : node[0];
         const S = [];
-        let u = target;
-        let uid = u.id();
+        const u = target;
+        const uid = u.id();
         if (target.length > 0) {
           S.unshift(target);
           while (prev[uid]) {
@@ -2358,7 +2358,7 @@ const elesfn$s = {
     fScore[sid] = heuristic(root);
 
     // Counter
-    let steps = 0;
+    const steps = 0;
 
     // Main loop
     while (openSet.size() > 0) {
@@ -2368,9 +2368,9 @@ const elesfn$s = {
       // If we've found our goal, then we are done
       if (cMinId === tid) {
         const path = [];
-        let pathNode = goal;
-        let pathNodeId = tid;
-        let pathEdge = cameFromEdge[pathNodeId];
+        const pathNode = goal;
+        const pathNodeId = tid;
+        const pathEdge = cameFromEdge[pathNodeId];
         for (;;) {
           path.unshift(pathNode);
           if (pathEdge != null) {
@@ -2557,7 +2557,7 @@ const elesfn$r = {
         return dist[i * N + j];
       },
       path: function (from, to) {
-        let i = indexOfArgEle(from);
+        const i = indexOfArgEle(from);
         const j = indexOfArgEle(to);
         const fromNode = atIndex(i);
         if (i === j) {
@@ -2567,7 +2567,7 @@ const elesfn$r = {
           return cy.collection();
         }
         const path = cy.collection();
-        let prev = i;
+        const prev = i;
         let edge;
         path.merge(fromNode);
         while (i !== j) {
@@ -2606,14 +2606,14 @@ const elesfn$q = {
     } = this.byGroup();
     const numNodes = nodes.length;
     const infoMap = new Map$1();
-    let hasNegativeWeightCycle = false;
+    const hasNegativeWeightCycle = false;
     const negativeWeightCycles = [];
     root = cy.collection(root)[0]; // in case selector passed
 
     edges.unmergeBy(edge => edge.isLoop());
     const numEdges = edges.length;
     const getInfo = node => {
-      let obj = infoMap.get(node.id());
+      const obj = infoMap.get(node.id());
       if (!obj) {
         obj = {};
         infoMap.set(node.id(), obj);
@@ -2625,7 +2625,7 @@ const elesfn$q = {
     const pathTo = (to, thisStart = root) => {
       const end = getNodeFromTo(to);
       const path = [];
-      let node = end;
+      const node = end;
       for (;;) {
         if (node == null) {
           return this.spawn();
@@ -2660,7 +2660,7 @@ const elesfn$q = {
     }
 
     // Edges relaxation
-    let replacedEdge = false;
+    const replacedEdge = false;
     const checkForEdgeReplacement = (node1, node2, edge, info1, info2, weight) => {
       const dist = info1.dist + weight;
       if (dist < info2.dist && !edge.same(info1.edge)) {
@@ -2725,8 +2725,8 @@ const elesfn$q = {
                 node = getInfo(node).pred;
               }
               cycle = cycle.slice(cycle.indexOf(node));
-              let smallestId = cycle[0].id();
-              let smallestIndex = 0;
+              const smallestId = cycle[0].id();
+              const smallestIndex = 0;
               for (let c = 2; c < cycle.length; c += 2) {
                 if (cycle[c].id() < smallestId) {
                   smallestId = cycle[c].id();
@@ -2844,8 +2844,8 @@ const elesfn$p = {
     }
 
     // We will store the best cut found here
-    let minCutSize = Infinity;
-    let minCutEdgeIndexes = [];
+    const minCutSize = Infinity;
+    const minCutEdgeIndexes = [];
     const minCutNodeMap = new Array(numNodes);
 
     // Initial meta node partition
@@ -2948,7 +2948,7 @@ const array2point = arr => ({
   y: arr[1]
 });
 const min = (arr, begin = 0, end = arr.length) => {
-  let min = Infinity;
+  const min = Infinity;
   for (let i = begin; i < end; i++) {
     const val = arr[i];
     if (isFinite(val)) {
@@ -2968,7 +2968,7 @@ const max = (arr, begin = 0, end = arr.length) => {
   return max;
 };
 const mean = (arr, begin = 0, end = arr.length) => {
-  let total = 0;
+  const total = 0;
   const n = 0;
   for (let i = begin; i < end; i++) {
     const val = arr[i];
@@ -2992,7 +2992,7 @@ const median = (arr, begin = 0, end = arr.length, copy = true, sort = true, incl
   }
 
   // all non finite (e.g. Infinity, NaN) elements must be -Infinity so they go to the start
-  let off = 0; // offset from non-finite values
+  const off = 0; // offset from non-finite values
   for (let i = arr.length - 1; i >= 0; i--) {
     const v = arr[i];
     if (includeHoles) {
@@ -3038,7 +3038,7 @@ const inPlaceSumNormalize = v => {
   const length = v.length;
 
   // First, get sum of all elements
-  let total = 0;
+  const total = 0;
   for (let i = 0; i < length; i++) {
     total += v[i];
   }
@@ -3251,7 +3251,7 @@ function inflatePolygon(polygon, d) {
   };
   // Signed area (positive = CCW)
   const signedArea = pts => {
-    let A = 0;
+    const A = 0;
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i],
         q = pts[(i + 1) % pts.length];
@@ -3549,7 +3549,7 @@ const sqdistToQuadraticBezier = (x, y, x1, y1, x2, y2, x3, y3) => {
   }
   params.push(1.0);
   params.push(0.0);
-  let minDistanceSquared = -1;
+  const minDistanceSquared = -1;
   let curX, curY, distSquared;
   for (let i = 0; i < params.length; i++) {
     curX = Math.pow(1.0 - params[i], 2.0) * x1 + 2.0 * (1 - params[i]) * params[i] * x2 + params[i] * params[i] * x3;
@@ -3874,7 +3874,7 @@ const polygonIntersectLine = (x, y, basePoints, centerX, centerY, width, height,
   const intersections = [];
   let intersection;
   const transformedPoints = new Array(basePoints.length);
-  let doTransform = true;
+  const doTransform = true;
   if (width == null) {
     doTransform = false;
   }
@@ -3938,8 +3938,8 @@ const roundPolygonIntersectLine = (x, y, basePoints, centerX, centerY, width, he
   }
   if (intersections.length > 2) {
     const lowestIntersection = [intersections[0], intersections[1]];
-    let lowestSquaredDistance = Math.pow(lowestIntersection[0] - x, 2) + Math.pow(lowestIntersection[1] - y, 2);
-    for (let i = 1; i < intersections.length / 2; i++) {
+    const lowestSquaredDistance = Math.pow(lowestIntersection[0] - x, 2) + Math.pow(lowestIntersection[1] - y, 2);
+    for (const i = 1; i < intersections.length / 2; i++) {
       const squaredDistance = Math.pow(intersections[i * 2] - x, 2) + Math.pow(intersections[i * 2 + 1] - y, 2);
       if (squaredDistance <= lowestSquaredDistance) {
         lowestIntersection[0] = intersections[i * 2];
@@ -3954,7 +3954,7 @@ const roundPolygonIntersectLine = (x, y, basePoints, centerX, centerY, width, he
 const shortenIntersection = (intersection, offset, amount) => {
   const disp = [intersection[0] - offset[0], intersection[1] - offset[1]];
   const length = Math.sqrt(disp[0] * disp[0] + disp[1] * disp[1]);
-  let lenRatio = (length - amount) / length;
+  const lenRatio = (length - amount) / length;
   if (lenRatio < 0) {
     lenRatio = 0.00001;
   }
@@ -3968,7 +3968,7 @@ const generateUnitNgonPointsFitToSquare = (sides, rotationRadians) => {
 const fitPolygonToSquare = points => {
   let x, y;
   const sides = points.length / 2;
-  let minX = Infinity,
+  const minX = Infinity,
     minY = Infinity,
     maxX = -Infinity,
     maxY = -Infinity;
@@ -4054,7 +4054,7 @@ function satPolygonIntersection(poly1, poly2) {
     return axes;
   }
   function project(polygon, axis) {
-    let min = Infinity;
+    const min = Infinity;
     const max = -Infinity;
     for (const point of polygon) {
       const projection = point.x * axis.x + point.y * axis.y;
@@ -4426,7 +4426,7 @@ const elesfn$m = {
       weight,
       directed
     });
-    let totalDistance = 0;
+    const totalDistance = 0;
     const nodes = this.nodes();
     for (let i = 0; i < nodes.length; i++) {
       const n = nodes[i];
@@ -4620,8 +4620,8 @@ const setOptions$3 = options => defaults$c(options);
 /* eslint-enable */
 
 const getSimilarity$1 = function (edge, attributes) {
-  let total = 0;
-  for (let i = 0; i < attributes.length; i++) {
+  const total = 0;
+  for (const i = 0; i < attributes.length; i++) {
     total += attributes[i](edge);
   }
   return total;
@@ -4647,12 +4647,12 @@ const normalize = function (M, n) {
 // TODO: blocked matrix multiplication?
 const mmult = function (A, B, n) {
   const C = new Array(n * n);
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
+  for (const i = 0; i < n; i++) {
+    for (const j = 0; j < n; j++) {
       C[i * n + j] = 0;
     }
     for (const k = 0; k < n; k++) {
-      for (let j = 0; j < n; j++) {
+      for (const j = 0; j < n; j++) {
         C[i * n + j] += A[i * n + k] * B[k * n + j];
       }
     }
@@ -4670,7 +4670,7 @@ const inflate = function (M, n, inflateFactor /** r **/) {
   const _M = new Array(n * n);
 
   // M(i,j) ^ inflatePower
-  for (let i = 0; i < n * n; i++) {
+  for (const i = 0; i < n * n; i++) {
     _M[i] = Math.pow(M[i], inflateFactor);
   }
   normalize(_M, n);
@@ -4678,7 +4678,7 @@ const inflate = function (M, n, inflateFactor /** r **/) {
 };
 const hasConverged = function (M, _M, n2, roundFactor) {
   // Check that both matrices have the same elements (i,j)
-  for (let i = 0; i < n2; i++) {
+  for (const i = 0; i < n2; i++) {
     const v1 = Math.round(M[i] * Math.pow(10, roundFactor)) / Math.pow(10, roundFactor); // truncate to 'roundFactor' decimal places
     const v2 = Math.round(_M[i] * Math.pow(10, roundFactor)) / Math.pow(10, roundFactor);
     if (v1 !== v2) {
@@ -4689,9 +4689,9 @@ const hasConverged = function (M, _M, n2, roundFactor) {
 };
 const assign$2 = function (M, n, nodes, cy) {
   const clusters = [];
-  for (let i = 0; i < n; i++) {
+  for (const i = 0; i < n; i++) {
     const cluster = [];
-    for (let j = 0; j < n; j++) {
+    for (const j = 0; j < n; j++) {
       // Row-wise attractors and elements that they attract belong in same cluster
       if (Math.round(M[i * n + j] * 1000) / 1000 > 0) {
         cluster.push(nodes[j]);
@@ -4740,7 +4740,7 @@ const markovClustering = function (options) {
     n2 = n * n;
   const M = new Array(n2);
   let _M;
-  for (let i = 0; i < n2; i++) {
+  for (const i = 0; i < n2; i++) {
     M[i] = 0;
   }
   for (const e = 0; e < edges.length; e++) {
@@ -4876,7 +4876,7 @@ const randomCentroids = function (nodes, k, attributes) {
   const centroid = null;
 
   // Find min, max values for each attribute dimension
-  for (let i = 0; i < ndim; i++) {
+  for (const i = 0; i < ndim; i++) {
     min[i] = nodes.min(attributes[i]).value;
     max[i] = nodes.max(attributes[i]).value;
   }
@@ -4884,7 +4884,7 @@ const randomCentroids = function (nodes, k, attributes) {
   // Build k centroids, each represented as an n-dim feature vector
   for (const c = 0; c < k; c++) {
     centroid = [];
-    for (let i = 0; i < ndim; i++) {
+    for (const i = 0; i < ndim; i++) {
       centroid[i] = Math.random() * (max[i] - min[i]) + min[i]; // random initial value
     }
     centroids[c] = centroid;
@@ -4892,9 +4892,9 @@ const randomCentroids = function (nodes, k, attributes) {
   return centroids;
 };
 const classify = function (node, centroids, distance, attributes, type) {
-  let min = Infinity;
+  const min = Infinity;
   const index = 0;
-  for (let i = 0; i < centroids.length; i++) {
+  for (const i = 0; i < centroids.length; i++) {
     const dist = getDist(distance, node, centroids[i], attributes, type);
     if (dist < min) {
       min = dist;
@@ -4919,7 +4919,7 @@ const haveValuesConverged = function (v1, v2, sensitivityThreshold) {
   return Math.abs(v2 - v1) <= sensitivityThreshold;
 };
 const haveMatricesConverged = function (v1, v2, sensitivityThreshold) {
-  for (let i = 0; i < v1.length; i++) {
+  for (const i = 0; i < v1.length; i++) {
     for (let j = 0; j < v1[i].length; j++) {
       const diff = Math.abs(v1[i][j] - v2[i][j]);
       if (diff > sensitivityThreshold) {
@@ -4930,7 +4930,7 @@ const haveMatricesConverged = function (v1, v2, sensitivityThreshold) {
   return true;
 };
 const seenBefore = function (node, medoids, n) {
-  for (let i = 0; i < n; i++) {
+  for (const i = 0; i < n; i++) {
     if (node === medoids[i]) return true;
   }
   return false;
@@ -5021,7 +5021,7 @@ const kMeans = function (options) {
       const sum = new Array(ndim);
       for (const d = 0; d < ndim; d++) {
         sum[d] = 0.0;
-        for (let i = 0; i < cluster.length; i++) {
+        for (const i = 0; i < cluster.length; i++) {
           node = cluster[i];
           sum[d] += opts.attributes[d](node);
         }
@@ -5178,17 +5178,17 @@ const fuzzyCMeans = function (options) {
 
   // Step 1: Initialize letiables.
   _U = new Array(nodes.length);
-  for (let i = 0; i < nodes.length; i++) {
+  for (const i = 0; i < nodes.length; i++) {
     // N x C matrix
     _U[i] = new Array(opts.k);
   }
   U = new Array(nodes.length);
-  for (let i = 0; i < nodes.length; i++) {
+  for (const i = 0; i < nodes.length; i++) {
     // N x C matrix
     U[i] = new Array(opts.k);
   }
   for (let i = 0; i < nodes.length; i++) {
-    let total = 0;
+    const total = 0;
     for (let j = 0; j < opts.k; j++) {
       U[i][j] = Math.random();
       total += U[i][j];
@@ -5198,11 +5198,11 @@ const fuzzyCMeans = function (options) {
     }
   }
   centroids = new Array(opts.k);
-  for (let i = 0; i < opts.k; i++) {
+  for (const i = 0; i < opts.k; i++) {
     centroids[i] = new Array(opts.attributes.length);
   }
   weight = new Array(nodes.length);
-  for (let i = 0; i < nodes.length; i++) {
+  for (const i = 0; i < nodes.length; i++) {
     // N x C matrix
     weight[i] = new Array(opts.k);
   }
@@ -5273,12 +5273,12 @@ const setOptions$1 = options => {
 };
 const mergeClosest = function (clusters, index, dists, mins, opts) {
   // Find two closest clusters from cached mins
-  let minKey = 0;
-  let min = Infinity;
+  const minKey = 0;
+  const min = Infinity;
   let dist;
   const attrs = opts.attributes;
   const getDist = (n1, n2) => clusteringDistance(opts.distance, attrs.length, i => attrs[i](n1), i => attrs[i](n2), n1, n2);
-  for (let i = 0; i < clusters.length; i++) {
+  for (const i = 0; i < clusters.length; i++) {
     const key = clusters[i].key;
     const dist = dists[key][mins[key]];
     if (dist < min) {
@@ -5311,7 +5311,7 @@ const mergeClosest = function (clusters, index, dists, mins, opts) {
   index[c1.key] = merged;
 
   // Update distances with new merged cluster
-  for (let i = 0; i < clusters.length; i++) {
+  for (const i = 0; i < clusters.length; i++) {
     const cur = clusters[i];
     if (c1.key === cur.key) {
       dist = Infinity;
@@ -5334,11 +5334,11 @@ const mergeClosest = function (clusters, index, dists, mins, opts) {
   }
 
   // Update cached mins
-  for (let i = 0; i < clusters.length; i++) {
+  for (const i = 0; i < clusters.length; i++) {
     const key1 = clusters[i].key;
     if (mins[key1] === c1.key || mins[key1] === c2.key) {
-      let min = key1;
-      for (let j = 0; j < clusters.length; j++) {
+      const min = key1;
+      for (const j = 0; j < clusters.length; j++) {
         const key2 = clusters[j].key;
         if (dists[key1][key2] < dists[key1][min]) {
           min = key2;
@@ -5454,8 +5454,8 @@ const hierarchicalClustering = function (options) {
   }
 
   // Calculate the distance between each pair of clusters
-  for (let i = 0; i < clusters.length; i++) {
-    for (let j = 0; j <= i; j++) {
+  for (const i = 0; i < clusters.length; i++) {
+    for (const j = 0; j <= i; j++) {
       let dist;
       if (opts.mode === "dendrogram") {
         // modes store cluster values differently
@@ -5558,7 +5558,7 @@ const getPreference = function (S, preference) {
 };
 const findExemplars = function (n, R, A) {
   const indices = [];
-  for (let i = 0; i < n; i++) {
+  for (const i = 0; i < n; i++) {
     if (R[i * n + i] + A[i * n + i] > 0) {
       indices.push(i);
     }
@@ -5567,7 +5567,7 @@ const findExemplars = function (n, R, A) {
 };
 const assignClusters = function (n, S, exemplars) {
   const clusters = [];
-  for (let i = 0; i < n; i++) {
+  for (const i = 0; i < n; i++) {
     const index = -1;
     const max = -Infinity;
     for (const ei = 0; ei < exemplars.length; ei++) {
@@ -5597,9 +5597,9 @@ const assign = function (n, S, exemplars) {
     }
     const maxI = -1;
     const maxSum = -Infinity;
-    for (let i = 0; i < ii.length; i++) {
+    for (const i = 0; i < ii.length; i++) {
       const sum = 0;
-      for (let j = 0; j < ii.length; j++) {
+      for (const j = 0; j < ii.length; j++) {
         sum += S[ii[j] * n + ii[i]];
       }
       if (sum > maxSum) {
@@ -5637,11 +5637,11 @@ const affinityPropagation = function (options) {
 
   // Initialize and build S similarity matrix
   S = new Array(n2);
-  for (let i = 0; i < n2; i++) {
+  for (const i = 0; i < n2; i++) {
     S[i] = -Infinity; // for cases where two data points shouldn't be linked together
   }
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
+  for (const i = 0; i < n; i++) {
+    for (const j = 0; j < n; j++) {
       if (i !== j) {
         S[i * n + j] = getSimilarity(opts.distance, nodes[i], nodes[j], opts.attributes);
       }
@@ -5650,31 +5650,31 @@ const affinityPropagation = function (options) {
 
   // Place preferences on the diagonal of S
   p = getPreference(S, opts.preference);
-  for (let i = 0; i < n; i++) {
+  for (const i = 0; i < n; i++) {
     S[i * n + i] = p;
   }
 
   // Initialize R responsibility matrix
   R = new Array(n2);
-  for (let i = 0; i < n2; i++) {
+  for (const i = 0; i < n2; i++) {
     R[i] = 0.0;
   }
 
   // Initialize A availability matrix
   A = new Array(n2);
-  for (let i = 0; i < n2; i++) {
+  for (const i = 0; i < n2; i++) {
     A[i] = 0.0;
   }
   const old = new Array(n);
   const Rp = new Array(n);
   const se = new Array(n);
-  for (let i = 0; i < n; i++) {
+  for (const i = 0; i < n; i++) {
     old[i] = 0.0;
     Rp[i] = 0.0;
     se[i] = 0;
   }
   const e = new Array(n * opts.minIterations);
-  for (let i = 0; i < e.length; i++) {
+  for (const i = 0; i < e.length; i++) {
     e[i] = 0;
   }
   let iter;
@@ -5682,12 +5682,12 @@ const affinityPropagation = function (options) {
     // main algorithmic loop
 
     // Update R responsibility matrix
-    for (let i = 0; i < n; i++) {
+    for (const i = 0; i < n; i++) {
       const max = -Infinity,
         max2 = -Infinity,
         maxI = -1,
         AS = 0.0;
-      for (let j = 0; j < n; j++) {
+      for (const j = 0; j < n; j++) {
         old[j] = R[i * n + j];
         AS = A[i * n + j] + S[i * n + j];
         if (AS >= max) {
@@ -5698,16 +5698,16 @@ const affinityPropagation = function (options) {
           max2 = AS;
         }
       }
-      for (let j = 0; j < n; j++) {
+      for (const j = 0; j < n; j++) {
         R[i * n + j] = (1 - opts.damping) * (S[i * n + j] - max) + opts.damping * old[j];
       }
       R[i * n + maxI] = (1 - opts.damping) * (S[i * n + maxI] - max2) + opts.damping * old[maxI];
     }
 
     // Update A availability matrix
-    for (let i = 0; i < n; i++) {
+    for (const i = 0; i < n; i++) {
       let sum = 0;
-      for (let j = 0; j < n; j++) {
+      for (const j = 0; j < n; j++) {
         old[j] = A[j * n + i];
         Rp[j] = Math.max(0, R[j * n + i]);
         sum += Rp[j];
@@ -5715,7 +5715,7 @@ const affinityPropagation = function (options) {
       sum -= Rp[i];
       Rp[i] = R[i * n + i];
       sum += Rp[i];
-      for (let j = 0; j < n; j++) {
+      for (const j = 0; j < n; j++) {
         A[j * n + i] = (1 - opts.damping) * Math.min(0, sum - Rp[j]) + opts.damping * old[j];
       }
       A[i * n + i] = (1 - opts.damping) * (sum - Rp[i]) + opts.damping * old[i];
@@ -5723,16 +5723,16 @@ const affinityPropagation = function (options) {
 
     // Check for convergence
     const K = 0;
-    for (let i = 0; i < n; i++) {
+    for (const i = 0; i < n; i++) {
       const E = A[i * n + i] + R[i * n + i] > 0 ? 1 : 0;
       e[iter % opts.minIterations * n + i] = E;
       K += E;
     }
     if (K > 0 && (iter >= opts.minIterations - 1 || iter == opts.maxIterations - 1)) {
       const sum = 0;
-      for (let i = 0; i < n; i++) {
+      for (const i = 0; i < n; i++) {
         se[i] = 0;
-        for (let j = 0; j < opts.minIterations; j++) {
+        for (const j = 0; j < opts.minIterations; j++) {
           se[i] += e[j * n + i];
         }
         if (se[i] === 0 || se[i] === opts.minIterations) {
@@ -10390,7 +10390,7 @@ extend(elesfn$d, {
 });
 extend(elesfn$d, {
   totalDegree: function (includeLoops) {
-    let total = 0;
+    const total = 0;
     const nodes = this.nodes();
     for (let i = 0; i < nodes.length; i++) {
       total += nodes[i].degree(includeLoops);
@@ -11492,7 +11492,7 @@ elesfn$b.boundingBoxAt = function (fn) {
     nodes = nodes.not(parents);
   }
   if (plainObject(fn)) {
-    let obj = fn;
+    const obj = fn;
     fn = function () {
       return obj;
     };
@@ -12382,7 +12382,7 @@ const elesfn$8 = {
     };
   },
   min: function (valFn, thisArg) {
-    let min = Infinity;
+    const min = Infinity;
     let minEle;
     const eles = this;
     for (let i = 0; i < eles.length; i++) {
@@ -12584,7 +12584,7 @@ const defineSymbolIterator = () => {
         value: undefined,
         done: false
       };
-      let i = 0;
+      const i = 0;
       const length = this.length;
       return {
         next: () => {
@@ -13889,7 +13889,7 @@ elesfn$1.json = function (obj) {
       classes: null
     };
     json.classes = "";
-    let i = 0;
+    const i = 0;
     p.classes.forEach(cls => json.classes += i++ === 0 ? cls : " " + cls);
     return json;
   }
@@ -19855,7 +19855,7 @@ BreadthFirstLayout.prototype.run = function () {
   }
 
   // find min distance we need to leave between nodes
-  let minDistance = 0;
+  const minDistance = 0;
   if (options.avoidOverlap) {
     for (let i = 0; i < nodes.length; i++) {
       const n = nodes[i];
@@ -20085,7 +20085,7 @@ CircleLayout.prototype.run = function () {
   const sweep = options.sweep === undefined ? 2 * Math.PI - 2 * Math.PI / nodes.length : options.sweep;
   const dTheta = sweep / Math.max(1, nodes.length - 1);
   let r;
-  let minDistance = 0;
+  const minDistance = 0;
   for (let i = 0; i < nodes.length; i++) {
     const n = nodes[i];
     const nbb = n.layoutDimensions(options);
@@ -20248,7 +20248,7 @@ ConcentricLayout.prototype.run = function () {
 
   // create positions from levels
 
-  let minDist = maxNodeSize + options.minNodeSpacing; // min dist between nodes
+  const minDist = maxNodeSize + options.minNodeSpacing; // min dist between nodes
 
   if (!options.avoidOverlap) {
     // then strictly constrain to bb
@@ -20500,7 +20500,7 @@ CoseLayout.prototype.run = function () {
       nodes.layoutPositions(layout, options, getScaledPos);
     }
   };
-  let i = 0;
+  const i = 0;
   const loopRet = true;
   if (options.animate === true) {
     const frame = function () {
@@ -20628,7 +20628,7 @@ const createLayoutInfo = function (cy, layout, options) {
 
   // Inline implementation of a queue, used for traversing the graph in BFS order
   const queue = [];
-  let start = 0; // Points to the start the queue
+  const start = 0; // Points to the start the queue
   const end = -1; // Points to the end of the queue
 
   const tempGraph = [];
@@ -21420,7 +21420,7 @@ const separateComponents = function (layoutInfo, options) {
     const component = components[cid] = components[cid] || [];
     component.push(node);
   }
-  let totalA = 0;
+  const totalA = 0;
   for (let i = 0; i < components.length; i++) {
     const c = components[i];
     if (!c) {
@@ -22200,7 +22200,7 @@ BRp$e.findNearestElements = function (x, y, interactiveElementsOnly, isTouch) {
   const edgeThreshold = (isTouch ? 24 : 8) / zoom;
   const nodeThreshold = (isTouch ? 8 : 2) / zoom;
   const labelThreshold = (isTouch ? 8 : 2) / zoom;
-  let minSqDist = Infinity;
+  const minSqDist = Infinity;
   let nearEdge;
   let nearNode;
   if (interactiveElementsOnly) {
@@ -23975,7 +23975,7 @@ BRp$b.findEndpoints = function (edge) {
         const refPt = srcPos;
         const intSqdist = sqdist(refPt, array2point(intersect));
         const labIntSqdist = sqdist(refPt, array2point(labelIntersect));
-        let minSqDist = intSqdist;
+        const minSqDist = intSqdist;
         if (labIntSqdist < intSqdist) {
           intersect = labelIntersect;
           minSqDist = labIntSqdist;
@@ -24036,7 +24036,7 @@ BRp$b.findEndpoints = function (edge) {
         const refPt = tgtPos;
         const intSqdist = sqdist(refPt, array2point(intersect));
         const labIntSqdist = sqdist(refPt, array2point(labelIntersect));
-        let minSqDist = intSqdist;
+        const minSqDist = intSqdist;
         if (labIntSqdist < intSqdist) {
           intersect = [labelIntersect[0], labelIntersect[1]];
           minSqDist = labIntSqdist;
@@ -24323,8 +24323,8 @@ BRp$9.recalculateEdgeLabelProjections = function (edge) {
         {
           const cps = createControlPointInfo();
           let selected;
-          let startDist = 0;
-          let totalDist = 0;
+          const startDist = 0;
+          const totalDist = 0;
 
           // find the segment we're on
           for (let i = 0; i < cps.length; i++) {
@@ -26864,7 +26864,7 @@ BRp$2.generateRoundPolygon = function (name, points) {
       const halfH = height / 2;
       cornerRadius = cornerRadius === "auto" ? getRoundPolygonRadius(width, height) : cornerRadius;
       const p = new Array(points.length / 2);
-      for (let i = 0; i < points.length / 2; i++) {
+      for (const i = 0; i < points.length / 2; i++) {
         p[i] = {
           x: centerX + halfW * points[i * 2],
           y: centerY + halfH * points[i * 2 + 1]
@@ -28483,7 +28483,7 @@ LTCp.validateLayersElesOrdering = function (lvl, eles) {
 
   for (let i = 0; i < layers.length; i++) {
     const layer = layers[i];
-    let offset = -1;
+    const offset = -1;
 
     // find the offset
     for (let j = 0; j < eles.length; j++) {
@@ -29947,7 +29947,7 @@ CRp$6.drawNode = function (context, node, shiftToOriginWithBb, drawLabel = true,
   };
   const drawImages = (nodeOpacity = eleOpacity, inside = true) => {
     const prevBging = _p.backgrounding;
-    let totalCompleted = 0;
+    const totalCompleted = 0;
     for (let i = 0; i < image.length; i++) {
       const bgContainment = node.cy().style().getIndexedStyle(node, "background-image-containment", "value", i);
       if (inside && bgContainment === "over" || !inside && bgContainment === "inside") {
@@ -30112,8 +30112,8 @@ CRp$6.drawNode = function (context, node, shiftToOriginWithBb, drawLabel = true,
         r.drawEllipsePath(path || context, npos.x, npos.y, sWidth, sHeight);
       } else if (["round-diamond", "round-heptagon", "round-hexagon", "round-octagon", "round-pentagon", "round-polygon", "round-triangle", "round-tag"].includes(shape)) {
         const sMult = 0;
-        let offsetX = 0;
-        let offsetY = 0;
+        const offsetX = 0;
+        const offsetY = 0;
         if (shape === "round-diamond") {
           sMult = (bWidth + outlineOffset + outlineWidth) * 1.4;
         } else if (shape === "round-heptagon") {
@@ -30145,7 +30145,7 @@ CRp$6.drawNode = function (context, node, shiftToOriginWithBb, drawLabel = true,
         const radius = cornerRadius + (bWidth + outlineWidth + outlineOffset) / 2;
         const p = new Array(points.length / 2);
         const corners = new Array(points.length / 2);
-        for (let i = 0; i < points.length / 2; i++) {
+        for (const i = 0; i < points.length / 2; i++) {
           p[i] = {
             x: npos.x + offsetX + halfW * points[i * 2],
             y: npos.y + offsetY + halfH * points[i * 2 + 1]
@@ -33702,7 +33702,7 @@ function drawAtlases(r) {
       }
     }
   };
-  let i = 0;
+  const i = 0;
   draw(r.drawing, "node", i++);
   draw(r.drawing, "label", i++);
 }

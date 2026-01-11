@@ -68,7 +68,7 @@ export default class GraphDisplay extends HTMLElement {
             randomizationSeed: 1, // Seed used for pseudo-random number generators to control the layout algorithm; 0 means a new seed is generated
             routeSelfLoopInside: false, // Whether a self-loop is routed around or inside its node.
             separateConnectedComponents: true, // Whether each connected component should be processed separately
-            spacing: 20, // Overall setting for the minimal amount of space to be left between objects
+            spacing: 200, // Overall setting for the minimal amount of space to be left between objects
             thoroughness: 7 // How much effort should be spent to produce a nice layout..
         },
         priority: function (edge) { return null; }, // Edges with a non-nil value are skipped when greedy edge cycle breaking is enabled

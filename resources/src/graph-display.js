@@ -8,10 +8,9 @@ import cytoscape_styles from "./cytoscape-styles.js";
 cytoscape.use(cyto_euler);
 
 // define the display element
-export class GraphDisplay extends HTMLElement {
+export default class GraphDisplay extends HTMLElement {
     #cytoscape;
     #container;
-    #layout;
     #context_event;
     static layoutOptions = {
         name: 'euler',
@@ -128,13 +127,11 @@ export class GraphDisplay extends HTMLElement {
         this.#container = this.querySelector('#graph-container');
 
         // initalize cytoscape
+        console.debug('initialize cytoscape');
         this.#cytoscape = cytoscape({
             container: this.#container,
             ...GraphDisplay.cytoscapeConfig
         });
-
-        // initialize layout
-        this.#layout = this.#cytoscape.layout(GraphDisplay.layoutOptions);
 
         // initialize contextmenu
         // add cytoscape gestures
@@ -265,9 +262,6 @@ export class GraphDisplay extends HTMLElement {
     get container() {
         return this.#container;
     }
-    get layout() {
-        return this.#layout;
-    }
     getSerializedGraph() {
         return JSON.stringify({
             elements: this.#cytoscape.json().elements
@@ -283,6 +277,6 @@ export class GraphDisplay extends HTMLElement {
     get selectedNodes() {
         return this.#cytoscape.nodes(':selected');
     }
-}
+};
 
 customElements.define('graph-display', GraphDisplay);

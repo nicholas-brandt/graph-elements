@@ -55,7 +55,8 @@ addEventListener('message', event => {
             break;
         case 'startLayout':
             console.debug('startLayout');
-            display.layout.run();
+            const layout = display.cytoscape.layout(display.constructor.layoutOptions);
+            layout.run();
             break;
     }
 });

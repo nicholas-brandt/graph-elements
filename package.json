@@ -22,8 +22,12 @@
                 "title": "Delete Node"
             },
             {
-                "command": "graph-editor.startLayout",
-                "title": "Start Layout"
+                "command": "graph-editor.startEulerLayout",
+                "title": "Start Physics Layout"
+            },
+            {
+                "command": "graph-editor.startKlayLayout",
+                "title": "Start DAG Layout"
             }
         ],
         "customEditors": [
@@ -41,7 +45,6 @@
         "menus": {
             "webview/context": [
                 {
-                    "group": "7_modification",
                     "when": "!graph-editor.node-selected",
                     "command": "graph-editor.addNode"
                 },
@@ -52,11 +55,28 @@
                 },
                 {
                     "group": "7_modification",
+                    "submenu": "graph-editor.layout"
+                }
+            ],
+            "graph-editor.layout": [
+                {
                     "when": "!graph-editor.node-selected",
-                    "command": "graph-editor.startLayout"
+                    "command": "graph-editor.startEulerLayout",
+                    "submenu": "graph-editor.layout"
+                },
+                {
+                    "when": "!graph-editor.node-selected",
+                    "command": "graph-editor.startKlayLayout",
+                    "submenu": "graph-editor.layout"
                 }
             ]
-        }
+        },
+        "submenus": [
+            {
+                "id": "graph-editor.layout",
+                "label": "Layout"
+            }
+        ]
     },
     "files": [
         "out/**/*",
@@ -65,7 +85,7 @@
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "sh compile.sh",
-        "run": "tsc -p ./",
+        "run": "sh compile.sh && tsc -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src",
         "test": "vscode-test"
@@ -88,6 +108,8 @@
         "typescript": "^5.9.3",
         "typescript-cli": "^0.1.0",
         "webpack": "^5.102.1",
-        "webpack-cli": "^6.0.1"
+        "webpack-cli": "^6.0.1",
+        "cytoscape-euler": "^1.2.3",
+        "cytoscape-klay": "^3.1.4"
     }
 }

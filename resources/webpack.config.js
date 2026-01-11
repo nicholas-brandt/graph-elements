@@ -20,11 +20,12 @@ module.exports = {
                     options: {
                         cacheDirectory: true,
                         presets: [
-                            ['@babel/preset-env', { modules: 'commonjs',
-                                "targets": {
+                            ['@babel/preset-env', {
+                                modules: 'commonjs',
+                                targets: {
                                     "node": "current"
                                 }
-                             }]
+                            }]
                         ]
                     }
                 }

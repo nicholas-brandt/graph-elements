@@ -19,9 +19,15 @@ export function activate(context: vscode.ExtensionContext) {
         console.log("Delete Node command triggered");
     }));
 
-    context.subscriptions.push(vscode.commands.registerCommand('graph-editor.startLayout', () => {
-        console.log("Start Layout command triggered");
-        editor_provider.webview.postMessage({ command: 'startLayout' });
+    // add submenu "layout" with subitems "start euler layout" and "start klay layout"
+    context.subscriptions.push(vscode.commands.registerCommand('graph-editor.startEulerLayout', () => {
+        console.log("Start Euler Layout command triggered");
+        editor_provider.webview.postMessage({ command: 'startLayout', layout: 'euler' });
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('graph-editor.startKlayLayout', () => {
+        console.log("Start Klay Layout command triggered");
+        editor_provider.webview.postMessage({ command: 'startLayout', layout: 'klay' });
     }));
 }
 

@@ -41,7 +41,7 @@ async function loadCitationData() {
 // handle messages from extension
 addEventListener('message', event => {
     console.debug('message', event.data);
-    const { command, serialized_graph } = event.data;
+    const { command, serialized_graph, layout } = event.data;
     switch (command) {
         case 'addNode':
             display.addNode();
@@ -55,8 +55,16 @@ addEventListener('message', event => {
             break;
         case 'startLayout':
             console.debug('startLayout');
-            const layout = display.cytoscape.layout(display.constructor.layoutOptions);
-            layout.run();
+            switch (layout) {
+                case 'euler':
+                    const euler_layout = display.cytoscape.layout(display.constructor.eulerLayoutOptions);
+                    euler_layout.run();
+                    break;
+                case 'klay':
+                    const klay_layout = display.cytoscape.layout(display.constructor.klayLayoutOptions);
+                    klay_layout.run();
+                    break;
+            }
             break;
     }
 });

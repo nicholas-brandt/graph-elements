@@ -231,7 +231,9 @@ export default class GraphDisplay extends HTMLElement {
     }
     deleteNode() {
         console.debug("delete-node");
-        this.#cytoscape.remove(this.#context_event.target);
+        this.selectedNodes.remove();
+        // trigger selection change event
+        this._onselectnode();
     }
     toggleEdge(source, target) {
         console.debug("toggle-edge", source, target);
@@ -262,6 +264,11 @@ export default class GraphDisplay extends HTMLElement {
     }
     _onselectnode(event) {
         console.debug('selectnode', event);
+        vscodePostMessage({
+            command: 'selected-node-changed',
+            state: 'node-selected',
+            value: [...this.selectedNodes].map(node => node.data())
+        });
     }
     _ontap(event) {
         try {

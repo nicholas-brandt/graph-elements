@@ -6,7 +6,11 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.window.registerCustomEditorProvider(
         'graph-editor',
         editor_provider,
-        { webviewOptions: { retainContextWhenHidden: true } }
+        {
+            webviewOptions: {
+                retainContextWhenHidden: true
+            }
+        }
     ));
 
     context.subscriptions.push(vscode.commands.registerCommand('graph-editor.addNode', () => {
@@ -17,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand('graph-editor.deleteNode', () => {
         console.log("Delete Node command triggered");
+        editor_provider.webview.postMessage({ command: 'deleteNode' });
     }));
 
     // add submenu "layout" with subitems "start euler layout" and "start klay layout"

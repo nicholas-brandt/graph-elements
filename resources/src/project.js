@@ -70,4 +70,7 @@ addEventListener('message', event => {
 });
 
 import { vscodePostMessage } from './utils.js';
-vscodePostMessage({ command: 'ready' });
+(async () => {
+    await customElements.whenDefined('graph-display');
+    vscodePostMessage({ command: 'ready' });
+})();

@@ -1,4 +1,5 @@
-import fs from 'fs';
+import * as fs from 'node:fs/promises';
+import { validateHeaderValue } from 'node:http';
 import path, { resolve } from 'path';
 import * as vscode from 'vscode';
 
@@ -22,13 +23,14 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
     }
     openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): vscode.CustomDocument | Thenable<vscode.CustomDocument> {
         // read the file content into variable "content"
+        console.log("openCustomDocument called for", uri.toString());
         const document: vscode.CustomDocument = {
             uri,
             dispose: () => { }
         };
         return document;
     }
-    resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): Thenable<void> | void {
+    resolveCustomEditor(document: vscode.CustomDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): Promise<void> | void {
         console.log("resolveCustomEditor called");
 
         // store webview reference for commands
@@ -54,7 +56,7 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
 
 <body>
     <graph-display><!-- firefox bug ?!--></graph-display>
-    <script src='${scriptUri}'> </script>
+    <script src='${scriptUri}'></script>
 </body>
 
 </html>`;
@@ -62,35 +64,42 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
 
         // set up a promise that resolves when the webview signals its readiness
         const webview_promise = new Promise<void>(resolve => {
-            this.webview.onDidReceiveMessage(() => {
-                console.debug("webview ready");
-                resolve();
+            // handle messages from the webview
+            this.webview.onDidReceiveMessage(async ({ command, state, value }) => {
+                console.log({ command, state, value });
+                switch (command) {
+                    case 'ready':
+                        resolve();
+                        break;
+                    case 'selected-node-changed':
+                        // set context variable for selected node
+                        vscode.commands.executeCommand('setContext', `graph-editor.${state}`, value.length > 0);
+                        // if a single node is selected, open a text editor to edit selected node properties
+                        if (value.length === 1) {
+                            const selected_node = value[0];
+                            const selected_node_document = await vscode.workspace.openTextDocument();
+                            const editor = await vscode.window.showTextDocument(selected_node_document, { preview: true, viewColumn: vscode.ViewColumn.Beside });
+                            editor.edit(editBuilder => {
+                                editBuilder.insert(new vscode.Position(0, 0), JSON.stringify(selected_node, null, 4));
+                            });
+                        }
+                        break;
+                    case 'graph-changed':
+                        // write value to the document file
+                        await fs.writeFile(document.uri.fsPath, value, 'utf-8');
+                        // await vscode.commands.executeCommand('editor.action.formatDocument');
+                        break;
+                }
             });
         });
 
-        // handle messages from the webview
-        this.webview.onDidReceiveMessage(({ command, state, value }) => {
-            console.log({ command, state, value });
-            switch (command) {
-                case 'selected-node-changed':
-                    // set context variable for selected node
-                    vscode.commands.executeCommand('setContext', `graph-editor.${state}`, value);
-                    break;
-                case 'graph-changed':
-                    // write value to the document file
-                    fs.writeFileSync(document.uri.fsPath, value, 'utf-8');
-                    // await vscode.commands.executeCommand('editor.action.formatDocument');
-                    break;
-            }
-        });
-
-        // load the graph data from the document and send it to the webview
-        console.debug("loading graph data from document");
-        const serialized_graph = fs.readFileSync(document.uri.fsPath, 'utf-8');
-        // wait for the webview to be ready
-        webview_promise.then(() => {
+        (async () => {
+            console.debug("loading graph data from document");
+            // load the graph data from the document and send it to the webview
+            const serialized_graph = await fs.readFile(document.uri.fsPath, 'utf-8');
+            await webview_promise;
             console.debug("sending graph data to webview");
             this.webview.postMessage({ command: 'loadGraph', serialized_graph });
-        });
+        })();
     }
 }

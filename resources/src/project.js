@@ -53,6 +53,11 @@ addEventListener('message', event => {
             console.debug('loadGraph');
             display.setSerializedGraph(serialized_graph);
             break;
+        case 'setNode':
+            console.debug('setNode');
+            const { id, data } = event.data;
+            display.setNode(id, data);
+            break;
         case 'startLayout':
             console.debug('startLayout');
             switch (layout) {

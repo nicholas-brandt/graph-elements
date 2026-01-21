@@ -235,6 +235,15 @@ export default class GraphDisplay extends HTMLElement {
         // trigger selection change event
         this._onselectnode();
     }
+    setNode(id, data) {
+        console.debug("set-node", id, data);
+        const node = this.#cytoscape.getElementById(id);
+        // parse data as json if possible
+        try {
+            data = JSON.parse(data);
+        } catch (error) { }
+        node.data(data);
+    }
     toggleEdge(source, target) {
         console.debug("toggle-edge", source, target);
         const existing_edge = this.#cytoscape.edges().filter(edge => {

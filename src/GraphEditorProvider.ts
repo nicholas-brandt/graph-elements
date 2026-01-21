@@ -62,6 +62,17 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
 </html>`;
         this.webview.html = html;
 
+        const document_map = new Map<string, { document: vscode.TextDocument, editor: vscode.TextEditor }>();
+        vscode.workspace.onDidChangeTextDocument(async event => {
+            console.debug("text document changed", event);
+            for (const [node_id, { document: node_document }] of document_map) {
+                if (event.document === node_document) {
+                    const data = node_document.getText();
+                    this.webview.postMessage({ command: 'setNode', id: node_id, data });
+                }
+            }
+        });
+
         // set up a promise that resolves when the webview signals its readiness
         const webview_promise = new Promise<void>(resolve => {
             // handle messages from the webview
@@ -77,10 +88,25 @@ export class GraphEditorProvider implements vscode.CustomEditorProvider {
                         // if a single node is selected, open a text editor to edit selected node properties
                         if (value.length === 1) {
                             const selected_node = value[0];
-                            const selected_node_document = await vscode.workspace.openTextDocument();
-                            const editor = await vscode.window.showTextDocument(selected_node_document, { preview: true, viewColumn: vscode.ViewColumn.Beside });
+                            let { document, editor } = document_map.get(selected_node.id) || {};
+                            if (!document) {
+                                document = await vscode.workspace.openTextDocument();
+                            }
+                            if (!editor) {
+                                editor = await vscode.window.showTextDocument(document, {
+                                    preview: true,
+                                    viewColumn: vscode.ViewColumn.Beside
+                                });
+                            }
+                            if (!document_map.has(selected_node.id)) {
+                                document_map.set(selected_node.id, {
+                                    document,
+                                    editor
+                                });
+                            }
                             editor.edit(editBuilder => {
-                                editBuilder.insert(new vscode.Position(0, 0), JSON.stringify(selected_node, null, 4));
+                                const content = typeof selected_node.data === "string" ? selected_node.data : JSON.stringify(selected_node.data, null, 4);
+                                editBuilder.insert(new vscode.Position(0, 0), content);
                             });
                         }
                         break;
